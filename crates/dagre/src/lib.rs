@@ -1,14 +1,12 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+// Internal APIs are used by tests and the pipeline (Phase 1d).
+#![allow(dead_code)]
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod config;
+pub mod labels;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod acyclic;
+pub mod rank;
+pub(crate) mod util;
+
+pub use config::{Acyclicer, DagreConfig, Ranker};
+pub use labels::{EdgeLabel, LabelPos, NodeLabel};

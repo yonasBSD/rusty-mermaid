@@ -8,3 +8,6 @@ description = "Sugiyama layered graph layout engine (dagre port)"
 [dependencies]
 rusty-mermaid-core.workspace = true
 rusty-mermaid-graph.workspace = true
+
+[dev-dependencies]
+proptest = "1.10.0"
