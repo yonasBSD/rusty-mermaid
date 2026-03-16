@@ -90,6 +90,32 @@ pub(crate) fn node_edges(
     result
 }
 
+/// Maximum rank across all nodes in the graph.
+pub fn max_rank(g: &Graph<NodeLabel, EdgeLabel>) -> i32 {
+    g.node_ids()
+        .filter_map(|id| g.node(id).map(|n| n.rank))
+        .max()
+        .unwrap_or(0)
+}
+
+/// Build a layer matrix: layers[rank] = [node_ids sorted by order].
+pub fn build_layer_matrix(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>> {
+    let max = max_rank(g);
+    let mut layers = vec![Vec::new(); (max + 1) as usize];
+    for nid in g.node_ids() {
+        let node = g.node(nid).unwrap();
+        let rank = node.rank;
+        if rank >= 0 && (rank as usize) < layers.len() {
+            layers[rank as usize].push(nid);
+        }
+    }
+    // Sort each layer by current order
+    for layer in &mut layers {
+        layer.sort_by_key(|&nid| g.node(nid).unwrap().order);
+    }
+    layers
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
