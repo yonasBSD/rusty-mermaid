@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::id::{EdgeId, IdGen, NodeId};
 
@@ -15,7 +15,7 @@ struct EdgeData<E> {
 struct NodeData<N> {
     label: N,
     parent: Option<NodeId>,
-    children: HashSet<NodeId>,
+    children: BTreeSet<NodeId>,
     in_edges: Vec<EdgeId>,
     out_edges: Vec<EdgeId>,
 }
@@ -27,16 +27,16 @@ struct NodeData<N> {
 /// - `N` is the node label type, `E` is the edge label type.
 #[derive(Debug, Clone)]
 pub struct Graph<N, E> {
-    nodes: HashMap<NodeId, NodeData<N>>,
-    edges: HashMap<EdgeId, EdgeData<E>>,
+    nodes: BTreeMap<NodeId, NodeData<N>>,
+    edges: BTreeMap<EdgeId, EdgeData<E>>,
     id_gen: IdGen,
 }
 
 impl<N, E> Graph<N, E> {
     pub fn new() -> Self {
         Self {
-            nodes: HashMap::new(),
-            edges: HashMap::new(),
+            nodes: BTreeMap::new(),
+            edges: BTreeMap::new(),
             id_gen: IdGen::new(),
         }
     }
@@ -50,7 +50,7 @@ impl<N, E> Graph<N, E> {
             NodeData {
                 label,
                 parent: None,
-                children: HashSet::new(),
+                children: BTreeSet::new(),
                 in_edges: Vec::new(),
                 out_edges: Vec::new(),
             },
@@ -321,6 +321,8 @@ impl<N, E> Default for Graph<N, E> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use super::*;
 
     #[test]
