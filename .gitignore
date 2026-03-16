@@ -2,6 +2,7 @@
 plan.md
 TESTING.md
 tests/visual/output/
+tests/visual/gallery/
 tests/golden/node_modules/
 tests/golden/package.json
 tests/golden/package-lock.json

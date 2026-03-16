@@ -25,6 +25,7 @@ pub struct LayoutResult {
 #[derive(Debug)]
 pub struct NodeLayout {
     pub id: String,
+    pub label: String,
     pub x: f64,
     pub y: f64,
     pub width: f64,
@@ -98,8 +99,13 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 
     for (&id_str, &nid) in &id_map {
         let n = g.node(nid).unwrap();
+        let label = diagram.states.iter()
+            .find(|s| s.id == id_str)
+            .and_then(|s| s.label.clone())
+            .unwrap_or_else(|| id_str.to_string());
         nodes.push(NodeLayout {
             id: id_str.to_string(),
+            label,
             x: n.x,
             y: n.y,
             width: n.width,

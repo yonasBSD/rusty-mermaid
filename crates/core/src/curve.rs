@@ -52,46 +52,86 @@ fn interpolate_linear(points: &[Point]) -> Vec<PathSegment> {
     segs
 }
 
-/// B-spline (basis) interpolation. Produces smooth curves through averaged control points.
+/// B-spline (basis) interpolation matching d3-shape's curveBasis.
+///
+/// Starts at points[0] exactly, smooths through interior via cubic B-spline,
+/// ends at the last point exactly. This ensures edges connect to node boundaries.
 fn interpolate_basis(points: &[Point]) -> Vec<PathSegment> {
     if points.len() < 3 {
         return interpolate_linear(points);
     }
 
+    let n = points.len();
     let mut segs = Vec::new();
 
-    // First point: move to the averaged start
-    let p0 = points[0];
-    let p1 = points[1];
-    segs.push(PathSegment::MoveTo(Point::new(
-        (2.0 * p0.x + p1.x) / 3.0,
-        (2.0 * p0.y + p1.y) / 3.0,
-    )));
+    // d3 curveBasis: MoveTo first point, then accumulate state.
+    // point 0: moveTo
+    // point 1: store (no output)
+    // point 2: first basis segment output
+    // point 3+: normal basis segments
+    // lineEnd: final segment + lineTo last point
 
-    for i in 1..points.len() - 1 {
-        let prev = points[i - 1];
-        let curr = points[i];
-        let next = points[i + 1];
+    segs.push(PathSegment::MoveTo(points[0]));
 
-        let cp1 = Point::new(
-            (2.0 * curr.x + prev.x) / 3.0,
-            (2.0 * curr.y + prev.y) / 3.0,
-        );
-        let cp2 = Point::new(
-            (2.0 * curr.x + next.x) / 3.0,
-            (2.0 * curr.y + next.y) / 3.0,
-        );
-        let to = Point::new(
-            (prev.x + 4.0 * curr.x + next.x) / 6.0,
-            (prev.y + 4.0 * curr.y + next.y) / 6.0,
-        );
+    if n == 3 {
+        // With exactly 3 points: one basis curve from first→last via middle
+        let (x0, y0) = (points[0].x, points[0].y);
+        let (x1, y1) = (points[1].x, points[1].y);
+        let (x2, y2) = (points[2].x, points[2].y);
 
-        segs.push(PathSegment::CubicTo { cp1, cp2, to });
+        // d3 outputs: lineTo((5*x0+x1)/6, ...) then bezierCurveTo for point 2
+        segs.push(PathSegment::LineTo(Point::new(
+            (5.0 * x0 + x1) / 6.0,
+            (5.0 * y0 + y1) / 6.0,
+        )));
+        basis_point(&mut segs, x0, y0, x1, y1, x2, y2);
+        // lineEnd: final basis_point with x2,y2 repeated, then lineTo last
+        basis_point(&mut segs, x1, y1, x2, y2, x2, y2);
+        segs.push(PathSegment::LineTo(points[2]));
+    } else {
+        // 4+ points
+        let (mut x0, mut y0) = (points[0].x, points[0].y);
+        let (mut x1, mut y1) = (points[1].x, points[1].y);
+
+        // point 2: first curve output
+        let (x2, y2) = (points[2].x, points[2].y);
+        segs.push(PathSegment::LineTo(Point::new(
+            (5.0 * x0 + x1) / 6.0,
+            (5.0 * y0 + y1) / 6.0,
+        )));
+        basis_point(&mut segs, x0, y0, x1, y1, x2, y2);
+        x0 = x1;
+        y0 = y1;
+        x1 = x2;
+        y1 = y2;
+
+        // points 3..n-1
+        for p in &points[3..] {
+            basis_point(&mut segs, x0, y0, x1, y1, p.x, p.y);
+            x0 = x1;
+            y0 = y1;
+            x1 = p.x;
+            y1 = p.y;
+        }
+
+        // lineEnd: final segment + lineTo last
+        basis_point(&mut segs, x0, y0, x1, y1, x1, y1);
+        segs.push(PathSegment::LineTo(*points.last().unwrap()));
     }
 
-    // End: line to last point
-    segs.push(PathSegment::LineTo(*points.last().unwrap()));
     segs
+}
+
+/// Emit one cubic bezier segment for basis interpolation (matches d3's `point` helper).
+fn basis_point(segs: &mut Vec<PathSegment>, x0: f64, y0: f64, x1: f64, y1: f64, x: f64, y: f64) {
+    segs.push(PathSegment::CubicTo {
+        cp1: Point::new((2.0 * x0 + x1) / 3.0, (2.0 * y0 + y1) / 3.0),
+        cp2: Point::new((x0 + 2.0 * x1) / 3.0, (y0 + 2.0 * y1) / 3.0),
+        to: Point::new(
+            (x0 + 4.0 * x1 + x) / 6.0,
+            (y0 + 4.0 * y1 + y) / 6.0,
+        ),
+    });
 }
 
 /// Step interpolation with configurable step position (0.0 = before, 0.5 = middle, 1.0 = after).

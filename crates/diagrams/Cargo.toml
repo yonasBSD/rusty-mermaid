@@ -41,3 +41,6 @@ rusty-mermaid-graph = { workspace = true, optional = true }
 rusty-mermaid-dagre = { workspace = true, optional = true }
 thiserror.workspace = true
 winnow = "0.7.15"
+
+[dev-dependencies]
+rusty-mermaid-svg.workspace = true

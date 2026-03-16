@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rusty_mermaid_graph::{Graph, NodeId};
 
 use crate::labels::{EdgeLabel, NodeLabel};
@@ -15,24 +17,31 @@ pub(crate) struct SortResult {
 /// Sort nodes within a subgraph (compound node or layer root) using barycenters.
 ///
 /// For compound nodes, recursively sorts children, then merges results
-/// respecting border constraints.
+/// respecting border constraints. The `rank` parameter specifies which layer
+/// is being sorted — only children at this rank are included, and border nodes
+/// are looked up for this specific rank.
 pub(crate) fn sort_subgraph(
     g: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
     cg: &ConstraintGraph,
     bias_right: bool,
     use_in_edges: bool,
+    rank: i32,
 ) -> SortResult {
-    let children: Vec<_> = g.children(v).collect();
+    // Filter children to only those at the current rank (or compound nodes spanning it)
+    let children: Vec<_> = g
+        .children(v)
+        .filter(|&c| {
+            let cn = g.node(c).unwrap();
+            // Include if at this rank, or if it's a compound node spanning this rank
+            cn.rank == rank
+                || (cn.min_rank.is_some_and(|min| min <= rank)
+                    && cn.max_rank.is_some_and(|max| max >= rank))
+        })
+        .collect();
     let node = g.node(v);
-    let bl = node.and_then(|n| {
-        let rank = n.rank;
-        n.border_left.get(&rank).copied()
-    });
-    let br = node.and_then(|n| {
-        let rank = n.rank;
-        n.border_right.get(&rank).copied()
-    });
+    let bl = node.and_then(|n| n.border_left.get(&rank).copied());
+    let br = node.and_then(|n| n.border_right.get(&rank).copied());
 
     // Movable = children minus border nodes
     let movable: Vec<_> = if bl.is_some() {
@@ -52,10 +61,15 @@ pub(crate) fn sort_subgraph(
         barycenter::barycenter_out(g, &movable)
     };
 
-    // Recursively sort compound children and merge their barycenters
+    // Recursively sort compound children and merge their barycenters.
+    // Store sub-results to expand compound nodes in the final ordering.
+    let mut sub_results: HashMap<NodeId, Vec<NodeId>> = HashMap::new();
     for entry in &mut barycenters {
         if g.children(entry.v).next().is_some() {
-            let sub = sort_subgraph(g, entry.v, cg, bias_right, use_in_edges);
+            let sub = sort_subgraph(g, entry.v, cg, bias_right, use_in_edges, rank);
+            if !sub.vs.is_empty() {
+                sub_results.insert(entry.v, sub.vs);
+            }
             if let Some(sub_bc) = sub.barycenter {
                 merge_barycenters(entry, sub_bc, sub.weight);
             }
@@ -68,8 +82,16 @@ pub(crate) fn sort_subgraph(
     // Sort: partition into sortable (has barycenter) and unsortable
     let result = sort_entries(entries, bias_right);
 
-    // If borders exist, wrap result
-    let mut vs = result.vs;
+    // Expand compound nodes: replace each compound node ID with its
+    // recursively-sorted children so all real nodes appear in the ordering.
+    let mut vs: Vec<NodeId> = Vec::new();
+    for nid in result.vs {
+        if let Some(expanded) = sub_results.get(&nid) {
+            vs.extend(expanded);
+        } else {
+            vs.push(nid);
+        }
+    }
     if let (Some(left), Some(right)) = (bl, br) {
         let mut final_vs = vec![left];
         final_vs.extend(vs);
@@ -193,7 +215,11 @@ mod tests {
         // b has no in-edges
 
         let cg = ConstraintGraph::new();
-        let result = sort_subgraph(&g, root, &cg, false, true);
+        // All children are at rank 0 (implicitly), but for the test we match the sources' rank
+        g.node_mut(a).unwrap().rank = 1;
+        g.node_mut(b).unwrap().rank = 1;
+        g.node_mut(c).unwrap().rank = 1;
+        let result = sort_subgraph(&g, root, &cg, false, true, 1);
         // c (bc=0) should come before a (bc=2), b (no bc) fills gaps
         let c_pos = result.vs.iter().position(|&v| v == c).unwrap();
         let a_pos = result.vs.iter().position(|&v| v == a).unwrap();

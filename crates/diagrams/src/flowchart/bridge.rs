@@ -4,7 +4,7 @@ use rusty_mermaid_core::{SimpleTextMeasure, TextMeasure, TextStyle};
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
-use super::ir::FlowDiagram;
+use super::ir::{FlowDiagram, StrokeType};
 use crate::common::tokens::strip_html_tags;
 
 const PADDING_X: f64 = 16.0;
@@ -15,6 +15,7 @@ const PADDING_Y: f64 = 8.0;
 pub struct LayoutResult {
     pub nodes: Vec<NodeLayout>,
     pub edges: Vec<EdgeLayout>,
+    pub subgraphs: Vec<SubgraphLayout>,
     pub width: f64,
     pub height: f64,
 }
@@ -22,6 +23,7 @@ pub struct LayoutResult {
 #[derive(Debug)]
 pub struct NodeLayout {
     pub id: String,
+    pub label: String,
     pub x: f64,
     pub y: f64,
     pub width: f64,
@@ -34,6 +36,17 @@ pub struct EdgeLayout {
     pub dst: String,
     pub points: Vec<(f64, f64)>,
     pub label: Option<String>,
+    pub stroke: StrokeType,
+}
+
+#[derive(Debug)]
+pub struct SubgraphLayout {
+    pub id: String,
+    pub label: Option<String>,
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
 }
 
 /// Build a dagre Graph from FlowDiagram IR, run layout, return positions.
@@ -58,20 +71,29 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         id_map.insert(&v.id, nid);
     }
 
-    // Set up compound hierarchy for subgraphs
+    // Set up compound hierarchy for subgraphs (two passes: create all nodes
+    // first so that parent→child references resolve regardless of order)
     for sg in &diagram.subgraphs {
-        // Create a compound parent node for the subgraph
         let sg_nid = g.add_node(NodeLabel::new(0.0, 0.0));
         id_map.insert(&sg.id, sg_nid);
-
+    }
+    for sg in &diagram.subgraphs {
+        let &sg_nid = id_map.get(sg.id.as_str()).unwrap();
         for child_id in &sg.node_ids {
             if let Some(&child_nid) = id_map.get(child_id.as_str()) {
-                g.set_parent(child_nid, sg_nid);
+                // First-wins: don't reparent nodes already assigned to a subgraph.
+                // Nodes referenced in edges across subgraph boundaries appear in
+                // multiple subgraphs' node_ids; they belong to the first one.
+                if g.parent(child_nid).is_none() {
+                    g.set_parent(child_nid, sg_nid);
+                }
             }
         }
         for child_sg_id in &sg.subgraph_ids {
             if let Some(&child_nid) = id_map.get(child_sg_id.as_str()) {
-                g.set_parent(child_nid, sg_nid);
+                if g.parent(child_nid).is_none() {
+                    g.set_parent(child_nid, sg_nid);
+                }
             }
         }
     }
@@ -108,6 +130,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             let n = g.node(nid).unwrap();
             nodes.push(NodeLayout {
                 id: v.id.clone(),
+                label: strip_html_tags(&v.label),
                 x: n.x,
                 y: n.y,
                 width: n.width,
@@ -124,23 +147,48 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         if let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) {
             let e = g.edge(eid).unwrap();
             let points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
-            let label = diagram
+            let flow_edge = diagram
                 .edges
                 .iter()
-                .find(|fe| fe.src == src_id && fe.dst == dst_id)
-                .and_then(|fe| fe.label.clone());
+                .find(|fe| fe.src == src_id && fe.dst == dst_id);
+            let label = flow_edge.and_then(|fe| fe.label.clone());
+            let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
                 points,
                 label,
+                stroke,
             });
+        }
+    }
+
+    // Extract subgraph positions from dagre's compound node bounds
+    // (padding and label space are already included by remove_border_nodes).
+    let mut subgraphs = Vec::new();
+    for sg in &diagram.subgraphs {
+        if let Some(&nid) = id_map.get(sg.id.as_str()) {
+            let n = g.node(nid).unwrap();
+            if n.width <= 0.0 || n.height <= 0.0 {
+                continue;
+            }
+            subgraphs.push(SubgraphLayout {
+                id: sg.id.clone(),
+                label: sg.label.clone(),
+                x: n.x,
+                y: n.y,
+                width: n.width,
+                height: n.height,
+            });
+            max_x = max_x.max(n.x + n.width / 2.0);
+            max_y = max_y.max(n.y + n.height / 2.0);
         }
     }
 
     LayoutResult {
         nodes,
         edges,
+        subgraphs,
         width: max_x,
         height: max_y,
     }
@@ -188,6 +236,33 @@ mod tests {
         let result = layout(&d);
         assert_eq!(result.nodes.len(), 2);
         assert_eq!(result.edges.len(), 1);
+    }
+
+    #[test]
+    fn subgraph_contains_children() {
+        let mmd = "graph TD\n    subgraph outer[Outer]\n        subgraph inner[Inner]\n            A[Node A] --> B[Node B]\n        end\n        C[Node C]\n    end\n    C --> D[Node D]";
+        let d = crate::flowchart::parser::parse(mmd).unwrap();
+        let result = layout(&d);
+
+        let inner_sg = result.subgraphs.iter().find(|sg| sg.id == "inner").unwrap();
+        let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
+        let b = result.nodes.iter().find(|n| n.id == "B").unwrap();
+
+        let sg_left = inner_sg.x - inner_sg.width / 2.0;
+        let sg_right = inner_sg.x + inner_sg.width / 2.0;
+        let a_left = a.x - a.width / 2.0;
+        let a_right = a.x + a.width / 2.0;
+        let b_left = b.x - b.width / 2.0;
+        let b_right = b.x + b.width / 2.0;
+
+        eprintln!("inner sg: x={:.1} w={:.1} [{:.1}, {:.1}]", inner_sg.x, inner_sg.width, sg_left, sg_right);
+        eprintln!("A: x={:.1} w={:.1} [{:.1}, {:.1}]", a.x, a.width, a_left, a_right);
+        eprintln!("B: x={:.1} w={:.1} [{:.1}, {:.1}]", b.x, b.width, b_left, b_right);
+
+        assert!(sg_left <= a_left, "inner should contain A horizontally");
+        assert!(sg_right >= a_right, "inner should contain A horizontally");
+        assert!(sg_left <= b_left, "inner should contain B horizontally");
+        assert!(sg_right >= b_right, "inner should contain B horizontally");
     }
 
     #[test]

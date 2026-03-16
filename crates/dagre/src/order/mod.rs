@@ -76,13 +76,17 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 }
 
 /// Sort one layer using barycenters from the adjacent layer.
+///
+/// Builds a compound-aware view of this rank by finding the layer root —
+/// the deepest common ancestor of all nodes at this rank. Border constraints
+/// are enforced by sort_subgraph placing border_left[rank] / border_right[rank]
+/// at the extremes of each compound group.
 fn sweep_layer(
     g: &mut Graph<NodeLabel, EdgeLabel>,
     rank: i32,
     bias_right: bool,
     use_in_edges: bool,
 ) {
-    // Collect nodes at this rank
     let layer_nodes: Vec<NodeId> = g
         .node_ids()
         .filter(|&nid| g.node(nid).unwrap().rank == rank)
@@ -92,58 +96,26 @@ fn sweep_layer(
         return;
     }
 
-    // Try compound-aware sort if there's a layer root
-    // For flat graphs, create a virtual root containing all layer nodes
-    let root = find_or_create_layer_root(g, &layer_nodes);
+    let root = find_layer_root(g, &layer_nodes);
 
     if let Some(root_id) = root {
         let cg = ConstraintGraph::new();
-        let result = sort_subgraph::sort_subgraph(g, root_id, &cg, bias_right, use_in_edges);
+        let result =
+            sort_subgraph::sort_subgraph(g, root_id, &cg, bias_right, use_in_edges, rank);
         for (i, &nid) in result.vs.iter().enumerate() {
             g.node_mut(nid).unwrap().order = i;
         }
     } else {
-        // Simple flat sort by barycenter
-        let entries = if use_in_edges {
-            barycenter::barycenter(g, &layer_nodes)
-        } else {
-            barycenter::barycenter_out(g, &layer_nodes)
-        };
-
-        // Sort: nodes with barycenter by barycenter, others keep position.
-        // Use enumeration index (NodeId order, matching JS dagre's insertion order)
-        // as a static tie-breaker that stays constant across sweeps.
-        let mut indexed: Vec<_> = entries
-            .iter()
-            .enumerate()
-            .map(|(i, e)| (e.v, e.barycenter, i))
-            .collect();
-
-        indexed.sort_by(|a, b| match (a.1, b.1) {
-            (Some(a_bc), Some(b_bc)) => a_bc
-                .partial_cmp(&b_bc)
-                .unwrap_or(std::cmp::Ordering::Equal)
-                .then_with(|| {
-                    if bias_right {
-                        b.2.cmp(&a.2)
-                    } else {
-                        a.2.cmp(&b.2)
-                    }
-                }),
-            (Some(_), None) => std::cmp::Ordering::Less,
-            (None, Some(_)) => std::cmp::Ordering::Greater,
-            (None, None) => a.2.cmp(&b.2),
-        });
-
-        for (order, &(nid, _, _)) in indexed.iter().enumerate() {
-            g.node_mut(nid).unwrap().order = order;
-        }
+        // Truly flat graph (no compound nodes) — simple barycenter sort
+        flat_sort(g, &layer_nodes, bias_right, use_in_edges);
     }
 }
 
-/// Find a common root node for a layer's nodes.
-/// Returns Some(root) if all nodes share a common parent, None for flat graphs.
-fn find_or_create_layer_root(
+/// Find the appropriate root for sorting nodes at a given layer.
+///
+/// Walks up from layer nodes to find the deepest common ancestor in the
+/// compound hierarchy. For flat graphs, returns None.
+fn find_layer_root(
     g: &Graph<NodeLabel, EdgeLabel>,
     layer_nodes: &[NodeId],
 ) -> Option<NodeId> {
@@ -151,14 +123,91 @@ fn find_or_create_layer_root(
         return None;
     }
 
-    // Check if there's a common parent
-    let first_parent = g.parent(layer_nodes[0]);
-    if first_parent.is_some() && layer_nodes.iter().all(|&n| g.parent(n) == first_parent) {
-        return first_parent;
+    // Collect all distinct top-level ancestors (or direct parents)
+    let mut roots: Vec<NodeId> = Vec::new();
+    for &nid in layer_nodes {
+        let ancestor = top_ancestor(g, nid);
+        if !roots.contains(&ancestor) {
+            roots.push(ancestor);
+        }
     }
 
-    // No common parent — use flat sort (return None)
+    // If all share the same top ancestor, find the deepest common parent
+    if roots.len() == 1 {
+        // All nodes descend from the same root; find the deepest common parent
+        let first_parent = g.parent(layer_nodes[0]);
+        if first_parent.is_some() && layer_nodes.iter().all(|&n| g.parent(n) == first_parent) {
+            return first_parent;
+        }
+        // Mixed parents under the same root — return the root's parent if it has one,
+        // otherwise return the root itself (top-level compound node)
+        if let Some(p) = g.parent(roots[0]) {
+            return Some(p);
+        }
+        // Top-level compound node with no parent — use it directly as sort root
+        if g.children(roots[0]).next().is_some() {
+            return Some(roots[0]);
+        }
+    }
+
+    // Multiple roots or flat graph — check if there's a common parent at any level
+    // This handles the case where all nodes are in different subgraphs that share a parent
+    let parents: Vec<Option<NodeId>> = roots.iter().map(|&r| g.parent(r)).collect();
+    if let Some(first) = parents[0] {
+        if parents.iter().all(|p| *p == Some(first)) {
+            return Some(first);
+        }
+    }
+
     None
+}
+
+/// Walk up the compound hierarchy to find the top-level ancestor.
+fn top_ancestor(g: &Graph<NodeLabel, EdgeLabel>, mut nid: NodeId) -> NodeId {
+    while let Some(parent) = g.parent(nid) {
+        nid = parent;
+    }
+    nid
+}
+
+/// Simple flat sort by barycenter (no compound hierarchy).
+fn flat_sort(
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    layer_nodes: &[NodeId],
+    bias_right: bool,
+    use_in_edges: bool,
+) {
+    let entries = if use_in_edges {
+        barycenter::barycenter(g, layer_nodes)
+    } else {
+        barycenter::barycenter_out(g, layer_nodes)
+    };
+
+    let mut indexed: Vec<_> = entries
+        .iter()
+        .enumerate()
+        .map(|(i, e)| (e.v, e.barycenter, i))
+        .collect();
+
+    indexed.sort_by(|a, b| match (a.1, b.1) {
+        (Some(a_bc), Some(b_bc)) => a_bc
+            .partial_cmp(&b_bc)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then_with(|| {
+                if bias_right {
+                    b.2.cmp(&a.2)
+                } else {
+                    a.2.cmp(&b.2)
+                }
+            }),
+        (Some(_), None) => std::cmp::Ordering::Less,
+        (None, Some(_)) => std::cmp::Ordering::Greater,
+        (None, None) => a.2.cmp(&b.2),
+    });
+
+    for (order, &(nid, _, _)) in indexed.iter().enumerate() {
+        g.node_mut(nid).unwrap().order = order;
+    }
 }
 
 #[cfg(test)]
