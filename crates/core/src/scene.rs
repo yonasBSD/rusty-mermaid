@@ -98,8 +98,9 @@ pub enum PathSegment {
 }
 
 /// 2D affine transform.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Transform {
+    #[default]
     Identity,
     Translate(f64, f64),
     Scale(f64, f64),
@@ -108,12 +109,6 @@ pub enum Transform {
         cx: f64,
         cy: f64,
     },
-}
-
-impl Default for Transform {
-    fn default() -> Self {
-        Self::Identity
-    }
 }
 
 /// Text horizontal alignment.
@@ -159,7 +154,7 @@ mod tests {
 
     #[test]
     fn path_segment_move_and_line() {
-        let segments = vec![
+        let segments = [
             PathSegment::MoveTo(Point::new(0.0, 0.0)),
             PathSegment::LineTo(Point::new(100.0, 0.0)),
             PathSegment::LineTo(Point::new(100.0, 100.0)),
