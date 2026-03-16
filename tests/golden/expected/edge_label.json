@@ -47,7 +47,10 @@
           }
         ],
         "x": 84,
-        "y": 75
+        "y": 75,
+        "label_width": 90,
+        "label_height": 20,
+        "label_pos": "r"
       }
     ],
     "width": 124,
