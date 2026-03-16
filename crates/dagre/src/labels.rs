@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use rusty_mermaid_core::Point;
+use rusty_mermaid_graph::NodeId;
 
 /// Position of an edge label relative to the edge.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -9,12 +12,30 @@ pub enum LabelPos {
     Right,
 }
 
-/// Dummy node kind (inserted during normalization, Phase 1b).
+/// Dummy node kind inserted during layout phases.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DummyKind {
+    /// Long-edge dummy (normalize)
     Edge,
-    BorderTop,
-    BorderBottom,
+    /// Dummy at the label rank of a split edge (normalize)
+    EdgeLabel,
+    /// Left/right border of a compound node (add_border_segments)
+    Border,
+}
+
+/// Border type for border dummy nodes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BorderType {
+    Left,
+    Right,
+}
+
+/// Data stored on edge-dummy nodes to reconstruct original edges during denormalize.
+#[derive(Debug, Clone)]
+pub struct EdgeDummyData {
+    pub(crate) edge_label: EdgeLabel,
+    pub(crate) edge_src: NodeId,
+    pub(crate) edge_dst: NodeId,
 }
 
 /// Node data for dagre layout.
@@ -30,6 +51,20 @@ pub struct NodeLabel {
     pub rank: i32,
     pub order: usize,
     pub(crate) dummy: Option<DummyKind>,
+
+    // --- normalize: stored on edge-dummy nodes ---
+    pub(crate) edge_data: Option<EdgeDummyData>,
+
+    // --- compound node fields (nesting / border_segments) ---
+    pub(crate) border_top: Option<NodeId>,
+    pub(crate) border_bottom: Option<NodeId>,
+    pub(crate) border_left: HashMap<i32, NodeId>,
+    pub(crate) border_right: HashMap<i32, NodeId>,
+    pub(crate) min_rank: Option<i32>,
+    pub(crate) max_rank: Option<i32>,
+
+    // --- border dummy node ---
+    pub(crate) border_type: Option<BorderType>,
 }
 
 impl NodeLabel {
@@ -42,6 +77,14 @@ impl NodeLabel {
             rank: 0,
             order: 0,
             dummy: None,
+            edge_data: None,
+            border_top: None,
+            border_bottom: None,
+            border_left: HashMap::new(),
+            border_right: HashMap::new(),
+            min_rank: None,
+            max_rank: None,
+            border_type: None,
         }
     }
 }
@@ -62,6 +105,8 @@ pub struct EdgeLabel {
     pub y: f64,
     pub points: Vec<Point>,
     pub(crate) reversed: bool,
+    pub(crate) nesting_edge: bool,
+    pub(crate) label_rank: Option<i32>,
 }
 
 impl Default for EdgeLabel {
@@ -77,6 +122,8 @@ impl Default for EdgeLabel {
             y: 0.0,
             points: Vec::new(),
             reversed: false,
+            nesting_edge: false,
+            label_rank: None,
         }
     }
 }
@@ -93,6 +140,11 @@ impl EdgeLabel {
 
     pub fn with_weight(mut self, weight: f64) -> Self {
         self.weight = weight;
+        self
+    }
+
+    pub(crate) fn with_nesting(mut self) -> Self {
+        self.nesting_edge = true;
         self
     }
 }
