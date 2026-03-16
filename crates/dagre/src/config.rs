@@ -17,6 +17,26 @@ pub enum Ranker {
     LongestPath,
 }
 
+/// Vertical alignment of nodes within a rank band.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum RankAlign {
+    #[default]
+    Center,
+    Top,
+    Bottom,
+}
+
+/// Optional horizontal alignment override for Brandes-Köpf.
+///
+/// If set, uses a single alignment instead of the median of all four.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Align {
+    UL,
+    UR,
+    DL,
+    DR,
+}
+
 /// Configuration for the dagre layout algorithm.
 #[derive(Debug, Clone)]
 pub struct DagreConfig {
@@ -28,6 +48,8 @@ pub struct DagreConfig {
     pub marginy: f64,
     pub acyclicer: Acyclicer,
     pub ranker: Ranker,
+    pub rankalign: RankAlign,
+    pub align: Option<Align>,
 }
 
 impl Default for DagreConfig {
@@ -41,6 +63,8 @@ impl Default for DagreConfig {
             marginy: 0.0,
             acyclicer: Acyclicer::default(),
             ranker: Ranker::default(),
+            rankalign: RankAlign::default(),
+            align: None,
         }
     }
 }

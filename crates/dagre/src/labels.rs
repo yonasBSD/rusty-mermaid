@@ -21,6 +21,8 @@ pub enum DummyKind {
     EdgeLabel,
     /// Left/right border of a compound node (add_border_segments)
     Border,
+    /// Dummy node for a self-edge
+    SelfEdge,
 }
 
 /// Border type for border dummy nodes.
@@ -36,6 +38,14 @@ pub struct EdgeDummyData {
     pub(crate) edge_label: EdgeLabel,
     pub(crate) edge_src: NodeId,
     pub(crate) edge_dst: NodeId,
+}
+
+/// A self-edge temporarily removed during layout.
+#[derive(Debug, Clone)]
+pub(crate) struct SelfEdge {
+    pub(crate) src: NodeId,
+    pub(crate) dst: NodeId,
+    pub(crate) label: EdgeLabel,
 }
 
 /// Node data for dagre layout.
@@ -65,6 +75,18 @@ pub struct NodeLabel {
 
     // --- border dummy node ---
     pub(crate) border_type: Option<BorderType>,
+
+    // --- self-edge storage (removed before layout, reinserted after) ---
+    pub(crate) self_edges: Vec<SelfEdge>,
+
+    // --- edge label positioning (set on dummy nodes by BK) ---
+    pub(crate) label_pos: Option<LabelPos>,
+
+    // --- self-edge dummy node data ---
+    pub(crate) self_edge_data: Option<crate::self_edges::SelfEdgeData>,
+
+    // --- edge label proxy: stores the edge this proxy represents ---
+    pub(crate) proxy_edge: Option<rusty_mermaid_graph::EdgeId>,
 }
 
 impl NodeLabel {
@@ -85,6 +107,10 @@ impl NodeLabel {
             min_rank: None,
             max_rank: None,
             border_type: None,
+            self_edges: Vec::new(),
+            label_pos: None,
+            self_edge_data: None,
+            proxy_edge: None,
         }
     }
 }
