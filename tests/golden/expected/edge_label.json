@@ -1,0 +1,56 @@
+{
+  "mmd": "graph TD\n    A[Source] -->|label text| B[Target]",
+  "config": {
+    "rankdir": "TB",
+    "nodesep": 50,
+    "ranksep": 50,
+    "width": 124,
+    "height": 150
+  },
+  "output": {
+    "nodes": [
+      {
+        "id": "A",
+        "x": 34,
+        "y": 20,
+        "width": 68,
+        "height": 40,
+        "rank": 0,
+        "order": 0
+      },
+      {
+        "id": "B",
+        "x": 34,
+        "y": 130,
+        "width": 68,
+        "height": 40,
+        "rank": 2,
+        "order": 0
+      }
+    ],
+    "edges": [
+      {
+        "src": "A",
+        "dst": "B",
+        "points": [
+          {
+            "x": 34,
+            "y": 40
+          },
+          {
+            "x": 34,
+            "y": 75
+          },
+          {
+            "x": 34,
+            "y": 110
+          }
+        ],
+        "x": 84,
+        "y": 75
+      }
+    ],
+    "width": 124,
+    "height": 150
+  }
+}

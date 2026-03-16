@@ -1,0 +1,977 @@
+{
+  "mmd": "flowchart LR\n    subgraph Frontend\n        Source[Source Code]\n        Lexer[Lexer / Tokenizer]\n        Parser[Parser]\n        AST[Abstract Syntax Tree]\n        SemanticCheck{Semantic Analysis}\n        TypeCheck[Type Checker]\n        SymTable[(Symbol Table)]\n    end\n\n    subgraph Middle End\n        IRGen[IR Generation]\n        HIR[High-Level IR]\n        ConstFold[Constant Folding]\n        DeadCode[Dead Code Elimination]\n        Inline[Function Inlining]\n        LoopOpt[Loop Optimization]\n        MIR[Mid-Level IR]\n        SSA[SSA Conversion]\n        RegAlloc[Register Allocation]\n        LIR[Low-Level IR]\n    end\n\n    subgraph Backend\n        InstSel[Instruction Selection]\n        InstSched[Instruction Scheduling]\n        PeepHole[Peephole Optimization]\n        CodeGen[Code Generation]\n    end\n\n    subgraph Targets\n        x86[x86_64 Assembly]\n        ARM[ARM64 Assembly]\n        WASM[WebAssembly]\n        LLVM[LLVM Bitcode]\n    end\n\n    subgraph Linker\n        ObjFile[Object Files]\n        StaticLink[Static Libraries]\n        DynLink[Dynamic Libraries]\n        Linker_[Linker]\n        Executable[Executable]\n    end\n\n    Source --> Lexer\n    Lexer --> Parser\n    Parser --> AST\n    AST --> SemanticCheck\n    SemanticCheck -->|error| Source\n    SemanticCheck -->|ok| TypeCheck\n    TypeCheck --> SymTable\n    TypeCheck --> IRGen\n\n    IRGen --> HIR\n    HIR --> ConstFold\n    ConstFold --> DeadCode\n    DeadCode --> Inline\n    Inline --> LoopOpt\n    LoopOpt --> MIR\n    MIR --> SSA\n    SSA --> RegAlloc\n    RegAlloc --> LIR\n\n    LIR --> InstSel\n    InstSel --> InstSched\n    InstSched --> PeepHole\n    PeepHole --> CodeGen\n\n    CodeGen --> x86\n    CodeGen --> ARM\n    CodeGen --> WASM\n    CodeGen --> LLVM\n\n    x86 --> ObjFile\n    ARM --> ObjFile\n    ObjFile --> Linker_\n    StaticLink --> Linker_\n    DynLink --> Linker_\n    Linker_ --> Executable",
+  "config": {
+    "rankdir": "LR",
+    "nodesep": 50,
+    "ranksep": 50,
+    "width": 4824,
+    "height": 515
+  },
+  "output": {
+    "nodes": [
+      {
+        "id": "Frontend",
+        "x": 657.5,
+        "y": 133.75,
+        "width": 1315,
+        "height": 216
+      },
+      {
+        "id": "Source",
+        "x": 79,
+        "y": 125,
+        "width": 108,
+        "height": 40,
+        "rank": 1,
+        "order": 1
+      },
+      {
+        "id": "Lexer",
+        "x": 261,
+        "y": 178.5,
+        "width": 156,
+        "height": 40,
+        "rank": 3,
+        "order": 2
+      },
+      {
+        "id": "Parser",
+        "x": 423,
+        "y": 178.5,
+        "width": 68,
+        "height": 40,
+        "rank": 5,
+        "order": 2
+      },
+      {
+        "id": "AST",
+        "x": 597,
+        "y": 178.5,
+        "width": 180,
+        "height": 40,
+        "rank": 7,
+        "order": 2
+      },
+      {
+        "id": "SemanticCheck",
+        "x": 815,
+        "y": 125,
+        "width": 156,
+        "height": 117,
+        "rank": 9,
+        "order": 1
+      },
+      {
+        "id": "TypeCheck",
+        "x": 1025,
+        "y": 125,
+        "width": 116,
+        "height": 40,
+        "rank": 11,
+        "order": 1
+      },
+      {
+        "id": "SymTable",
+        "x": 1224,
+        "y": 100,
+        "width": 132,
+        "height": 40,
+        "rank": 14,
+        "order": 1
+      },
+      {
+        "id": "Middle_End",
+        "x": 2115.5,
+        "y": 325,
+        "width": 1965,
+        "height": 110
+      },
+      {
+        "id": "IRGen",
+        "x": 1224,
+        "y": 325,
+        "width": 124,
+        "height": 40,
+        "rank": 14,
+        "order": 4
+      },
+      {
+        "id": "HIR",
+        "x": 1427,
+        "y": 325,
+        "width": 124,
+        "height": 40,
+        "rank": 17,
+        "order": 1
+      },
+      {
+        "id": "ConstFold",
+        "x": 1613,
+        "y": 325,
+        "width": 148,
+        "height": 40,
+        "rank": 19,
+        "order": 1
+      },
+      {
+        "id": "DeadCode",
+        "x": 1831,
+        "y": 325,
+        "width": 188,
+        "height": 40,
+        "rank": 21,
+        "order": 1
+      },
+      {
+        "id": "Inline",
+        "x": 2053,
+        "y": 325,
+        "width": 156,
+        "height": 40,
+        "rank": 23,
+        "order": 1
+      },
+      {
+        "id": "LoopOpt",
+        "x": 2259,
+        "y": 325,
+        "width": 156,
+        "height": 40,
+        "rank": 25,
+        "order": 1
+      },
+      {
+        "id": "MIR",
+        "x": 2445,
+        "y": 325,
+        "width": 116,
+        "height": 40,
+        "rank": 27,
+        "order": 1
+      },
+      {
+        "id": "SSA",
+        "x": 2619,
+        "y": 325,
+        "width": 132,
+        "height": 40,
+        "rank": 29,
+        "order": 1
+      },
+      {
+        "id": "RegAlloc",
+        "x": 2821,
+        "y": 325,
+        "width": 172,
+        "height": 40,
+        "rank": 31,
+        "order": 1
+      },
+      {
+        "id": "LIR",
+        "x": 3015,
+        "y": 325,
+        "width": 116,
+        "height": 40,
+        "rank": 33,
+        "order": 1
+      },
+      {
+        "id": "Backend",
+        "x": 3604,
+        "y": 323.75,
+        "width": 912,
+        "height": 347.5
+      },
+      {
+        "id": "InstSel",
+        "x": 3267,
+        "y": 325,
+        "width": 188,
+        "height": 40,
+        "rank": 37,
+        "order": 1
+      },
+      {
+        "id": "InstSched",
+        "x": 3509,
+        "y": 325,
+        "width": 196,
+        "height": 40,
+        "rank": 39,
+        "order": 1
+      },
+      {
+        "id": "PeepHole",
+        "x": 3751,
+        "y": 325,
+        "width": 188,
+        "height": 40,
+        "rank": 41,
+        "order": 1
+      },
+      {
+        "id": "CodeGen",
+        "x": 3965,
+        "y": 325,
+        "width": 140,
+        "height": 40,
+        "rank": 43,
+        "order": 1
+      },
+      {
+        "id": "Targets",
+        "x": 4205,
+        "y": 325,
+        "width": 190,
+        "height": 380
+      },
+      {
+        "id": "x86",
+        "x": 4205,
+        "y": 280,
+        "width": 140,
+        "height": 40,
+        "rank": 47,
+        "order": 2
+      },
+      {
+        "id": "ARM",
+        "x": 4205,
+        "y": 190,
+        "width": 132,
+        "height": 40,
+        "rank": 47,
+        "order": 1
+      },
+      {
+        "id": "WASM",
+        "x": 4205,
+        "y": 370,
+        "width": 108,
+        "height": 40,
+        "rank": 47,
+        "order": 3
+      },
+      {
+        "id": "LLVM",
+        "x": 4205,
+        "y": 460,
+        "width": 116,
+        "height": 40,
+        "rank": 47,
+        "order": 4
+      },
+      {
+        "id": "Linker",
+        "x": 4587,
+        "y": 158.75,
+        "width": 474,
+        "height": 317.5
+      },
+      {
+        "id": "ObjFile",
+        "x": 4453,
+        "y": 235,
+        "width": 116,
+        "height": 40,
+        "rank": 51,
+        "order": 3
+      },
+      {
+        "id": "StaticLink",
+        "x": 4453,
+        "y": 145,
+        "width": 148,
+        "height": 40,
+        "rank": 51,
+        "order": 2
+      },
+      {
+        "id": "DynLink",
+        "x": 4453,
+        "y": 55,
+        "width": 156,
+        "height": 40,
+        "rank": 51,
+        "order": 1
+      },
+      {
+        "id": "Linker_",
+        "x": 4615,
+        "y": 181.75,
+        "width": 68,
+        "height": 40,
+        "rank": 53,
+        "order": 1
+      },
+      {
+        "id": "Executable",
+        "x": 4749,
+        "y": 181.75,
+        "width": 100,
+        "height": 40,
+        "rank": 55,
+        "order": 1
+      }
+    ],
+    "edges": [
+      {
+        "src": "Source",
+        "dst": "Lexer",
+        "points": [
+          {
+            "x": 108.53271028037383,
+            "y": 145
+          },
+          {
+            "x": 158,
+            "y": 178.5
+          },
+          {
+            "x": 183,
+            "y": 178.5
+          }
+        ]
+      },
+      {
+        "src": "Lexer",
+        "dst": "Parser",
+        "points": [
+          {
+            "x": 339,
+            "y": 178.5
+          },
+          {
+            "x": 364,
+            "y": 178.5
+          },
+          {
+            "x": 389,
+            "y": 178.5
+          }
+        ]
+      },
+      {
+        "src": "Parser",
+        "dst": "AST",
+        "points": [
+          {
+            "x": 457,
+            "y": 178.5
+          },
+          {
+            "x": 482,
+            "y": 178.5
+          },
+          {
+            "x": 507,
+            "y": 178.5
+          }
+        ]
+      },
+      {
+        "src": "AST",
+        "dst": "SemanticCheck",
+        "points": [
+          {
+            "x": 687,
+            "y": 178.5
+          },
+          {
+            "x": 712,
+            "y": 178.5
+          },
+          {
+            "x": 737,
+            "y": 165.51456310679612
+          }
+        ]
+      },
+      {
+        "src": "SemanticCheck",
+        "dst": "Source",
+        "points": [
+          {
+            "x": 737,
+            "y": 101.14563106796116
+          },
+          {
+            "x": 712,
+            "y": 93.5
+          },
+          {
+            "x": 597,
+            "y": 93.5
+          },
+          {
+            "x": 482,
+            "y": 93.5
+          },
+          {
+            "x": 423,
+            "y": 93.5
+          },
+          {
+            "x": 364,
+            "y": 93.5
+          },
+          {
+            "x": 261,
+            "y": 93.5
+          },
+          {
+            "x": 158,
+            "y": 93.5
+          },
+          {
+            "x": 129.15873015873015,
+            "y": 105
+          }
+        ],
+        "x": 423,
+        "y": 113.5
+      },
+      {
+        "src": "SemanticCheck",
+        "dst": "TypeCheck",
+        "points": [
+          {
+            "x": 893,
+            "y": 125
+          },
+          {
+            "x": 930,
+            "y": 125
+          },
+          {
+            "x": 967,
+            "y": 125
+          }
+        ],
+        "x": 930,
+        "y": 145
+      },
+      {
+        "src": "TypeCheck",
+        "dst": "SymTable",
+        "points": [
+          {
+            "x": 1083,
+            "y": 107.53012048192771
+          },
+          {
+            "x": 1108,
+            "y": 100
+          },
+          {
+            "x": 1133,
+            "y": 100
+          },
+          {
+            "x": 1158,
+            "y": 100
+          }
+        ]
+      },
+      {
+        "src": "TypeCheck",
+        "dst": "IRGen",
+        "points": [
+          {
+            "x": 1043.7570621468926,
+            "y": 145
+          },
+          {
+            "x": 1108,
+            "y": 213.5
+          },
+          {
+            "x": 1133,
+            "y": 213.5
+          },
+          {
+            "x": 1207.6771300448431,
+            "y": 305
+          }
+        ]
+      },
+      {
+        "src": "IRGen",
+        "dst": "HIR",
+        "points": [
+          {
+            "x": 1286,
+            "y": 325
+          },
+          {
+            "x": 1315,
+            "y": 325
+          },
+          {
+            "x": 1340,
+            "y": 325
+          },
+          {
+            "x": 1365,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "HIR",
+        "dst": "ConstFold",
+        "points": [
+          {
+            "x": 1489,
+            "y": 325
+          },
+          {
+            "x": 1514,
+            "y": 325
+          },
+          {
+            "x": 1539,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "ConstFold",
+        "dst": "DeadCode",
+        "points": [
+          {
+            "x": 1687,
+            "y": 325
+          },
+          {
+            "x": 1712,
+            "y": 325
+          },
+          {
+            "x": 1737,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "DeadCode",
+        "dst": "Inline",
+        "points": [
+          {
+            "x": 1925,
+            "y": 325
+          },
+          {
+            "x": 1950,
+            "y": 325
+          },
+          {
+            "x": 1975,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "Inline",
+        "dst": "LoopOpt",
+        "points": [
+          {
+            "x": 2131,
+            "y": 325
+          },
+          {
+            "x": 2156,
+            "y": 325
+          },
+          {
+            "x": 2181,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "LoopOpt",
+        "dst": "MIR",
+        "points": [
+          {
+            "x": 2337,
+            "y": 325
+          },
+          {
+            "x": 2362,
+            "y": 325
+          },
+          {
+            "x": 2387,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "MIR",
+        "dst": "SSA",
+        "points": [
+          {
+            "x": 2503,
+            "y": 325
+          },
+          {
+            "x": 2528,
+            "y": 325
+          },
+          {
+            "x": 2553,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "SSA",
+        "dst": "RegAlloc",
+        "points": [
+          {
+            "x": 2685,
+            "y": 325
+          },
+          {
+            "x": 2710,
+            "y": 325
+          },
+          {
+            "x": 2735,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "RegAlloc",
+        "dst": "LIR",
+        "points": [
+          {
+            "x": 2907,
+            "y": 325
+          },
+          {
+            "x": 2932,
+            "y": 325
+          },
+          {
+            "x": 2957,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "LIR",
+        "dst": "InstSel",
+        "points": [
+          {
+            "x": 3073,
+            "y": 325
+          },
+          {
+            "x": 3098,
+            "y": 325
+          },
+          {
+            "x": 3123,
+            "y": 325
+          },
+          {
+            "x": 3148,
+            "y": 325
+          },
+          {
+            "x": 3173,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "InstSel",
+        "dst": "InstSched",
+        "points": [
+          {
+            "x": 3361,
+            "y": 325
+          },
+          {
+            "x": 3386,
+            "y": 325
+          },
+          {
+            "x": 3411,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "InstSched",
+        "dst": "PeepHole",
+        "points": [
+          {
+            "x": 3607,
+            "y": 325
+          },
+          {
+            "x": 3632,
+            "y": 325
+          },
+          {
+            "x": 3657,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "PeepHole",
+        "dst": "CodeGen",
+        "points": [
+          {
+            "x": 3845,
+            "y": 325
+          },
+          {
+            "x": 3870,
+            "y": 325
+          },
+          {
+            "x": 3895,
+            "y": 325
+          }
+        ]
+      },
+      {
+        "src": "CodeGen",
+        "dst": "x86",
+        "points": [
+          {
+            "x": 4007.222222222222,
+            "y": 305
+          },
+          {
+            "x": 4060,
+            "y": 280
+          },
+          {
+            "x": 4085,
+            "y": 280
+          },
+          {
+            "x": 4110,
+            "y": 280
+          },
+          {
+            "x": 4135,
+            "y": 280
+          }
+        ]
+      },
+      {
+        "src": "CodeGen",
+        "dst": "ARM",
+        "points": [
+          {
+            "x": 3979.074074074074,
+            "y": 305
+          },
+          {
+            "x": 4060,
+            "y": 190
+          },
+          {
+            "x": 4085,
+            "y": 190
+          },
+          {
+            "x": 4110,
+            "y": 190
+          },
+          {
+            "x": 4139,
+            "y": 190
+          }
+        ]
+      },
+      {
+        "src": "CodeGen",
+        "dst": "WASM",
+        "points": [
+          {
+            "x": 4007.222222222222,
+            "y": 345
+          },
+          {
+            "x": 4060,
+            "y": 370
+          },
+          {
+            "x": 4085,
+            "y": 370
+          },
+          {
+            "x": 4110,
+            "y": 370
+          },
+          {
+            "x": 4151,
+            "y": 370
+          }
+        ]
+      },
+      {
+        "src": "CodeGen",
+        "dst": "LLVM",
+        "points": [
+          {
+            "x": 3979.074074074074,
+            "y": 345
+          },
+          {
+            "x": 4060,
+            "y": 460
+          },
+          {
+            "x": 4085,
+            "y": 460
+          },
+          {
+            "x": 4110,
+            "y": 460
+          },
+          {
+            "x": 4147,
+            "y": 460
+          }
+        ]
+      },
+      {
+        "src": "x86",
+        "dst": "ObjFile",
+        "points": [
+          {
+            "x": 4275,
+            "y": 280
+          },
+          {
+            "x": 4300,
+            "y": 280
+          },
+          {
+            "x": 4325,
+            "y": 280
+          },
+          {
+            "x": 4350,
+            "y": 280
+          },
+          {
+            "x": 4407.222222222223,
+            "y": 255
+          }
+        ]
+      },
+      {
+        "src": "ARM",
+        "dst": "ObjFile",
+        "points": [
+          {
+            "x": 4271,
+            "y": 190
+          },
+          {
+            "x": 4300,
+            "y": 190
+          },
+          {
+            "x": 4325,
+            "y": 190
+          },
+          {
+            "x": 4350,
+            "y": 190
+          },
+          {
+            "x": 4407.222222222223,
+            "y": 215
+          }
+        ]
+      },
+      {
+        "src": "ObjFile",
+        "dst": "Linker_",
+        "points": [
+          {
+            "x": 4511,
+            "y": 235
+          },
+          {
+            "x": 4556,
+            "y": 235
+          },
+          {
+            "x": 4592.840375586855,
+            "y": 201.75
+          }
+        ]
+      },
+      {
+        "src": "StaticLink",
+        "dst": "Linker_",
+        "points": [
+          {
+            "x": 4527,
+            "y": 145
+          },
+          {
+            "x": 4556,
+            "y": 145
+          },
+          {
+            "x": 4582.891156462585,
+            "y": 161.75
+          }
+        ]
+      },
+      {
+        "src": "DynLink",
+        "dst": "Linker_",
+        "points": [
+          {
+            "x": 4531,
+            "y": 55
+          },
+          {
+            "x": 4556,
+            "y": 55
+          },
+          {
+            "x": 4605.69033530572,
+            "y": 161.75
+          }
+        ]
+      },
+      {
+        "src": "Linker_",
+        "dst": "Executable",
+        "points": [
+          {
+            "x": 4649,
+            "y": 181.75
+          },
+          {
+            "x": 4674,
+            "y": 181.75
+          },
+          {
+            "x": 4699,
+            "y": 181.75
+          }
+        ]
+      }
+    ],
+    "width": 4824,
+    "height": 515
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "mmd": "graph TD\n    A[Island 1a] --> B[Island 1b]\n    C[Island 2a] --> D[Island 2b]",
+  "config": {
+    "rankdir": "TB",
+    "nodesep": 50,
+    "ranksep": 50,
+    "width": 234,
+    "height": 130
+  },
+  "output": {
+    "nodes": [
+      {
+        "id": "A",
+        "x": 46,
+        "y": 20,
+        "width": 92,
+        "height": 40,
+        "rank": 0,
+        "order": 0
+      },
+      {
+        "id": "B",
+        "x": 46,
+        "y": 110,
+        "width": 92,
+        "height": 40,
+        "rank": 2,
+        "order": 0
+      },
+      {
+        "id": "C",
+        "x": 188,
+        "y": 20,
+        "width": 92,
+        "height": 40,
+        "rank": 0,
+        "order": 1
+      },
+      {
+        "id": "D",
+        "x": 188,
+        "y": 110,
+        "width": 92,
+        "height": 40,
+        "rank": 2,
+        "order": 1
+      }
+    ],
+    "edges": [
+      {
+        "src": "A",
+        "dst": "B",
+        "points": [
+          {
+            "x": 46,
+            "y": 40
+          },
+          {
+            "x": 46,
+            "y": 65
+          },
+          {
+            "x": 46,
+            "y": 90
+          }
+        ]
+      },
+      {
+        "src": "C",
+        "dst": "D",
+        "points": [
+          {
+            "x": 188,
+            "y": 40
+          },
+          {
+            "x": 188,
+            "y": 65
+          },
+          {
+            "x": 188,
+            "y": 90
+          }
+        ]
+      }
+    ],
+    "width": 234,
+    "height": 130
+  }
+}

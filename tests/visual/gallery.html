@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>rusty-mermaid visual tests</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+    h1 { margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 20px; }
+    .card {
+      background: white; border: 1px solid #ddd; border-radius: 8px;
+      padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .card h3 { margin-bottom: 8px; font-size: 14px; color: #333; }
+    .card .meta { font-size: 11px; color: #888; margin-bottom: 12px; }
+    .svg-container {
+      background: white; border: 1px solid #eee; border-radius: 4px;
+      padding: 10px; overflow: auto; max-height: 500px;
+    }
+    .svg-container svg { display: block; margin: 0 auto; }
+    .error { color: red; font-size: 12px; padding: 10px; }
+    .controls { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+    .controls button {
+      padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;
+      background: white; cursor: pointer;
+    }
+    .controls button:hover { background: #eee; }
+  </style>
+</head>
+<body>
+  <h1>rusty-mermaid visual tests</h1>
+  <div class="controls">
+    <button onclick="loadAll()">Reload All</button>
+    <span id="status"></span>
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <script>
+    // Load all .svg files from output/ directory.
+    // Run: cargo test -- --ignored visual
+    // Then open this file in a browser.
+    //
+    // The test harness writes SVGs to tests/visual/output/*.svg
+    // This page loads them via fetch (needs a local server or file:// access).
+
+    const OUTPUT_DIR = './output';
+
+    function createCard(name, description, svgUrl) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const h3 = document.createElement('h3');
+      h3.textContent = name;
+      card.appendChild(h3);
+
+      if (description) {
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = description;
+        card.appendChild(meta);
+      }
+
+      const container = document.createElement('div');
+      container.className = 'svg-container';
+
+      const obj = document.createElement('object');
+      obj.type = 'image/svg+xml';
+      obj.data = svgUrl;
+      obj.width = '100%';
+      obj.addEventListener('error', () => {
+        const err = document.createElement('div');
+        err.className = 'error';
+        err.textContent = 'Failed to load SVG';
+        container.replaceChild(err, obj);
+      });
+      container.appendChild(obj);
+
+      card.appendChild(container);
+      return card;
+    }
+
+    async function loadAll() {
+      const grid = document.getElementById('grid');
+      const status = document.getElementById('status');
+      grid.replaceChildren();
+
+      try {
+        const resp = await fetch(OUTPUT_DIR + '/manifest.json');
+        if (!resp.ok) {
+          status.textContent = 'No manifest.json found. Run: cargo test -- --ignored visual';
+          return;
+        }
+        const manifest = await resp.json();
+        status.textContent = manifest.length + ' test cases';
+
+        for (const entry of manifest) {
+          const card = createCard(
+            entry.name,
+            entry.description || '',
+            OUTPUT_DIR + '/' + entry.file
+          );
+          grid.appendChild(card);
+        }
+      } catch (e) {
+        status.textContent = 'Error: ' + e.message + '. Serve this directory: python3 -m http.server 8080';
+      }
+    }
+
+    loadAll();
+  </script>
+</body>
+</html>

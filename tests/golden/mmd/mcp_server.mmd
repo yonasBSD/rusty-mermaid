@@ -1,0 +1,35 @@
+graph TB
+    subgraph Undertow HTTP Server
+        VT["Virtual Thread Dispatch"]
+        VT --> CORS["CorsHandler"]
+        CORS --> TRACE["TracingHandler<br/><i>OTel spans + correlation ID</i>"]
+        TRACE --> ROUTE["RoutingHandler"]
+
+        ROUTE -->|"/health/*"| HEALTH["HealthHandler<br/><i>live / ready / started</i>"]
+        ROUTE -->|"/metrics"| METRICS["MetricsHandler<br/><i>Prometheus format</i>"]
+        ROUTE -->|"/mcp"| TRANSPORT["UndertowMcpTransport<br/><i>POST: JSON-RPC<br/>GET: SSE stream<br/>DELETE: session cleanup</i>"]
+    end
+
+    subgraph MCP Layer
+        TRANSPORT --> SDK["MCP Java SDK<br/><i>McpSyncServer</i>"]
+        SDK --> TOOLS["WeatherTools<br/><i>getCurrentWeather<br/>getForecast<br/>searchLocations</i>"]
+    end
+
+    subgraph Client Layer
+        TOOLS --> CLIENT["WeatherApiClient"]
+        CLIENT --> FAILSAFE["Failsafe<br/><i>retry + circuit breaker</i>"]
+        FAILSAFE --> HTTP["Apache HttpClient 5<br/><i>connection pooling</i>"]
+    end
+
+    subgraph Infrastructure
+        MAIN["Main.java<br/><i>composition root</i>"] -.-> VT
+        MAIN -.-> SDK
+        MAIN -.-> CLIENT
+        CONFIG["ConfigLoader → Config<br/><i>config.toml + .env + env vars</i>"] -.-> MAIN
+        TEL["Telemetry<br/><i>OTel SDK (real or noop)</i>"] -.-> TRACE
+        TEL -.-> METRICS
+        GS["GracefulShutdown<br/><i>LIFO hooks, timeout</i>"] -.-> MAIN
+        CID["CorrelationId<br/><i>ScopedValue + MDC</i>"] -.-> TRACE
+    end
+
+    HTTP -->|HTTPS| EXT["External APIs<br/><i>weatherapi.com</i>"]

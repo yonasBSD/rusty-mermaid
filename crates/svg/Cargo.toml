@@ -1,0 +1,9 @@
+[package]
+name = "rusty-mermaid-svg"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SVG rendering backend: Scene → SVG string"
+
+[dependencies]
+rusty-mermaid-core.workspace = true

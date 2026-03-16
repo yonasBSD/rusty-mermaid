@@ -1,0 +1,828 @@
+{
+  "mmd": "graph TB\n    subgraph Undertow HTTP Server\n        VT[\"Virtual Thread Dispatch\"]\n        VT --> CORS[\"CorsHandler\"]\n        CORS --> TRACE[\"TracingHandler<br/><i>OTel spans + correlation ID</i>\"]\n        TRACE --> ROUTE[\"RoutingHandler\"]\n\n        ROUTE -->|\"/health/*\"| HEALTH[\"HealthHandler<br/><i>live / ready / started</i>\"]\n        ROUTE -->|\"/metrics\"| METRICS[\"MetricsHandler<br/><i>Prometheus format</i>\"]\n        ROUTE -->|\"/mcp\"| TRANSPORT[\"UndertowMcpTransport<br/><i>POST: JSON-RPC<br/>GET: SSE stream<br/>DELETE: session cleanup</i>\"]\n    end\n\n    subgraph MCP Layer\n        TRANSPORT --> SDK[\"MCP Java SDK<br/><i>McpSyncServer</i>\"]\n        SDK --> TOOLS[\"WeatherTools<br/><i>getCurrentWeather<br/>getForecast<br/>searchLocations</i>\"]\n    end\n\n    subgraph Client Layer\n        TOOLS --> CLIENT[\"WeatherApiClient\"]\n        CLIENT --> FAILSAFE[\"Failsafe<br/><i>retry + circuit breaker</i>\"]\n        FAILSAFE --> HTTP[\"Apache HttpClient 5<br/><i>connection pooling</i>\"]\n    end\n\n    subgraph Infrastructure\n        MAIN[\"Main.java<br/><i>composition root</i>\"] -.-> VT\n        MAIN -.-> SDK\n        MAIN -.-> CLIENT\n        CONFIG[\"ConfigLoader → Config<br/><i>config.toml + .env + env vars</i>\"] -.-> MAIN\n        TEL[\"Telemetry<br/><i>OTel SDK (real or noop)</i>\"] -.-> TRACE\n        TEL -.-> METRICS\n        GS[\"GracefulShutdown<br/><i>LIFO hooks, timeout</i>\"] -.-> MAIN\n        CID[\"CorrelationId<br/><i>ScopedValue + MDC</i>\"] -.-> TRACE\n    end\n\n    HTTP -->|HTTPS| EXT[\"External APIs<br/><i>weatherapi.com</i>\"]",
+  "config": {
+    "rankdir": "TB",
+    "nodesep": 50,
+    "ranksep": 50,
+    "width": 1920.5,
+    "height": 1620
+  },
+  "output": {
+    "nodes": [
+      {
+        "id": "Undertow_HTTP_Server",
+        "x": 1253.5,
+        "y": 545,
+        "width": 1334,
+        "height": 550
+      },
+      {
+        "id": "VT",
+        "x": 749.5,
+        "y": 315,
+        "width": 204,
+        "height": 40,
+        "rank": 7,
+        "order": 3
+      },
+      {
+        "id": "CORS",
+        "x": 749.5,
+        "y": 405,
+        "width": 108,
+        "height": 40,
+        "rank": 9,
+        "order": 3
+      },
+      {
+        "id": "TRACE",
+        "x": 1419.5,
+        "y": 505,
+        "width": 348,
+        "height": 60,
+        "rank": 11,
+        "order": 4
+      },
+      {
+        "id": "ROUTE",
+        "x": 1419.5,
+        "y": 605,
+        "width": 132,
+        "height": 40,
+        "rank": 13,
+        "order": 4
+      },
+      {
+        "id": "HEALTH",
+        "x": 1735.5,
+        "y": 745,
+        "width": 300,
+        "height": 60,
+        "rank": 15,
+        "order": 5
+      },
+      {
+        "id": "METRICS",
+        "x": 1401.5,
+        "y": 745,
+        "width": 268,
+        "height": 60,
+        "rank": 15,
+        "order": 4
+      },
+      {
+        "id": "TRANSPORT",
+        "x": 919.5,
+        "y": 745,
+        "width": 596,
+        "height": 100,
+        "rank": 15,
+        "order": 3
+      },
+      {
+        "id": "MCP_Layer",
+        "x": 684,
+        "y": 1000,
+        "width": 713,
+        "height": 260
+      },
+      {
+        "id": "SDK",
+        "x": 620,
+        "y": 925,
+        "width": 220,
+        "height": 60,
+        "rank": 19,
+        "order": 2
+      },
+      {
+        "id": "TOOLS",
+        "x": 620,
+        "y": 1055,
+        "width": 460,
+        "height": 100,
+        "rank": 21,
+        "order": 2
+      },
+      {
+        "id": "Client_Layer",
+        "x": 440.5,
+        "y": 1335,
+        "width": 572,
+        "height": 310
+      },
+      {
+        "id": "CLIENT",
+        "x": 477.5,
+        "y": 1225,
+        "width": 148,
+        "height": 40,
+        "rank": 25,
+        "order": 1
+      },
+      {
+        "id": "FAILSAFE",
+        "x": 477.5,
+        "y": 1325,
+        "width": 268,
+        "height": 60,
+        "rank": 27,
+        "order": 1
+      },
+      {
+        "id": "HTTP",
+        "x": 477.5,
+        "y": 1435,
+        "width": 316,
+        "height": 60,
+        "rank": 29,
+        "order": 1
+      },
+      {
+        "id": "Infrastructure",
+        "x": 862.75,
+        "y": 110,
+        "width": 1725.5,
+        "height": 220
+      },
+      {
+        "id": "MAIN",
+        "x": 515.5,
+        "y": 165,
+        "width": 220,
+        "height": 60,
+        "rank": 3,
+        "order": 1
+      },
+      {
+        "id": "CONFIG",
+        "x": 245,
+        "y": 55,
+        "width": 420,
+        "height": 60,
+        "rank": 1,
+        "order": 1
+      },
+      {
+        "id": "TEL",
+        "x": 1157,
+        "y": 165,
+        "width": 276,
+        "height": 60,
+        "rank": 3,
+        "order": 2
+      },
+      {
+        "id": "GS",
+        "x": 888.5,
+        "y": 55,
+        "width": 300,
+        "height": 60,
+        "rank": 1,
+        "order": 2
+      },
+      {
+        "id": "CID",
+        "x": 1560.5,
+        "y": 165,
+        "width": 260,
+        "height": 60,
+        "rank": 3,
+        "order": 3
+      },
+      {
+        "id": "EXT",
+        "x": 477.5,
+        "y": 1590,
+        "width": 236,
+        "height": 60,
+        "rank": 32,
+        "order": 0
+      }
+    ],
+    "edges": [
+      {
+        "src": "VT",
+        "dst": "CORS",
+        "points": [
+          {
+            "x": 749.5,
+            "y": 335
+          },
+          {
+            "x": 749.5,
+            "y": 360
+          },
+          {
+            "x": 749.5,
+            "y": 385
+          }
+        ]
+      },
+      {
+        "src": "CORS",
+        "dst": "TRACE",
+        "points": [
+          {
+            "x": 749.5,
+            "y": 425
+          },
+          {
+            "x": 749.5,
+            "y": 450
+          },
+          {
+            "x": 1245.5,
+            "y": 490.7164179104478
+          }
+        ]
+      },
+      {
+        "src": "TRACE",
+        "dst": "ROUTE",
+        "points": [
+          {
+            "x": 1419.5,
+            "y": 535
+          },
+          {
+            "x": 1419.5,
+            "y": 560
+          },
+          {
+            "x": 1419.5,
+            "y": 585
+          }
+        ]
+      },
+      {
+        "src": "ROUTE",
+        "dst": "HEALTH",
+        "points": [
+          {
+            "x": 1485.5,
+            "y": 616.4873417721519
+          },
+          {
+            "x": 1735.5,
+            "y": 660
+          },
+          {
+            "x": 1735.5,
+            "y": 715
+          }
+        ],
+        "x": 1789,
+        "y": 660
+      },
+      {
+        "src": "ROUTE",
+        "dst": "METRICS",
+        "points": [
+          {
+            "x": 1449.6818181818182,
+            "y": 625
+          },
+          {
+            "x": 1502.5,
+            "y": 660
+          },
+          {
+            "x": 1437.1470588235295,
+            "y": 715
+          }
+        ],
+        "x": 1552.5,
+        "y": 660
+      },
+      {
+        "src": "ROUTE",
+        "dst": "TRANSPORT",
+        "points": [
+          {
+            "x": 1353.5,
+            "y": 614.0977443609023
+          },
+          {
+            "x": 1020.5,
+            "y": 660
+          },
+          {
+            "x": 978.9117647058823,
+            "y": 695
+          }
+        ],
+        "x": 1056.5,
+        "y": 660
+      },
+      {
+        "src": "TRANSPORT",
+        "dst": "SDK",
+        "points": [
+          {
+            "x": 919.5,
+            "y": 795
+          },
+          {
+            "x": 919.5,
+            "y": 820
+          },
+          {
+            "x": 919.5,
+            "y": 845
+          },
+          {
+            "x": 919.5,
+            "y": 870
+          },
+          {
+            "x": 730,
+            "y": 904.7996661101837
+          }
+        ]
+      },
+      {
+        "src": "SDK",
+        "dst": "TOOLS",
+        "points": [
+          {
+            "x": 620,
+            "y": 955
+          },
+          {
+            "x": 620,
+            "y": 980
+          },
+          {
+            "x": 620,
+            "y": 1005
+          }
+        ]
+      },
+      {
+        "src": "TOOLS",
+        "dst": "CLIENT",
+        "points": [
+          {
+            "x": 620,
+            "y": 1105
+          },
+          {
+            "x": 620,
+            "y": 1130
+          },
+          {
+            "x": 620,
+            "y": 1155
+          },
+          {
+            "x": 620,
+            "y": 1180
+          },
+          {
+            "x": 540.8333333333334,
+            "y": 1205
+          }
+        ]
+      },
+      {
+        "src": "CLIENT",
+        "dst": "FAILSAFE",
+        "points": [
+          {
+            "x": 477.5,
+            "y": 1245
+          },
+          {
+            "x": 477.5,
+            "y": 1270
+          },
+          {
+            "x": 477.5,
+            "y": 1295
+          }
+        ]
+      },
+      {
+        "src": "FAILSAFE",
+        "dst": "HTTP",
+        "points": [
+          {
+            "x": 477.5,
+            "y": 1355
+          },
+          {
+            "x": 477.5,
+            "y": 1380
+          },
+          {
+            "x": 477.5,
+            "y": 1405
+          }
+        ]
+      },
+      {
+        "src": "MAIN",
+        "dst": "VT",
+        "points": [
+          {
+            "x": 625.5,
+            "y": 190.85470085470087
+          },
+          {
+            "x": 749.5,
+            "y": 220
+          },
+          {
+            "x": 749.5,
+            "y": 245
+          },
+          {
+            "x": 749.5,
+            "y": 270
+          },
+          {
+            "x": 749.5,
+            "y": 295
+          }
+        ]
+      },
+      {
+        "src": "MAIN",
+        "dst": "SDK",
+        "points": [
+          {
+            "x": 543.3181818181819,
+            "y": 195
+          },
+          {
+            "x": 566.5,
+            "y": 220
+          },
+          {
+            "x": 566.5,
+            "y": 245
+          },
+          {
+            "x": 566.5,
+            "y": 270
+          },
+          {
+            "x": 566.5,
+            "y": 315
+          },
+          {
+            "x": 566.5,
+            "y": 360
+          },
+          {
+            "x": 566.5,
+            "y": 405
+          },
+          {
+            "x": 566.5,
+            "y": 450
+          },
+          {
+            "x": 566.5,
+            "y": 505
+          },
+          {
+            "x": 566.5,
+            "y": 560
+          },
+          {
+            "x": 566.5,
+            "y": 605
+          },
+          {
+            "x": 566.5,
+            "y": 660
+          },
+          {
+            "x": 566.5,
+            "y": 745
+          },
+          {
+            "x": 566.5,
+            "y": 820
+          },
+          {
+            "x": 566.5,
+            "y": 845
+          },
+          {
+            "x": 566.5,
+            "y": 870
+          },
+          {
+            "x": 590.8181818181819,
+            "y": 895
+          }
+        ]
+      },
+      {
+        "src": "MAIN",
+        "dst": "CLIENT",
+        "points": [
+          {
+            "x": 405.5,
+            "y": 194.08653846153845
+          },
+          {
+            "x": 307.5,
+            "y": 220
+          },
+          {
+            "x": 307.5,
+            "y": 245
+          },
+          {
+            "x": 307.5,
+            "y": 270
+          },
+          {
+            "x": 307.5,
+            "y": 315
+          },
+          {
+            "x": 307.5,
+            "y": 360
+          },
+          {
+            "x": 307.5,
+            "y": 405
+          },
+          {
+            "x": 307.5,
+            "y": 450
+          },
+          {
+            "x": 307.5,
+            "y": 505
+          },
+          {
+            "x": 307.5,
+            "y": 560
+          },
+          {
+            "x": 307.5,
+            "y": 605
+          },
+          {
+            "x": 307.5,
+            "y": 660
+          },
+          {
+            "x": 307.5,
+            "y": 745
+          },
+          {
+            "x": 307.5,
+            "y": 820
+          },
+          {
+            "x": 307.5,
+            "y": 845
+          },
+          {
+            "x": 307.5,
+            "y": 870
+          },
+          {
+            "x": 307.5,
+            "y": 925
+          },
+          {
+            "x": 307.5,
+            "y": 980
+          },
+          {
+            "x": 307.5,
+            "y": 1055
+          },
+          {
+            "x": 307.5,
+            "y": 1130
+          },
+          {
+            "x": 307.5,
+            "y": 1155
+          },
+          {
+            "x": 307.5,
+            "y": 1180
+          },
+          {
+            "x": 403.5,
+            "y": 1205.4117647058824
+          }
+        ]
+      },
+      {
+        "src": "CONFIG",
+        "dst": "MAIN",
+        "points": [
+          {
+            "x": 245,
+            "y": 85
+          },
+          {
+            "x": 245,
+            "y": 110
+          },
+          {
+            "x": 405.5,
+            "y": 142.634011090573
+          }
+        ]
+      },
+      {
+        "src": "TEL",
+        "dst": "TRACE",
+        "points": [
+          {
+            "x": 1223.8181818181818,
+            "y": 195
+          },
+          {
+            "x": 1279.5,
+            "y": 220
+          },
+          {
+            "x": 1279.5,
+            "y": 245
+          },
+          {
+            "x": 1279.5,
+            "y": 270
+          },
+          {
+            "x": 1279.5,
+            "y": 315
+          },
+          {
+            "x": 1279.5,
+            "y": 360
+          },
+          {
+            "x": 1279.5,
+            "y": 405
+          },
+          {
+            "x": 1279.5,
+            "y": 450
+          },
+          {
+            "x": 1343.1363636363637,
+            "y": 475
+          }
+        ]
+      },
+      {
+        "src": "TEL",
+        "dst": "METRICS",
+        "points": [
+          {
+            "x": 1019,
+            "y": 193.05914972273567
+          },
+          {
+            "x": 886.5,
+            "y": 220
+          },
+          {
+            "x": 886.5,
+            "y": 245
+          },
+          {
+            "x": 886.5,
+            "y": 270
+          },
+          {
+            "x": 886.5,
+            "y": 315
+          },
+          {
+            "x": 886.5,
+            "y": 360
+          },
+          {
+            "x": 886.5,
+            "y": 405
+          },
+          {
+            "x": 886.5,
+            "y": 450
+          },
+          {
+            "x": 886.5,
+            "y": 505
+          },
+          {
+            "x": 886.5,
+            "y": 560
+          },
+          {
+            "x": 886.5,
+            "y": 605
+          },
+          {
+            "x": 886.5,
+            "y": 660
+          },
+          {
+            "x": 1267.5,
+            "y": 722.8834951456311
+          }
+        ]
+      },
+      {
+        "src": "GS",
+        "dst": "MAIN",
+        "points": [
+          {
+            "x": 888.5,
+            "y": 85
+          },
+          {
+            "x": 888.5,
+            "y": 110
+          },
+          {
+            "x": 625.5,
+            "y": 148.78016085790884
+          }
+        ]
+      },
+      {
+        "src": "CID",
+        "dst": "TRACE",
+        "points": [
+          {
+            "x": 1560.5,
+            "y": 195
+          },
+          {
+            "x": 1560.5,
+            "y": 220
+          },
+          {
+            "x": 1560.5,
+            "y": 245
+          },
+          {
+            "x": 1560.5,
+            "y": 270
+          },
+          {
+            "x": 1560.5,
+            "y": 315
+          },
+          {
+            "x": 1560.5,
+            "y": 360
+          },
+          {
+            "x": 1560.5,
+            "y": 405
+          },
+          {
+            "x": 1560.5,
+            "y": 450
+          },
+          {
+            "x": 1496.409090909091,
+            "y": 475
+          }
+        ]
+      },
+      {
+        "src": "HTTP",
+        "dst": "EXT",
+        "points": [
+          {
+            "x": 477.5,
+            "y": 1465
+          },
+          {
+            "x": 477.5,
+            "y": 1490
+          },
+          {
+            "x": 477.5,
+            "y": 1525
+          },
+          {
+            "x": 477.5,
+            "y": 1560
+          }
+        ],
+        "x": 510,
+        "y": 1525
+      }
+    ],
+    "width": 1920.5,
+    "height": 1620
+  }
+}

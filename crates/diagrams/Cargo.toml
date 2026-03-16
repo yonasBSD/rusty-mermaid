@@ -1,0 +1,42 @@
+[package]
+name = "rusty-mermaid-diagrams"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "All diagram types: parse + layout → Scene"
+
+[features]
+default = ["flowchart", "state"]
+# Graph-based (use dagre)
+flowchart = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+state = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+class = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+er = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+requirement = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+mindmap = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+# Non-graph (custom layout, no dagre dependency)
+sequence = []
+gantt = []
+pie = []
+sankey = []
+git = []
+timeline = []
+xychart = []
+kanban = []
+architecture = []
+block = []
+c4 = []
+ishikawa = []
+packet = []
+quadrant = []
+radar = []
+treemap = []
+treeview = []
+user-journey = []
+venn = []
+
+[dependencies]
+rusty-mermaid-core.workspace = true
+rusty-mermaid-graph = { workspace = true, optional = true }
+rusty-mermaid-dagre = { workspace = true, optional = true }
+thiserror.workspace = true

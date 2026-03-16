@@ -1,0 +1,81 @@
+{
+  "mmd": "graph TD\n    A[Top] --> B[Far Below]\n    A --> C[Near]",
+  "config": {
+    "rankdir": "TB",
+    "nodesep": 50,
+    "ranksep": 50,
+    "width": 194,
+    "height": 130
+  },
+  "output": {
+    "nodes": [
+      {
+        "id": "A",
+        "x": 87,
+        "y": 20,
+        "width": 44,
+        "height": 40,
+        "rank": 0,
+        "order": 0
+      },
+      {
+        "id": "B",
+        "x": 148,
+        "y": 110,
+        "width": 92,
+        "height": 40,
+        "rank": 2,
+        "order": 1
+      },
+      {
+        "id": "C",
+        "x": 26,
+        "y": 110,
+        "width": 52,
+        "height": 40,
+        "rank": 2,
+        "order": 0
+      }
+    ],
+    "edges": [
+      {
+        "src": "A",
+        "dst": "B",
+        "points": [
+          {
+            "x": 109,
+            "y": 36.22950819672131
+          },
+          {
+            "x": 148,
+            "y": 65
+          },
+          {
+            "x": 148,
+            "y": 90
+          }
+        ]
+      },
+      {
+        "src": "A",
+        "dst": "C",
+        "points": [
+          {
+            "x": 65,
+            "y": 36.22950819672131
+          },
+          {
+            "x": 26,
+            "y": 65
+          },
+          {
+            "x": 26,
+            "y": 90
+          }
+        ]
+      }
+    ],
+    "width": 194,
+    "height": 130
+  }
+}

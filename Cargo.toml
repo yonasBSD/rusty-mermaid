@@ -1,0 +1,22 @@
+[workspace]
+members = [
+    "crates/core",
+    "crates/graph",
+    "crates/dagre",
+    "crates/diagrams",
+    "crates/svg",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[workspace.dependencies]
+rusty-mermaid-core = { path = "crates/core" }
+rusty-mermaid-graph = { path = "crates/graph" }
+rusty-mermaid-dagre = { path = "crates/dagre" }
+rusty-mermaid-diagrams = { path = "crates/diagrams" }
+rusty-mermaid-svg = { path = "crates/svg" }
+thiserror = "2"

@@ -1,0 +1,13 @@
+graph TD
+    start[Start] --> input[Get Input]
+    input --> validate{Valid?}
+    validate -->|No| error[Show Error]
+    validate -->|Yes| process[Process Data]
+    error --> input
+    process --> decide{Choose Path}
+    decide -->|A| optA[Option A]
+    decide -->|B| optB[Option B]
+    optA --> merge[Merge]
+    optB --> merge
+    merge --> output[Output Result]
+    output --> done[End]

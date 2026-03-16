@@ -1,0 +1,81 @@
+flowchart LR
+    subgraph Frontend
+        Source[Source Code]
+        Lexer[Lexer / Tokenizer]
+        Parser[Parser]
+        AST[Abstract Syntax Tree]
+        SemanticCheck{Semantic Analysis}
+        TypeCheck[Type Checker]
+        SymTable[(Symbol Table)]
+    end
+
+    subgraph Middle End
+        IRGen[IR Generation]
+        HIR[High-Level IR]
+        ConstFold[Constant Folding]
+        DeadCode[Dead Code Elimination]
+        Inline[Function Inlining]
+        LoopOpt[Loop Optimization]
+        MIR[Mid-Level IR]
+        SSA[SSA Conversion]
+        RegAlloc[Register Allocation]
+        LIR[Low-Level IR]
+    end
+
+    subgraph Backend
+        InstSel[Instruction Selection]
+        InstSched[Instruction Scheduling]
+        PeepHole[Peephole Optimization]
+        CodeGen[Code Generation]
+    end
+
+    subgraph Targets
+        x86[x86_64 Assembly]
+        ARM[ARM64 Assembly]
+        WASM[WebAssembly]
+        LLVM[LLVM Bitcode]
+    end
+
+    subgraph Linker
+        ObjFile[Object Files]
+        StaticLink[Static Libraries]
+        DynLink[Dynamic Libraries]
+        Linker_[Linker]
+        Executable[Executable]
+    end
+
+    Source --> Lexer
+    Lexer --> Parser
+    Parser --> AST
+    AST --> SemanticCheck
+    SemanticCheck -->|error| Source
+    SemanticCheck -->|ok| TypeCheck
+    TypeCheck --> SymTable
+    TypeCheck --> IRGen
+
+    IRGen --> HIR
+    HIR --> ConstFold
+    ConstFold --> DeadCode
+    DeadCode --> Inline
+    Inline --> LoopOpt
+    LoopOpt --> MIR
+    MIR --> SSA
+    SSA --> RegAlloc
+    RegAlloc --> LIR
+
+    LIR --> InstSel
+    InstSel --> InstSched
+    InstSched --> PeepHole
+    PeepHole --> CodeGen
+
+    CodeGen --> x86
+    CodeGen --> ARM
+    CodeGen --> WASM
+    CodeGen --> LLVM
+
+    x86 --> ObjFile
+    ARM --> ObjFile
+    ObjFile --> Linker_
+    StaticLink --> Linker_
+    DynLink --> Linker_
+    Linker_ --> Executable

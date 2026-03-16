@@ -1,0 +1,35 @@
+[package]
+name = "rusty-mermaid-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+rusty-mermaid-core = { path = "../crates/core" }
+rusty-mermaid-graph = { path = "../crates/graph" }
+rusty-mermaid-dagre = { path = "../crates/dagre" }
+rusty-mermaid-diagrams = { path = "../crates/diagrams", features = ["flowchart", "state"] }
+rusty-mermaid-svg = { path = "../crates/svg" }
+
+# Prevent this from interfering with workspace builds
+[workspace]
+
+[[bin]]
+name = "fuzz_flowchart_parse"
+path = "fuzz_targets/flowchart_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_graph_ops"
+path = "fuzz_targets/graph_ops.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_dagre_layout"
+path = "fuzz_targets/dagre_layout.rs"
+doc = false
