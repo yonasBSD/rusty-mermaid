@@ -1,0 +1,7 @@
+stateDiagram-v2
+    state check <<choice>>
+    [*] --> check
+    check --> A : yes
+    check --> B : no
+    A --> [*]
+    B --> [*]
