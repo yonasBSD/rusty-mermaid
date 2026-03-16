@@ -1,0 +1,228 @@
+use rusty_mermaid_core::Direction;
+use winnow::combinator::{alt, opt, repeat};
+use winnow::prelude::*;
+use winnow::token::{any, take_while};
+
+/// Skip horizontal whitespace (spaces and tabs, NOT newlines).
+pub fn ws<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    take_while(0.., |c: char| c == ' ' || c == '\t').parse_next(input)
+}
+
+/// Skip whitespace including newlines.
+pub fn ws_nl<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    take_while(0.., |c: char| c.is_ascii_whitespace()).parse_next(input)
+}
+
+/// Skip a `%%` line comment (consumes through end of line, not the newline itself).
+pub fn line_comment<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    ("%%", take_while(0.., |c: char| c != '\n')).take().parse_next(input)
+}
+
+/// Skip any combination of whitespace, newlines, and `%%` comments.
+pub fn skip<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    repeat::<_, _, (), _, _>(
+        0..,
+        alt((
+            take_while(1.., |c: char| c.is_ascii_whitespace()),
+            line_comment,
+        )),
+    )
+    .take()
+    .parse_next(input)
+}
+
+/// Statement separator: semicolon or newline (with surrounding whitespace/comments).
+pub fn separator(input: &mut &str) -> ModalResult<()> {
+    (
+        ws,
+        opt(line_comment),
+        alt((
+            ";".void(),
+            winnow::combinator::peek(winnow::token::one_of(['\n', '\r'])).void(),
+            winnow::combinator::eof.void(),
+        )),
+    )
+        .void()
+        .parse_next(input)
+}
+
+/// Parse an identifier: `[a-zA-Z_][a-zA-Z0-9_]*`.
+pub fn identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    (
+        any.verify(|c: &char| c.is_ascii_alphabetic() || *c == '_'),
+        take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_'),
+    )
+        .take()
+        .parse_next(input)
+}
+
+/// Parse a mermaid node ID: alphanumeric, underscore, hyphen (not before `>`/`.`).
+/// More permissive than `identifier` to match mermaid's node ID rules.
+pub fn node_id<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    (
+        any.verify(|c: &char| c.is_ascii_alphanumeric() || *c == '_'),
+        take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_' || c == '-'),
+    )
+        .take()
+        .parse_next(input)
+}
+
+/// Parse a double-quoted string, returning the content between quotes.
+/// Mermaid doesn't support backslash escapes in quoted strings.
+pub fn quoted_string<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    ('"', take_while(0.., |c: char| c != '"'), '"')
+        .map(|(_, content, _): (_, &str, _)| content)
+        .parse_next(input)
+}
+
+/// Parse a direction keyword: TB, TD, BT, LR, RL.
+pub fn direction(input: &mut &str) -> ModalResult<Direction> {
+    alt((
+        "TB".value(Direction::TB),
+        "TD".value(Direction::TB),
+        "BT".value(Direction::BT),
+        "LR".value(Direction::LR),
+        "RL".value(Direction::RL),
+    ))
+    .parse_next(input)
+}
+
+/// Consume text until hitting `close_delim`, handling nested quotes.
+/// Returns the content (not including the delimiter).
+pub fn text_until<'i>(close_delim: char, input: &mut &'i str) -> ModalResult<&'i str> {
+    let mut depth = 0usize;
+    let mut in_quotes = false;
+    let start = *input;
+
+    loop {
+        if input.is_empty() {
+            return Err(winnow::error::ErrMode::Backtrack(
+                winnow::error::ContextError::new(),
+            ));
+        }
+        let c = input.chars().next().unwrap();
+        if c == '"' {
+            in_quotes = !in_quotes;
+            *input = &input[1..];
+        } else if in_quotes {
+            *input = &input[c.len_utf8()..];
+        } else if c == close_delim && depth == 0 {
+            let consumed = &start[..start.len() - input.len()];
+            return Ok(consumed);
+        } else {
+            if c == '[' || c == '(' || c == '{' {
+                depth += 1;
+            } else if (c == ']' || c == ')' || c == '}') && depth > 0 {
+                depth -= 1;
+            }
+            *input = &input[c.len_utf8()..];
+        }
+    }
+}
+
+/// Strip HTML tags from label text for text measurement.
+/// `<b>Bold</b>` → `Bold`, `Line 1<br/>Line 2` → `Line 1 Line 2`.
+pub fn strip_html_tags(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut in_tag = false;
+    for c in s.chars() {
+        if c == '<' {
+            in_tag = true;
+        } else if c == '>' {
+            in_tag = false;
+        } else if !in_tag {
+            result.push(c);
+        }
+    }
+    result
+}
+
+/// Parse `:::className`, returning the class name.
+pub fn style_class<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
+    (":::", identifier).map(|(_, name)| name).parse_next(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_identifier() {
+        assert_eq!(identifier.parse_peek("hello world"), Ok((" world", "hello")));
+        assert_eq!(identifier.parse_peek("_foo"), Ok(("", "_foo")));
+        assert!(identifier.parse_peek("123").is_err());
+    }
+
+    #[test]
+    fn parse_node_id() {
+        assert_eq!(node_id.parse_peek("my-node rest"), Ok((" rest", "my-node")));
+        assert_eq!(node_id.parse_peek("A123"), Ok(("", "A123")));
+        assert!(node_id.parse_peek("-bad").is_err());
+    }
+
+    #[test]
+    fn parse_quoted_string() {
+        assert_eq!(quoted_string.parse_peek("\"hello world\""), Ok(("", "hello world")));
+        assert_eq!(
+            quoted_string.parse_peek("\"<b>Bold</b>\" rest"),
+            Ok((" rest", "<b>Bold</b>"))
+        );
+    }
+
+    #[test]
+    fn parse_direction_keywords() {
+        assert_eq!(direction.parse_peek("TB"), Ok(("", Direction::TB)));
+        assert_eq!(direction.parse_peek("TD"), Ok(("", Direction::TB)));
+        assert_eq!(direction.parse_peek("LR"), Ok(("", Direction::LR)));
+        assert_eq!(direction.parse_peek("RL"), Ok(("", Direction::RL)));
+        assert_eq!(direction.parse_peek("BT"), Ok(("", Direction::BT)));
+    }
+
+    #[test]
+    fn parse_text_until_delimiter() {
+        let mut input = "hello world]rest";
+        let result = text_until(']', &mut input).unwrap();
+        assert_eq!(result, "hello world");
+        assert_eq!(input, "]rest");
+    }
+
+    #[test]
+    fn text_until_handles_nested_brackets() {
+        let mut input = "a [nested] end]rest";
+        let result = text_until(']', &mut input).unwrap();
+        assert_eq!(result, "a [nested] end");
+    }
+
+    #[test]
+    fn strip_tags() {
+        assert_eq!(strip_html_tags("<b>Bold</b>"), "Bold");
+        assert_eq!(strip_html_tags("Line 1<br/>Line 2"), "Line 1Line 2");
+        assert_eq!(
+            strip_html_tags("<i>italic</i> and <b>bold</b>"),
+            "italic and bold"
+        );
+        assert_eq!(strip_html_tags("no tags"), "no tags");
+    }
+
+    #[test]
+    fn parse_style_class() {
+        assert_eq!(
+            style_class.parse_peek(":::myClass rest"),
+            Ok((" rest", "myClass"))
+        );
+    }
+
+    #[test]
+    fn skip_whitespace_and_comments() {
+        let mut input = "  \n  %% comment\n  rest";
+        skip.parse_next(&mut input).unwrap();
+        assert_eq!(input, "rest");
+    }
+
+    #[test]
+    fn line_comment_stops_at_newline() {
+        let mut input = "%% this is a comment\nnext";
+        line_comment.parse_next(&mut input).unwrap();
+        assert_eq!(input, "\nnext");
+    }
+}
