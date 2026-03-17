@@ -41,7 +41,7 @@ pub fn layout(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
     position::position(g, &cfg);
 
     self_edges::position_self_edges(g);
-    remove_border_nodes(g, cfg.rankdir);
+    remove_border_nodes(g);
     normalize::undo(g, &dummy_chains);
     fixup_edge_label_coords(g);
     coord_system::undo(g, cfg.rankdir);
@@ -159,115 +159,45 @@ fn remove_edge_label_proxies(g: &mut Graph<NodeLabel, EdgeLabel>) {
     }
 }
 
-/// Collect all real leaf descendants of a compound node, skipping border
-/// dummies and zero-sized internal nodes (border_top/border_bottom).
-fn collect_leaf_descendants(
-    g: &Graph<NodeLabel, EdgeLabel>,
-    nid: NodeId,
-    out: &mut Vec<NodeId>,
-) {
-    for child in g.children(nid).collect::<Vec<_>>() {
-        let cn = g.node(child).unwrap();
-        if cn.dummy == Some(DummyKind::Border) || (cn.width == 0.0 && cn.height == 0.0) {
-            continue;
-        }
-        if g.children(child).next().is_some() {
-            collect_leaf_descendants(g, child, out);
-        } else {
-            out.push(child);
-        }
-    }
-}
-
-/// Padding added around compound node content.
-const COMPOUND_PADDING: f64 = 10.0;
-/// Extra height reserved for the compound label.
-const COMPOUND_LABEL_HEIGHT: f64 = 25.0;
-
-/// After position assignment, compute compound node dimensions from leaf
-/// descendant positions (with padding), then remove all border dummy nodes.
+/// Compute compound node dimensions from border node positions, then remove
+/// all border dummy nodes.
 ///
-/// We compute tight bounding boxes from actual descendant positions rather
-/// than from border node positions, because our ordering phase doesn't
-/// constrain borders as tightly as JS dagre does (missing buildLayerGraph
-/// and addSubgraphConstraints). Padding is added here so that
-/// `translate_graph` keeps everything in positive coordinate space.
-fn remove_border_nodes(g: &mut Graph<NodeLabel, EdgeLabel>, rankdir: Direction) {
-    // Process inner compounds before outer ones (bottom-up) so that nested
-    // compound dimensions are finalized before their parent reads them.
+/// Matches JS dagre's `removeBorderNodes`: each compound's size is determined
+/// by its borderTop/borderBottom (y extent) and the last entries in
+/// borderLeft/borderRight (x extent). Border nodes have been positioned by
+/// the BK algorithm, so their coordinates define the compound's bounding box.
+fn remove_border_nodes(g: &mut Graph<NodeLabel, EdgeLabel>) {
+    // First pass: size each compound from its border nodes
     let compounds: Vec<NodeId> = g
         .node_ids()
         .filter(|&nid| g.children(nid).next().is_some())
         .collect();
 
-    // Sort by depth (deepest first)
-    let mut depth_order: Vec<(NodeId, usize)> = compounds
-        .iter()
-        .map(|&nid| {
-            let mut depth = 0;
-            let mut cur = nid;
-            while let Some(p) = g.parent(cur) {
-                depth += 1;
-                cur = p;
-            }
-            (nid, depth)
-        })
-        .collect();
-    depth_order.sort_by(|a, b| b.1.cmp(&a.1));
+    for &nid in &compounds {
+        let node = g.node(nid).unwrap();
+        let bt = node.border_top;
+        let bb = node.border_bottom;
+        // Last entries = highest rank in the map (matching JS borderLeft[borderLeft.length-1])
+        let bl = node.border_left.iter().max_by_key(|&(&r, _)| r).map(|(_, &v)| v);
+        let br = node.border_right.iter().max_by_key(|&(&r, _)| r).map(|(_, &v)| v);
 
-    for (nid, _) in &depth_order {
-        let mut leaves = Vec::new();
-        collect_leaf_descendants(g, *nid, &mut leaves);
-        if leaves.is_empty() {
-            continue;
+        if let (Some(t_id), Some(b_id), Some(l_id), Some(r_id)) = (bt, bb, bl, br) {
+            let t = g.node(t_id).unwrap();
+            let b = g.node(b_id).unwrap();
+            let l = g.node(l_id).unwrap();
+            let r = g.node(r_id).unwrap();
+
+            let width = (r.x - l.x).abs();
+            let height = (b.y - t.y).abs();
+            let x = l.x + width / 2.0;
+            let y = t.y + height / 2.0;
+
+            let n = g.node_mut(nid).unwrap();
+            n.width = width;
+            n.height = height;
+            n.x = x;
+            n.y = y;
         }
-
-        let mut min_x = f64::INFINITY;
-        let mut max_x = f64::NEG_INFINITY;
-        let mut min_y = f64::INFINITY;
-        let mut max_y = f64::NEG_INFINITY;
-        for &leaf in &leaves {
-            let ln = g.node(leaf).unwrap();
-            min_x = min_x.min(ln.x - ln.width / 2.0);
-            max_x = max_x.max(ln.x + ln.width / 2.0);
-            min_y = min_y.min(ln.y - ln.height / 2.0);
-            max_y = max_y.max(ln.y + ln.height / 2.0);
-        }
-
-        // Also include already-computed nested compound bounds
-        for child in g.children(*nid).collect::<Vec<_>>() {
-            if g.children(child).next().is_some()
-                && g.node(child).unwrap().dummy != Some(DummyKind::Border)
-            {
-                let cn = g.node(child).unwrap();
-                if cn.width > 0.0 && cn.height > 0.0 {
-                    min_x = min_x.min(cn.x - cn.width / 2.0);
-                    max_x = max_x.max(cn.x + cn.width / 2.0);
-                    min_y = min_y.min(cn.y - cn.height / 2.0);
-                    max_y = max_y.max(cn.y + cn.height / 2.0);
-                }
-            }
-        }
-
-        // Add padding on all sides
-        min_x -= COMPOUND_PADDING;
-        max_x += COMPOUND_PADDING;
-        min_y -= COMPOUND_PADDING;
-        max_y += COMPOUND_PADDING;
-
-        // Add label space in the TB-equiv dimension that becomes "top" after
-        // coord_system::undo (which swaps axes for LR/RL, reverses y for BT/RL).
-        match rankdir {
-            Direction::TB => min_y -= COMPOUND_LABEL_HEIGHT,
-            Direction::BT => max_y += COMPOUND_LABEL_HEIGHT,
-            Direction::LR | Direction::RL => min_x -= COMPOUND_LABEL_HEIGHT,
-        }
-
-        let n = g.node_mut(*nid).unwrap();
-        n.width = max_x - min_x;
-        n.height = max_y - min_y;
-        n.x = min_x + n.width / 2.0;
-        n.y = min_y + n.height / 2.0;
     }
 
     // Second pass: remove border nodes
