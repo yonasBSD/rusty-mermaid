@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 72" width="144" height="72">
-  <g transform="translate(20, 20)">
-    <rect x="0" y="0" width="104" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
-    <text x="52" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Only Node</text>
-  </g>
-</svg>
