@@ -717,7 +717,7 @@ Phase 5: flowchart feature parity
             + gallery: arrows.mmd shows all arrow types
   [x] 5.12 Render thick edges (stroke-width > default)
   [x] 5.13 Render open edges (--- no arrowhead)
-  [ ] 5.14 Render bidirectional arrows (<-->)
+  [x] 5.14 Render bidirectional arrows (<-->)
   [ ] 5.14r ── visual review ──
 
   5c — Subgraph direction

@@ -567,4 +567,29 @@ mod tests {
         assert_eq!(ac.end_arrow, ArrowEnd::Cross);
         assert_eq!(ad.end_arrow, ArrowEnd::None);
     }
+
+    #[test]
+    fn bidirectional_arrows() {
+        let d = crate::flowchart::parser::parse(
+            "flowchart TD\n    A <--> B\n    C <-.-> D\n    E o--o F\n    G x--x H",
+        )
+        .unwrap();
+        let result = layout(&d);
+
+        let ab = result.edges.iter().find(|e| e.src == "A" && e.dst == "B").unwrap();
+        assert_eq!(ab.start_arrow, ArrowEnd::Arrow);
+        assert_eq!(ab.end_arrow, ArrowEnd::Arrow);
+
+        let cd = result.edges.iter().find(|e| e.src == "C" && e.dst == "D").unwrap();
+        assert_eq!(cd.start_arrow, ArrowEnd::Arrow);
+        assert_eq!(cd.end_arrow, ArrowEnd::Arrow);
+
+        let ef = result.edges.iter().find(|e| e.src == "E" && e.dst == "F").unwrap();
+        assert_eq!(ef.start_arrow, ArrowEnd::Circle);
+        assert_eq!(ef.end_arrow, ArrowEnd::Circle);
+
+        let gh = result.edges.iter().find(|e| e.src == "G" && e.dst == "H").unwrap();
+        assert_eq!(gh.start_arrow, ArrowEnd::Cross);
+        assert_eq!(gh.end_arrow, ArrowEnd::Cross);
+    }
 }
