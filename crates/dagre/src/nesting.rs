@@ -75,8 +75,13 @@ fn dfs(
     }
 
     // Compound node: create border top/bottom
-    let top = g.add_node(NodeLabel::new(0.0, 0.0));
-    let bottom = g.add_node(NodeLabel::new(0.0, 0.0));
+    // Must be marked as dummy=Border so BK sep() uses edgesep not nodesep
+    let mut top_label = NodeLabel::new(0.0, 0.0);
+    top_label.dummy = Some(crate::labels::DummyKind::Border);
+    let top = g.add_node(top_label);
+    let mut bottom_label = NodeLabel::new(0.0, 0.0);
+    bottom_label.dummy = Some(crate::labels::DummyKind::Border);
+    let bottom = g.add_node(bottom_label);
 
     g.set_parent(top, v);
     g.node_mut(v).unwrap().border_top = Some(top);
