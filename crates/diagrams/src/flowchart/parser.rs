@@ -4,7 +4,7 @@ use winnow::prelude::*;
 use winnow::token::{any, take_while};
 
 use crate::common::error::{ParseError, ParseErrorKind};
-use crate::common::styling::{class_apply_body, class_def_body, style_stmt_body};
+use crate::common::styling::{class_apply_body, class_def_body, style_properties, style_stmt_body};
 use crate::common::tokens::{direction, node_id, quoted_string, skip, style_class, text_until, ws};
 
 use super::ir::*;
@@ -88,6 +88,11 @@ fn parse_statements(
                     v.classes.push(ca.class_name.clone());
                 }
             }
+        } else if input.starts_with("linkStyle") {
+            *input = &input[9..];
+            ws.parse_next(input)?;
+            let ls = parse_link_style_body(input)?;
+            diagram.link_styles.push(ls);
         } else if input.starts_with("direction") {
             // Subgraph-level direction override — not yet wired
             *input = &input[9..];
@@ -512,6 +517,36 @@ fn parse_inline_edge_label(input: &mut &str, stop_chars: &str) -> ModalResult<Op
     }
 }
 
+/// Parse `linkStyle` body: `default stroke:green` or `0,1,2 stroke:#f00`.
+/// The `linkStyle` keyword and leading whitespace are already consumed.
+fn parse_link_style_body(input: &mut &str) -> ModalResult<FlowLinkStyle> {
+    if input.starts_with("default") {
+        *input = &input[7..];
+        ws.parse_next(input)?;
+        let styles = style_properties(input)?;
+        Ok(FlowLinkStyle {
+            indices: Vec::new(),
+            is_default: true,
+            styles,
+        })
+    } else {
+        // Parse comma-separated indices
+        let idx_str: &str =
+            take_while(1.., |c: char| c.is_ascii_digit() || c == ',').parse_next(input)?;
+        let indices: Vec<usize> = idx_str
+            .split(',')
+            .filter_map(|s| s.trim().parse().ok())
+            .collect();
+        ws.parse_next(input)?;
+        let styles = style_properties(input)?;
+        Ok(FlowLinkStyle {
+            indices,
+            is_default: false,
+            styles,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -692,5 +727,28 @@ graph TD
             let d = parse(&format!("{keyword}\n    A --> B")).unwrap();
             assert_eq!(d.direction, expected, "failed for {keyword}");
         }
+    }
+
+    #[test]
+    fn parse_link_style_by_index() {
+        let d = parse("flowchart TD\n    A --> B --> C\n    linkStyle 0 stroke:#f00,stroke-width:3px").unwrap();
+        assert_eq!(d.link_styles.len(), 1);
+        assert!(!d.link_styles[0].is_default);
+        assert_eq!(d.link_styles[0].indices, vec![0]);
+        assert_eq!(d.link_styles[0].styles[0].key, "stroke");
+        assert_eq!(d.link_styles[0].styles[0].value, "#f00");
+    }
+
+    #[test]
+    fn parse_link_style_multiple_indices() {
+        let d = parse("flowchart TD\n    A --> B --> C\n    linkStyle 0,1 stroke:red").unwrap();
+        assert_eq!(d.link_styles[0].indices, vec![0, 1]);
+    }
+
+    #[test]
+    fn parse_link_style_default() {
+        let d = parse("flowchart TD\n    A --> B\n    linkStyle default stroke:green").unwrap();
+        assert!(d.link_styles[0].is_default);
+        assert!(d.link_styles[0].indices.is_empty());
     }
 }

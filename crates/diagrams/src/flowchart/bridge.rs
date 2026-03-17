@@ -48,6 +48,8 @@ pub struct EdgeLayout {
     pub stroke: StrokeType,
     pub start_arrow: ArrowEnd,
     pub end_arrow: ArrowEnd,
+    /// Resolved style from linkStyle statements.
+    pub custom_style: Option<Style>,
 }
 
 #[derive(Debug)]
@@ -217,6 +219,12 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         .map(|v| (v.id.as_str(), v.shape))
         .collect();
 
+    // Resolve per-edge styles from linkStyle statements.
+    let edge_styles = resolve_edge_styles(diagram);
+
+    // Track which declaration-order edges have been consumed (for parallel edges).
+    let mut used_edge_idx = vec![false; diagram.edges.len()];
+
     let mut edges = Vec::new();
     for eid in g.edge_ids() {
         let (src, dst) = g.edge_endpoints(eid).unwrap();
@@ -225,8 +233,6 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             let mut points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
 
             // Re-clip edge endpoints for non-rect shapes.
-            // Dagre uses intersect_rect for all nodes, which overshoots
-            // for shapes inscribed within the bounding rect (diamond, circle, etc.).
             if points.len() >= 2 {
                 let src_node = g.node(src).unwrap();
                 let src_shape = vertex_shape.get(src_id).copied().unwrap_or(Shape::Rect);
@@ -248,14 +254,23 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
                 }
             }
 
-            let flow_edge = diagram
-                .edges
-                .iter()
-                .find(|fe| fe.src == src_id && fe.dst == dst_id);
+            // Find the declaration-order index for this edge (handles parallel edges).
+            let edge_idx = diagram.edges.iter().enumerate().find_map(|(i, fe)| {
+                if !used_edge_idx[i] && fe.src == src_id && fe.dst == dst_id {
+                    Some(i)
+                } else {
+                    None
+                }
+            });
+            if let Some(idx) = edge_idx {
+                used_edge_idx[idx] = true;
+            }
+            let flow_edge = edge_idx.map(|i| &diagram.edges[i]);
             let label = flow_edge.and_then(|fe| fe.label.clone());
             let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
             let start_arrow = flow_edge.map_or(ArrowEnd::None, |fe| fe.start_arrow);
             let end_arrow = flow_edge.map_or(ArrowEnd::Arrow, |fe| fe.end_arrow);
+            let custom_style = edge_idx.and_then(|i| edge_styles.get(&i).cloned());
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
@@ -264,6 +279,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
                 stroke,
                 start_arrow,
                 end_arrow,
+                custom_style,
             });
         }
     }
@@ -379,6 +395,32 @@ fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
             _ => {}
         }
     }
+}
+
+/// Resolve linkStyle statements into a per-edge-index Style map.
+/// Priority: linkStyle default → linkStyle by index (last wins).
+fn resolve_edge_styles(diagram: &FlowDiagram) -> HashMap<usize, Style> {
+    let mut result: HashMap<usize, Style> = HashMap::new();
+    let edge_count = diagram.edges.len();
+
+    for ls in &diagram.link_styles {
+        if ls.is_default {
+            // Apply to all edges
+            for i in 0..edge_count {
+                let style = result.entry(i).or_insert_with(Style::default);
+                apply_style_properties(style, &ls.styles);
+            }
+        } else {
+            for &idx in &ls.indices {
+                if idx < edge_count {
+                    let style = result.entry(idx).or_insert_with(Style::default);
+                    apply_style_properties(style, &ls.styles);
+                }
+            }
+        }
+    }
+
+    result
 }
 
 /// Compute shape-specific edge intersection point.

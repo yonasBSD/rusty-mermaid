@@ -737,7 +737,7 @@ Phase 5: flowchart feature parity
   [x] 5.17 Apply inline style statements (`style A fill:#f9f`)
             + gallery: style_inline.mmd shows styled nodes
   [x] 5.18 Apply :::className inline syntax
-  [ ] 5.19 linkStyle for edge coloring (parse + apply)
+  [x] 5.19 linkStyle for edge coloring (parse + apply)
             + gallery: new edge_styles.mmd
   [ ] 5.19r ── visual review ──
 

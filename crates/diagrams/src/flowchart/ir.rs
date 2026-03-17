@@ -11,6 +11,7 @@ pub struct FlowDiagram {
     pub subgraphs: Vec<FlowSubGraph>,
     pub class_defs: Vec<ClassDef>,
     pub style_stmts: Vec<FlowStyleStmt>,
+    pub link_styles: Vec<FlowLinkStyle>,
 }
 
 /// A flowchart node.
@@ -74,6 +75,16 @@ pub struct FlowStyleStmt {
     pub styles: Vec<StyleProperty>,
 }
 
+/// Edge style applied by declaration-order index.
+/// `linkStyle 0,1 stroke:#f00,stroke-width:3px` or `linkStyle default stroke:green`.
+#[derive(Debug, Clone)]
+pub struct FlowLinkStyle {
+    /// Edge indices (0-based declaration order), or empty for `default`.
+    pub indices: Vec<usize>,
+    pub is_default: bool,
+    pub styles: Vec<StyleProperty>,
+}
+
 impl FlowDiagram {
     pub fn new(direction: Direction) -> Self {
         Self {
@@ -83,6 +94,7 @@ impl FlowDiagram {
             subgraphs: Vec::new(),
             class_defs: Vec::new(),
             style_stmts: Vec::new(),
+            link_styles: Vec::new(),
         }
     }
 

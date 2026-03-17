@@ -115,9 +115,19 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 ArrowEnd::None => None,
             };
 
+            let mut estyle = edge_style(edge.stroke);
+            if let Some(custom) = &edge.custom_style {
+                if custom.stroke.is_some() { estyle.stroke = custom.stroke; }
+                if custom.stroke_width.is_some() { estyle.stroke_width = custom.stroke_width; }
+                if custom.stroke_dasharray.is_some() {
+                    estyle.stroke_dasharray = custom.stroke_dasharray.clone();
+                }
+                if custom.opacity.is_some() { estyle.opacity = custom.opacity; }
+            }
+
             scene.push(Primitive::Path {
                 segments,
-                style: edge_style(edge.stroke),
+                style: estyle,
                 marker_start,
                 marker_end,
             });
