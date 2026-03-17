@@ -49,6 +49,7 @@ pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
                 dummy_label.width = edge_label.width;
                 dummy_label.height = edge_label.height;
                 dummy_label.dummy = Some(DummyKind::EdgeLabel);
+                dummy_label.label_pos = Some(edge_label.labelpos);
             }
 
             let dummy = g.add_node(dummy_label);

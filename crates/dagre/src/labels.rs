@@ -7,8 +7,8 @@ use rusty_mermaid_graph::NodeId;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LabelPos {
     Left,
-    #[default]
     Center,
+    #[default]
     Right,
 }
 
