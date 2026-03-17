@@ -77,15 +77,46 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 TextAnchor::Middle => "middle",
                 TextAnchor::End => "end",
             };
-            let mut attrs: Vec<(String, String)> = vec![
-                ("x".into(), fmt_f64(position.x)),
-                ("y".into(), fmt_f64(position.y)),
-                ("text-anchor".into(), anchor_str.into()),
-                ("dominant-baseline".into(), "central".into()),
-            ];
-            attrs.extend(text_style_attrs(style));
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.text_element("text", &refs, &xml_escape(content));
+            let lines: Vec<&str> = content.split('\n').collect();
+            if lines.len() <= 1 {
+                // Single line — simple text element
+                let mut attrs: Vec<(String, String)> = vec![
+                    ("x".into(), fmt_f64(position.x)),
+                    ("y".into(), fmt_f64(position.y)),
+                    ("text-anchor".into(), anchor_str.into()),
+                    ("dominant-baseline".into(), "central".into()),
+                ];
+                attrs.extend(text_style_attrs(style));
+                let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+                doc.text_element("text", &refs, &xml_escape(content));
+            } else {
+                // Multi-line — tspan elements with dy offsets
+                let line_height = style.font_size * 1.2;
+                let total_h = line_height * (lines.len() - 1) as f64;
+                let start_y = position.y - total_h / 2.0;
+
+                let mut attrs: Vec<(String, String)> = vec![
+                    ("x".into(), fmt_f64(position.x)),
+                    ("y".into(), fmt_f64(start_y)),
+                    ("text-anchor".into(), anchor_str.into()),
+                    ("dominant-baseline".into(), "central".into()),
+                ];
+                attrs.extend(text_style_attrs(style));
+                let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+                doc.open_tag("text", &refs);
+
+                let x_str = fmt_f64(position.x);
+                for (i, line) in lines.iter().enumerate() {
+                    let dy = if i == 0 { "0".to_string() } else { fmt_f64(line_height) };
+                    let tspan_attrs: Vec<(&str, &str)> = vec![
+                        ("x", &x_str),
+                        ("dy", &dy),
+                    ];
+                    doc.text_element("tspan", &tspan_attrs, &xml_escape(line));
+                }
+
+                doc.close_tag("text");
+            }
         }
 
         Primitive::Polygon { points, style } => {

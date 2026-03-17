@@ -746,7 +746,7 @@ Phase 5: flowchart feature parity
             background rect (match mermaid's label-on-edge look)
   [ ] 5.21 Markdown in labels (`**bold**`, `_italic_`) — parse to
             inline spans, render as tspan with font-weight/style
-  [ ] 5.22 Multi-line labels: support `<br/>` in node text → multi-
+  [x] 5.22 Multi-line labels: support `<br/>` in node text → multi-
             line tspan rendering in SVG
   [ ] 5.22r ── visual review ──
 

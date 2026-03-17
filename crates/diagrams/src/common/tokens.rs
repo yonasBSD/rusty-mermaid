@@ -121,7 +121,7 @@ pub fn text_until<'i>(close_delim: char, input: &mut &'i str) -> ModalResult<&'i
 }
 
 /// Strip HTML tags from label text for text measurement.
-/// `<b>Bold</b>` → `Bold`, `Line 1<br/>Line 2` → `Line 1 Line 2`.
+/// `<b>Bold</b>` → `Bold`, `Line 1<br/>Line 2` → `Line 1\nLine 2`.
 pub fn strip_html_tags(s: &str) -> String {
     let mut result = String::with_capacity(s.len());
     let mut rest = s;
@@ -129,9 +129,9 @@ pub fn strip_html_tags(s: &str) -> String {
         result.push_str(&rest[..start]);
         if let Some(end) = rest[start..].find('>') {
             let tag = &rest[start..start + end + 1];
-            // Insert space for line-break tags
+            // Convert line-break tags to newlines for multi-line rendering
             if tag.eq_ignore_ascii_case("<br>") || tag.eq_ignore_ascii_case("<br/>") || tag.eq_ignore_ascii_case("<br />") {
-                result.push(' ');
+                result.push('\n');
             }
             rest = &rest[start + end + 1..];
         } else {
@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn strip_tags() {
         assert_eq!(strip_html_tags("<b>Bold</b>"), "Bold");
-        assert_eq!(strip_html_tags("Line 1<br/>Line 2"), "Line 1 Line 2");
+        assert_eq!(strip_html_tags("Line 1<br/>Line 2"), "Line 1\nLine 2");
         assert_eq!(
             strip_html_tags("<i>italic</i> and <b>bold</b>"),
             "italic and bold"
