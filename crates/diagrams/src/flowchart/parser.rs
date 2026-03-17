@@ -94,10 +94,14 @@ fn parse_statements(
             let ls = parse_link_style_body(input)?;
             diagram.link_styles.push(ls);
         } else if input.starts_with("direction") {
-            // Subgraph-level direction override — not yet wired
             *input = &input[9..];
             ws.parse_next(input)?;
-            let _dir = direction(input)?;
+            let dir = direction(input)?;
+            if let Some(sg_id) = subgraph_id {
+                if let Some(sg) = diagram.subgraphs.iter_mut().find(|s| s.id == sg_id) {
+                    sg.direction = Some(dir);
+                }
+            }
         } else {
             // Must be a node/edge statement
             parse_node_edge_statement(input, diagram, subgraph_id)?;
@@ -750,5 +754,23 @@ graph TD
         let d = parse("flowchart TD\n    A --> B\n    linkStyle default stroke:green").unwrap();
         assert!(d.link_styles[0].is_default);
         assert!(d.link_styles[0].indices.is_empty());
+    }
+
+    #[test]
+    fn parse_subgraph_direction() {
+        let d = parse(
+            "flowchart TD\n    subgraph sub1[Group]\n        direction LR\n        A --> B\n    end",
+        )
+        .unwrap();
+        assert_eq!(d.subgraphs[0].direction, Some(Direction::LR));
+    }
+
+    #[test]
+    fn parse_subgraph_no_direction() {
+        let d = parse(
+            "flowchart TD\n    subgraph sub1[Group]\n        A --> B\n    end",
+        )
+        .unwrap();
+        assert_eq!(d.subgraphs[0].direction, None);
     }
 }

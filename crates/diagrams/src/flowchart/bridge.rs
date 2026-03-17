@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use rusty_mermaid_core::{
     BBox, Color, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
@@ -159,8 +159,48 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     let mut config = DagreConfig::default();
     config.rankdir = diagram.direction;
 
+    // Extract subgraphs with per-subgraph direction override.
+    // Matching mermaid's dagre backend: subgraphs without external
+    // connections get independent dagre layout with their own rankdir.
+    let extracted = extract_directed_subgraphs(diagram, &mut g, &id_map, measurer);
+
     // Run layout
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+
+    // Apply extracted subgraph inner positions: translate from
+    // inner-relative coordinates to final absolute coordinates.
+    for ex in &extracted {
+        let Some(&sg_nid) = id_map.get(ex.sg_id.as_str()) else { continue };
+        let sg = g.node(sg_nid).unwrap();
+        let sg_cx = sg.x;
+        let sg_cy = sg.y;
+        for (nid, rel_x, rel_y, w, h) in &ex.inner_nodes {
+            let Some(&node_nid) = id_map.get(nid.as_str()) else { continue };
+            let n = g.node_mut(node_nid).unwrap();
+            n.x = sg_cx + rel_x;
+            n.y = sg_cy + rel_y;
+            n.width = *w;
+            n.height = *h;
+        }
+        for (sg_id, rel_x, rel_y, w, h) in &ex.inner_subgraphs {
+            let Some(&nid) = id_map.get(sg_id.as_str()) else { continue };
+            let n = g.node_mut(nid).unwrap();
+            n.x = sg_cx + rel_x;
+            n.y = sg_cy + rel_y;
+            n.width = *w;
+            n.height = *h;
+        }
+        for edge in &ex.inner_edges {
+            let Some(&src) = id_map.get(edge.src.as_str()) else { continue };
+            let Some(&dst) = id_map.get(edge.dst.as_str()) else { continue };
+            // Re-add inner edges (removed during extraction) with translated points.
+            let mut label = EdgeLabel::default();
+            label.points = edge.points.iter()
+                .map(|&(px, py)| Point::new(sg_cx + px, sg_cy + py))
+                .collect();
+            g.add_edge(src, dst, label);
+        }
+    }
 
     // Recenter compound nodes on their content.  The BK position
     // algorithm can place left/right border nodes asymmetrically,
@@ -169,6 +209,9 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     // box.  Process inner-to-outer so parent compounds see the
     // updated child positions.
     for sg in diagram.subgraphs.iter().rev() {
+        if extracted.iter().any(|ex| ex.sg_id == sg.id) {
+            continue; // extracted subgraphs already positioned
+        }
         let Some(&nid) = id_map.get(sg.id.as_str()) else {
             continue;
         };
@@ -196,7 +239,14 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
 
+    // Subgraph IDs: skip vertex rendering when a vertex ID collides with a
+    // subgraph ID (the subgraph node takes precedence in the graph).
+    let sg_ids: HashSet<&str> = diagram.subgraphs.iter().map(|s| s.id.as_str()).collect();
+
     for v in &diagram.vertices {
+        if sg_ids.contains(v.id.as_str()) {
+            continue; // rendered as subgraph, not vertex
+        }
         if let Some(&nid) = id_map.get(v.id.as_str()) {
             let n = g.node(nid).unwrap();
             nodes.push(NodeLayout {
@@ -320,6 +370,222 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         width: max_x,
         height: max_y,
     }
+}
+
+/// Inner edge data from an extracted subgraph layout.
+struct InnerEdgeLayout {
+    src: String,
+    dst: String,
+    /// Points relative to inner bounding-box center.
+    points: Vec<(f64, f64)>,
+}
+
+/// Layout data for a subgraph that was extracted for independent layout.
+struct ExtractedLayout {
+    sg_id: String,
+    /// (node_id, rel_x, rel_y, width, height) — positions relative to inner center.
+    inner_nodes: Vec<(String, f64, f64, f64, f64)>,
+    /// (sg_id, rel_x, rel_y, width, height) — nested subgraph positions relative to inner center.
+    inner_subgraphs: Vec<(String, f64, f64, f64, f64)>,
+    inner_edges: Vec<InnerEdgeLayout>,
+}
+
+/// Collect all descendants (children, grandchildren, ...) of a node.
+fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId) -> HashSet<NodeId> {
+    let mut result = HashSet::new();
+    let mut stack: Vec<NodeId> = g.children(nid).collect();
+    while let Some(v) = stack.pop() {
+        if result.insert(v) {
+            stack.extend(g.children(v));
+        }
+    }
+    result
+}
+
+/// Extract subgraphs with per-subgraph direction for independent layout.
+///
+/// Matches mermaid's dagre backend: only subgraphs without external connections
+/// (no edges crossing the boundary between descendants and outside nodes) are
+/// extracted. Returns layout data to be applied after the main dagre pass.
+fn extract_directed_subgraphs(
+    diagram: &FlowDiagram,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<&str, NodeId>,
+    measurer: &impl TextMeasure,
+) -> Vec<ExtractedLayout> {
+    let style = TextStyle::default();
+    let mut extracted = Vec::new();
+
+    // Process bottom-up (inner subgraphs first).
+    for sg in diagram.subgraphs.iter().rev() {
+        let Some(dir) = sg.direction else { continue };
+        let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
+
+        let descendants = collect_descendants(g, sg_nid);
+        if descendants.is_empty() {
+            continue;
+        }
+
+        // Check for external connections: any edge with one endpoint
+        // inside (descendant) and the other outside.
+        let has_external = g.edge_ids().any(|eid| {
+            let Some((src, dst)) = g.edge_endpoints(eid) else { return false };
+            let s_in = descendants.contains(&src);
+            let d_in = descendants.contains(&dst);
+            s_in ^ d_in
+        });
+        if has_external {
+            continue;
+        }
+
+        // Build independent graph for this subgraph.
+        let mut inner_g = Graph::new();
+        let mut inner_map: HashMap<NodeId, NodeId> = HashMap::new();
+
+        // Add descendant nodes.
+        for &nid in &descendants {
+            let n = g.node(nid).unwrap();
+            let inner_nid = inner_g.add_node(NodeLabel::new(n.width, n.height));
+            inner_map.insert(nid, inner_nid);
+        }
+
+        // Recreate compound hierarchy within the inner graph.
+        for &nid in &descendants {
+            if let Some(parent) = g.parent(nid) {
+                if parent != sg_nid {
+                    if let (Some(&inner_child), Some(&inner_parent)) =
+                        (inner_map.get(&nid), inner_map.get(&parent))
+                    {
+                        inner_g.set_parent(inner_child, inner_parent);
+                    }
+                }
+            }
+        }
+
+        // Add internal edges.
+        for eid in g.edge_ids().collect::<Vec<_>>() {
+            let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+            if descendants.contains(&src) && descendants.contains(&dst) {
+                if let (Some(&inner_src), Some(&inner_dst)) =
+                    (inner_map.get(&src), inner_map.get(&dst))
+                {
+                    let label = g.edge(eid).unwrap().clone();
+                    inner_g.add_edge(inner_src, inner_dst, label);
+                }
+            }
+        }
+
+        // Run dagre with the subgraph's direction.
+        let mut inner_config = DagreConfig::default();
+        inner_config.rankdir = dir;
+        rusty_mermaid_dagre::pipeline::layout(&mut inner_g, &inner_config);
+
+        // Compute bounding box of inner layout.
+        let reverse_map: HashMap<NodeId, NodeId> = inner_map.iter()
+            .map(|(&outer, &inner)| (inner, outer))
+            .collect();
+        let nid_to_id: HashMap<NodeId, &str> = id_map.iter()
+            .map(|(&id, &nid)| (nid, id))
+            .collect();
+
+        let mut min_x = f64::INFINITY;
+        let mut min_y = f64::INFINITY;
+        let mut max_x = f64::NEG_INFINITY;
+        let mut max_y = f64::NEG_INFINITY;
+
+        for &inner_nid in inner_map.values() {
+            let n = inner_g.node(inner_nid).unwrap();
+            if n.width <= 0.0 && n.height <= 0.0 { continue; }
+            min_x = min_x.min(n.x - n.width / 2.0);
+            min_y = min_y.min(n.y - n.height / 2.0);
+            max_x = max_x.max(n.x + n.width / 2.0);
+            max_y = max_y.max(n.y + n.height / 2.0);
+        }
+
+        if !min_x.is_finite() { continue; }
+
+        let center_x = (min_x + max_x) / 2.0;
+        let center_y = (min_y + max_y) / 2.0;
+
+        // Padding: border + label space (matching dagre compound style).
+        let pad = 16.0;
+        let label_h = if sg.label.is_some() {
+            let (_, lh) = measurer.measure(sg.label.as_deref().unwrap_or(""), &style);
+            lh + 8.0
+        } else {
+            0.0
+        };
+        let total_w = (max_x - min_x) + pad * 2.0;
+        let total_h = (max_y - min_y) + pad * 2.0 + label_h;
+        // Shift center_y down by half the label height so children sit below label.
+        let adj_center_y = center_y - label_h / 2.0;
+
+        // Store inner node positions relative to center.
+        let mut inner_nodes = Vec::new();
+        let mut inner_subgraphs = Vec::new();
+
+        for (&outer_nid, &inner_nid) in &inner_map {
+            let n = inner_g.node(inner_nid).unwrap();
+            let Some(&str_id) = nid_to_id.get(&outer_nid) else { continue };
+            let rel_x = n.x - center_x;
+            let rel_y = n.y - adj_center_y;
+
+            // Is this a subgraph node or a vertex node?
+            if diagram.subgraphs.iter().any(|s| s.id == str_id) {
+                if n.width > 0.0 || n.height > 0.0 {
+                    inner_subgraphs.push((str_id.to_string(), rel_x, rel_y, n.width, n.height));
+                }
+            } else {
+                inner_nodes.push((str_id.to_string(), rel_x, rel_y, n.width, n.height));
+            }
+        }
+
+        // Store inner edge points relative to center.
+        let mut inner_edges = Vec::new();
+        for eid in inner_g.edge_ids() {
+            let Some((src, dst)) = inner_g.edge_endpoints(eid) else { continue };
+            let Some(&outer_src) = reverse_map.get(&src) else { continue };
+            let Some(&outer_dst) = reverse_map.get(&dst) else { continue };
+            let Some(&src_id) = nid_to_id.get(&outer_src) else { continue };
+            let Some(&dst_id) = nid_to_id.get(&outer_dst) else { continue };
+            let e = inner_g.edge(eid).unwrap();
+            let points: Vec<(f64, f64)> = e.points.iter()
+                .map(|p| (p.x - center_x, p.y - adj_center_y))
+                .collect();
+            inner_edges.push(InnerEdgeLayout {
+                src: src_id.to_string(),
+                dst: dst_id.to_string(),
+                points,
+            });
+        }
+
+        // Modify main graph: remove children from compound, set fixed size.
+        for &nid in &descendants {
+            g.remove_parent(nid);
+        }
+        // Remove internal edges from main graph.
+        let internal_eids: Vec<_> = g.edge_ids().filter(|&eid| {
+            g.edge_endpoints(eid).is_some_and(|(s, d)| {
+                descendants.contains(&s) && descendants.contains(&d)
+            })
+        }).collect();
+        for eid in internal_eids {
+            g.remove_edge(eid);
+        }
+        // Set the subgraph node to a fixed-size leaf.
+        let sg_node = g.node_mut(sg_nid).unwrap();
+        sg_node.width = total_w;
+        sg_node.height = total_h;
+
+        extracted.push(ExtractedLayout {
+            sg_id: sg.id.clone(),
+            inner_nodes,
+            inner_subgraphs,
+            inner_edges,
+        });
+    }
+
+    extracted
 }
 
 /// Resolve all style sources into a single `Style` per node.
@@ -729,5 +995,41 @@ mod tests {
         let gh = result.edges.iter().find(|e| e.src == "G" && e.dst == "H").unwrap();
         assert_eq!(gh.start_arrow, ArrowEnd::Cross);
         assert_eq!(gh.end_arrow, ArrowEnd::Cross);
+    }
+
+    #[test]
+    fn subgraph_direction_lr_in_td() {
+        let d = crate::flowchart::parser::parse(
+            "flowchart TD\n    subgraph sub1[Process]\n        direction LR\n        A[Step 1] --> B[Step 2] --> C[Step 3]\n    end\n    D[Start] --> sub1\n    sub1 --> E[End]",
+        ).unwrap();
+        let result = layout(&d);
+
+        let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
+        let b = result.nodes.iter().find(|n| n.id == "B").unwrap();
+        let c = result.nodes.iter().find(|n| n.id == "C").unwrap();
+
+        // With direction LR inside the subgraph, A/B/C should be
+        // horizontally arranged (left to right), not vertically.
+        assert!(a.x < b.x, "A should be left of B: {} < {}", a.x, b.x);
+        assert!(b.x < c.x, "B should be left of C: {} < {}", b.x, c.x);
+        // They should be at roughly the same y.
+        assert!((a.y - b.y).abs() < 5.0, "A and B should be at same y");
+        assert!((b.y - c.y).abs() < 5.0, "B and C should be at same y");
+    }
+
+    #[test]
+    fn subgraph_direction_skipped_with_external_edges() {
+        // Edge from D directly to A (inside sub1) → external connection → direction ignored.
+        let d = crate::flowchart::parser::parse(
+            "flowchart TD\n    subgraph sub1[Process]\n        direction LR\n        A --> B --> C\n    end\n    D --> A",
+        ).unwrap();
+        let result = layout(&d);
+
+        let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
+        let b = result.nodes.iter().find(|n| n.id == "B").unwrap();
+
+        // With external connections, direction LR is ignored → defaults to TD.
+        // A should be above B (or at least not horizontally arranged).
+        assert!(a.y < b.y, "A should be above B (TD): {} < {}", a.y, b.y);
     }
 }
