@@ -79,7 +79,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
             };
             let lines: Vec<&str> = content.split('\n').collect();
             if lines.len() <= 1 {
-                // Single line — simple text element
+                // Single line
                 let mut attrs: Vec<(String, String)> = vec![
                     ("x".into(), fmt_f64(position.x)),
                     ("y".into(), fmt_f64(position.y)),
@@ -88,7 +88,13 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 ];
                 attrs.extend(text_style_attrs(style));
                 let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-                doc.text_element("text", &refs, &xml_escape(content));
+                if let Some(spans) = parse_inline_markdown(content) {
+                    doc.open_tag("text", &refs);
+                    render_md_spans(doc, &spans);
+                    doc.close_tag("text");
+                } else {
+                    doc.text_element("text", &refs, &xml_escape(content));
+                }
             } else {
                 // Multi-line — tspan elements with dy offsets
                 let line_height = style.font_size * 1.2;
@@ -108,11 +114,21 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 let x_str = fmt_f64(position.x);
                 for (i, line) in lines.iter().enumerate() {
                     let dy = if i == 0 { "0".to_string() } else { fmt_f64(line_height) };
-                    let tspan_attrs: Vec<(&str, &str)> = vec![
-                        ("x", &x_str),
-                        ("dy", &dy),
-                    ];
-                    doc.text_element("tspan", &tspan_attrs, &xml_escape(line));
+                    if let Some(spans) = parse_inline_markdown(line) {
+                        let tspan_attrs: Vec<(&str, &str)> = vec![
+                            ("x", &x_str),
+                            ("dy", &dy),
+                        ];
+                        doc.open_tag("tspan", &tspan_attrs);
+                        render_md_spans(doc, &spans);
+                        doc.close_tag("tspan");
+                    } else {
+                        let tspan_attrs: Vec<(&str, &str)> = vec![
+                            ("x", &x_str),
+                            ("dy", &dy),
+                        ];
+                        doc.text_element("tspan", &tspan_attrs, &xml_escape(line));
+                    }
                 }
 
                 doc.close_tag("text");
@@ -232,6 +248,80 @@ fn xml_escape(s: &str) -> String {
         .replace('<', "&lt;")
         .replace('>', "&gt;")
         .replace('"', "&quot;")
+}
+
+/// Inline markdown span with bold/italic styling.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct MdSpan {
+    text: String,
+    bold: bool,
+    italic: bool,
+}
+
+/// Parse inline markdown (`**bold**`, `*italic*`) into styled spans.
+/// Returns `None` if the text contains no markdown markers.
+fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
+    if !text.contains('*') {
+        return None;
+    }
+
+    let mut spans = Vec::new();
+    let mut bold = false;
+    let mut italic = false;
+    let mut buf = String::new();
+    let chars: Vec<char> = text.chars().collect();
+    let mut i = 0;
+
+    while i < chars.len() {
+        if i + 1 < chars.len() && chars[i] == '*' && chars[i + 1] == '*' {
+            // Toggle bold
+            if !buf.is_empty() {
+                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
+            }
+            bold = !bold;
+            i += 2;
+        } else if chars[i] == '*' {
+            // Toggle italic
+            if !buf.is_empty() {
+                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
+            }
+            italic = !italic;
+            i += 1;
+        } else {
+            buf.push(chars[i]);
+            i += 1;
+        }
+    }
+    if !buf.is_empty() {
+        spans.push(MdSpan { text: buf, bold, italic });
+    }
+
+    // Only return spans if we actually found some formatting
+    if spans.iter().any(|s| s.bold || s.italic) {
+        Some(spans)
+    } else {
+        None
+    }
+}
+
+/// Render a line of text with inline markdown as styled tspans.
+fn render_md_spans(doc: &mut SvgDocument, spans: &[MdSpan]) {
+    for span in spans {
+        let escaped = xml_escape(&span.text);
+        let mut attrs: Vec<(&str, &str)> = Vec::new();
+        if span.bold {
+            attrs.push(("font-weight", "bold"));
+        }
+        if span.italic {
+            attrs.push(("font-style", "italic"));
+        }
+        if attrs.is_empty() {
+            // Plain text — no wrapping tspan needed, but we use one for consistency.
+            doc.text_element("tspan", &[], &escaped);
+        } else {
+            doc.text_element("tspan", &attrs, &escaped);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -364,5 +454,71 @@ mod tests {
     fn xml_escape_special_chars() {
         assert_eq!(xml_escape("a < b & c > d"), "a &lt; b &amp; c &gt; d");
         assert_eq!(xml_escape(r#"say "hello""#), "say &quot;hello&quot;");
+    }
+
+    #[test]
+    fn parse_md_bold() {
+        let spans = parse_inline_markdown("hello **world**").unwrap();
+        assert_eq!(spans.len(), 2);
+        assert_eq!(spans[0], MdSpan { text: "hello ".into(), bold: false, italic: false });
+        assert_eq!(spans[1], MdSpan { text: "world".into(), bold: true, italic: false });
+    }
+
+    #[test]
+    fn parse_md_italic() {
+        let spans = parse_inline_markdown("hello *world*").unwrap();
+        assert_eq!(spans.len(), 2);
+        assert_eq!(spans[0], MdSpan { text: "hello ".into(), bold: false, italic: false });
+        assert_eq!(spans[1], MdSpan { text: "world".into(), bold: false, italic: true });
+    }
+
+    #[test]
+    fn parse_md_bold_italic() {
+        let spans = parse_inline_markdown("***both***").unwrap();
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0], MdSpan { text: "both".into(), bold: true, italic: true });
+    }
+
+    #[test]
+    fn parse_md_no_markers() {
+        assert!(parse_inline_markdown("plain text").is_none());
+    }
+
+    #[test]
+    fn render_text_bold() {
+        let svg = render_one(&Primitive::Text {
+            position: Point::new(50.0, 50.0),
+            content: "hello **world**".into(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle::default(),
+        });
+        assert!(svg.contains(r#"font-weight="bold"#));
+        assert!(svg.contains(">world</tspan>"));
+        assert!(svg.contains(">hello </tspan>"));
+    }
+
+    #[test]
+    fn render_text_italic() {
+        let svg = render_one(&Primitive::Text {
+            position: Point::new(50.0, 50.0),
+            content: "hello *world*".into(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle::default(),
+        });
+        assert!(svg.contains(r#"font-style="italic"#));
+        assert!(svg.contains(">world</tspan>"));
+    }
+
+    #[test]
+    fn render_multiline_with_markdown() {
+        let svg = render_one(&Primitive::Text {
+            position: Point::new(50.0, 50.0),
+            content: "**bold line**\nplain line".into(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle::default(),
+        });
+        assert!(svg.contains(r#"font-weight="bold"#));
+        assert!(svg.contains(">bold line</tspan>"));
+        assert!(svg.contains(">plain line</tspan>"));
     }
 }

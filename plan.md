@@ -721,7 +721,7 @@ Phase 5: flowchart feature parity
   [ ] 5.14r ── visual review ──
 
   5c — Subgraph direction
-  [ ] 5.15 Wire subgraph `direction LR/TB/etc` to dagre layout
+  [x] 5.15 Wire subgraph `direction LR/TB/etc` to dagre layout
             - parser already captures direction in FlowSubGraph
             - bridge needs per-subgraph dagre config (mermaid does
               independent dagre layout per subgraph — evaluate if
@@ -744,7 +744,7 @@ Phase 5: flowchart feature parity
   5e — Remaining flowchart gaps
   [x] 5.20 Edge label positioning: place at path midpoint with
             background rect (match mermaid's label-on-edge look)
-  [ ] 5.21 Markdown in labels (`**bold**`, `_italic_`) — parse to
+  [x] 5.21 Markdown in labels (`**bold**`, `*italic*`) — parse to
             inline spans, render as tspan with font-weight/style
   [x] 5.22 Multi-line labels: support `<br/>` in node text → multi-
             line tspan rendering in SVG
