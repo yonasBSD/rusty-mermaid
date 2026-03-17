@@ -92,6 +92,75 @@ impl Color {
     pub const BLACK: Self = Self::rgb(0, 0, 0);
     pub const WHITE: Self = Self::rgb(255, 255, 255);
     pub const TRANSPARENT: Self = Self::rgba(0, 0, 0, 0);
+
+    /// Relative luminance (0.0 = black, 1.0 = white) per WCAG formula.
+    pub fn luminance(self) -> f64 {
+        fn linearize(c: u8) -> f64 {
+            let s = c as f64 / 255.0;
+            if s <= 0.04045 { s / 12.92 } else { ((s + 0.055) / 1.055).powf(2.4) }
+        }
+        0.2126 * linearize(self.r) + 0.7152 * linearize(self.g) + 0.0722 * linearize(self.b)
+    }
+
+    /// Parse a CSS color string: `#rgb`, `#rrggbb`, or a named color.
+    pub fn from_css(s: &str) -> Option<Self> {
+        let s = s.trim();
+        if let Some(hex) = s.strip_prefix('#') {
+            return Self::from_hex(hex);
+        }
+        match s.to_ascii_lowercase().as_str() {
+            "black" => Some(Self::BLACK),
+            "white" => Some(Self::WHITE),
+            "red" => Some(Self::rgb(255, 0, 0)),
+            "green" => Some(Self::rgb(0, 128, 0)),
+            "blue" => Some(Self::rgb(0, 0, 255)),
+            "yellow" => Some(Self::rgb(255, 255, 0)),
+            "orange" => Some(Self::rgb(255, 165, 0)),
+            "purple" => Some(Self::rgb(128, 0, 128)),
+            "pink" => Some(Self::rgb(255, 192, 203)),
+            "gray" | "grey" => Some(Self::rgb(128, 128, 128)),
+            "lightgray" | "lightgrey" => Some(Self::rgb(211, 211, 211)),
+            "darkgray" | "darkgrey" => Some(Self::rgb(169, 169, 169)),
+            "cyan" => Some(Self::rgb(0, 255, 255)),
+            "magenta" => Some(Self::rgb(255, 0, 255)),
+            "lime" => Some(Self::rgb(0, 255, 0)),
+            "navy" => Some(Self::rgb(0, 0, 128)),
+            "teal" => Some(Self::rgb(0, 128, 128)),
+            "maroon" => Some(Self::rgb(128, 0, 0)),
+            "olive" => Some(Self::rgb(128, 128, 0)),
+            "aqua" => Some(Self::rgb(0, 255, 255)),
+            "silver" => Some(Self::rgb(192, 192, 192)),
+            "transparent" => Some(Self::TRANSPARENT),
+            "none" => Some(Self::TRANSPARENT),
+            _ => None,
+        }
+    }
+
+    fn from_hex(hex: &str) -> Option<Self> {
+        let hex = hex.trim();
+        match hex.len() {
+            3 => {
+                let r = u8::from_str_radix(&hex[0..1], 16).ok()?;
+                let g = u8::from_str_radix(&hex[1..2], 16).ok()?;
+                let b = u8::from_str_radix(&hex[2..3], 16).ok()?;
+                Some(Self::rgb(r * 17, g * 17, b * 17))
+            }
+            6 => {
+                let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+                let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+                let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+                Some(Self::rgb(r, g, b))
+            }
+            8 => {
+                let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+                let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+                let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+                let a = u8::from_str_radix(&hex[6..8], 16).ok()?;
+                Some(Self::rgba(r, g, b, a))
+            }
+            _ => None,
+        }
+    }
 }
 
 impl std::fmt::Display for Color {

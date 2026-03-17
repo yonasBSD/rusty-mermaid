@@ -142,8 +142,32 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
 // Shape rendering — formulas match mermaid.js
 // ---------------------------------------------------------------------------
 
+/// Merge a node's custom style (from classDef/style/:::class) onto the defaults.
+fn merge_node_style(node: &NodeLayout) -> Style {
+    let mut style = node_style();
+    if let Some(custom) = &node.custom_style {
+        if custom.fill.is_some() {
+            style.fill = custom.fill;
+        }
+        if custom.stroke.is_some() {
+            style.stroke = custom.stroke;
+        }
+        if custom.stroke_width.is_some() {
+            style.stroke_width = custom.stroke_width;
+        }
+        if custom.stroke_dasharray.is_some() {
+            style.stroke_dasharray = custom.stroke_dasharray.clone();
+        }
+        if custom.opacity.is_some() {
+            style.opacity = custom.opacity;
+        }
+    }
+    style
+}
+
 fn render_node(node: &NodeLayout, scene: &mut Scene) {
-    let style = node_style();
+    let style = merge_node_style(node);
+    let node_fill = style.fill;
     let cx = node.x;
     let cy = node.y;
     let w = node.width;
@@ -249,11 +273,22 @@ fn render_node(node: &NodeLayout, scene: &mut Scene) {
         cy
     };
 
+    // Pick text color that contrasts with the node fill.
+    let mut lstyle = label_style();
+    if let Some(fill) = node_fill {
+        let lum = fill.luminance();
+        if lum < 0.4 {
+            lstyle.fill = Some(Color::WHITE);
+        } else if lum > 0.9 {
+            lstyle.fill = Some(Color::BLACK);
+        }
+    }
+
     scene.push(Primitive::Text {
         position: Point::new(cx, label_y),
         content: node.label.clone(),
         anchor: TextAnchor::Middle,
-        style: label_style(),
+        style: lstyle,
     });
 }
 
@@ -357,39 +392,22 @@ fn render_trapezoid_alt(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &
 
 /// Cylinder: rect body + elliptical top/bottom caps.
 /// Mermaid: ry = rx / (2.5 + w/50).
+///
+/// Drawn as two paths: (1) body with bottom arc, (2) top ellipse on top.
+/// A single combined path causes fill artifacts where the top cap's
+/// interior remains unfilled due to winding/even-odd fill rules.
 fn render_cylinder(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
     let hw = w / 2.0;
     let rx = hw;
     let ry = rx / (2.5 + w / 50.0);
-    let body_h = h - ry; // body height excludes top cap overshoot
+    let body_h = h - ry;
     let top = cy - body_h / 2.0;
     let bottom = cy + body_h / 2.0;
 
-    // Path: top ellipse → right side → bottom ellipse → left side → close
-    // Top visible ellipse (full ellipse drawn as two arcs)
-    let segs = vec![
+    // Body: left side down → bottom arc → right side up → top back-arc to close
+    let body = vec![
         PathSegment::MoveTo(Point::new(cx - hw, top)),
-        // Top cap: left-to-right arc (concave down, visible front)
-        PathSegment::ArcTo {
-            rx,
-            ry,
-            rotation: 0.0,
-            large_arc: false,
-            sweep: true,
-            to: Point::new(cx + hw, top),
-        },
-        // Top cap: right-to-left arc (back side)
-        PathSegment::ArcTo {
-            rx,
-            ry,
-            rotation: 0.0,
-            large_arc: false,
-            sweep: true,
-            to: Point::new(cx - hw, top),
-        },
-        // Left side down
         PathSegment::LineTo(Point::new(cx - hw, bottom)),
-        // Bottom cap: left-to-right arc
         PathSegment::ArcTo {
             rx,
             ry,
@@ -398,11 +416,46 @@ fn render_cylinder(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut S
             sweep: false,
             to: Point::new(cx + hw, bottom),
         },
-        // Right side up
         PathSegment::LineTo(Point::new(cx + hw, top)),
+        // Close with back-arc so the top edge is smooth
+        PathSegment::ArcTo {
+            rx,
+            ry,
+            rotation: 0.0,
+            large_arc: false,
+            sweep: true,
+            to: Point::new(cx - hw, top),
+        },
     ];
     scene.push(Primitive::Path {
-        segments: segs,
+        segments: body,
+        style: style.clone(),
+        marker_start: None,
+        marker_end: None,
+    });
+
+    // Top ellipse (front arc only — drawn on top of body)
+    let top_cap = vec![
+        PathSegment::MoveTo(Point::new(cx - hw, top)),
+        PathSegment::ArcTo {
+            rx,
+            ry,
+            rotation: 0.0,
+            large_arc: false,
+            sweep: true,
+            to: Point::new(cx + hw, top),
+        },
+        PathSegment::ArcTo {
+            rx,
+            ry,
+            rotation: 0.0,
+            large_arc: false,
+            sweep: true,
+            to: Point::new(cx - hw, top),
+        },
+    ];
+    scene.push(Primitive::Path {
+        segments: top_cap,
         style,
         marker_start: None,
         marker_end: None,

@@ -1,0 +1,13 @@
+flowchart LR
+    A([Start]):::success --> B{Decision}:::warning
+    B -->|Yes| C[[Process]]:::info
+    B -->|No| D[(Database)]:::danger
+    C --> E>Output]:::dark
+    D --> E
+    E --> F((Done)):::success
+
+    classDef success fill:#4caf50,stroke:#2e7d32,stroke-width:2px
+    classDef warning fill:#ff9800,stroke:#e65100,stroke-width:2px
+    classDef danger fill:#f44336,stroke:#b71c1c,stroke-width:2px
+    classDef info fill:#2196f3,stroke:#0d47a1,stroke-width:2px
+    classDef dark fill:#333,stroke:#000,stroke-width:3px

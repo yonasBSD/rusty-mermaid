@@ -730,13 +730,13 @@ Phase 5: flowchart feature parity
   [ ] 5.15r ── visual review ──
 
   5d — Style application
-  [ ] 5.16 Apply classDef fill/stroke/stroke-width to node rendering
+  [x] 5.16 Apply classDef fill/stroke/stroke-width to node rendering
             - classDef + class statements already parsed into IR
             - resolve class → style map, merge onto node Style
             + gallery: style_classdef.mmd shows colored nodes
-  [ ] 5.17 Apply inline style statements (`style A fill:#f9f`)
+  [x] 5.17 Apply inline style statements (`style A fill:#f9f`)
             + gallery: style_inline.mmd shows styled nodes
-  [ ] 5.18 Apply :::className inline syntax
+  [x] 5.18 Apply :::className inline syntax
   [ ] 5.19 linkStyle for edge coloring (parse + apply)
             + gallery: new edge_styles.mmd
   [ ] 5.19r ── visual review ──

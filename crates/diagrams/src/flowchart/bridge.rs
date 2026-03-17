@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use rusty_mermaid_core::{
-    BBox, Point, SimpleTextMeasure, TextMeasure, TextStyle,
+    BBox, Color, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
     intersect_circle, intersect_polygon, intersect_rect,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
@@ -10,6 +10,7 @@ use rusty_mermaid_graph::{Graph, NodeId};
 use rusty_mermaid_core::Shape;
 
 use super::ir::{ArrowEnd, FlowDiagram, StrokeType};
+use crate::common::styling::StyleProperty;
 use crate::common::tokens::strip_html_tags;
 
 const PADDING_X: f64 = 16.0;
@@ -34,6 +35,8 @@ pub struct NodeLayout {
     pub y: f64,
     pub width: f64,
     pub height: f64,
+    /// Resolved style from classDef, class, style, and :::class.
+    pub custom_style: Option<Style>,
 }
 
 #[derive(Debug)]
@@ -179,6 +182,9 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
+    // Resolve per-node styles from classDef + class + style statements.
+    let node_styles = resolve_node_styles(diagram);
+
     // Extract results
     let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
 
@@ -197,6 +203,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
                 y: n.y,
                 width: n.width,
                 height: n.height,
+                custom_style: node_styles.get(v.id.as_str()).cloned(),
             });
             max_x = max_x.max(n.x + n.width / 2.0);
             max_y = max_y.max(n.y + n.height / 2.0);
@@ -289,6 +296,88 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         subgraphs,
         width: max_x,
         height: max_y,
+    }
+}
+
+/// Resolve all style sources into a single `Style` per node.
+/// Priority (last wins): classDef "default" → classDef via class/:::class → style statement.
+fn resolve_node_styles(diagram: &FlowDiagram) -> HashMap<&str, Style> {
+    let class_map: HashMap<&str, &[StyleProperty]> = diagram
+        .class_defs
+        .iter()
+        .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
+        .collect();
+
+    let mut result: HashMap<&str, Style> = HashMap::new();
+
+    for v in &diagram.vertices {
+        let mut style = Style::default();
+        let mut has_custom = false;
+
+        // 1. Apply "default" classDef to all nodes
+        if let Some(props) = class_map.get("default") {
+            apply_style_properties(&mut style, props);
+            has_custom = true;
+        }
+
+        // 2. Apply classes (from `class` statement or `:::className`)
+        for class_name in &v.classes {
+            if let Some(props) = class_map.get(class_name.as_str()) {
+                apply_style_properties(&mut style, props);
+                has_custom = true;
+            }
+        }
+
+        // 3. Apply inline `style` statement (highest priority)
+        for stmt in &diagram.style_stmts {
+            if stmt.ids.iter().any(|id| id == &v.id) {
+                apply_style_properties(&mut style, &stmt.styles);
+                has_custom = true;
+            }
+        }
+
+        if has_custom {
+            result.insert(&v.id, style);
+        }
+    }
+
+    result
+}
+
+/// Apply CSS-like style properties onto a Style struct.
+fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
+    for prop in props {
+        match prop.key.as_str() {
+            "fill" => {
+                style.fill = Color::from_css(&prop.value);
+            }
+            "stroke" => {
+                style.stroke = Color::from_css(&prop.value);
+            }
+            "stroke-width" => {
+                let v = prop.value.trim_end_matches("px");
+                if let Ok(w) = v.parse::<f64>() {
+                    style.stroke_width = Some(w);
+                }
+            }
+            "stroke-dasharray" => {
+                let vals: Vec<f64> = prop
+                    .value
+                    .split_whitespace()
+                    .flat_map(|s| s.split(','))
+                    .filter_map(|s| s.trim().parse().ok())
+                    .collect();
+                if !vals.is_empty() {
+                    style.stroke_dasharray = Some(vals);
+                }
+            }
+            "opacity" => {
+                if let Ok(o) = prop.value.parse::<f64>() {
+                    style.opacity = Some(o);
+                }
+            }
+            _ => {}
+        }
     }
 }
 
