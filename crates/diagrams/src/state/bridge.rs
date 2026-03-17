@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use rusty_mermaid_core::{SimpleTextMeasure, TextMeasure, TextStyle};
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
-use super::ir::{StateDiagram, StateKind};
+use super::ir::{StateDiagram, StateKind, StateTransition};
 
 const PADDING_X: f64 = 16.0;
 const PADDING_Y: f64 = 8.0;
@@ -30,6 +30,7 @@ pub struct NodeLayout {
     pub y: f64,
     pub width: f64,
     pub height: f64,
+    pub is_compound: bool,
 }
 
 #[derive(Debug)]
@@ -49,41 +50,22 @@ pub fn layout(diagram: &StateDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let mut g = Graph::new();
     let style = TextStyle::default();
-    let mut id_map: HashMap<&str, NodeId> = HashMap::new();
+    let mut id_map: HashMap<String, NodeId> = HashMap::new();
+    let mut all_transitions: Vec<&StateTransition> = Vec::new();
+    let mut synthetic_ids: HashSet<String> = HashSet::new();
 
-    // Add special start/end nodes for [*] pseudo-states.
-    // [*] as source → start node, [*] as dest → end node.
-    let has_start = diagram.transitions.iter().any(|t| t.src == "[*]");
-    let has_end = diagram.transitions.iter().any(|t| t.dst == "[*]");
-
-    if has_start {
-        let nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-        id_map.insert("[*]_start", nid);
-    }
-    if has_end {
-        let nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-        id_map.insert("[*]_end", nid);
-    }
-
-    // Add state nodes
-    add_states(&diagram.states, &mut g, &mut id_map, measurer, &style);
-
-    // Add edges
-    for t in &diagram.transitions {
-        let src_key = if t.src == "[*]" { "[*]_start" } else { t.src.as_str() };
-        let dst_key = if t.dst == "[*]" { "[*]_end" } else { t.dst.as_str() };
-
-        let Some(&src) = id_map.get(src_key) else { continue };
-        let Some(&dst) = id_map.get(dst_key) else { continue };
-
-        let mut label = EdgeLabel::default();
-        if let Some(text) = &t.label {
-            let (tw, th) = measurer.measure(text, &style);
-            label.width = tw;
-            label.height = th;
-        }
-        g.add_edge(src, dst, label);
-    }
+    // Build graph: nodes, edges, compound hierarchy — all in one recursive walk
+    add_scope(
+        &diagram.states,
+        &diagram.transitions,
+        None,
+        &mut g,
+        &mut id_map,
+        &mut all_transitions,
+        &mut synthetic_ids,
+        measurer,
+        &style,
+    );
 
     // Configure and run layout
     let mut config = DagreConfig::default();
@@ -91,50 +73,51 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
     // Extract results
-    let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
+    let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(id, &nid)| (nid, id.as_str())).collect();
 
     let mut nodes = Vec::new();
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
 
-    for (&id_str, &nid) in &id_map {
+    for (id_str, &nid) in &id_map {
+        if synthetic_ids.contains(id_str) {
+            continue;
+        }
         let n = g.node(nid).unwrap();
-        let label = diagram.states.iter()
-            .find(|s| s.id == id_str)
-            .and_then(|s| s.label.clone())
+        let label = find_state_label(&diagram.states, id_str)
             .unwrap_or_else(|| id_str.to_string());
         nodes.push(NodeLayout {
-            id: id_str.to_string(),
+            id: id_str.clone(),
             label,
             x: n.x,
             y: n.y,
             width: n.width,
             height: n.height,
+            is_compound: is_compound_state(&diagram.states, id_str),
         });
         max_x = max_x.max(n.x + n.width / 2.0);
         max_y = max_y.max(n.y + n.height / 2.0);
     }
 
+    // Only emit edges that correspond to a real transition (filters out
+    // synthetic scaffold edges used for compound ranking).
     let mut edges = Vec::new();
     for eid in g.edge_ids() {
         let (src, dst) = g.edge_endpoints(eid).unwrap();
         if let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) {
+            let matched = all_transitions.iter().find(|t| {
+                let s = resolve_pseudo(&t.src, src_id);
+                let d = resolve_pseudo(&t.dst, dst_id);
+                s && d
+            });
+            let Some(transition) = matched else { continue };
             let e = g.edge(eid).unwrap();
             let points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
-            let label = diagram
-                .transitions
-                .iter()
-                .find(|t| {
-                    let s = if t.src == "[*]" { "[*]_start" } else { t.src.as_str() };
-                    let d = if t.dst == "[*]" { "[*]_end" } else { t.dst.as_str() };
-                    s == src_id && d == dst_id
-                })
-                .and_then(|t| t.label.clone());
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
                 points,
-                label,
+                label: transition.label.clone(),
             });
         }
     }
@@ -147,22 +130,144 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     }
 }
 
-fn add_states<'a>(
+/// Check if a transition endpoint matches a resolved node ID.
+/// Handles [*] → scoped pseudo-state name mapping, and composite
+/// states redirected to inner pseudo-states.
+fn resolve_pseudo(transition_id: &str, node_id: &str) -> bool {
+    if transition_id == "[*]" {
+        node_id.ends_with("[*]_start") || node_id.ends_with("[*]_end")
+    } else if transition_id == node_id {
+        true
+    } else {
+        // Composite redirect: transition says "Active", node is "Active.[*]_start"
+        node_id == format!("{transition_id}.[*]_start")
+            || node_id == format!("{transition_id}.[*]_end")
+    }
+}
+
+/// Check if a state ID refers to a composite (compound) state.
+fn is_compound_state(states: &[super::ir::StateNode], id: &str) -> bool {
+    for s in states {
+        if s.id == id {
+            return s.is_composite();
+        }
+        if let StateKind::Composite { children, .. } = &s.kind {
+            if is_compound_state(children, id) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// Recursively find a state's label by ID across all nesting levels.
+fn find_state_label(states: &[super::ir::StateNode], id: &str) -> Option<String> {
+    for s in states {
+        if s.id == id {
+            return s.label.clone().or_else(|| Some(s.id.clone()));
+        }
+        if let StateKind::Composite { children, .. } = &s.kind {
+            if let Some(label) = find_state_label(children, id) {
+                return Some(label);
+            }
+        }
+    }
+    None
+}
+
+/// Process one scope (top-level or inside a composite): create nodes, pseudo-states,
+/// edges, and compound parent relationships.
+fn add_scope<'a>(
     states: &'a [super::ir::StateNode],
+    transitions: &'a [StateTransition],
+    parent: Option<(NodeId, &str)>, // (parent_nid, parent_id) for scoping [*] names
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &mut HashMap<&'a str, NodeId>,
+    id_map: &mut HashMap<String, NodeId>,
+    all_transitions: &mut Vec<&'a StateTransition>,
+    synthetic_ids: &mut HashSet<String>,
     measurer: &impl TextMeasure,
     style: &TextStyle,
 ) {
+    // Create [*] pseudo-states for this scope
+    let scope_prefix = parent.map(|(_, id)| format!("{id}.")).unwrap_or_default();
+
+    let has_start = transitions.iter().any(|t| t.src == "[*]");
+    let has_end = transitions.iter().any(|t| t.dst == "[*]");
+
+    if has_start {
+        let key = format!("{scope_prefix}[*]_start");
+        let nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+        if let Some((parent_nid, _)) = parent {
+            g.set_parent(nid, parent_nid);
+        }
+        id_map.insert(key, nid);
+    }
+    if has_end {
+        let key = format!("{scope_prefix}[*]_end");
+        let nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+        if let Some((parent_nid, _)) = parent {
+            g.set_parent(nid, parent_nid);
+        }
+        id_map.insert(key, nid);
+    }
+
+    // Add state nodes
     for s in states {
         let (width, height) = match &s.kind {
             StateKind::Fork | StateKind::Join => (FORK_JOIN_WIDTH, FORK_JOIN_HEIGHT),
             StateKind::Choice => (CHOICE_SIZE, CHOICE_SIZE),
             StateKind::Start | StateKind::End => (START_END_SIZE, START_END_SIZE),
-            StateKind::Composite { children, .. } => {
-                // Add children recursively, then create a compound parent
-                add_states(children, g, id_map, measurer, style);
-                (0.0, 0.0) // dagre sizes compound nodes automatically
+            StateKind::Composite { children, transitions: inner_trans, .. } => {
+                let nid = g.add_node(NodeLabel::new(0.0, 0.0));
+                id_map.insert(s.id.clone(), nid);
+                if let Some((parent_nid, _)) = parent {
+                    g.set_parent(nid, parent_nid);
+                }
+
+                // Recurse into composite: add children, inner pseudo-states, inner edges
+                add_scope(
+                    children,
+                    inner_trans,
+                    Some((nid, &s.id)),
+                    g,
+                    id_map,
+                    all_transitions,
+                    synthetic_ids,
+                    measurer,
+                    style,
+                );
+
+                // Parent children to this composite
+                for child in children {
+                    if let Some(&child_nid) = id_map.get(child.id.as_str()) {
+                        if g.parent(child_nid).is_none() {
+                            g.set_parent(child_nid, nid);
+                        }
+                    }
+                }
+
+                // If this composite is an edge source in the outer scope but has
+                // no inner [*]_end, create a synthetic exit node so that dagre
+                // ranks the outgoing target below the compound's children.
+                let inner_end_key = format!("{}.[*]_end", s.id);
+                if !id_map.contains_key(&inner_end_key) {
+                    let is_source = transitions.iter().any(|t| t.src == s.id);
+                    if is_source {
+                        let end_nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+                        g.set_parent(end_nid, nid);
+                        synthetic_ids.insert(inner_end_key.clone());
+                        id_map.insert(inner_end_key, end_nid);
+
+                        // Edge from each child to exit so it ranks at the bottom
+                        for child in children {
+                            if let Some(&child_nid) = id_map.get(child.id.as_str()) {
+                                g.add_edge(child_nid, end_nid, EdgeLabel::default());
+                            }
+                        }
+                    }
+                }
+
+                continue; // already added the node
             }
             StateKind::Normal => {
                 let text = s.label.as_deref().unwrap_or(&s.id);
@@ -172,16 +277,54 @@ fn add_states<'a>(
         };
 
         let nid = g.add_node(NodeLabel::new(width, height));
-        id_map.insert(&s.id, nid);
+        id_map.insert(s.id.clone(), nid);
 
-        // Set up compound hierarchy for composite states
-        if let StateKind::Composite { children, .. } = &s.kind {
-            for child in children {
-                if let Some(&child_nid) = id_map.get(child.id.as_str()) {
-                    g.set_parent(child_nid, nid);
-                }
+        if let Some((parent_nid, _)) = parent {
+            g.set_parent(nid, parent_nid);
+        }
+    }
+
+    // Add edges for this scope's transitions.
+    // Edges to/from composite states are redirected to inner pseudo-states
+    // so dagre assigns correct ranks (above/below the compound).
+    for t in transitions {
+        let mut src_key = if t.src == "[*]" {
+            format!("{scope_prefix}[*]_start")
+        } else {
+            t.src.clone()
+        };
+        let mut dst_key = if t.dst == "[*]" {
+            format!("{scope_prefix}[*]_end")
+        } else {
+            t.dst.clone()
+        };
+
+        // Redirect: edge FROM composite → use inner [*]_end
+        if t.src != "[*]" {
+            let inner_end = format!("{}.[*]_end", t.src);
+            if id_map.contains_key(&inner_end) {
+                src_key = inner_end;
             }
         }
+        // Redirect: edge TO composite → use inner [*]_start
+        if t.dst != "[*]" {
+            let inner_start = format!("{}.[*]_start", t.dst);
+            if id_map.contains_key(&inner_start) {
+                dst_key = inner_start;
+            }
+        }
+
+        let Some(&src) = id_map.get(&src_key) else { continue };
+        let Some(&dst) = id_map.get(&dst_key) else { continue };
+
+        let mut label = EdgeLabel::default();
+        if let Some(text) = &t.label {
+            let (tw, th) = measurer.measure(text, style);
+            label.width = tw;
+            label.height = th;
+        }
+        g.add_edge(src, dst, label);
+        all_transitions.push(t);
     }
 }
 
@@ -238,5 +381,65 @@ mod tests {
         for e in &result.edges {
             assert!(!e.points.is_empty(), "edge {}->{} should have points", e.src, e.dst);
         }
+    }
+
+    #[test]
+    fn layout_composite_has_inner_edges() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> Idle\n        Idle --> Running\n        Running --> Idle\n    }\n    Active --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        // Nodes: [*]_start, [*]_end, Active, Active.[*]_start, Idle, Running
+        assert!(result.nodes.iter().any(|n| n.id == "Idle"), "should have Idle");
+        assert!(result.nodes.iter().any(|n| n.id == "Running"), "should have Running");
+        assert!(result.nodes.iter().any(|n| n.id == "Active.[*]_start"), "should have inner start");
+
+        // Should have inner edges
+        assert!(result.edges.iter().any(|e| e.src == "Active.[*]_start" && e.dst == "Idle"),
+            "should have inner [*] --> Idle edge");
+        assert!(result.edges.iter().any(|e| e.src == "Idle" && e.dst == "Running"),
+            "should have Idle --> Running edge");
+
+        // Active should be marked as compound
+        let active = result.nodes.iter().find(|n| n.id == "Active").unwrap();
+        assert!(active.is_compound, "Active should be compound");
+        let idle = result.nodes.iter().find(|n| n.id == "Idle").unwrap();
+        let active_left = active.x - active.width / 2.0;
+        let active_right = active.x + active.width / 2.0;
+        assert!(active_left <= idle.x - idle.width / 2.0,
+            "Active should contain Idle: active_left={active_left} idle_left={}",
+            idle.x - idle.width / 2.0);
+        assert!(active_right >= idle.x + idle.width / 2.0,
+            "Active should contain Idle: active_right={active_right} idle_right={}",
+            idle.x + idle.width / 2.0);
+
+        // TB layout: [*]_start should be ABOVE Active, [*]_end BELOW
+        let start = result.nodes.iter().find(|n| n.id == "[*]_start").unwrap();
+        let end = result.nodes.iter().find(|n| n.id == "[*]_end").unwrap();
+        let active_top = active.y - active.height / 2.0;
+        let active_bottom = active.y + active.height / 2.0;
+        assert!(start.y < active_top,
+            "[*]_start (y={}) should be above Active top (y={active_top})",
+            start.y);
+        assert!(end.y > active_bottom,
+            "[*]_end (y={}) should be below Active bottom (y={active_bottom})",
+            end.y);
+    }
+
+    #[test]
+    fn layout_choice_branches() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    state check <<choice>>\n    [*] --> check\n    check --> A : yes\n    check --> B : no\n    A --> [*]\n    B --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let check = result.nodes.iter().find(|n| n.id == "check").unwrap();
+        let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
+        let b = result.nodes.iter().find(|n| n.id == "B").unwrap();
+
+        // check should be above A and B
+        assert!(check.y < a.y, "check should be above A");
+        assert!(check.y < b.y, "check should be above B");
     }
 }

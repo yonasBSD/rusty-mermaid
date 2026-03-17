@@ -81,13 +81,13 @@ fn try_parse_statement(
 
     // Try composite state: `state "Label" as Name {` or `state Name {`
     if let Some(node) = opt(parse_composite_state).parse_next(input)? {
-        states.push(node);
+        upsert_state_full(states, node);
         return Ok(true);
     }
 
     // Try state declaration with stereotype: `state Name <<fork>>`
     if let Some(node) = opt(parse_state_decl).parse_next(input)? {
-        states.push(node);
+        upsert_state_full(states, node);
         return Ok(true);
     }
 
@@ -116,6 +116,16 @@ fn ensure_state(states: &mut Vec<StateNode>, id: &str) {
     }
     if !states.iter().any(|s| s.id == id) {
         states.push(StateNode::new(id, StateKind::Normal));
+    }
+}
+
+/// Replace an existing placeholder state with a fully-defined one (composite, stereotype),
+/// or insert if new. This upgrades auto-created Normal states from transitions.
+fn upsert_state_full(states: &mut Vec<StateNode>, node: StateNode) {
+    if let Some(existing) = states.iter_mut().find(|s| s.id == node.id) {
+        *existing = node;
+    } else {
+        states.push(node);
     }
 }
 

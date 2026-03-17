@@ -40,7 +40,26 @@ fn edge_label_style() -> TextStyle {
 }
 
 fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
-    for node in &layout.nodes {
+    // Render compound (container) nodes first so children draw on top
+    for node in layout.nodes.iter().filter(|n| n.is_compound) {
+        let bbox = BBox::new(node.x, node.y, node.width, node.height);
+        scene.push(Primitive::Rect {
+            bbox,
+            rx: 5.0,
+            ry: 5.0,
+            style: node_style(),
+        });
+        // Compound label at the top of the box, not centered
+        let label_y = node.y - node.height / 2.0 + 14.0;
+        scene.push(Primitive::Text {
+            position: Point::new(node.x, label_y),
+            content: node.label.clone(),
+            anchor: TextAnchor::Middle,
+            style: label_style(),
+        });
+    }
+    // Then render leaf nodes on top
+    for node in layout.nodes.iter().filter(|n| !n.is_compound) {
         let bbox = BBox::new(node.x, node.y, node.width, node.height);
         scene.push(Primitive::Rect {
             bbox,

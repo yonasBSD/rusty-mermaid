@@ -192,7 +192,7 @@ fn parse_node_edge_statement(
 
         // Try to parse an edge operator
         let checkpoint = *input;
-        if let Ok((label, stroke, start_arrow, end_arrow)) = parse_edge_operator(input) {
+        if let Ok((label, stroke, start_arrow, end_arrow, minlen)) = parse_edge_operator(input) {
             ws.parse_next(input)?;
             let next_id = parse_node_ref(input, diagram, subgraph_id)?;
 
@@ -203,6 +203,7 @@ fn parse_node_edge_statement(
                 stroke,
                 start_arrow,
                 end_arrow,
+                minlen,
             });
 
             prev_id = next_id;
@@ -376,32 +377,55 @@ fn text_until_trap(input: &mut &str) -> ModalResult<String> {
 }
 
 /// Parse an edge operator and optional label.
-/// Returns (label, stroke, start_arrow, end_arrow).
+/// Returns (label, stroke, start_arrow, end_arrow, minlen).
 fn parse_edge_operator(
     input: &mut &str,
-) -> ModalResult<(Option<String>, StrokeType, ArrowEnd, ArrowEnd)> {
+) -> ModalResult<(Option<String>, StrokeType, ArrowEnd, ArrowEnd, i32)> {
     // Detect start arrow: `<`, `o`, `x`
     let start_arrow = parse_start_arrow(input);
 
-    // Detect stroke type from first chars
-    let (stroke, label) = if input.starts_with("-.") {
+    // Detect stroke type from first chars and compute minlen.
+    // Extra dashes/dots/equals beyond the base arrow increase minlen:
+    //   Normal: `-->` = 1, `--->` = 2, `---->` = 3
+    //   Thick:  `==>` = 1, `===>` = 2, `====>` = 3
+    //   Dotted: `-.->` = 1, `-..->` = 2, `-...->` = 3
+    let (stroke, label, minlen) = if input.starts_with("-.") {
         // Dotted: `-.->` or `-. text .->`
         *input = &input[2..];
         let label = parse_inline_edge_label(input, ".-")?;
-        take_while(0.., |c: char| c == '.' || c == '-').parse_next(input)?;
-        (StrokeType::Dotted, label)
+        let tail: &str = take_while(0.., |c: char| c == '.' || c == '-').parse_next(input)?;
+        let extra_dots = tail.chars().filter(|&c| c == '.').count() as i32;
+        let minlen = if label.is_some() {
+            // Labeled: closing `.-` has 1 dot, extras beyond that add length
+            1 + extra_dots.saturating_sub(1)
+        } else {
+            // No label: prefix `-.` has 1 dot, extras in tail add length
+            1 + extra_dots
+        };
+        (StrokeType::Dotted, label, minlen)
     } else if input.starts_with("==") {
         // Thick: `==>` or `== text ==>`
         *input = &input[2..];
         let label = parse_inline_edge_label(input, "=")?;
-        take_while(0.., |c: char| c == '=').parse_next(input)?;
-        (StrokeType::Thick, label)
+        let tail: &str = take_while(0.., |c: char| c == '=').parse_next(input)?;
+        let minlen = if label.is_some() {
+            1 + (tail.len() as i32 - 2).max(0)
+        } else {
+            1 + tail.len() as i32
+        };
+        (StrokeType::Thick, label, minlen)
     } else if input.starts_with("--") {
         // Normal: `-->` or `-- text -->` or `---`
         *input = &input[2..];
         let label = parse_inline_edge_label(input, "-")?;
-        take_while(0.., |c: char| c == '-').parse_next(input)?;
-        (StrokeType::Normal, label)
+        let tail: &str = take_while(0.., |c: char| c == '-').parse_next(input)?;
+        let minlen = if label.is_some() {
+            // Labeled: closing `--` is 2 chars, extras add length
+            1 + (tail.len() as i32 - 2).max(0)
+        } else {
+            1 + tail.len() as i32
+        };
+        (StrokeType::Normal, label, minlen)
     } else {
         return Err(winnow::error::ErrMode::Backtrack(
             winnow::error::ContextError::new(),
@@ -423,7 +447,7 @@ fn parse_edge_operator(
         None
     };
 
-    Ok((label, stroke, start_arrow, end_arrow))
+    Ok((label, stroke, start_arrow, end_arrow, minlen))
 }
 
 fn parse_start_arrow(input: &mut &str) -> ArrowEnd {
@@ -537,6 +561,31 @@ mod tests {
         let d = parse("graph TD\n    A -.-> B").unwrap();
         assert_eq!(d.edges[0].stroke, StrokeType::Dotted);
         assert_eq!(d.edges[0].end_arrow, ArrowEnd::Arrow);
+    }
+
+    #[test]
+    fn parse_edge_minlen() {
+        let d = parse("flowchart TD\n    A1 --> B1\n    A2 ---> B2\n    A3 ----> B3\n    A4 -----> B4").unwrap();
+        assert_eq!(d.edges[0].minlen, 1);
+        assert_eq!(d.edges[1].minlen, 2);
+        assert_eq!(d.edges[2].minlen, 3);
+        assert_eq!(d.edges[3].minlen, 4);
+    }
+
+    #[test]
+    fn parse_edge_minlen_dotted() {
+        let d = parse("flowchart TD\n    A -.-> B\n    C -..-> D\n    E -...-> F").unwrap();
+        assert_eq!(d.edges[0].minlen, 1);
+        assert_eq!(d.edges[1].minlen, 2);
+        assert_eq!(d.edges[2].minlen, 3);
+    }
+
+    #[test]
+    fn parse_edge_minlen_thick() {
+        let d = parse("flowchart TD\n    A ==> B\n    C ===> D\n    E ====> F").unwrap();
+        assert_eq!(d.edges[0].minlen, 1);
+        assert_eq!(d.edges[1].minlen, 2);
+        assert_eq!(d.edges[2].minlen, 3);
     }
 
     #[test]

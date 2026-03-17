@@ -51,6 +51,8 @@ pub struct FlowEdge {
     pub stroke: StrokeType,
     pub start_arrow: ArrowEnd,
     pub end_arrow: ArrowEnd,
+    /// Minimum edge length in ranks. `-->` = 1, `--->` = 2, etc.
+    pub minlen: i32,
 }
 
 /// A subgraph container.
@@ -115,6 +117,7 @@ impl FlowEdge {
             stroke: StrokeType::Normal,
             start_arrow: ArrowEnd::None,
             end_arrow: ArrowEnd::Arrow,
+            minlen: 1,
         }
     }
 

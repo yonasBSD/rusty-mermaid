@@ -103,6 +103,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         let Some(&src) = id_map.get(e.src.as_str()) else { continue };
         let Some(&dst) = id_map.get(e.dst.as_str()) else { continue };
         let mut label = EdgeLabel::default();
+        label.minlen = e.minlen;
         if let Some(text) = &e.label {
             let (tw, th) = measurer.measure(text, &style);
             label.width = tw;
