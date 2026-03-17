@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 641 316" width="641" height="316">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+    <marker id="marker-circle" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5">
+      <circle cx="5" cy="5" r="4" fill="#333" />
+    </marker>
+    <marker id="marker-cross" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5">
+      <path d="M2 2 L8 8 M8 2 L2 8" stroke="#333" stroke-width="1.5" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="159.5" y="0" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="199.5" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Normal</text>
+    <rect x="430" y="82" width="72" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="466" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Arrow</text>
+    <rect x="189" y="204" width="96" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="237" y="220" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No arrow</text>
+    <rect x="122" y="82" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="162" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dotted</text>
+    <rect x="0" y="82" width="72" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="36" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Thick</text>
+    <circle cx="545" cy="220" r="56" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="545" y="220" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Circle end</text>
+    <circle cx="387" cy="220" r="52" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="387" y="220" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cross end</text>
+    <path d="M239.5 22.15 L277.25 27.96 C315 33.77 390.5 45.38 428.25 55.36 C466 65.33 466 73.67 466 77.83 L466 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M214.13 32 L217.95 36.17 C221.76 40.33 229.38 48.67 233.19 59.67 C237 70.67 237 84.33 237 98 C237 111.67 237 125.33 237 143 C237 160.67 237 182.33 237 193.17 L237 204" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M184.87 32 L181.05 36.17 C177.24 40.33 169.62 48.67 165.81 57 C162 65.33 162 73.67 162 77.83 L162 82" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M159.5 26.03 L138.92 31.19 C118.33 36.35 77.17 46.68 56.58 56.01 C36 65.33 36 73.67 36 77.83 L36 82" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point)" />
+    <path d="M496.83 114 L504.86 118.17 C512.89 122.33 528.94 130.67 536.97 139 C545 147.33 545 155.67 545 159.83 L545 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle)" />
+    <path d="M435.17 114 L427.14 118.17 C419.11 122.33 403.06 130.67 395.03 139.67 C387 148.67 387 158.33 387 163.17 L387 168" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross)" />
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 286" width="190" height="286">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="150" height="164" rx="5" ry="5" fill="#ececec" stroke="#333333" stroke-width="1" />
+    <text x="8" y="12" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Group</text>
+    <rect x="35" y="25" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="75" y="41" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Node A</text>
+    <rect x="35" y="107" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="75" y="123" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Node B</text>
+    <rect x="35" y="214" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="75" y="230" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Node C</text>
+    <path d="M75 57 L75 61.17 C75 65.33 75 73.67 75 82 C75 90.33 75 98.67 75 102.83 L75 107" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M75 139 L75 143.17 C75 147.33 75 155.67 75 164 C75 172.33 75 180.67 75 189 C75 197.33 75 205.67 75 209.83 L75 214" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

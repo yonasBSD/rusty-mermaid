@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 258 154" width="258" height="154">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="71" y="0" width="56" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="99" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top</text>
+    <rect x="114" y="82" width="104" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="166" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Far Below</text>
+    <rect x="0" y="82" width="64" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="32" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Near</text>
+    <path d="M125.15 32 L131.96 36.17 C138.76 40.33 152.38 48.67 159.19 57 C166 65.33 166 73.67 166 77.83 L166 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M72.85 32 L66.04 36.17 C59.24 40.33 45.62 48.67 38.81 57 C32 65.33 32 73.67 32 77.83 L32 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

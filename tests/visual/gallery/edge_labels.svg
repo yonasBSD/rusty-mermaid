@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 428 366" width="428" height="366">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="157" y="0" width="72" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="193" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Order</text>
+    <rect x="149" y="98" width="88" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="193" y="114" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Payment</text>
+    <rect x="55" y="196" width="64" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="87" y="212" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ship</text>
+    <rect x="261" y="196" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="301" y="212" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cancel</text>
+    <rect x="0" y="294" width="104" height="32" rx="16" ry="16" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="52" y="310" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Delivered</text>
+    <rect x="292" y="294" width="96" height="32" rx="16" ry="16" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="340" y="310" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Refunded</text>
+    <rect x="159" y="294" width="72" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="195" y="310" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Email</text>
+    <path d="M193 32 L193 37.5 C193 43 193 54 193 65 C193 76 193 87 193 92.5 L193 98" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="193" y="65" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Place order</text>
+    <path d="M158.39 130 L146.49 135.5 C134.59 141 110.8 152 98.9 163 C87 174 87 185 87 190.5 L87 196" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="87" y="163" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Success</text>
+    <path d="M228.27 130 L240.39 135.5 C252.51 141 276.76 152 288.88 163 C301 174 301 185 301 190.5 L301 196" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="301" y="163" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Failed</text>
+    <path d="M75.57 228 L71.64 233.5 C67.71 239 59.86 250 55.93 261 C52 272 52 283 52 288.5 L52 294" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="52" y="261" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Track</text>
+    <path d="M313.73 228 L318.11 233.5 C322.49 239 331.24 250 335.62 261 C340 272 340 283 340 288.5 L340 294" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="340" y="261" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Refund</text>
+    <path d="M109.53 228 L117.28 233.5 C125.02 239 140.51 250 152.63 261 C164.76 272 173.51 283 177.89 288.5 L182.27 294" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <text x="156" y="261" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Notify</text>
+    <path d="M279.12 228 L271.6 233.5 C264.08 239 249.04 250 237.14 261 C225.24 272 216.49 283 212.11 288.5 L207.73 294" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <text x="234" y="261" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Notify</text>
+  </g>
+</svg>

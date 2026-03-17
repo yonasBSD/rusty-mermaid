@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 107.5 318" width="107.5" height="318">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <rect x="27.5" y="82" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="47.5" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <rect x="27.5" y="164" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="47.5" y="180" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <rect x="0" y="246" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="262" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
+    <path d="M30.73 32 L33.53 36.17 C36.32 40.33 41.91 48.67 44.71 57 C47.5 65.33 47.5 73.67 47.5 77.83 L47.5 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M47.5 114 L47.5 118.17 C47.5 122.33 47.5 130.67 47.5 139 C47.5 147.33 47.5 155.67 47.5 159.83 L47.5 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M47.5 196 L47.5 200.17 C47.5 204.33 47.5 212.67 44.71 221 C41.91 229.33 36.32 237.67 33.53 241.83 L30.73 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M9.27 246 L6.47 241.83 C3.68 237.67 -1.91 229.33 -4.71 218.33 C-7.5 207.33 -7.5 193.67 -7.5 180 C-7.5 166.33 -7.5 152.67 -7.5 139 C-7.5 125.33 -7.5 111.67 -7.5 98 C-7.5 84.33 -7.5 70.67 -4.71 59.67 C-1.91 48.67 3.68 40.33 6.47 36.17 L9.27 32" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 208 1409.72" width="208" height="1409.72">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="32" y="0" width="104" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rectangle</text>
+    <rect x="20" y="82" width="128" height="32" rx="5" ry="5" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rounded Rect</text>
+    <rect x="16" y="164" width="136" height="32" rx="16" ry="16" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="180" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Stadium Shape</text>
+    <polygon points="84,246 144,306 84,366 24,306" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="306" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Diamond</text>
+    <circle cx="84" cy="456" r="40" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="456" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Circle</text>
+    <polygon points="48,546 120,546 128,562 120,578 48,578 40,562" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="562" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hexagon</text>
+    <polygon points="16,628 152,628 168,660 0,660" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="644" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Parallelogram</text>
+    <polygon points="-16,710 184,710 168,742 0,742" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="726" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Alt Parallelogram</text>
+    <polygon points="32,792 136,792 152,824 16,824" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="808" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Trapezoid</text>
+    <polygon points="0,874 168,874 152,906 16,906" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="890" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Alt Trapezoid</text>
+    <circle cx="84" cy="1029" r="73" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <circle cx="84" cy="1029" r="68" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="1029" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Double Circle</text>
+    <rect x="20" y="1152" width="128" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <path d="M28 1152 L28 1184" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M140 1152 L140 1184" fill="none" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="1168" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Subroutine</text>
+    <path d="M36 1239.43 A48 10.86 0 0 1 132 1239.43 A48 10.86 0 0 1 36 1239.43 L36 1282.29 A48 10.86 0 0 0 132 1282.29 L132 1239.43" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="1266.29" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cylinder</text>
+    <polygon points="28,1337.72 140,1337.72 140,1369.72 28,1369.72 36,1353.72" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="84" y="1353.72" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Asymmetric</text>
+    <path d="M84 32 L84 36.17 C84 40.33 84 48.67 84 57 C84 65.33 84 73.67 84 77.83 L84 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 114 L84 118.17 C84 122.33 84 130.67 84 139 C84 147.33 84 155.67 84 159.83 L84 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 196 L84 200.17 C84 204.33 84 212.67 84 221 C84 229.33 84 237.67 84 241.83 L84 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 366 L84 370.17 C84 374.33 84 382.67 84 391 C84 399.33 84 407.67 84 411.83 L84 416" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 496 L84 500.17 C84 504.33 84 512.67 84 521 C84 529.33 84 537.67 84 541.83 L84 546" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 578 L84 582.17 C84 586.33 84 594.67 84 603 C84 611.33 84 619.67 84 623.83 L84 628" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 660 L84 664.17 C84 668.33 84 676.67 84 685 C84 693.33 84 701.67 84 705.83 L84 710" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 742 L84 746.17 C84 750.33 84 758.67 84 767 C84 775.33 84 783.67 84 787.83 L84 792" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 824 L84 828.17 C84 832.33 84 840.67 84 849 C84 857.33 84 865.67 84 869.83 L84 874" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 906 L84 910.17 C84 914.33 84 922.67 84 931 C84 939.33 84 947.67 84 951.83 L84 956" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 1102 L84 1106.17 C84 1110.33 84 1118.67 84 1127 C84 1135.33 84 1143.67 84 1147.83 L84 1152" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 1184 L84 1188.17 C84 1192.33 84 1200.67 84 1208.1 C84 1215.52 84 1222.05 84 1225.31 L84 1228.57" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M84 1293.15 L84 1296.41 C84 1299.67 84 1306.2 84 1313.62 C84 1321.05 84 1329.39 84 1333.55 L84 1337.72" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

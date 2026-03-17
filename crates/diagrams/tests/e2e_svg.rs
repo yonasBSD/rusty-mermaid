@@ -43,7 +43,7 @@ fn complex_flowchart_to_svg() {
     // Should have nodes and edges
     let rect_count = svg.matches("<rect").count();
     let path_count = svg.matches("<path").count();
-    assert!(rect_count >= 5, "expected >= 5 rects, got {rect_count}");
+    assert!(rect_count >= 4, "expected >= 4 rects, got {rect_count}");
     assert!(path_count >= 5, "expected >= 5 paths, got {path_count}");
 }
 

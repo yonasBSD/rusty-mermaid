@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 646" width="80" height="646">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <rect x="0" y="82" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <rect x="0" y="164" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="180" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <rect x="0" y="246" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="262" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
+    <rect x="0" y="328" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="344" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E</text>
+    <rect x="0" y="410" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="426" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F</text>
+    <rect x="0" y="492" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="508" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">G</text>
+    <rect x="0" y="574" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="590" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">H</text>
+    <path d="M20 32 L20 36.17 C20 40.33 20 48.67 20 57 C20 65.33 20 73.67 20 77.83 L20 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 114 L20 118.17 C20 122.33 20 130.67 20 139 C20 147.33 20 155.67 20 159.83 L20 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 196 L20 200.17 C20 204.33 20 212.67 20 221 C20 229.33 20 237.67 20 241.83 L20 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 278 L20 282.17 C20 286.33 20 294.67 20 303 C20 311.33 20 319.67 20 323.83 L20 328" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 360 L20 364.17 C20 368.33 20 376.67 20 385 C20 393.33 20 401.67 20 405.83 L20 410" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 442 L20 446.17 C20 450.33 20 458.67 20 467 C20 475.33 20 483.67 20 487.83 L20 492" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 524 L20 528.17 C20 532.33 20 540.67 20 549 C20 557.33 20 565.67 20 569.83 L20 574" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

@@ -1,10 +1,15 @@
 use std::collections::HashMap;
 
-use rusty_mermaid_core::{SimpleTextMeasure, TextMeasure, TextStyle};
+use rusty_mermaid_core::{
+    BBox, Point, SimpleTextMeasure, TextMeasure, TextStyle,
+    intersect_circle, intersect_polygon, intersect_rect,
+};
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
-use super::ir::{FlowDiagram, StrokeType};
+use rusty_mermaid_core::Shape;
+
+use super::ir::{ArrowEnd, FlowDiagram, StrokeType};
 use crate::common::tokens::strip_html_tags;
 
 const PADDING_X: f64 = 16.0;
@@ -24,6 +29,7 @@ pub struct LayoutResult {
 pub struct NodeLayout {
     pub id: String,
     pub label: String,
+    pub shape: Shape,
     pub x: f64,
     pub y: f64,
     pub width: f64,
@@ -37,6 +43,8 @@ pub struct EdgeLayout {
     pub points: Vec<(f64, f64)>,
     pub label: Option<String>,
     pub stroke: StrokeType,
+    pub start_arrow: ArrowEnd,
+    pub end_arrow: ArrowEnd,
 }
 
 #[derive(Debug)]
@@ -65,8 +73,36 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     for v in &diagram.vertices {
         let text = strip_html_tags(&v.label);
         let (tw, th) = measurer.measure(&text, &style);
-        let width = tw + PADDING_X * 2.0;
-        let height = th + PADDING_Y * 2.0;
+        let text_w = tw + PADDING_X * 2.0;
+        let text_h = th + PADDING_Y * 2.0;
+
+        // Size the dagre node to match the visual shape bounds so edge
+        // intersection clipping lands on the shape perimeter, not inside it.
+        let (width, height) = match v.shape {
+            Shape::Circle => {
+                let d = text_w.max(text_h);
+                (d, d)
+            }
+            Shape::DoubleCircle => {
+                let d = text_w.max(text_h) + 10.0; // 5px gap on each side
+                (d, d)
+            }
+            Shape::Diamond => {
+                // Mermaid: diamond side = w + h, bounding box is square
+                let s = text_w + text_h;
+                (s, s)
+            }
+            Shape::Cylinder => {
+                // Cylinder caps add ry above and below the body.
+                // Mermaid sizes the node tall enough so the body between
+                // the caps has room for the text, not a flat petri dish.
+                let rx = text_w / 2.0;
+                let ry = rx / (2.5 + text_w / 50.0);
+                (text_w, text_h + ry * 2.0)
+            }
+            _ => (text_w, text_h),
+        };
+
         let nid = g.add_node(NodeLabel::new(width, height));
         id_map.insert(&v.id, nid);
     }
@@ -156,6 +192,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             nodes.push(NodeLayout {
                 id: v.id.clone(),
                 label: strip_html_tags(&v.label),
+                shape: v.shape,
                 x: n.x,
                 y: n.y,
                 width: n.width,
@@ -166,24 +203,60 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
+    // Build lookup: vertex id → (shape, NodeId) for edge endpoint clipping
+    let vertex_shape: HashMap<&str, Shape> = diagram
+        .vertices
+        .iter()
+        .map(|v| (v.id.as_str(), v.shape))
+        .collect();
+
     let mut edges = Vec::new();
     for eid in g.edge_ids() {
         let (src, dst) = g.edge_endpoints(eid).unwrap();
         if let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) {
             let e = g.edge(eid).unwrap();
-            let points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
+            let mut points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
+
+            // Re-clip edge endpoints for non-rect shapes.
+            // Dagre uses intersect_rect for all nodes, which overshoots
+            // for shapes inscribed within the bounding rect (diamond, circle, etc.).
+            if points.len() >= 2 {
+                let src_node = g.node(src).unwrap();
+                let src_shape = vertex_shape.get(src_id).copied().unwrap_or(Shape::Rect);
+                let adj = points[1];
+                if let Some(p) = shape_intersect(
+                    src_shape, src_node.x, src_node.y, src_node.width, src_node.height, adj,
+                ) {
+                    points[0] = p;
+                }
+
+                let last = points.len() - 1;
+                let dst_node = g.node(dst).unwrap();
+                let dst_shape = vertex_shape.get(dst_id).copied().unwrap_or(Shape::Rect);
+                let adj = points[last - 1];
+                if let Some(p) = shape_intersect(
+                    dst_shape, dst_node.x, dst_node.y, dst_node.width, dst_node.height, adj,
+                ) {
+                    points[last] = p;
+                }
+            }
+
             let flow_edge = diagram
                 .edges
                 .iter()
                 .find(|fe| fe.src == src_id && fe.dst == dst_id);
             let label = flow_edge.and_then(|fe| fe.label.clone());
             let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
+            let start_arrow = flow_edge.map_or(ArrowEnd::None, |fe| fe.start_arrow);
+            let end_arrow = flow_edge.map_or(ArrowEnd::Arrow, |fe| fe.end_arrow);
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
                 points,
                 label,
                 stroke,
+                start_arrow,
+                end_arrow,
             });
         }
     }
@@ -217,6 +290,116 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         width: max_x,
         height: max_y,
     }
+}
+
+/// Compute shape-specific edge intersection point.
+/// Returns `None` for rect-like shapes (dagre's default clipping is correct).
+/// For inscribed shapes (diamond, circle, hexagon, etc.), returns the point
+/// where the ray from node center toward `adj` crosses the shape perimeter.
+fn shape_intersect(
+    shape: Shape,
+    cx: f64,
+    cy: f64,
+    w: f64,
+    h: f64,
+    adj: (f64, f64),
+) -> Option<(f64, f64)> {
+    let center = Point::new(cx, cy);
+    let target = Point::new(adj.0, adj.1);
+    let hw = w / 2.0;
+    let hh = h / 2.0;
+
+    let p = match shape {
+        Shape::Diamond => {
+            let verts = [
+                Point::new(cx, cy - hh),
+                Point::new(cx + hw, cy),
+                Point::new(cx, cy + hh),
+                Point::new(cx - hw, cy),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        Shape::Circle | Shape::DoubleCircle => {
+            let r = w.max(h) / 2.0;
+            intersect_circle(center, r, target)
+        }
+        Shape::Hexagon => {
+            let m = h / 4.0;
+            let verts = [
+                Point::new(cx - hw + m, cy - hh),
+                Point::new(cx + hw - m, cy - hh),
+                Point::new(cx + hw, cy),
+                Point::new(cx + hw - m, cy + hh),
+                Point::new(cx - hw + m, cy + hh),
+                Point::new(cx - hw, cy),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        Shape::Parallelogram => {
+            let skew = h / 2.0;
+            let verts = [
+                Point::new(cx - hw + skew, cy - hh),
+                Point::new(cx + hw + skew, cy - hh),
+                Point::new(cx + hw - skew, cy + hh),
+                Point::new(cx - hw - skew, cy + hh),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        Shape::ParallelogramAlt => {
+            let skew = h / 2.0;
+            let verts = [
+                Point::new(cx - hw - skew, cy - hh),
+                Point::new(cx + hw - skew, cy - hh),
+                Point::new(cx + hw + skew, cy + hh),
+                Point::new(cx - hw + skew, cy + hh),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        Shape::Trapezoid => {
+            let offset = h / 2.0;
+            let verts = [
+                Point::new(cx - hw, cy - hh),
+                Point::new(cx + hw, cy - hh),
+                Point::new(cx + hw + offset, cy + hh),
+                Point::new(cx - hw - offset, cy + hh),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        Shape::TrapezoidAlt => {
+            let offset = h / 2.0;
+            let verts = [
+                Point::new(cx - hw - offset, cy - hh),
+                Point::new(cx + hw + offset, cy - hh),
+                Point::new(cx + hw, cy + hh),
+                Point::new(cx - hw, cy + hh),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        Shape::Cylinder => {
+            // The cylinder's elliptical caps extend beyond the dagre bounding
+            // box by ry. Clip to a rect matching the full visual height.
+            let rx = hw;
+            let ry = rx / (2.5 + w / 50.0);
+            let full_h = h + ry;
+            let bbox = BBox::new(cx, cy, w, full_h);
+            intersect_rect(&bbox, target)
+        }
+        Shape::Asymmetric => {
+            let notch = h / 4.0;
+            let verts = [
+                Point::new(cx - hw, cy - hh),
+                Point::new(cx + hw, cy - hh),
+                Point::new(cx + hw, cy + hh),
+                Point::new(cx - hw, cy + hh),
+                Point::new(cx - hw + notch, cy),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        // Rect-like shapes: dagre's intersect_rect is already correct
+        _ => return None,
+    };
+
+    Some((p.x, p.y))
 }
 
 #[cfg(test)]
@@ -347,5 +530,41 @@ mod tests {
                 right_pad
             );
         }
+    }
+
+    #[test]
+    fn shape_propagated_to_layout() {
+        let d = crate::flowchart::parser::parse(
+            "flowchart TD\n    A[Rect] --> B(Rounded) --> C{Diamond} --> D((Circle))",
+        )
+        .unwrap();
+        let result = layout(&d);
+
+        let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
+        let b = result.nodes.iter().find(|n| n.id == "B").unwrap();
+        let c = result.nodes.iter().find(|n| n.id == "C").unwrap();
+        let d = result.nodes.iter().find(|n| n.id == "D").unwrap();
+
+        assert_eq!(a.shape, Shape::Rect);
+        assert_eq!(b.shape, Shape::RoundedRect);
+        assert_eq!(c.shape, Shape::Diamond);
+        assert_eq!(d.shape, Shape::Circle);
+    }
+
+    #[test]
+    fn arrow_types_propagated() {
+        let d = crate::flowchart::parser::parse(
+            "flowchart TD\n    A --o B\n    A --x C\n    A --- D",
+        )
+        .unwrap();
+        let result = layout(&d);
+
+        let ab = result.edges.iter().find(|e| e.dst == "B").unwrap();
+        let ac = result.edges.iter().find(|e| e.dst == "C").unwrap();
+        let ad = result.edges.iter().find(|e| e.dst == "D").unwrap();
+
+        assert_eq!(ab.end_arrow, ArrowEnd::Circle);
+        assert_eq!(ac.end_arrow, ArrowEnd::Cross);
+        assert_eq!(ad.end_arrow, ArrowEnd::None);
     }
 }

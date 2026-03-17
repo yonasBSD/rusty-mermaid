@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 400" width="240" height="400">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="0" width="184" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="100" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">label with (parens)</text>
+    <rect x="0" y="82" width="200" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="100" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">label with [brackets]</text>
+    <rect x="8" y="164" width="184" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="100" y="180" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">label with {braces}</text>
+    <rect x="8" y="246" width="184" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="100" y="262" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">label with 'quotes'</text>
+    <rect x="20" y="328" width="160" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="100" y="344" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">multi word label</text>
+    <path d="M100 32 L100 36.17 C100 40.33 100 48.67 100 57 C100 65.33 100 73.67 100 77.83 L100 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M100 114 L100 118.17 C100 122.33 100 130.67 100 139 C100 147.33 100 155.67 100 159.83 L100 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M100 196 L100 200.17 C100 204.33 100 212.67 100 221 C100 229.33 100 237.67 100 241.83 L100 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M100 278 L100 282.17 C100 286.33 100 294.67 100 303 C100 311.33 100 319.67 100 323.83 L100 328" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

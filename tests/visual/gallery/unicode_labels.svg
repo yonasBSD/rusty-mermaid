@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 564" width="200" height="564">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="20" y="0" width="120" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hello World</text>
+    <rect x="0" y="82" width="160" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bonjour le monde</text>
+    <rect x="24" y="164" width="112" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="180" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hallo Welt</text>
+    <rect x="24" y="246" width="112" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="262" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Привет мир</text>
+    <rect x="48" y="328" width="64" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="344" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">你好世界</text>
+    <rect x="36" y="410" width="88" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="426" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">こんにちは世界</text>
+    <rect x="12" y="492" width="136" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="80" y="508" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">مرحبا بالعالم</text>
+    <path d="M80 32 L80 36.17 C80 40.33 80 48.67 80 57 C80 65.33 80 73.67 80 77.83 L80 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M80 114 L80 118.17 C80 122.33 80 130.67 80 139 C80 147.33 80 155.67 80 159.83 L80 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M80 196 L80 200.17 C80 204.33 80 212.67 80 221 C80 229.33 80 237.67 80 241.83 L80 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M80 278 L80 282.17 C80 286.33 80 294.67 80 303 C80 311.33 80 319.67 80 323.83 L80 328" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M80 360 L80 364.17 C80 368.33 80 376.67 80 385 C80 393.33 80 401.67 80 405.83 L80 410" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M80 442 L80 446.17 C80 450.33 80 458.67 80 467 C80 475.33 80 483.67 80 487.83 L80 492" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

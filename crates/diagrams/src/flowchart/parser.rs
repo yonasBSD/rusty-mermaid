@@ -358,7 +358,7 @@ fn parse_node_shape(input: &mut &str) -> ModalResult<(Shape, String)> {
             *input = &input[1..];
             let label = text_until(']', input)?;
             ']'.parse_next(input)?;
-            Ok((Shape::Rect, label.to_string())) // Map odd to Rect for now
+            Ok((Shape::Asymmetric, label.to_string()))
         }
         _ => Err(winnow::error::ErrMode::Backtrack(
             winnow::error::ContextError::new(),

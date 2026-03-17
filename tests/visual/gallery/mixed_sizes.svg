@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 312 236" width="312" height="236">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="272" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="136" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">This is a very wide node label</text>
+    <rect x="161" y="82" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="181" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">S</text>
+    <rect x="71" y="82" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="91" y="98" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">S</text>
+    <rect x="52" y="164" width="168" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="136" y="180" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Medium label here</text>
+    <path d="M153.56 32 L158.13 36.17 C162.71 40.33 171.85 48.67 176.43 57 C181 65.33 181 73.67 181 77.83 L181 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M118.44 32 L113.87 36.17 C109.29 40.33 100.15 48.67 95.57 57 C91 65.33 91 73.67 91 77.83 L91 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M181 114 L181 118.17 C181 122.33 181 130.67 176.43 139 C171.85 147.33 162.71 155.67 158.13 159.83 L153.56 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M91 114 L91 118.17 C91 122.33 91 130.67 95.57 139 C100.15 147.33 109.29 155.67 113.87 159.83 L118.44 164" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

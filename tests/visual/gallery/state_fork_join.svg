@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 318" width="170" height="318">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <circle cx="65" cy="270" r="8" stroke="#333333" stroke-width="1.5" />
+    <circle cx="65" cy="270" r="4" fill="#333333" />
+    <rect x="0" y="123" width="40" height="32" rx="5" ry="5" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="20" y="139" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <rect x="30" y="66" width="70" height="7" fill="#333333" stroke="#333333" />
+    <rect x="90" y="123" width="40" height="32" rx="5" ry="5" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="110" y="139" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <circle cx="65" cy="8" r="8" fill="#333333" stroke="#333333" />
+    <rect x="30" y="205" width="70" height="7" fill="#333333" stroke="#333333" />
+    <path d="M65 16 L65 20.17 C65 24.33 65 32.67 65 41 C65 49.33 65 57.67 65 61.83 L65 66" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M70.53 73 L77.11 77.17 C83.68 81.33 96.84 89.67 103.42 98 C110 106.33 110 114.67 110 118.83 L110 123" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M59.47 73 L52.89 77.17 C46.32 81.33 33.16 89.67 26.58 98 C20 106.33 20 114.67 20 118.83 L20 123" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M110 155 L110 159.17 C110 163.33 110 171.67 103.42 180 C96.84 188.33 83.68 196.67 77.11 200.83 L70.53 205" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20 155 L20 159.17 C20 163.33 20 171.67 26.58 180 C33.16 188.33 46.32 196.67 52.89 200.83 L59.47 205" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M65 212 L65 216.17 C65 220.33 65 228.67 65 237 C65 245.33 65 253.67 65 257.83 L65 262" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

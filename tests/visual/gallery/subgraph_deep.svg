@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252.5 550" width="252.5" height="550">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="7.5" y="82" width="205" height="428" rx="5" ry="5" fill="#ececec" stroke="#333333" stroke-width="1" />
+    <text x="15.5" y="94" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Level 1</text>
+    <rect x="27.5" y="271" width="165" height="214" rx="5" ry="5" fill="#ececec" stroke="#333333" stroke-width="1" />
+    <text x="35.5" y="283" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Level 2</text>
+    <rect x="47.5" y="378" width="125" height="82" rx="5" ry="5" fill="#ececec" stroke="#333333" stroke-width="1" />
+    <text x="55.5" y="390" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Level 3</text>
+    <rect x="90" y="296" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="110" y="312" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <rect x="90" y="403" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="110" y="419" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <rect x="90" y="189" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="110" y="205" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <rect x="90" y="107" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="110" y="123" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
+    <rect x="90" y="0" width="40" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="110" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E</text>
+    <path d="M110 328 L110 332.17 C110 336.33 110 344.67 110 353 C110 361.33 110 369.67 110 378 C110 386.33 110 394.67 110 398.83 L110 403" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M110 221 L110 225.17 C110 229.33 110 237.67 110 246 C110 254.33 110 262.67 110 271 C110 279.33 110 287.67 110 291.83 L110 296" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M110 139 L110 143.17 C110 147.33 110 155.67 110 164 C110 172.33 110 180.67 110 184.83 L110 189" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M110 32 L110 36.17 C110 40.33 110 48.67 110 57 C110 65.33 110 73.67 110 82 C110 90.33 110 98.67 110 102.83 L110 107" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+  </g>
+</svg>

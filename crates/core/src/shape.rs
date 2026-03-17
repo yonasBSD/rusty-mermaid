@@ -16,6 +16,7 @@ pub enum Shape {
     ParallelogramAlt,
     Trapezoid,
     TrapezoidAlt,
+    Asymmetric,
     // State
     StateStart,
     StateEnd,

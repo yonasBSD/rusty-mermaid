@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218 348" width="218" height="348">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="61" y="0" width="72" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="97" y="16" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <polygon points="97,82 161,146 97,210 33,146" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="97" y="146" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Decision</text>
+    <rect x="130" y="276" width="48" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="154" y="292" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OK</text>
+    <rect x="0" y="276" width="80" height="32" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <text x="40" y="292" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Not OK</text>
+    <path d="M97 32 L97 36.17 C97 40.33 97 48.67 97 57 C97 65.33 97 73.67 97 77.83 L97 82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M120.69 186.31 L126.24 195.76 C131.79 205.21 142.9 224.1 148.45 239.05 C154 254 154 265 154 270.5 L154 276" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="154" y="243" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Yes</text>
+    <path d="M73.31 186.31 L67.76 195.76 C62.21 205.21 51.1 224.1 45.55 239.05 C40 254 40 265 40 270.5 L40 276" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <text x="40" y="243" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
+  </g>
+</svg>
