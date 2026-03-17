@@ -768,8 +768,8 @@ Phase 6: state diagram feature parity
   [x] 6.6  History states: parse `<<history>>`, add StateKind::History
             - render as circle with "H" label
             + gallery: new state_history.mmd
-  [ ] 6.7  Note positions: support `note top of` / `note bottom of`
-            (currently only left/right)
+  [x] 6.7  Note rendering: position notes left/right of states (post-layout)
+            (mermaid.js only supports left/right — no top/bottom)
   [ ] 6.7r ── visual review ──
 
   6d — Concurrent regions

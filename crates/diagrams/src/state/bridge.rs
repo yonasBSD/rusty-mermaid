@@ -6,7 +6,7 @@ use rusty_mermaid_graph::{Graph, NodeId};
 
 use crate::common::styling::StyleProperty;
 
-use super::ir::{StateDiagram, StateKind, StateNode, StateTransition};
+use super::ir::{NotePosition, StateDiagram, StateKind, StateNode, StateNote, StateTransition};
 
 const PADDING_X: f64 = 16.0;
 const PADDING_Y: f64 = 8.0;
@@ -14,6 +14,7 @@ const START_END_SIZE: f64 = 16.0;
 const FORK_JOIN_WIDTH: f64 = 70.0;
 const FORK_JOIN_HEIGHT: f64 = 7.0;
 const CHOICE_SIZE: f64 = 28.0;
+const NOTE_PADDING: f64 = 10.0;
 /// Extra height added above compound nodes for the title + separator header.
 /// Dagre doesn't know about the header, so without this the first inner
 /// child overlaps the separator line.
@@ -35,6 +36,7 @@ pub enum NodeShape {
     EndBullseye,
     ForkJoinBar,
     ChoiceDiamond,
+    NoteRect,
 }
 
 #[derive(Debug)]
@@ -121,6 +123,36 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         max_y = max_y.max(n.y + n.height / 2.0);
     }
 
+    // Position notes relative to their target state (post-layout)
+    let all_notes = collect_all_notes(diagram);
+    for note in &all_notes {
+        let Some(state_node) = nodes.iter().find(|n| n.id == note.state_id) else { continue };
+        let (tw, th) = measurer.measure(&note.text, &style);
+        let note_w = tw + NOTE_PADDING * 2.0;
+        let note_h = th + NOTE_PADDING * 2.0;
+        let gap = 10.0;
+
+        let note_x = match note.position {
+            NotePosition::Right => state_node.x + state_node.width / 2.0 + gap + note_w / 2.0,
+            NotePosition::Left => state_node.x - state_node.width / 2.0 - gap - note_w / 2.0,
+        };
+        let note_y = state_node.y;
+
+        nodes.push(NodeLayout {
+            id: format!("{}-note", note.state_id),
+            label: note.text.clone(),
+            x: note_x,
+            y: note_y,
+            width: note_w,
+            height: note_h,
+            is_compound: false,
+            shape: NodeShape::NoteRect,
+            custom_style: None,
+        });
+        max_x = max_x.max(note_x + note_w / 2.0);
+        max_y = max_y.max(note_y + note_h / 2.0);
+    }
+
     // Extend compound rects upward to make room for the title + separator
     // header.  Dagre doesn't know about the header, so without this the
     // first inner child circle overlaps the separator line.
@@ -131,12 +163,23 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         }
     }
 
-    // Recompute max extents after compound adjustments
+    // Recompute extents after compound adjustments and notes
+    let mut min_x: f64 = 0.0;
     max_x = 0.0;
     max_y = 0.0;
     for node in &nodes {
+        min_x = min_x.min(node.x - node.width / 2.0);
         max_x = max_x.max(node.x + node.width / 2.0);
         max_y = max_y.max(node.y + node.height / 2.0);
+    }
+
+    // Compute shift for notes that extend past the left edge
+    let x_shift = if min_x < 0.0 { -min_x } else { 0.0 };
+    if x_shift > 0.0 {
+        for node in &mut nodes {
+            node.x += x_shift;
+        }
+        max_x += x_shift;
     }
 
     // Only emit edges that correspond to a real transition (filters out
@@ -152,7 +195,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             });
             let Some(transition) = matched else { continue };
             let e = g.edge(eid).unwrap();
-            let points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
+            let points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x + x_shift, p.y)).collect();
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
@@ -406,6 +449,26 @@ fn add_scope<'a>(
     }
 }
 
+/// Collect all notes from the diagram, including those inside composites.
+fn collect_all_notes(diagram: &StateDiagram) -> Vec<&StateNote> {
+    let mut result = Vec::new();
+    for note in &diagram.notes {
+        result.push(note);
+    }
+    fn collect_from_states<'a>(states: &'a [StateNode], result: &mut Vec<&'a StateNote>) {
+        for s in states {
+            if let StateKind::Composite { notes, children, .. } = &s.kind {
+                for note in notes {
+                    result.push(note);
+                }
+                collect_from_states(children, result);
+            }
+        }
+    }
+    collect_from_states(&diagram.states, &mut result);
+    result
+}
+
 /// Resolve classDef + class + style into a per-state Style map.
 fn resolve_state_styles(diagram: &StateDiagram) -> HashMap<&str, Style> {
     let class_map: HashMap<&str, &[StyleProperty]> = diagram
@@ -642,5 +705,38 @@ mod tests {
         // check should be above A and B
         assert!(check.y < a.y, "check should be above A");
         assert!(check.y < b.y, "check should be above B");
+    }
+
+    #[test]
+    fn layout_note_right() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Still\n    note right of Still : idle state\n    Still --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let still = result.nodes.iter().find(|n| n.id == "Still").unwrap();
+        let note = result.nodes.iter().find(|n| n.id == "Still-note").unwrap();
+
+        assert_eq!(note.shape, NodeShape::NoteRect);
+        assert_eq!(note.label, "idle state");
+        // Note should be to the right of the state
+        assert!(note.x > still.x,
+            "note (x={:.1}) should be right of Still (x={:.1})", note.x, still.x);
+    }
+
+    #[test]
+    fn layout_note_left() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Still\n    note left of Still : idle state\n    Still --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let still = result.nodes.iter().find(|n| n.id == "Still").unwrap();
+        let note = result.nodes.iter().find(|n| n.id == "Still-note").unwrap();
+
+        assert_eq!(note.shape, NodeShape::NoteRect);
+        // Note should be to the left of the state
+        assert!(note.x < still.x,
+            "note (x={:.1}) should be left of Still (x={:.1})", note.x, still.x);
     }
 }

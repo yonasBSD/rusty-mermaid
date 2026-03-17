@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> Still
+    Still --> Moving : start
+    Moving --> Still : stop
+    Moving --> Crash
+    Crash --> [*]
+    note right of Still : Idle state
+    note left of Moving : Active state

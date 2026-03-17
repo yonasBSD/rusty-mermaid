@@ -182,6 +182,29 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     style: merge_node_style(node),
                 });
             }
+            NodeShape::NoteRect => {
+                scene.push(Primitive::Rect {
+                    bbox: BBox::new(node.x, node.y, node.width, node.height),
+                    rx: 0.0,
+                    ry: 0.0,
+                    style: Style {
+                        fill: Some(Color::rgb(255, 255, 204)),
+                        stroke: Some(Color::rgb(170, 170, 51)),
+                        stroke_width: Some(1.0),
+                        ..Default::default()
+                    },
+                });
+                scene.push(Primitive::Text {
+                    position: Point::new(node.x, node.y),
+                    content: node.label.clone(),
+                    anchor: TextAnchor::Middle,
+                    style: TextStyle {
+                        font_size: 12.0,
+                        fill: Some(Color::rgb(51, 51, 51)),
+                        ..Default::default()
+                    },
+                });
+            }
             NodeShape::RoundedRect => {
                 let style = merge_node_style(node);
                 let node_fill = style.fill;
