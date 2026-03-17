@@ -49,6 +49,15 @@ fn edge_label_style() -> TextStyle {
     }
 }
 
+fn edge_label_bg_style() -> Style {
+    Style {
+        fill: Some(Color::rgb(232, 232, 232)),
+        stroke: Some(Color::rgb(232, 232, 232)),
+        stroke_width: Some(0.5),
+        ..Default::default()
+    }
+}
+
 /// Convert a flowchart layout result into a Scene of drawing primitives.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
@@ -133,6 +142,16 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             });
             if let Some(label) = &edge.label {
                 let mid = &points[points.len() / 2];
+                // Background rect behind label (matches mermaid's label-on-edge look)
+                if let Some((lw, lh)) = edge.label_size {
+                    let pad = 4.0;
+                    scene.push(Primitive::Rect {
+                        bbox: BBox::new(mid.x, mid.y, lw + pad * 2.0, lh + pad * 2.0),
+                        rx: 2.0,
+                        ry: 2.0,
+                        style: edge_label_bg_style(),
+                    });
+                }
                 scene.push(Primitive::Text {
                     position: *mid,
                     content: label.clone(),

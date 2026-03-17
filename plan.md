@@ -742,7 +742,7 @@ Phase 5: flowchart feature parity
   [ ] 5.19r ── visual review ──
 
   5e — Remaining flowchart gaps
-  [ ] 5.20 Edge label positioning: place at path midpoint with
+  [x] 5.20 Edge label positioning: place at path midpoint with
             background rect (match mermaid's label-on-edge look)
   [ ] 5.21 Markdown in labels (`**bold**`, `_italic_`) — parse to
             inline spans, render as tspan with font-weight/style

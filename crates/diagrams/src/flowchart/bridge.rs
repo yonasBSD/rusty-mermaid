@@ -45,6 +45,8 @@ pub struct EdgeLayout {
     pub dst: String,
     pub points: Vec<(f64, f64)>,
     pub label: Option<String>,
+    /// Measured label dimensions (width, height) for background rect.
+    pub label_size: Option<(f64, f64)>,
     pub stroke: StrokeType,
     pub start_arrow: ArrowEnd,
     pub end_arrow: ArrowEnd,
@@ -267,6 +269,10 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             }
             let flow_edge = edge_idx.map(|i| &diagram.edges[i]);
             let label = flow_edge.and_then(|fe| fe.label.clone());
+            let label_size = label.as_ref().map(|text| {
+                let edge_style = TextStyle { font_size: 12.0, ..Default::default() };
+                measurer.measure(text, &edge_style)
+            });
             let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
             let start_arrow = flow_edge.map_or(ArrowEnd::None, |fe| fe.start_arrow);
             let end_arrow = flow_edge.map_or(ArrowEnd::Arrow, |fe| fe.end_arrow);
@@ -276,6 +282,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
                 dst: dst_id.to_string(),
                 points,
                 label,
+                label_size,
                 stroke,
                 start_arrow,
                 end_arrow,
