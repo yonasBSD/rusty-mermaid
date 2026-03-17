@@ -18,6 +18,18 @@ fn node_style() -> Style {
     }
 }
 
+fn merge_node_style(node: &NodeLayout) -> Style {
+    let mut style = node_style();
+    if let Some(custom) = &node.custom_style {
+        if custom.fill.is_some() { style.fill = custom.fill; }
+        if custom.stroke.is_some() { style.stroke = custom.stroke; }
+        if custom.stroke_width.is_some() { style.stroke_width = custom.stroke_width; }
+        if custom.stroke_dasharray.is_some() { style.stroke_dasharray = custom.stroke_dasharray.clone(); }
+        if custom.opacity.is_some() { style.opacity = custom.opacity; }
+    }
+    style
+}
+
 fn label_style() -> TextStyle {
     TextStyle {
         fill: Some(Color::rgb(51, 51, 51)),
@@ -167,21 +179,32 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                         Point::new(node.x, node.y + hh),
                         Point::new(node.x - hw, node.y),
                     ],
-                    style: node_style(),
+                    style: merge_node_style(node),
                 });
             }
             NodeShape::RoundedRect => {
+                let style = merge_node_style(node);
+                let node_fill = style.fill;
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(node.x, node.y, node.width, node.height),
                     rx: 5.0,
                     ry: 5.0,
-                    style: node_style(),
+                    style,
                 });
+                let mut lstyle = label_style();
+                if let Some(fill) = node_fill {
+                    let lum = fill.luminance();
+                    if lum < 0.4 {
+                        lstyle.fill = Some(Color::WHITE);
+                    } else if lum > 0.9 {
+                        lstyle.fill = Some(Color::BLACK);
+                    }
+                }
                 scene.push(Primitive::Text {
                     position: Point::new(node.x, node.y),
                     content: node.label.clone(),
                     anchor: TextAnchor::Middle,
-                    style: label_style(),
+                    style: lstyle,
                 });
             }
         }

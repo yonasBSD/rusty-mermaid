@@ -1,5 +1,7 @@
 use rusty_mermaid_core::Direction;
 
+use crate::common::styling::{ClassDef, StyleProperty};
+
 /// A parsed state diagram.
 #[derive(Debug, Clone)]
 pub struct StateDiagram {
@@ -7,6 +9,15 @@ pub struct StateDiagram {
     pub states: Vec<StateNode>,
     pub transitions: Vec<StateTransition>,
     pub notes: Vec<StateNote>,
+    pub class_defs: Vec<ClassDef>,
+    pub style_stmts: Vec<StateStyleStmt>,
+}
+
+/// Direct style applied to a state by ID.
+#[derive(Debug, Clone)]
+pub struct StateStyleStmt {
+    pub ids: Vec<String>,
+    pub styles: Vec<StyleProperty>,
 }
 
 /// A state node.
@@ -15,6 +26,7 @@ pub struct StateNode {
     pub id: String,
     pub label: Option<String>,
     pub kind: StateKind,
+    pub classes: Vec<String>,
 }
 
 /// What kind of state this is.
@@ -72,6 +84,8 @@ impl StateDiagram {
             states: Vec::new(),
             transitions: Vec::new(),
             notes: Vec::new(),
+            class_defs: Vec::new(),
+            style_stmts: Vec::new(),
         }
     }
 
@@ -87,6 +101,7 @@ impl StateNode {
             id: id.into(),
             label: None,
             kind,
+            classes: Vec::new(),
         }
     }
 

@@ -754,8 +754,8 @@ Phase 6: state diagram feature parity
   Each item: implement → test → gallery .mmd → diff review → commit.
 
   6a — Styling
-  [ ] 6.1  Parse classDef / class / style in state grammar
-  [ ] 6.2  Apply styles to state rendering (fill, stroke, stroke-width)
+  [x] 6.1  Parse classDef / class / style in state grammar
+  [x] 6.2  Apply styles to state rendering (fill, stroke, stroke-width)
             + gallery: new state_styled.mmd
   [ ] 6.2r ── visual review ──
 

@@ -5,6 +5,7 @@ use winnow::token::take_while;
 use rusty_mermaid_core::Direction;
 
 use crate::common::error::{ParseError, ParseErrorKind};
+use crate::common::styling::{class_apply_body, class_def_body, style_stmt_body, ClassDef};
 use crate::common::tokens::{identifier, skip, ws};
 
 use super::ir::*;
@@ -24,7 +25,14 @@ fn parse_state_diagram(input: &mut &str) -> ModalResult<StateDiagram> {
     skip.parse_next(input)?;
 
     let mut diagram = StateDiagram::new(Direction::TB);
-    parse_body(input, &mut diagram.states, &mut diagram.transitions, &mut diagram.notes)?;
+    parse_body(
+        input,
+        &mut diagram.states,
+        &mut diagram.transitions,
+        &mut diagram.notes,
+        &mut diagram.class_defs,
+        &mut diagram.style_stmts,
+    )?;
     Ok(diagram)
 }
 
@@ -42,13 +50,15 @@ fn parse_body(
     states: &mut Vec<StateNode>,
     transitions: &mut Vec<StateTransition>,
     notes: &mut Vec<StateNote>,
+    class_defs: &mut Vec<ClassDef>,
+    style_stmts: &mut Vec<StateStyleStmt>,
 ) -> ModalResult<()> {
     loop {
         skip.parse_next(input)?;
         if input.is_empty() || input.starts_with('}') {
             break;
         }
-        if !try_parse_statement(input, states, transitions, notes)? {
+        if !try_parse_statement(input, states, transitions, notes, class_defs, style_stmts)? {
             // Skip unrecognized character
             if !input.is_empty() {
                 *input = &input[1..];
@@ -64,11 +74,51 @@ fn try_parse_statement(
     states: &mut Vec<StateNode>,
     transitions: &mut Vec<StateTransition>,
     notes: &mut Vec<StateNote>,
+    class_defs: &mut Vec<ClassDef>,
+    style_stmts: &mut Vec<StateStyleStmt>,
 ) -> ModalResult<bool> {
+    // Try classDef
+    if input.starts_with("classDef") {
+        let checkpoint = *input;
+        *input = &input[8..];
+        if let Ok(cd) = class_def_body.parse_next(input) {
+            class_defs.push(cd);
+            return Ok(true);
+        }
+        *input = checkpoint;
+    }
+
+    // Try style statement
+    if input.starts_with("style ") {
+        let checkpoint = *input;
+        *input = &input[5..];
+        if let Ok(ss) = style_stmt_body.parse_next(input) {
+            style_stmts.push(StateStyleStmt {
+                ids: ss.ids,
+                styles: ss.styles,
+            });
+            return Ok(true);
+        }
+        *input = checkpoint;
+    }
+
+    // Try class apply
+    if input.starts_with("class ") {
+        let checkpoint = *input;
+        *input = &input[5..];
+        if let Ok(ca) = class_apply_body.parse_next(input) {
+            for id in &ca.ids {
+                if let Some(s) = states.iter_mut().find(|s| s.id == *id) {
+                    s.classes.push(ca.class_name.clone());
+                }
+            }
+            return Ok(true);
+        }
+        *input = checkpoint;
+    }
+
     // Try direction statement
     if let Some(dir) = opt(parse_direction_stmt).parse_next(input)? {
-        // Direction at top level is ignored (v2 uses TB by default),
-        // but inside composites it matters — handled by caller.
         let _ = dir;
         return Ok(true);
     }
@@ -80,9 +130,13 @@ fn try_parse_statement(
     }
 
     // Try composite state: `state "Label" as Name {` or `state Name {`
-    if let Some(node) = opt(parse_composite_state).parse_next(input)? {
-        upsert_state_full(states, node);
-        return Ok(true);
+    {
+        let checkpoint = *input;
+        if let Ok(node) = parse_composite_state(input, class_defs, style_stmts) {
+            upsert_state_full(states, node);
+            return Ok(true);
+        }
+        *input = checkpoint;
     }
 
     // Try state declaration with stereotype: `state Name <<fork>>`
@@ -93,7 +147,6 @@ fn try_parse_statement(
 
     // Try transition: `A --> B` or `A --> B : label`
     if let Some(trans) = opt(parse_transition).parse_next(input)? {
-        // Ensure both src and dst states exist
         ensure_state(states, &trans.src);
         ensure_state(states, &trans.dst);
         transitions.push(trans);
@@ -217,7 +270,11 @@ fn parse_multiline_note_body(input: &mut &str) -> ModalResult<String> {
 }
 
 /// Parse `state "Label" as Name {` or `state Name {`.
-fn parse_composite_state(input: &mut &str) -> ModalResult<StateNode> {
+fn parse_composite_state(
+    input: &mut &str,
+    class_defs: &mut Vec<ClassDef>,
+    style_stmts: &mut Vec<StateStyleStmt>,
+) -> ModalResult<StateNode> {
     "state".parse_next(input)?;
     ws.parse_next(input)?;
 
@@ -269,7 +326,7 @@ fn parse_composite_state(input: &mut &str) -> ModalResult<StateNode> {
             continue;
         }
 
-        if !try_parse_statement(input, &mut children, &mut trans, &mut notes)? {
+        if !try_parse_statement(input, &mut children, &mut trans, &mut notes, class_defs, style_stmts)? {
             if !input.is_empty() {
                 *input = &input[1..];
             }
@@ -490,5 +547,30 @@ mod tests {
         assert!(d.state("A").is_some());
         assert!(d.state("B").is_some());
         assert!(d.state("C").is_some());
+    }
+
+    #[test]
+    fn parse_classdef() {
+        let input = "stateDiagram-v2\n    A --> B\n    classDef highlight fill:#f9f,stroke:#333";
+        let d = parse(input).unwrap();
+        assert_eq!(d.class_defs.len(), 1);
+        assert_eq!(d.class_defs[0].name, "highlight");
+        assert_eq!(d.class_defs[0].styles.len(), 2);
+    }
+
+    #[test]
+    fn parse_style_stmt() {
+        let input = "stateDiagram-v2\n    A --> B\n    style A fill:#f00";
+        let d = parse(input).unwrap();
+        assert_eq!(d.style_stmts.len(), 1);
+        assert_eq!(d.style_stmts[0].ids, vec!["A"]);
+    }
+
+    #[test]
+    fn parse_class_apply() {
+        let input = "stateDiagram-v2\n    A --> B\n    classDef active fill:#0f0\n    class A active";
+        let d = parse(input).unwrap();
+        let a = d.state("A").unwrap();
+        assert_eq!(a.classes, vec!["active"]);
     }
 }

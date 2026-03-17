@@ -1,0 +1,16 @@
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Processing : start
+    Processing --> Success : done
+    Processing --> Error : fail
+    Error --> Idle : retry
+    Success --> [*]
+
+    classDef active fill:#4caf50,stroke:#2e7d32,stroke-width:2px
+    classDef error fill:#f44336,stroke:#b71c1c,stroke-width:2px
+    classDef waiting fill:#ff9800,stroke:#e65100
+
+    class Idle waiting
+    class Processing active
+    class Error error
+    style Success fill:#2196f3,stroke:#0d47a1

@@ -1,10 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
-use rusty_mermaid_core::{SimpleTextMeasure, TextMeasure, TextStyle};
+use rusty_mermaid_core::{Color, SimpleTextMeasure, Style, TextMeasure, TextStyle};
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
-use super::ir::{StateDiagram, StateKind, StateTransition};
+use crate::common::styling::StyleProperty;
+
+use super::ir::{StateDiagram, StateKind, StateNode, StateTransition};
 
 const PADDING_X: f64 = 16.0;
 const PADDING_Y: f64 = 8.0;
@@ -45,6 +47,7 @@ pub struct NodeLayout {
     pub height: f64,
     pub is_compound: bool,
     pub shape: NodeShape,
+    pub custom_style: Option<Style>,
 }
 
 #[derive(Debug)]
@@ -86,6 +89,9 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     config.rankdir = diagram.direction;
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
+    // Resolve per-node styles
+    let node_styles = resolve_state_styles(diagram);
+
     // Extract results
     let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(id, &nid)| (nid, id.as_str())).collect();
 
@@ -109,6 +115,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             height: n.height,
             is_compound: is_compound_state(&diagram.states, id_str),
             shape: node_shape(&diagram.states, id_str),
+            custom_style: node_styles.get(id_str.as_str()).cloned(),
         });
         max_x = max_x.max(n.x + n.width / 2.0);
         max_y = max_y.max(n.y + n.height / 2.0);
@@ -396,6 +403,87 @@ fn add_scope<'a>(
         }
         g.add_edge(src, dst, label);
         all_transitions.push(t);
+    }
+}
+
+/// Resolve classDef + class + style into a per-state Style map.
+fn resolve_state_styles(diagram: &StateDiagram) -> HashMap<&str, Style> {
+    let class_map: HashMap<&str, &[StyleProperty]> = diagram
+        .class_defs
+        .iter()
+        .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
+        .collect();
+
+    let mut result: HashMap<&str, Style> = HashMap::new();
+
+    fn collect_states<'a>(
+        states: &'a [StateNode],
+        class_map: &HashMap<&str, &[StyleProperty]>,
+        style_stmts: &'a [super::ir::StateStyleStmt],
+        result: &mut HashMap<&'a str, Style>,
+    ) {
+        for s in states {
+            let mut style = Style::default();
+            let mut has_custom = false;
+
+            if let Some(props) = class_map.get("default") {
+                apply_style_properties(&mut style, props);
+                has_custom = true;
+            }
+            for class_name in &s.classes {
+                if let Some(props) = class_map.get(class_name.as_str()) {
+                    apply_style_properties(&mut style, props);
+                    has_custom = true;
+                }
+            }
+            for stmt in style_stmts {
+                if stmt.ids.iter().any(|id| id == &s.id) {
+                    apply_style_properties(&mut style, &stmt.styles);
+                    has_custom = true;
+                }
+            }
+            if has_custom {
+                result.insert(&s.id, style);
+            }
+
+            if let StateKind::Composite { children, .. } = &s.kind {
+                collect_states(children, class_map, style_stmts, result);
+            }
+        }
+    }
+
+    collect_states(&diagram.states, &class_map, &diagram.style_stmts, &mut result);
+    result
+}
+
+fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
+    for prop in props {
+        match prop.key.as_str() {
+            "fill" => { style.fill = Color::from_css(&prop.value); }
+            "stroke" => { style.stroke = Color::from_css(&prop.value); }
+            "stroke-width" => {
+                let v = prop.value.trim_end_matches("px");
+                if let Ok(w) = v.parse::<f64>() {
+                    style.stroke_width = Some(w);
+                }
+            }
+            "stroke-dasharray" => {
+                let vals: Vec<f64> = prop.value
+                    .split_whitespace()
+                    .flat_map(|s| s.split(','))
+                    .filter_map(|s| s.trim().parse().ok())
+                    .collect();
+                if !vals.is_empty() {
+                    style.stroke_dasharray = Some(vals);
+                }
+            }
+            "opacity" => {
+                if let Ok(o) = prop.value.parse::<f64>() {
+                    style.opacity = Some(o);
+                }
+            }
+            _ => {}
+        }
     }
 }
 
