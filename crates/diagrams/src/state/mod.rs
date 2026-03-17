@@ -82,6 +82,34 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             marker_end: None,
         });
     }
+    // Edges behind nodes
+    for edge in &layout.edges {
+        if edge.points.len() >= 2 {
+            let mut points: Vec<Point> =
+                edge.points.iter().map(|&(x, y)| Point::new(x, y)).collect();
+
+            // Clip edges at compound boundaries
+            points = clip_at_compounds(&points, &compounds);
+
+            let segments = interpolate(&points, CurveType::Basis);
+            scene.push(Primitive::Path {
+                segments,
+                style: Style::default(),
+                marker_start: None,
+                marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+            });
+            if let Some(label) = &edge.label {
+                let mid = &points[points.len() / 2];
+                scene.push(Primitive::Text {
+                    position: *mid,
+                    content: label.clone(),
+                    anchor: TextAnchor::Middle,
+                    style: edge_label_style(),
+                });
+            }
+        }
+    }
+
     // Then render leaf nodes on top
     for node in layout.nodes.iter().filter(|n| !n.is_compound) {
         match node.shape {
@@ -154,32 +182,6 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     content: node.label.clone(),
                     anchor: TextAnchor::Middle,
                     style: label_style(),
-                });
-            }
-        }
-    }
-    for edge in &layout.edges {
-        if edge.points.len() >= 2 {
-            let mut points: Vec<Point> =
-                edge.points.iter().map(|&(x, y)| Point::new(x, y)).collect();
-
-            // Clip edges at compound boundaries
-            points = clip_at_compounds(&points, &compounds);
-
-            let segments = interpolate(&points, CurveType::Basis);
-            scene.push(Primitive::Path {
-                segments,
-                style: Style::default(),
-                marker_start: None,
-                marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
-            });
-            if let Some(label) = &edge.label {
-                let mid = &points[points.len() / 2];
-                scene.push(Primitive::Text {
-                    position: *mid,
-                    content: label.clone(),
-                    anchor: TextAnchor::Middle,
-                    style: edge_label_style(),
                 });
             }
         }

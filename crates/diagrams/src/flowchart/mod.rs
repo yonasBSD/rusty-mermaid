@@ -96,9 +96,6 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
         }
     }
 
-    for node in &layout.nodes {
-        render_node(node, scene);
-    }
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
             let points: Vec<Point> =
@@ -134,6 +131,10 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 });
             }
         }
+    }
+
+    for node in &layout.nodes {
+        render_node(node, scene);
     }
 }
 
