@@ -773,8 +773,10 @@ Phase 6: state diagram feature parity
   [ ] 6.7r ── visual review ──
 
   6d — Concurrent regions
-  [ ] 6.8  Render concurrent region dividers (`--`) inside composites
-            - parser already handles `--`, needs visual rendering
+  [x] 6.8  Render concurrent region dividers (`--`) inside composites
+            - parser splits children into ConcurrentRegion structs
+            - bridge creates compound sub-groups per region
+            - dashed grey line rendered between regions
             + gallery: new state_concurrent.mmd
   [ ] 6.8r ── visual review ──
 

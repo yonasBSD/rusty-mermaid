@@ -27,6 +27,16 @@ pub struct LayoutResult {
     pub edges: Vec<EdgeLayout>,
     pub width: f64,
     pub height: f64,
+    /// Dashed divider lines between concurrent regions.
+    pub dividers: Vec<DividerLine>,
+}
+
+/// A horizontal dashed line separating concurrent regions.
+#[derive(Debug)]
+pub struct DividerLine {
+    pub x1: f64,
+    pub x2: f64,
+    pub y: f64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -50,6 +60,8 @@ pub struct NodeLayout {
     pub is_compound: bool,
     pub shape: NodeShape,
     pub custom_style: Option<Style>,
+    /// Number of concurrent regions (0 = not concurrent).
+    pub region_count: usize,
 }
 
 #[derive(Debug)]
@@ -118,6 +130,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             is_compound: is_compound_state(&diagram.states, id_str),
             shape: node_shape(&diagram.states, id_str),
             custom_style: node_styles.get(id_str.as_str()).cloned(),
+            region_count: region_count(&diagram.states, id_str),
         });
         max_x = max_x.max(n.x + n.width / 2.0);
         max_y = max_y.max(n.y + n.height / 2.0);
@@ -148,6 +161,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             is_compound: false,
             shape: NodeShape::NoteRect,
             custom_style: None,
+            region_count: 0,
         });
         max_x = max_x.max(note_x + note_w / 2.0);
         max_y = max_y.max(note_y + note_h / 2.0);
@@ -205,11 +219,43 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         }
     }
 
+    // Compute divider lines between concurrent regions
+    let mut dividers = Vec::new();
+    for node in &nodes {
+        if node.region_count < 2 {
+            continue;
+        }
+        let left = node.x - node.width / 2.0 + 8.0;
+        let right = node.x + node.width / 2.0 - 8.0;
+
+        // Find region sub-groups for this composite
+        let mut region_bottoms: Vec<f64> = Vec::new();
+        for i in 0..node.region_count {
+            let region_key = format!("{}._region_{}", node.id, i);
+            if let Some(&region_nid) = id_map.get(&region_key) {
+                if let Some(rn) = g.node(region_nid) {
+                    region_bottoms.push(rn.y + rn.height / 2.0 + x_shift * 0.0); // y not shifted
+                }
+            }
+        }
+        region_bottoms.sort_by(|a, b| a.partial_cmp(b).unwrap());
+
+        // Draw dividers between regions (not after the last one)
+        for bottom in region_bottoms.iter().take(region_bottoms.len().saturating_sub(1)) {
+            dividers.push(DividerLine {
+                x1: left,
+                x2: right,
+                y: *bottom + 10.0, // small gap below region
+            });
+        }
+    }
+
     LayoutResult {
         nodes,
         edges,
         width: max_x,
         height: max_y,
+        dividers,
     }
 }
 
@@ -332,31 +378,61 @@ fn add_scope<'a>(
             StateKind::Fork | StateKind::Join => (FORK_JOIN_WIDTH, FORK_JOIN_HEIGHT),
             StateKind::Choice => (CHOICE_SIZE, CHOICE_SIZE),
             StateKind::Start | StateKind::End => (START_END_SIZE, START_END_SIZE),
-            StateKind::Composite { children, transitions: inner_trans, .. } => {
+            StateKind::Composite { children, transitions: inner_trans, regions, .. } => {
                 let nid = g.add_node(NodeLabel::new(0.0, 0.0));
                 id_map.insert(s.id.clone(), nid);
                 if let Some((parent_nid, _)) = parent {
                     g.set_parent(nid, parent_nid);
                 }
 
-                // Recurse into composite: add children, inner pseudo-states, inner edges
-                add_scope(
-                    children,
-                    inner_trans,
-                    Some((nid, &s.id)),
-                    g,
-                    id_map,
-                    all_transitions,
-                    synthetic_ids,
-                    measurer,
-                    style,
-                );
+                if regions.is_empty() {
+                    // Non-concurrent: single scope
+                    add_scope(
+                        children,
+                        inner_trans,
+                        Some((nid, &s.id)),
+                        g,
+                        id_map,
+                        all_transitions,
+                        synthetic_ids,
+                        measurer,
+                        style,
+                    );
 
-                // Parent children to this composite
-                for child in children {
-                    if let Some(&child_nid) = id_map.get(child.id.as_str()) {
-                        if g.parent(child_nid).is_none() {
-                            g.set_parent(child_nid, nid);
+                    for child in children {
+                        if let Some(&child_nid) = id_map.get(child.id.as_str()) {
+                            if g.parent(child_nid).is_none() {
+                                g.set_parent(child_nid, nid);
+                            }
+                        }
+                    }
+                } else {
+                    // Concurrent: each region is a compound sub-group
+                    for (i, region) in regions.iter().enumerate() {
+                        let region_nid = g.add_node(NodeLabel::new(0.0, 0.0));
+                        let region_key = format!("{}._region_{}", s.id, i);
+                        g.set_parent(region_nid, nid);
+                        synthetic_ids.insert(region_key.clone());
+                        id_map.insert(region_key.clone(), region_nid);
+
+                        add_scope(
+                            &region.children,
+                            &region.transitions,
+                            Some((region_nid, &region_key)),
+                            g,
+                            id_map,
+                            all_transitions,
+                            synthetic_ids,
+                            measurer,
+                            style,
+                        );
+
+                        for child in &region.children {
+                            if let Some(&child_nid) = id_map.get(child.id.as_str()) {
+                                if g.parent(child_nid).is_none() {
+                                    g.set_parent(child_nid, region_nid);
+                                }
+                            }
                         }
                     }
                 }
@@ -373,13 +449,6 @@ fn add_scope<'a>(
                         synthetic_ids.insert(inner_end_key.clone());
                         id_map.insert(inner_end_key, end_nid);
 
-                        // Single edge from one child to exit so it ranks at
-                        // the bottom.  Using all children creates competing
-                        // alignment forces in the BK position phase (their
-                        // normalized dummy nodes distort x-coordinates).
-                        // Mermaid's findNonClusterChild picks one child — we
-                        // pick the last to maximise the chance it is already
-                        // the lowest-ranked node in the compound.
                         if let Some(last) = children.last() {
                             if let Some(&child_nid) = id_map.get(last.id.as_str()) {
                                 g.add_edge(child_nid, end_nid, EdgeLabel::default());
@@ -447,6 +516,23 @@ fn add_scope<'a>(
         g.add_edge(src, dst, label);
         all_transitions.push(t);
     }
+}
+
+/// Return the number of concurrent regions for a state (0 if not concurrent).
+fn region_count(states: &[super::ir::StateNode], id: &str) -> usize {
+    for s in states {
+        if s.id == id {
+            if let StateKind::Composite { regions, .. } = &s.kind {
+                return regions.len();
+            }
+            return 0;
+        }
+        if let StateKind::Composite { children, .. } = &s.kind {
+            let c = region_count(children, id);
+            if c > 0 { return c; }
+        }
+    }
+    0
 }
 
 /// Collect all notes from the diagram, including those inside composites.
@@ -738,5 +824,28 @@ mod tests {
         // Note should be to the left of the state
         assert!(note.x < still.x,
             "note (x={:.1}) should be left of Still (x={:.1})", note.x, still.x);
+    }
+
+    #[test]
+    fn layout_concurrent_regions() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    state Active {\n        A --> B\n        --\n        C --> D\n    }"
+        ).unwrap();
+        let result = layout(&d);
+
+        // All four states should be present
+        assert!(result.nodes.iter().any(|n| n.id == "A"));
+        assert!(result.nodes.iter().any(|n| n.id == "B"));
+        assert!(result.nodes.iter().any(|n| n.id == "C"));
+        assert!(result.nodes.iter().any(|n| n.id == "D"));
+
+        // Active should be compound with 2 regions
+        let active = result.nodes.iter().find(|n| n.id == "Active").unwrap();
+        assert!(active.is_compound);
+        assert_eq!(active.region_count, 2);
+
+        // Should have at least one divider
+        assert!(!result.dividers.is_empty(),
+            "concurrent regions should produce divider lines");
     }
 }

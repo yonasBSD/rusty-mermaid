@@ -51,9 +51,17 @@ pub enum StateKind {
         children: Vec<StateNode>,
         transitions: Vec<StateTransition>,
         notes: Vec<StateNote>,
-        /// Concurrency dividers split a composite into parallel regions.
-        concurrent: bool,
+        /// When `--` dividers are present, children are split into regions.
+        /// Each region is laid out as a separate compound sub-group.
+        regions: Vec<ConcurrentRegion>,
     },
+}
+
+/// A concurrent region within a composite state (separated by `--`).
+#[derive(Debug, Clone)]
+pub struct ConcurrentRegion {
+    pub children: Vec<StateNode>,
+    pub transitions: Vec<StateTransition>,
 }
 
 /// A transition between states.
@@ -164,7 +172,7 @@ mod tests {
             children: vec![inner],
             transitions: vec![],
             notes: vec![],
-            concurrent: false,
+            regions: vec![],
         });
         assert!(composite.is_composite());
     }

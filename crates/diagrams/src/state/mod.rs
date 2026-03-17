@@ -232,6 +232,24 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             }
         }
     }
+
+    // Render concurrent region dividers
+    for div in &layout.dividers {
+        scene.push(Primitive::Path {
+            segments: vec![
+                PathSegment::MoveTo(Point::new(div.x1, div.y)),
+                PathSegment::LineTo(Point::new(div.x2, div.y)),
+            ],
+            style: Style {
+                stroke: Some(Color::rgb(128, 128, 128)),
+                stroke_width: Some(1.0),
+                stroke_dasharray: Some(vec![10.0, 10.0]),
+                ..Default::default()
+            },
+            marker_start: None,
+            marker_end: None,
+        });
+    }
 }
 
 /// Clip edge points at compound boundaries.

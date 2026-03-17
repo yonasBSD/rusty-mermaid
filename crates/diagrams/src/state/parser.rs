@@ -300,7 +300,10 @@ fn parse_composite_state(
     let mut trans = Vec::new();
     let mut notes = Vec::new();
     let mut direction = None;
-    let mut concurrent = false;
+    let mut regions: Vec<ConcurrentRegion> = Vec::new();
+    let mut region_children: Vec<StateNode> = Vec::new();
+    let mut region_trans: Vec<StateTransition> = Vec::new();
+    let mut has_divider = false;
 
     // Parse body
     loop {
@@ -316,7 +319,12 @@ fn parse_composite_state(
         if input.starts_with("--") && !input.starts_with("-->") {
             "--".parse_next(input)?;
             take_while(0.., |c: char| c == '-').parse_next(input)?;
-            concurrent = true;
+            // Flush current region
+            regions.push(ConcurrentRegion {
+                children: std::mem::take(&mut region_children),
+                transitions: std::mem::take(&mut region_trans),
+            });
+            has_divider = true;
             continue;
         }
 
@@ -326,11 +334,27 @@ fn parse_composite_state(
             continue;
         }
 
-        if !try_parse_statement(input, &mut children, &mut trans, &mut notes, class_defs, style_stmts)? {
+        if !try_parse_statement(input, &mut region_children, &mut region_trans, &mut notes, class_defs, style_stmts)? {
             if !input.is_empty() {
                 *input = &input[1..];
             }
         }
+    }
+
+    // Flush remaining content
+    if has_divider {
+        regions.push(ConcurrentRegion {
+            children: std::mem::take(&mut region_children),
+            transitions: std::mem::take(&mut region_trans),
+        });
+        // Flatten into children/trans for backward compat
+        for r in &regions {
+            children.extend(r.children.clone());
+            trans.extend(r.transitions.clone());
+        }
+    } else {
+        children = region_children;
+        trans = region_trans;
     }
 
     let mut node = StateNode::new(id, StateKind::Composite {
@@ -338,7 +362,7 @@ fn parse_composite_state(
         children,
         transitions: trans,
         notes,
-        concurrent,
+        regions,
     });
     node.label = label;
     Ok(node)
@@ -513,8 +537,14 @@ mod tests {
         let input = "stateDiagram-v2\n    state Active {\n        A --> B\n        --\n        C --> D\n    }";
         let d = parse(input).unwrap();
         let active = d.state("Active").unwrap();
-        if let StateKind::Composite { concurrent, .. } = &active.kind {
-            assert!(concurrent);
+        if let StateKind::Composite { regions, children, .. } = &active.kind {
+            assert_eq!(regions.len(), 2);
+            assert_eq!(regions[0].children.len(), 2); // A, B
+            assert_eq!(regions[0].transitions.len(), 1); // A --> B
+            assert_eq!(regions[1].children.len(), 2); // C, D
+            assert_eq!(regions[1].transitions.len(), 1); // C --> D
+            // children should contain flattened list
+            assert_eq!(children.len(), 4);
         } else {
             panic!("expected composite");
         }
