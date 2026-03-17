@@ -119,6 +119,30 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     // Run layout
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
+    // Recenter compound nodes on their content.  The BK position
+    // algorithm can place left/right border nodes asymmetrically,
+    // causing unequal left/right padding.  Redistribute padding
+    // evenly by centering each compound on its children's bounding
+    // box.  Process inner-to-outer so parent compounds see the
+    // updated child positions.
+    for sg in diagram.subgraphs.iter().rev() {
+        let Some(&nid) = id_map.get(sg.id.as_str()) else {
+            continue;
+        };
+        let mut min_x = f64::INFINITY;
+        let mut max_x = f64::NEG_INFINITY;
+        for child in g.children(nid).collect::<Vec<_>>() {
+            let c = g.node(child).unwrap();
+            if c.width > 0.0 || c.height > 0.0 {
+                min_x = min_x.min(c.x - c.width / 2.0);
+                max_x = max_x.max(c.x + c.width / 2.0);
+            }
+        }
+        if min_x.is_finite() && max_x.is_finite() {
+            g.node_mut(nid).unwrap().x = (min_x + max_x) / 2.0;
+        }
+    }
+
     // Extract results
     let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
 
@@ -272,6 +296,56 @@ mod tests {
         let result = layout(&d);
         for e in &result.edges {
             assert!(!e.points.is_empty(), "edge {}->{} should have points", e.src, e.dst);
+        }
+    }
+
+    #[test]
+    fn subgraph_centered_on_children() {
+        let mmd = "flowchart TD\n    subgraph outer[Level 1]\n        subgraph inner[Level 2]\n            A --> B\n        end\n        C --> A\n    end\n    D --> C";
+        let d = crate::flowchart::parser::parse(mmd).unwrap();
+        let result = layout(&d);
+
+        for sg in &result.subgraphs {
+            let sg_left = sg.x - sg.width / 2.0;
+            let sg_right = sg.x + sg.width / 2.0;
+
+            // Collect direct children bounds
+            let children: Vec<_> = result
+                .nodes
+                .iter()
+                .filter(|n| {
+                    let ir_sg = d.subgraphs.iter().find(|s| s.id == sg.id).unwrap();
+                    ir_sg.node_ids.contains(&n.id)
+                })
+                .collect();
+
+            if children.is_empty() {
+                continue;
+            }
+
+            let content_min = children
+                .iter()
+                .map(|n| n.x - n.width / 2.0)
+                .fold(f64::INFINITY, f64::min);
+            let content_max = children
+                .iter()
+                .map(|n| n.x + n.width / 2.0)
+                .fold(f64::NEG_INFINITY, f64::max);
+
+            let left_pad = content_min - sg_left;
+            let right_pad = sg_right - content_max;
+
+            eprintln!(
+                "{}: center={:.1} left_pad={:.1} right_pad={:.1}",
+                sg.id, sg.x, left_pad, right_pad
+            );
+            assert!(
+                (left_pad - right_pad).abs() < 1.0,
+                "{}: padding asymmetry {:.1} vs {:.1}",
+                sg.id,
+                left_pad,
+                right_pad
+            );
         }
     }
 }
