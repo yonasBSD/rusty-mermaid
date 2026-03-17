@@ -86,14 +86,10 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
 /// Sort one layer using barycenters from the adjacent layer.
 ///
-/// Builds a compound-aware view of this rank by finding the layer root —
-/// the deepest common ancestor of all nodes at this rank. Border constraints
-/// are enforced by sort_subgraph placing border_left[rank] / border_right[rank]
-/// at the extremes of each compound group.
-///
-/// When nodes span multiple top-level compounds with no common ancestor,
-/// a temporary root is created (matching dagre's `buildLayerGraph` synthetic
-/// root) so `sort_subgraph` can handle the full hierarchy.
+/// Mirrors JS dagre's `buildLayerGraph` + `sweepLayerGraphs`: always creates
+/// a synthetic root node, parents all top-level entities at this rank to it,
+/// then sorts via `sort_subgraph`. This ensures uniform constraint generation
+/// across all ranks regardless of compound hierarchy shape.
 fn sweep_layer(
     g: &mut Graph<NodeLabel, EdgeLabel>,
     rank: i32,
@@ -101,116 +97,51 @@ fn sweep_layer(
     use_in_edges: bool,
     cg: &mut ConstraintGraph,
 ) {
+    // Collect nodes that participate in this rank:
+    // - leaf nodes where rank == this rank
+    // - compound nodes spanning this rank (minRank <= rank <= maxRank)
     let layer_nodes: Vec<NodeId> = g
         .node_ids()
-        .filter(|&nid| g.node(nid).unwrap().rank == rank)
+        .filter(|&nid| {
+            let n = g.node(nid).unwrap();
+            n.rank == rank
+                || (n.min_rank.is_some_and(|min| min <= rank)
+                    && n.max_rank.is_some_and(|max| max >= rank))
+        })
         .collect();
 
     if layer_nodes.is_empty() {
         return;
     }
 
-    let root = find_layer_root(g, &layer_nodes);
+    // Create synthetic root (matching JS dagre's buildLayerGraph)
+    let synth_root = g.add_node(NodeLabel::new(0.0, 0.0));
 
-    if let Some(root_id) = root {
-        let result =
-            sort_subgraph::sort_subgraph(g, root_id, cg, bias_right, use_in_edges, rank);
-        for (i, &nid) in result.vs.iter().enumerate() {
-            g.node_mut(nid).unwrap().order = i;
-        }
-        add_subgraph_constraints(g, cg, &result.vs);
-    } else {
-        let has_compounds = layer_nodes.iter().any(|&nid| g.parent(nid).is_some());
-        if has_compounds {
-            // Multiple top-level compounds with no common root.
-            // Create a temp root (like dagre's buildLayerGraph synthetic root)
-            // so sort_subgraph can handle the full hierarchy.
-            let temp_root = g.add_node(NodeLabel::new(0.0, 0.0));
-
-            let mut top_nodes: Vec<NodeId> = Vec::new();
-            for &nid in &layer_nodes {
-                let top = if g.parent(nid).is_some() {
-                    top_ancestor(g, nid)
-                } else {
-                    nid
-                };
-                if !top_nodes.contains(&top) {
-                    top_nodes.push(top);
-                }
-            }
-
-            for &top in &top_nodes {
-                g.set_parent(top, temp_root);
-            }
-
-            let result =
-                sort_subgraph::sort_subgraph(g, temp_root, cg, bias_right, use_in_edges, rank);
-            for (i, &nid) in result.vs.iter().enumerate() {
-                g.node_mut(nid).unwrap().order = i;
-            }
-            add_subgraph_constraints(g, cg, &result.vs);
-
-            // Clean up: unparent and remove temp root
-            for &top in &top_nodes {
-                g.remove_parent(top);
-            }
-            g.remove_node(temp_root);
-        } else {
-            // Truly flat graph (no compound nodes) — simple barycenter sort
-            flat_sort(g, &layer_nodes, bias_right, use_in_edges);
+    // Collect all unique top-level ancestors BEFORE reparenting any,
+    // to avoid top_ancestor traversing into the synthetic root.
+    let mut reparented: Vec<NodeId> = Vec::new();
+    for &nid in &layer_nodes {
+        let top = top_ancestor(g, nid);
+        if !reparented.contains(&top) {
+            reparented.push(top);
         }
     }
-}
-
-/// Find the appropriate root for sorting nodes at a given layer.
-///
-/// Walks up from layer nodes to find the deepest common ancestor in the
-/// compound hierarchy. For flat graphs, returns None.
-fn find_layer_root(
-    g: &Graph<NodeLabel, EdgeLabel>,
-    layer_nodes: &[NodeId],
-) -> Option<NodeId> {
-    if layer_nodes.is_empty() {
-        return None;
+    for &top in &reparented {
+        g.set_parent(top, synth_root);
     }
 
-    // Collect all distinct top-level ancestors (or direct parents)
-    let mut roots: Vec<NodeId> = Vec::new();
-    for &nid in layer_nodes {
-        let ancestor = top_ancestor(g, nid);
-        if !roots.contains(&ancestor) {
-            roots.push(ancestor);
-        }
+    let result =
+        sort_subgraph::sort_subgraph(g, synth_root, cg, bias_right, use_in_edges, rank);
+    for (i, &nid) in result.vs.iter().enumerate() {
+        g.node_mut(nid).unwrap().order = i;
     }
+    add_subgraph_constraints(g, cg, &result.vs);
 
-    // If all share the same top ancestor, find the deepest common parent
-    if roots.len() == 1 {
-        // All nodes descend from the same root; find the deepest common parent
-        let first_parent = g.parent(layer_nodes[0]);
-        if first_parent.is_some() && layer_nodes.iter().all(|&n| g.parent(n) == first_parent) {
-            return first_parent;
-        }
-        // Mixed parents under the same root — return the root's parent if it has one,
-        // otherwise return the root itself (top-level compound node)
-        if let Some(p) = g.parent(roots[0]) {
-            return Some(p);
-        }
-        // Top-level compound node with no parent — use it directly as sort root
-        if g.children(roots[0]).next().is_some() {
-            return Some(roots[0]);
-        }
+    // Clean up: unparent and remove synthetic root
+    for &top in &reparented {
+        g.remove_parent(top);
     }
-
-    // Multiple roots or flat graph — check if there's a common parent at any level
-    // This handles the case where all nodes are in different subgraphs that share a parent
-    let parents: Vec<Option<NodeId>> = roots.iter().map(|&r| g.parent(r)).collect();
-    if let Some(first) = parents[0] {
-        if parents.iter().all(|p| *p == Some(first)) {
-            return Some(first);
-        }
-    }
-
-    None
+    g.remove_node(synth_root);
 }
 
 /// Walk up the compound hierarchy to find the top-level ancestor.
@@ -219,46 +150,6 @@ fn top_ancestor(g: &Graph<NodeLabel, EdgeLabel>, mut nid: NodeId) -> NodeId {
         nid = parent;
     }
     nid
-}
-
-/// Simple flat sort by barycenter (no compound hierarchy).
-fn flat_sort(
-    g: &mut Graph<NodeLabel, EdgeLabel>,
-    layer_nodes: &[NodeId],
-    bias_right: bool,
-    use_in_edges: bool,
-) {
-    let entries = if use_in_edges {
-        barycenter::barycenter(g, layer_nodes)
-    } else {
-        barycenter::barycenter_out(g, layer_nodes)
-    };
-
-    let mut indexed: Vec<_> = entries
-        .iter()
-        .enumerate()
-        .map(|(i, e)| (e.v, e.barycenter, i))
-        .collect();
-
-    indexed.sort_by(|a, b| match (a.1, b.1) {
-        (Some(a_bc), Some(b_bc)) => a_bc
-            .partial_cmp(&b_bc)
-            .unwrap_or(std::cmp::Ordering::Equal)
-            .then_with(|| {
-                if bias_right {
-                    b.2.cmp(&a.2)
-                } else {
-                    a.2.cmp(&b.2)
-                }
-            }),
-        (Some(_), None) => std::cmp::Ordering::Less,
-        (None, Some(_)) => std::cmp::Ordering::Greater,
-        (None, None) => a.2.cmp(&b.2),
-    });
-
-    for (order, &(nid, _, _)) in indexed.iter().enumerate() {
-        g.node_mut(nid).unwrap().order = order;
-    }
 }
 
 /// Add constraints between peer compound nodes to prevent subgraph interleaving.
