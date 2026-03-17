@@ -58,7 +58,7 @@ impl Default for DagreConfig {
             rankdir: Direction::TB,
             nodesep: 50.0,
             ranksep: 50.0,
-            edgesep: 10.0,
+            edgesep: 20.0,
             marginx: 0.0,
             marginy: 0.0,
             acyclicer: Acyclicer::default(),

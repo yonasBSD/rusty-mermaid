@@ -114,7 +114,7 @@ fn find_path(
     // Traverse up from v to find the LCA
     let mut v_path: Vec<Option<NodeId>> = Vec::new();
     let mut parent = g.parent(v);
-    let mut lca: Option<NodeId>;
+    let lca: Option<NodeId>;
 
     loop {
         v_path.push(parent);

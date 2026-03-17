@@ -17,7 +17,7 @@ pub(crate) fn position_x(
     g: &Graph<NodeLabel, EdgeLabel>,
     config: &DagreConfig,
 ) -> Vec<(NodeId, f64)> {
-    let layering = util::build_layer_matrix(g);
+    let layering = util::build_layer_matrix_leaves(g);
     let conflicts = find_conflicts(g, &layering);
 
     let mut xss: [Vec<(NodeId, f64)>; 4] = Default::default();
@@ -284,11 +284,14 @@ fn vertical_alignment(
     for layer in layering {
         let mut prev_idx: i64 = -1;
         for &v in layer {
-            let mut ws = neighbor_fn(g, v);
+            let mut ws: Vec<_> = neighbor_fn(g, v)
+                .into_iter()
+                .filter(|w| pos.contains_key(w))
+                .collect();
             if ws.is_empty() {
                 continue;
             }
-            ws.sort_by_key(|&w| *pos.get(&w).unwrap_or(&0));
+            ws.sort_by_key(|&w| pos[&w]);
 
             let mp = (ws.len() as f64 - 1.0) / 2.0;
             let lo = mp.floor() as usize;
@@ -296,14 +299,14 @@ fn vertical_alignment(
 
             for &w in &ws[lo..=hi] {
                 if align[&v] == v
-                    && prev_idx < *pos.get(&w).unwrap_or(&0) as i64
+                    && prev_idx < (pos[&w] as i64)
                     && !has_conflict(conflicts, v, w)
                 {
                     align.insert(w, v);
                     let rw = root[&w];
                     root.insert(v, rw);
                     align.insert(v, rw);
-                    prev_idx = *pos.get(&w).unwrap_or(&0) as i64;
+                    prev_idx = pos[&w] as i64;
                 }
             }
         }

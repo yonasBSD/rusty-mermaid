@@ -20,7 +20,7 @@ pub(crate) fn position(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig
 /// Each layer's y is determined by cumulative max-height + ranksep.
 /// Within a layer, nodes are positioned according to rankalign (top/center/bottom).
 fn position_y(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
-    let layering = util::build_layer_matrix(g);
+    let layering = util::build_layer_matrix_leaves(g);
     let mut prev_y = 0.0;
 
     for layer in &layering {

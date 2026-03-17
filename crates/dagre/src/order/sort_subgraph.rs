@@ -92,17 +92,43 @@ pub(crate) fn sort_subgraph(
             vs.push(nid);
         }
     }
+    let mut bc = result.barycenter;
+    let mut wt = result.weight;
+
     if let (Some(left), Some(right)) = (bl, br) {
         let mut final_vs = vec![left];
         final_vs.extend(vs);
         final_vs.push(right);
         vs = final_vs;
+
+        // Adjust barycenter to include border predecessors' (or successors')
+        // orders. This anchors compound positioning across ranks — matching
+        // dagre JS sortSubgraph lines 36-46.
+        let (bl_ref, br_ref) = if use_in_edges {
+            (
+                g.predecessors(left).next(),
+                g.predecessors(right).next(),
+            )
+        } else {
+            (
+                g.successors(left).next(),
+                g.successors(right).next(),
+            )
+        };
+        if let (Some(bl_node), Some(br_node)) = (bl_ref, br_ref) {
+            let bl_order = g.node(bl_node).unwrap().order as f64;
+            let br_order = g.node(br_node).unwrap().order as f64;
+            bc = Some(
+                (bc.unwrap_or(0.0) * wt + bl_order + br_order) / (wt + 2.0),
+            );
+            wt += 2.0;
+        }
     }
 
     SortResult {
         vs,
-        barycenter: result.barycenter,
-        weight: result.weight,
+        barycenter: bc,
+        weight: wt,
     }
 }
 

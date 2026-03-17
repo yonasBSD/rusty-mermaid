@@ -100,9 +100,27 @@ pub fn max_rank(g: &Graph<NodeLabel, EdgeLabel>) -> i32 {
 
 /// Build a layer matrix: layers[rank] = [node_ids sorted by order].
 pub fn build_layer_matrix(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>> {
+    build_layer_matrix_filtered(g, false)
+}
+
+/// Build a layer matrix excluding compound nodes (nodes with children).
+///
+/// Mirrors JS dagre's `asNonCompoundGraph` which strips compound nodes
+/// before BK positioning so their zero-width/height doesn't corrupt alignment.
+pub fn build_layer_matrix_leaves(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>> {
+    build_layer_matrix_filtered(g, true)
+}
+
+fn build_layer_matrix_filtered(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    leaves_only: bool,
+) -> Vec<Vec<NodeId>> {
     let max = max_rank(g);
     let mut layers = vec![Vec::new(); (max + 1) as usize];
     for nid in g.node_ids() {
+        if leaves_only && g.children(nid).next().is_some() {
+            continue;
+        }
         let node = g.node(nid).unwrap();
         let rank = node.rank;
         if rank >= 0 && (rank as usize) < layers.len() {
