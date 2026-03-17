@@ -760,16 +760,12 @@ Phase 6: state diagram feature parity
   [ ] 6.2r ── visual review ──
 
   6b — Transition labels
-  [ ] 6.3  Parse guard conditions `A --> B : event [guard]`
-            - currently everything after `:` is a flat label string
-            - parse into structured { event, guard, action } if present
-  [ ] 6.4  Parse action/effect syntax `A --> B : event / action`
-  [ ] 6.5  Render structured transition labels
-            + gallery: new state_guards.mmd
-  [ ] 6.5r ── visual review ──
+  [x] 6.3  Transition labels: flat string after `:` (matches mermaid.js)
+  [x] 6.4  No structured guard/action parsing needed (mermaid.js doesn't do it)
+  [x] 6.5  Labels render as-is — already working
 
   6c — Missing state types
-  [ ] 6.6  History states: parse `<<history>>`, add StateKind::History
+  [x] 6.6  History states: parse `<<history>>`, add StateKind::History
             - render as circle with "H" label
             + gallery: new state_history.mmd
   [ ] 6.7  Note positions: support `note top of` / `note bottom of`

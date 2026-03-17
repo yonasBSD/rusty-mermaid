@@ -43,6 +43,8 @@ pub enum StateKind {
     Join,
     /// `<<choice>>` — diamond decision point.
     Choice,
+    /// `<<history>>` — shallow history pseudo-state (circle with "H").
+    History,
     /// Composite state containing children.
     Composite {
         direction: Option<Direction>,

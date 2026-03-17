@@ -370,6 +370,7 @@ fn parse_state_decl(input: &mut &str) -> ModalResult<StateNode> {
         "<<fork>>".value(StateKind::Fork),
         "<<join>>".value(StateKind::Join),
         "<<choice>>".value(StateKind::Choice),
+        "<<history>>".value(StateKind::History),
     ))
     .parse_next(input)?;
 
@@ -564,6 +565,14 @@ mod tests {
         let d = parse(input).unwrap();
         assert_eq!(d.style_stmts.len(), 1);
         assert_eq!(d.style_stmts[0].ids, vec!["A"]);
+    }
+
+    #[test]
+    fn parse_history_state() {
+        let input = "stateDiagram-v2\n    state hist1 <<history>>\n    [*] --> hist1\n    hist1 --> A";
+        let d = parse(input).unwrap();
+        let h = d.state("hist1").unwrap();
+        assert!(matches!(h.kind, StateKind::History));
     }
 
     #[test]

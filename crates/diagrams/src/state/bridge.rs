@@ -347,7 +347,7 @@ fn add_scope<'a>(
 
                 continue; // already added the node
             }
-            StateKind::Normal => {
+            StateKind::Normal | StateKind::History => {
                 let text = s.label.as_deref().unwrap_or(&s.id);
                 let (tw, th) = measurer.measure(text, style);
                 (tw + PADDING_X * 2.0, th + PADDING_Y * 2.0)
