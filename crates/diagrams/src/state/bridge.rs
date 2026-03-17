@@ -9,9 +9,13 @@ use super::ir::{StateDiagram, StateKind, StateTransition};
 const PADDING_X: f64 = 16.0;
 const PADDING_Y: f64 = 8.0;
 const START_END_SIZE: f64 = 16.0;
-const FORK_JOIN_WIDTH: f64 = 80.0;
-const FORK_JOIN_HEIGHT: f64 = 6.0;
+const FORK_JOIN_WIDTH: f64 = 70.0;
+const FORK_JOIN_HEIGHT: f64 = 7.0;
 const CHOICE_SIZE: f64 = 28.0;
+/// Extra height added above compound nodes for the title + separator header.
+/// Dagre doesn't know about the header, so without this the first inner
+/// child overlaps the separator line.
+const COMPOUND_HEADER_HEIGHT: f64 = 3.0;
 
 /// Layout result: node positions and edge points.
 #[derive(Debug)]
@@ -20,6 +24,15 @@ pub struct LayoutResult {
     pub edges: Vec<EdgeLayout>,
     pub width: f64,
     pub height: f64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NodeShape {
+    RoundedRect,
+    StartCircle,
+    EndBullseye,
+    ForkJoinBar,
+    ChoiceDiamond,
 }
 
 #[derive(Debug)]
@@ -31,6 +44,7 @@ pub struct NodeLayout {
     pub width: f64,
     pub height: f64,
     pub is_compound: bool,
+    pub shape: NodeShape,
 }
 
 #[derive(Debug)]
@@ -94,9 +108,28 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             width: n.width,
             height: n.height,
             is_compound: is_compound_state(&diagram.states, id_str),
+            shape: node_shape(&diagram.states, id_str),
         });
         max_x = max_x.max(n.x + n.width / 2.0);
         max_y = max_y.max(n.y + n.height / 2.0);
+    }
+
+    // Extend compound rects upward to make room for the title + separator
+    // header.  Dagre doesn't know about the header, so without this the
+    // first inner child circle overlaps the separator line.
+    for node in &mut nodes {
+        if node.is_compound {
+            node.height += COMPOUND_HEADER_HEIGHT;
+            node.y -= COMPOUND_HEADER_HEIGHT / 2.0;
+        }
+    }
+
+    // Recompute max extents after compound adjustments
+    max_x = 0.0;
+    max_y = 0.0;
+    for node in &nodes {
+        max_x = max_x.max(node.x + node.width / 2.0);
+        max_y = max_y.max(node.y + node.height / 2.0);
     }
 
     // Only emit edges that correspond to a real transition (filters out
@@ -169,6 +202,38 @@ fn find_state_label(states: &[super::ir::StateNode], id: &str) -> Option<String>
         if let StateKind::Composite { children, .. } = &s.kind {
             if let Some(label) = find_state_label(children, id) {
                 return Some(label);
+            }
+        }
+    }
+    None
+}
+
+/// Determine the rendering shape for a node based on its ID and IR kind.
+fn node_shape(states: &[super::ir::StateNode], id: &str) -> NodeShape {
+    if id.ends_with("[*]_start") {
+        return NodeShape::StartCircle;
+    }
+    if id.ends_with("[*]_end") {
+        return NodeShape::EndBullseye;
+    }
+    match find_state_kind(states, id) {
+        Some(StateKind::Fork | StateKind::Join) => NodeShape::ForkJoinBar,
+        Some(StateKind::Choice) => NodeShape::ChoiceDiamond,
+        Some(StateKind::Start) => NodeShape::StartCircle,
+        Some(StateKind::End) => NodeShape::EndBullseye,
+        _ => NodeShape::RoundedRect,
+    }
+}
+
+/// Recursively find a state's kind by ID across all nesting levels.
+fn find_state_kind<'a>(states: &'a [super::ir::StateNode], id: &str) -> Option<&'a StateKind> {
+    for s in states {
+        if s.id == id {
+            return Some(&s.kind);
+        }
+        if let StateKind::Composite { children, .. } = &s.kind {
+            if let Some(kind) = find_state_kind(children, id) {
+                return Some(kind);
             }
         }
     }
@@ -258,9 +323,15 @@ fn add_scope<'a>(
                         synthetic_ids.insert(inner_end_key.clone());
                         id_map.insert(inner_end_key, end_nid);
 
-                        // Edge from each child to exit so it ranks at the bottom
-                        for child in children {
-                            if let Some(&child_nid) = id_map.get(child.id.as_str()) {
+                        // Single edge from one child to exit so it ranks at
+                        // the bottom.  Using all children creates competing
+                        // alignment forces in the BK position phase (their
+                        // normalized dummy nodes distort x-coordinates).
+                        // Mermaid's findNonClusterChild picks one child — we
+                        // pick the last to maximise the chance it is already
+                        // the lowest-ranked node in the compound.
+                        if let Some(last) = children.last() {
+                            if let Some(&child_nid) = id_map.get(last.id.as_str()) {
                                 g.add_edge(child_nid, end_nid, EdgeLabel::default());
                             }
                         }
@@ -334,6 +405,22 @@ mod tests {
 
     use super::*;
     use crate::state::ir::*;
+
+    #[test]
+    fn composite_children_aligned() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> Idle\n        Idle --> Running\n        Running --> Idle\n    }\n    Active --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let idle = result.nodes.iter().find(|n| n.id == "Idle").unwrap();
+        let running = result.nodes.iter().find(|n| n.id == "Running").unwrap();
+        assert!(
+            (idle.x - running.x).abs() < 1.0,
+            "Idle (x={:.1}) and Running (x={:.1}) should be x-aligned",
+            idle.x, running.x
+        );
+    }
 
     #[test]
     fn layout_simple_chain() {
@@ -425,6 +512,32 @@ mod tests {
         assert!(end.y > active_bottom,
             "[*]_end (y={}) should be below Active bottom (y={active_bottom})",
             end.y);
+    }
+
+    #[test]
+    fn node_shapes_propagated() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    state fork1 <<fork>>\n    state join1 <<join>>\n    state check <<choice>>\n    [*] --> fork1\n    fork1 --> A\n    fork1 --> B\n    A --> check\n    check --> join1 : yes\n    B --> join1\n    join1 --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let start = result.nodes.iter().find(|n| n.id == "[*]_start").unwrap();
+        assert_eq!(start.shape, NodeShape::StartCircle);
+
+        let end = result.nodes.iter().find(|n| n.id == "[*]_end").unwrap();
+        assert_eq!(end.shape, NodeShape::EndBullseye);
+
+        let fork = result.nodes.iter().find(|n| n.id == "fork1").unwrap();
+        assert_eq!(fork.shape, NodeShape::ForkJoinBar);
+
+        let join = result.nodes.iter().find(|n| n.id == "join1").unwrap();
+        assert_eq!(join.shape, NodeShape::ForkJoinBar);
+
+        let choice = result.nodes.iter().find(|n| n.id == "check").unwrap();
+        assert_eq!(choice.shape, NodeShape::ChoiceDiamond);
+
+        let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
+        assert_eq!(a.shape, NodeShape::RoundedRect);
     }
 
     #[test]
