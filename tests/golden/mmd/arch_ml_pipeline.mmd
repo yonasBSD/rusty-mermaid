@@ -1,0 +1,76 @@
+graph LR
+    subgraph Data Collection
+        Logs[Application Logs]
+        Events[User Events]
+        Surveys[User Surveys]
+        External[External Data APIs]
+    end
+
+    subgraph Feature Engineering
+        RawStore[(Raw Data Lake)]
+        FeatureCalc[Feature Calculator]
+        FeatureStore[(Feature Store)]
+        FeatureVal{Feature Validation}
+    end
+
+    subgraph Training
+        ExpTracker[MLflow Experiment Tracker]
+        TrainJob[Training Job]
+        HPTune[Hyperparameter Tuning]
+        GPU[GPU Cluster]
+        ModelReg[(Model Registry)]
+    end
+
+    subgraph Evaluation
+        EvalJob[Evaluation Pipeline]
+        ABTest{A/B Test Gate}
+        ShadowMode[Shadow Mode]
+        Metrics[Model Metrics]
+        BiasCheck{Bias Audit}
+    end
+
+    subgraph Serving
+        ModelServer[TorchServe]
+        Batch[Batch Inference]
+        RealTime[Real-time API]
+        Cache[(Prediction Cache)]
+        Fallback[Fallback Model]
+    end
+
+    subgraph Monitoring
+        DriftDetect{Data Drift?}
+        PerfMon[Performance Monitor]
+        AlertPipe[Alert Pipeline]
+        Retrain[Trigger Retrain]
+    end
+
+    Logs --> RawStore
+    Events --> RawStore
+    Surveys --> RawStore
+    External --> RawStore
+    RawStore --> FeatureCalc
+    FeatureCalc --> FeatureVal
+    FeatureVal -->|pass| FeatureStore
+    FeatureVal -->|fail| AlertPipe
+    FeatureStore --> TrainJob
+    TrainJob --> ExpTracker
+    TrainJob --> HPTune
+    HPTune --> GPU
+    GPU --> ModelReg
+    ModelReg --> EvalJob
+    EvalJob --> Metrics
+    EvalJob --> BiasCheck
+    BiasCheck -->|pass| ABTest
+    BiasCheck -->|fail| ExpTracker
+    ABTest -->|winner| ModelServer
+    ABTest -->|inconclusive| ShadowMode
+    ShadowMode --> Metrics
+    ModelServer --> RealTime
+    ModelServer --> Batch
+    RealTime --> Cache
+    ModelServer -.-> Fallback
+    RealTime -.-> DriftDetect
+    DriftDetect -->|yes| Retrain
+    DriftDetect -->|no| PerfMon
+    Retrain -.-> TrainJob
+    PerfMon -.-> AlertPipe

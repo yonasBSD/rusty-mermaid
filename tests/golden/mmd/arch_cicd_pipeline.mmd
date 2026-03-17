@@ -1,0 +1,72 @@
+graph LR
+    subgraph Source
+        Dev[Developer]
+        Git[GitHub Repo]
+        PR{Pull Request}
+    end
+
+    subgraph CI
+        subgraph Checks
+            Lint[Lint + Format]
+            TypeCheck[Type Check]
+            UnitTest[Unit Tests]
+            IntegTest[Integration Tests]
+            SecurityScan[Security Scan]
+            LicenseCheck[License Audit]
+        end
+        subgraph Build
+            DockerBuild[Docker Build]
+            DockerPush[Push to ECR]
+            ArtifactStore[Artifact Archive]
+        end
+    end
+
+    subgraph CD
+        subgraph Staging
+            DeployStg[Deploy Staging]
+            SmokeTest[Smoke Tests]
+            PerfTest[Load Test]
+            ApprovalStg{Manual Approval}
+        end
+        subgraph Production
+            CanaryDeploy[Canary 10%]
+            CanaryCheck{Health OK?}
+            FullRollout[Full Rollout]
+            Rollback[Rollback]
+        end
+    end
+
+    subgraph Observe
+        Metrics[Metrics Dashboard]
+        Alerts[Alert Rules]
+        Logs[Log Aggregation]
+        SlackNotify[Slack Notify]
+    end
+
+    Dev -->|push| Git
+    Git -->|webhook| PR
+    PR --> Lint
+    PR --> TypeCheck
+    PR --> SecurityScan
+    PR --> LicenseCheck
+    Lint --> UnitTest
+    TypeCheck --> UnitTest
+    UnitTest --> IntegTest
+    IntegTest --> DockerBuild
+    SecurityScan --> DockerBuild
+    DockerBuild --> DockerPush
+    DockerBuild --> ArtifactStore
+    DockerPush --> DeployStg
+    DeployStg --> SmokeTest
+    SmokeTest --> PerfTest
+    PerfTest --> ApprovalStg
+    ApprovalStg -->|approved| CanaryDeploy
+    ApprovalStg -->|rejected| SlackNotify
+    CanaryDeploy --> CanaryCheck
+    CanaryCheck -->|yes| FullRollout
+    CanaryCheck -->|no| Rollback
+    FullRollout -.-> Metrics
+    FullRollout -.-> Alerts
+    FullRollout -.-> Logs
+    Rollback -.-> SlackNotify
+    Alerts -.-> SlackNotify

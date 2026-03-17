@@ -1,0 +1,88 @@
+graph LR
+    subgraph Applications
+        App1[Service A]
+        App2[Service B]
+        App3[Service C]
+        App4[Batch Jobs]
+        Infra[Infrastructure]
+    end
+
+    subgraph Collection
+        subgraph Metrics Path
+            StatsD[StatsD Agent]
+            Prom[Prometheus]
+            PushGW[Push Gateway]
+        end
+        subgraph Logs Path
+            Fluentd[Fluentd]
+            Vector[Vector]
+            Syslog[Syslog Drain]
+        end
+        subgraph Traces Path
+            OTelSDK[OpenTelemetry SDK]
+            OTelCol[OTel Collector]
+            Jaeger[Jaeger Agent]
+        end
+    end
+
+    subgraph Storage
+        Mimir[(Mimir - Metrics)]
+        Loki[(Loki - Logs)]
+        Tempo[(Tempo - Traces)]
+        S3[S3 Long-term]
+    end
+
+    subgraph Visualization
+        Grafana[Grafana]
+        GrafanaDash[Dashboards]
+        Explore[Explore View]
+    end
+
+    subgraph Alerting
+        AlertMgr[Alertmanager]
+        PagerDuty[PagerDuty]
+        Slack[Slack]
+        Email[Email]
+        Escalation{Escalation Policy}
+    end
+
+    App1 --> StatsD
+    App2 --> StatsD
+    App3 --> StatsD
+    App4 --> PushGW
+    StatsD --> Prom
+    PushGW --> Prom
+    Infra --> Prom
+    Prom --> Mimir
+
+    App1 --> Fluentd
+    App2 --> Vector
+    App3 --> Vector
+    App4 --> Syslog
+    Infra --> Syslog
+    Fluentd --> Loki
+    Vector --> Loki
+    Syslog --> Loki
+
+    App1 --> OTelSDK
+    App2 --> OTelSDK
+    App3 --> OTelSDK
+    OTelSDK --> OTelCol
+    OTelCol --> Jaeger
+    Jaeger --> Tempo
+
+    Mimir --> Grafana
+    Loki --> Grafana
+    Tempo --> Grafana
+    Grafana --> GrafanaDash
+    Grafana --> Explore
+
+    Mimir --> S3
+    Loki --> S3
+    Tempo --> S3
+
+    Prom --> AlertMgr
+    AlertMgr --> Escalation
+    Escalation -->|P1| PagerDuty
+    Escalation -->|P2| Slack
+    Escalation -->|P3| Email

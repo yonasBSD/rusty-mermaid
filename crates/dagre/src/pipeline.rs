@@ -31,6 +31,7 @@ pub fn layout(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
     let dummy_chains = normalize::run(g);
     parent_dummy_chains::parent_dummy_chains(g, &dummy_chains);
     border_segments::add_border_segments(g);
+    border_segments::extend_rank_min_max(g);
 
     order::order(g);
 

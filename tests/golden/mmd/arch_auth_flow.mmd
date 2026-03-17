@@ -1,0 +1,47 @@
+flowchart TD
+    Start[User Request] --> HasToken{Has JWT?}
+
+    HasToken -->|No| LoginPage[Login Page]
+    HasToken -->|Yes| ValidateJWT{JWT Valid?}
+
+    LoginPage --> ChooseMethod{Auth Method}
+    ChooseMethod -->|Password| PasswordForm[Email + Password]
+    ChooseMethod -->|OAuth| OAuthRedirect[OAuth Provider]
+    ChooseMethod -->|SSO| SAMLRedirect[SAML IdP]
+    ChooseMethod -->|Passkey| WebAuthn[WebAuthn Challenge]
+
+    PasswordForm --> CheckCreds{Credentials OK?}
+    CheckCreds -->|No| LoginPage
+    CheckCreds -->|Yes| MFACheck{MFA Enabled?}
+
+    OAuthRedirect --> OAuthCallback[OAuth Callback]
+    OAuthCallback --> LinkAccount{Account Linked?}
+    LinkAccount -->|No| CreateAccount[Create Account]
+    LinkAccount -->|Yes| MFACheck
+    CreateAccount --> MFACheck
+
+    SAMLRedirect --> SAMLAssert[SAML Assertion]
+    SAMLAssert --> ValidateSAML{Valid Assertion?}
+    ValidateSAML -->|No| LoginPage
+    ValidateSAML -->|Yes| MFACheck
+
+    WebAuthn --> VerifyPasskey{Passkey Valid?}
+    VerifyPasskey -->|No| LoginPage
+    VerifyPasskey -->|Yes| IssueTokens
+
+    MFACheck -->|No| IssueTokens[Issue JWT + Refresh]
+    MFACheck -->|Yes| MFAPrompt[TOTP / SMS Code]
+    MFAPrompt --> VerifyMFA{Code Valid?}
+    VerifyMFA -->|No| MFAPrompt
+    VerifyMFA -->|Yes| IssueTokens
+
+    ValidateJWT -->|Expired| RefreshFlow{Has Refresh Token?}
+    ValidateJWT -->|Invalid| LoginPage
+    ValidateJWT -->|Valid| CheckPerms{Has Permission?}
+
+    RefreshFlow -->|No| LoginPage
+    RefreshFlow -->|Yes| RotateTokens[Rotate Tokens]
+    RotateTokens --> CheckPerms
+
+    CheckPerms -->|No| Forbidden[403 Forbidden]
+    CheckPerms -->|Yes| Authorized[Proceed to Resource]

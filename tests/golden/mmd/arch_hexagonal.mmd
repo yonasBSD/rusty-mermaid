@@ -1,0 +1,85 @@
+flowchart LR
+    subgraph Driving Adapters
+        REST[REST API]
+        GraphQL[GraphQL API]
+        gRPC[gRPC Service]
+        CLI[CLI Commands]
+        EventIn[Event Consumer]
+        Scheduler[Job Scheduler]
+    end
+
+    subgraph Application Core
+        subgraph Ports In
+            CreateOrder[CreateOrder Port]
+            GetOrder[GetOrder Port]
+            CancelOrder[CancelOrder Port]
+            ProcessPayment[ProcessPayment Port]
+        end
+
+        subgraph Domain
+            OrderEntity[Order Entity]
+            OrderItem[OrderItem VO]
+            Money[Money VO]
+            OrderPolicy{Order Policy}
+            DomainEvent[Domain Events]
+        end
+
+        subgraph Use Cases
+            CreateOrderUC[Create Order UC]
+            GetOrderUC[Get Order UC]
+            CancelOrderUC[Cancel Order UC]
+            PaymentUC[Process Payment UC]
+        end
+
+        subgraph Ports Out
+            OrderRepo[OrderRepository Port]
+            PaymentGW[PaymentGateway Port]
+            NotifyPort[Notification Port]
+            EventBus[EventBus Port]
+        end
+    end
+
+    subgraph Driven Adapters
+        PGAdapter[PostgreSQL Adapter]
+        RedisAdapter[Redis Adapter]
+        StripeAdapter[Stripe Adapter]
+        EmailAdapter[Email Adapter]
+        SMSAdapter[SMS Adapter]
+        KafkaAdapter[Kafka Adapter]
+    end
+
+    REST --> CreateOrder
+    REST --> GetOrder
+    GraphQL --> GetOrder
+    gRPC --> ProcessPayment
+    CLI --> CancelOrder
+    EventIn --> ProcessPayment
+    Scheduler --> GetOrder
+
+    CreateOrder --> CreateOrderUC
+    GetOrder --> GetOrderUC
+    CancelOrder --> CancelOrderUC
+    ProcessPayment --> PaymentUC
+
+    CreateOrderUC --> OrderEntity
+    CreateOrderUC --> OrderPolicy
+    CreateOrderUC --> OrderRepo
+    CreateOrderUC --> EventBus
+    GetOrderUC --> OrderRepo
+    CancelOrderUC --> OrderEntity
+    CancelOrderUC --> OrderRepo
+    CancelOrderUC --> NotifyPort
+    PaymentUC --> Money
+    PaymentUC --> PaymentGW
+    PaymentUC --> OrderRepo
+
+    OrderEntity --> OrderItem
+    OrderEntity --> Money
+    OrderPolicy --> DomainEvent
+
+    OrderRepo --> PGAdapter
+    OrderRepo --> RedisAdapter
+    PaymentGW --> StripeAdapter
+    NotifyPort --> EmailAdapter
+    NotifyPort --> SMSAdapter
+    EventBus --> KafkaAdapter

@@ -1,0 +1,12 @@
+flowchart TD
+    A[Start] --> B{Decision}
+    classDef important fill:#f96,stroke:#333
+    B -->|Yes| C[Process]
+    subgraph group1[Main Flow]
+        C --> D[End]
+    end
+    B -->|No| E[Alternative]
+    class A,D important
+    style E fill:#bbf
+    E --> D
+    click A href "https://example.com"

@@ -1,0 +1,85 @@
+graph TD
+    subgraph Triggers
+        APIGateway[API Gateway]
+        S3Event[S3 Event]
+        SQSEvent[SQS Message]
+        Schedule[CloudWatch Schedule]
+        DDBStream[DynamoDB Stream]
+        IoTRule[IoT Rule]
+    end
+
+    subgraph Lambda Functions
+        AuthFn[Auth Lambda]
+        APIFN[API Handler Lambda]
+        ImageFn[Image Resize Lambda]
+        ETLFn[ETL Lambda]
+        StreamFn[Stream Processor Lambda]
+        NotifyFn[Notification Lambda]
+        IoTFn[IoT Processor Lambda]
+    end
+
+    subgraph Managed Services
+        Cognito[Cognito User Pool]
+        DDB[(DynamoDB Tables)]
+        S3Bucket[S3 Buckets]
+        SQS[SQS Queues]
+        SNS[SNS Topics]
+        SES[SES Email]
+        StepFn[Step Functions]
+        AppSync[AppSync GraphQL]
+    end
+
+    subgraph Edge
+        CloudFront[CloudFront]
+        LambdaEdge[Lambda@Edge]
+        S3Static[S3 Static Site]
+    end
+
+    subgraph Monitoring
+        XRay[X-Ray Tracing]
+        CWLogs[CloudWatch Logs]
+        CWAlarm{CloudWatch Alarm}
+        Dashboard[Dashboard]
+    end
+
+    CloudFront --> LambdaEdge
+    CloudFront --> S3Static
+    LambdaEdge --> APIGateway
+
+    APIGateway --> AuthFn
+    AuthFn --> Cognito
+    APIGateway --> APIFN
+    APIFN --> DDB
+    APIFN --> S3Bucket
+    APIFN -.-> SQS
+
+    S3Event --> ImageFn
+    ImageFn --> S3Bucket
+
+    SQSEvent --> ETLFn
+    ETLFn --> DDB
+    ETLFn -.-> StepFn
+    StepFn -.-> ETLFn
+
+    Schedule --> StreamFn
+    DDBStream --> StreamFn
+    StreamFn --> SNS
+    StreamFn -.-> SQS
+
+    SNS --> NotifyFn
+    NotifyFn --> SES
+    NotifyFn --> SQS
+
+    IoTRule --> IoTFn
+    IoTFn --> DDB
+    IoTFn -.-> SNS
+
+    AppSync --> DDB
+
+    AuthFn -.-> XRay
+    APIFN -.-> XRay
+    APIFN -.-> CWLogs
+    CWLogs --> CWAlarm
+    CWAlarm --> SNS
+    XRay --> Dashboard
+    CWLogs --> Dashboard

@@ -1,0 +1,8 @@
+flowchart TD
+    A[Order] -->|Place order| B[Payment]
+    B -->|Success| C[Ship]
+    B -->|Failed| D[Cancel]
+    C -->|Track| E([Delivered])
+    D -->|Refund| F([Refunded])
+    C -.->|Notify| G[Email]
+    D -.->|Notify| G

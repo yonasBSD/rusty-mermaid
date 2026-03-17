@@ -1,0 +1,89 @@
+flowchart TD
+    subgraph External
+        Client[Client Requests]
+        DNS[External DNS]
+        CertMgr[Cert Manager]
+    end
+
+    subgraph Cluster
+        subgraph Ingress
+            Nginx[Nginx Ingress]
+            TLS[TLS Termination]
+        end
+
+        subgraph Namespace: App
+            subgraph Frontend
+                FE1[frontend-pod-1]
+                FE2[frontend-pod-2]
+                FESvc[frontend-svc]
+            end
+            subgraph Backend
+                BE1[api-pod-1]
+                BE2[api-pod-2]
+                BE3[api-pod-3]
+                BESvc[api-svc]
+                HPA[HPA Autoscaler]
+            end
+            subgraph Workers
+                W1[worker-pod-1]
+                W2[worker-pod-2]
+                WSvc[worker-svc]
+            end
+        end
+
+        subgraph Namespace: Data
+            PG1[(postgres-primary)]
+            PG2[(postgres-replica)]
+            RedisCluster[(redis-cluster)]
+            PGSvc[postgres-svc]
+        end
+
+        subgraph Namespace: Monitoring
+            Prom[Prometheus]
+            Grafana[Grafana]
+            Loki[Loki]
+            Alert[Alertmanager]
+        end
+
+        ConfigMap[ConfigMaps]
+        Secrets[Secrets]
+        PV[Persistent Volumes]
+    end
+
+    Client --> DNS
+    DNS --> Nginx
+    CertMgr -.-> TLS
+    Nginx --> TLS
+    TLS --> FESvc
+    TLS --> BESvc
+    FESvc --> FE1
+    FESvc --> FE2
+    FE1 --> BESvc
+    FE2 --> BESvc
+    BESvc --> BE1
+    BESvc --> BE2
+    BESvc --> BE3
+    HPA -.-> BE1
+    HPA -.-> BE2
+    HPA -.-> BE3
+    BE1 --> PGSvc
+    BE2 --> PGSvc
+    BE3 --> PGSvc
+    BE1 --> RedisCluster
+    BE2 --> RedisCluster
+    PGSvc --> PG1
+    PG1 -.-> PG2
+    BE1 -.-> WSvc
+    WSvc --> W1
+    WSvc --> W2
+    W1 --> PGSvc
+    W2 --> PGSvc
+    ConfigMap -.-> BE1
+    Secrets -.-> BE1
+    PV -.-> PG1
+    Prom -.-> BE1
+    Prom -.-> FE1
+    Prom -.-> W1
+    Prom --> Grafana
+    Prom --> Alert
+    Loki -.-> Grafana

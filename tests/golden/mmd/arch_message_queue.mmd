@@ -1,0 +1,83 @@
+flowchart TD
+    subgraph Producers
+        OrderAPI[Order API]
+        UserAPI[User API]
+        PaymentAPI[Payment API]
+        CronJobs[Scheduled Jobs]
+        Webhooks[External Webhooks]
+    end
+
+    subgraph Broker Cluster
+        subgraph Broker 1
+            Topic1P1[orders.created P0]
+            Topic1P2[orders.created P1]
+            Topic2P1[payments.processed P0]
+        end
+        subgraph Broker 2
+            Topic1P3[orders.created P2]
+            Topic2P2[payments.processed P1]
+            Topic3P1[users.updated P0]
+        end
+        subgraph Broker 3
+            Topic1R[orders.created Replica]
+            Topic2R[payments.processed Replica]
+            Topic3R[users.updated Replica]
+        end
+        ZK[ZooKeeper Ensemble]
+    end
+
+    subgraph Consumer Groups
+        subgraph Order Processing
+            OC1[order-consumer-1]
+            OC2[order-consumer-2]
+            OC3[order-consumer-3]
+        end
+        subgraph Payment Processing
+            PC1[payment-consumer-1]
+            PC2[payment-consumer-2]
+        end
+        subgraph Analytics
+            AC1[analytics-consumer-1]
+        end
+        subgraph Notifications
+            NC1[notify-consumer-1]
+            NC2[notify-consumer-2]
+        end
+    end
+
+    subgraph Dead Letter
+        DLQ[(Dead Letter Queue)]
+        DLQProcessor[DLQ Processor]
+        DLQAlert[DLQ Alert]
+    end
+
+    OrderAPI --> Topic1P1
+    OrderAPI --> Topic1P2
+    PaymentAPI --> Topic2P1
+    UserAPI --> Topic3P1
+    CronJobs --> Topic1P1
+    Webhooks --> Topic2P1
+
+    Topic1P1 -.-> Topic1R
+    Topic2P1 -.-> Topic2R
+    Topic3P1 -.-> Topic3R
+
+    ZK -.-> Topic1P1
+    ZK -.-> Topic2P1
+    ZK -.-> Topic3P1
+
+    Topic1P1 --> OC1
+    Topic1P2 --> OC2
+    Topic1P3 --> OC3
+    Topic2P1 --> PC1
+    Topic2P2 --> PC2
+    Topic1P1 --> AC1
+    Topic2P1 --> AC1
+    Topic3P1 --> AC1
+    Topic1P1 --> NC1
+    Topic2P1 --> NC2
+
+    OC1 -.-> DLQ
+    PC1 -.-> DLQ
+    DLQ --> DLQProcessor
+    DLQProcessor -.-> DLQAlert

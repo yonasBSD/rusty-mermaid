@@ -1,0 +1,6 @@
+flowchart LR
+    A[Input] --> B{Check}
+    B -->|OK| C[Process]
+    B -->|Fail| D[Error]
+    C --> E([Output])
+    D --> E

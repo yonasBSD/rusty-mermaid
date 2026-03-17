@@ -1,0 +1,79 @@
+graph LR
+    subgraph Global
+        GSLB[Global Server LB]
+        GlobalDB[(CockroachDB Global)]
+        CDN[CDN Edge Network]
+        DNS[GeoDNS]
+    end
+
+    subgraph US-East
+        LB_US[Load Balancer]
+        App_US1[App Server 1]
+        App_US2[App Server 2]
+        Cache_US[(Redis Primary)]
+        DB_US[(PostgreSQL Primary)]
+        Queue_US[SQS Queue]
+        Worker_US[Workers]
+    end
+
+    subgraph EU-West
+        LB_EU[Load Balancer]
+        App_EU1[App Server 1]
+        App_EU2[App Server 2]
+        Cache_EU[(Redis Replica)]
+        DB_EU[(PostgreSQL Replica)]
+        Queue_EU[SQS Queue]
+        Worker_EU[Workers]
+    end
+
+    subgraph AP-Southeast
+        LB_AP[Load Balancer]
+        App_AP1[App Server 1]
+        Cache_AP[(Redis Replica)]
+        DB_AP[(PostgreSQL Replica)]
+        Queue_AP[SQS Queue]
+        Worker_AP[Workers]
+    end
+
+    DNS --> GSLB
+    GSLB --> LB_US
+    GSLB --> LB_EU
+    GSLB --> LB_AP
+    CDN --> LB_US
+    CDN --> LB_EU
+    CDN --> LB_AP
+
+    LB_US --> App_US1
+    LB_US --> App_US2
+    App_US1 --> Cache_US
+    App_US1 --> DB_US
+    App_US2 --> Cache_US
+    App_US2 --> DB_US
+    App_US1 -.-> Queue_US
+    Queue_US -.-> Worker_US
+    Worker_US --> DB_US
+
+    LB_EU --> App_EU1
+    LB_EU --> App_EU2
+    App_EU1 --> Cache_EU
+    App_EU1 --> DB_EU
+    App_EU2 --> Cache_EU
+    App_EU2 --> DB_EU
+    App_EU1 -.-> Queue_EU
+    Queue_EU -.-> Worker_EU
+    Worker_EU --> DB_EU
+
+    LB_AP --> App_AP1
+    App_AP1 --> Cache_AP
+    App_AP1 --> DB_AP
+    App_AP1 -.-> Queue_AP
+    Queue_AP -.-> Worker_AP
+    Worker_AP --> DB_AP
+
+    DB_US ==>|replication| DB_EU
+    DB_US ==>|replication| DB_AP
+    Cache_US ==>|sync| Cache_EU
+    Cache_US ==>|sync| Cache_AP
+    DB_US --> GlobalDB
+    DB_EU --> GlobalDB
+    DB_AP --> GlobalDB

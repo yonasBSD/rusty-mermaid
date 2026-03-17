@@ -1,0 +1,48 @@
+graph LR
+    subgraph Clients
+        Web[Web App]
+        Mobile[Mobile App]
+        CLI[CLI Tool]
+    end
+
+    subgraph Gateway
+        LB[Load Balancer]
+        API[API Gateway]
+        Auth[Auth Service]
+    end
+
+    subgraph Services
+        Users[User Service]
+        Orders[Order Service]
+        Products[Product Service]
+        Payments[Payment Service]
+        Notify[Notification Service]
+    end
+
+    subgraph Data
+        UserDB[(User DB)]
+        OrderDB[(Order DB)]
+        ProductDB[(Product DB)]
+        Cache[(Redis Cache)]
+        MQ[Message Queue]
+    end
+
+    Web --> LB
+    Mobile --> LB
+    CLI --> LB
+    LB --> API
+    API --> Auth
+    Auth -.-> UserDB
+    API --> Users
+    API --> Orders
+    API --> Products
+    Users --> UserDB
+    Users --> Cache
+    Orders --> OrderDB
+    Orders --> Payments
+    Orders -.-> MQ
+    Products --> ProductDB
+    Products --> Cache
+    Payments -.-> Notify
+    MQ -.-> Notify
+    Notify -.-> Users

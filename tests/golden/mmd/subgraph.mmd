@@ -1,0 +1,9 @@
+flowchart TD
+    subgraph build[Build Phase]
+        A[Source] --> B[Compile]
+        B --> C[Link]
+    end
+    subgraph test[Test Phase]
+        D[Unit Tests] --> E[Integration Tests]
+    end
+    C --> D

@@ -1,0 +1,6 @@
+flowchart TD
+    A[Fetch] --> B{Valid?}
+    B -->|Yes| C[Process]
+    B -->|No| D[Retry]
+    D --> A
+    C --> E[Done]

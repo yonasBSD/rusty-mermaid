@@ -1,0 +1,61 @@
+graph TD
+    subgraph Clients
+        WebApp[Web Application]
+        MobileApp[Mobile App]
+        Partner[Partner API]
+        Webhook[Webhook Callers]
+    end
+
+    subgraph API Gateway
+        RateLimit{Rate Limiter}
+        AuthN[Authentication]
+        AuthZ{Authorization}
+        Transform[Request Transform]
+        Router[Route Matcher]
+        CircuitBreak{Circuit Breaker}
+        ResponseCache[Response Cache]
+    end
+
+    subgraph Backend Services
+        UserSvc[User Service]
+        ProductSvc[Product Service]
+        OrderSvc[Order Service]
+        SearchSvc[Search Service]
+        UploadSvc[Upload Service]
+        WebhookSvc[Webhook Receiver]
+    end
+
+    subgraph Cross-Cutting
+        JWT[JWT Validator]
+        APIKey[API Key Store]
+        RBAC[(RBAC Policies)]
+        Audit[Audit Log]
+        Tracing[Distributed Tracing]
+        Metrics[Metrics Collector]
+    end
+
+    WebApp --> RateLimit
+    MobileApp --> RateLimit
+    Partner --> RateLimit
+    Webhook --> WebhookSvc
+    RateLimit --> AuthN
+    AuthN --> JWT
+    AuthN --> APIKey
+    AuthN --> AuthZ
+    AuthZ --> RBAC
+    AuthZ -->|denied| WebApp
+    AuthZ -->|allowed| Transform
+    Transform --> Router
+    Router --> CircuitBreak
+    CircuitBreak -->|open| ResponseCache
+    CircuitBreak -->|closed| UserSvc
+    CircuitBreak -->|closed| ProductSvc
+    CircuitBreak -->|closed| OrderSvc
+    CircuitBreak -->|closed| SearchSvc
+    CircuitBreak -->|closed| UploadSvc
+    Router -.-> Audit
+    Router -.-> Tracing
+    Router -.-> Metrics
+    UserSvc -.-> Tracing
+    ProductSvc -.-> Tracing
+    OrderSvc -.-> Tracing

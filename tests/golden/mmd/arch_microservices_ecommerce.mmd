@@ -1,0 +1,86 @@
+flowchart TD
+    subgraph Frontend
+        WebApp[React SPA]
+        AdminUI[Admin Panel]
+        MobileApp[React Native]
+    end
+
+    subgraph Edge
+        CDN[CloudFront CDN]
+        WAF{WAF Rules}
+        ALB[Application LB]
+    end
+
+    subgraph API Layer
+        Gateway[API Gateway]
+        AuthZ[Authorization]
+        RateLimit[Rate Limiter]
+    end
+
+    subgraph Core Services
+        subgraph Catalog
+            CatalogSvc[Catalog Service]
+            Search[Search Service]
+            CatalogDB[(Catalog DB)]
+            SearchIdx[(Elasticsearch)]
+        end
+        subgraph Ordering
+            OrderSvc[Order Service]
+            CartSvc[Cart Service]
+            OrderDB[(Order DB)]
+            CartCache[(Cart Cache)]
+        end
+        subgraph Fulfillment
+            InventorySvc[Inventory Service]
+            ShippingSvc[Shipping Service]
+            WarehouseDB[(Warehouse DB)]
+        end
+    end
+
+    subgraph Payments
+        PaymentSvc[Payment Service]
+        FraudDetect{Fraud Check}
+        PaymentDB[(Ledger DB)]
+        Stripe[Stripe API]
+    end
+
+    subgraph Async
+        EventBus[Kafka Event Bus]
+        NotifySvc[Notification Service]
+        AnalyticsSvc[Analytics Ingest]
+        EmailSvc[Email Service]
+        SMSSvc[SMS Service]
+    end
+
+    WebApp --> CDN
+    AdminUI --> CDN
+    MobileApp --> ALB
+    CDN --> WAF
+    WAF --> ALB
+    ALB --> Gateway
+    Gateway --> AuthZ
+    Gateway --> RateLimit
+    RateLimit --> CatalogSvc
+    RateLimit --> OrderSvc
+    RateLimit --> CartSvc
+    CatalogSvc --> CatalogDB
+    CatalogSvc --> SearchIdx
+    Search --> SearchIdx
+    OrderSvc --> OrderDB
+    OrderSvc --> PaymentSvc
+    CartSvc --> CartCache
+    CartSvc -.-> OrderSvc
+    PaymentSvc --> FraudDetect
+    FraudDetect -->|Pass| Stripe
+    FraudDetect -->|Fail| PaymentDB
+    Stripe --> PaymentDB
+    OrderSvc -.-> EventBus
+    PaymentSvc -.-> EventBus
+    EventBus -.-> InventorySvc
+    EventBus -.-> ShippingSvc
+    EventBus -.-> NotifySvc
+    EventBus -.-> AnalyticsSvc
+    InventorySvc --> WarehouseDB
+    ShippingSvc --> WarehouseDB
+    NotifySvc --> EmailSvc
+    NotifySvc --> SMSSvc

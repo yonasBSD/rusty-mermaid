@@ -97,6 +97,39 @@ pub(crate) fn assign_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) -> i32 {
     max_rank
 }
 
+/// Extend min_rank/max_rank on compound nodes to cover children added after
+/// the initial assign (e.g. dummy nodes from parent_dummy_chains).
+///
+/// This must run after parent_dummy_chains + add_border_segments so that
+/// sort_subgraph's rank filter can find compound nodes at ranks where they
+/// have dummy children.
+pub(crate) fn extend_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) {
+    let compounds: Vec<NodeId> = g
+        .node_ids()
+        .filter(|&nid| g.children(nid).next().is_some())
+        .collect();
+
+    for sg in compounds {
+        let node = g.node(sg).unwrap();
+        let Some(mut min) = node.min_rank else {
+            continue;
+        };
+        let Some(mut max) = node.max_rank else {
+            continue;
+        };
+
+        for child in g.children(sg) {
+            let cr = g.node(child).unwrap().rank;
+            min = min.min(cr);
+            max = max.max(cr);
+        }
+
+        let node = g.node_mut(sg).unwrap();
+        node.min_rank = Some(min);
+        node.max_rank = Some(max);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

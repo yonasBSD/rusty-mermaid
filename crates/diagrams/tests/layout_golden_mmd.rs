@@ -42,27 +42,102 @@ macro_rules! flowchart_layout {
     };
 }
 
+// Basic graphs
 flowchart_layout!(single_node);
+flowchart_layout!(hello);
 flowchart_layout!(linear_3);
 flowchart_layout!(diamond);
-flowchart_layout!(linear_lr);
-flowchart_layout!(linear_bt);
-flowchart_layout!(linear_rl);
+flowchart_layout!(diamond_flow);
+flowchart_layout!(cycle);
 flowchart_layout!(cycle_3);
 flowchart_layout!(long_edge);
+flowchart_layout!(long_edges);
 flowchart_layout!(crossing);
 flowchart_layout!(mixed_sizes);
 flowchart_layout!(disconnected);
+flowchart_layout!(wide_graph);
+flowchart_layout!(chain_long);
+flowchart_layout!(chain_branching);
+flowchart_layout!(multi_edge);
+flowchart_layout!(implicit_nodes);
+
+// Directions
+flowchart_layout!(linear_lr);
+flowchart_layout!(linear_bt);
+flowchart_layout!(linear_rl);
+flowchart_layout!(directions);
+flowchart_layout!(directions_all);
+flowchart_layout!(directions_bt);
+flowchart_layout!(directions_lr);
+flowchart_layout!(directions_rl);
+
+// Edges & labels
 flowchart_layout!(edge_label);
+flowchart_layout!(edge_labels);
+flowchart_layout!(edge_labels_all);
+flowchart_layout!(edge_lengths);
+flowchart_layout!(edge_matrix);
+flowchart_layout!(arrows);
+flowchart_layout!(open_edges);
 flowchart_layout!(self_loop);
+
+// Shapes
+flowchart_layout!(shapes);
+flowchart_layout!(shapes_with_labels);
+flowchart_layout!(all_shapes);
+
+// Styling & labels
 flowchart_layout!(weighted);
 flowchart_layout!(minlen);
 flowchart_layout!(html_labels);
-flowchart_layout!(realistic_flowchart);
+flowchart_layout!(unicode_labels);
+flowchart_layout!(quoted_strings);
+flowchart_layout!(style_classdef);
+flowchart_layout!(style_inline);
+// click_bindings, comments_directives, mixed_statements: skipped (parser
+// doesn't support click/accTitle/accDescr syntax yet)
+
+// Compound / subgraphs
 flowchart_layout!(compound_simple);
 flowchart_layout!(nested_compound);
+flowchart_layout!(subgraph);
+flowchart_layout!(subgraph_deep);
+flowchart_layout!(subgraph_direction);
+flowchart_layout!(subgraph_empty);
+flowchart_layout!(nested_subgraph);
+
+// Real-world diagrams
+flowchart_layout!(realistic_flowchart);
+flowchart_layout!(ci_pipeline);
 flowchart_layout!(compiler_pipeline);
 flowchart_layout!(mcp_server);
+
+// Architecture diagrams
+flowchart_layout!(arch_api_gateway);
+flowchart_layout!(arch_auth_flow);
+flowchart_layout!(arch_caching_layers);
+flowchart_layout!(arch_cicd_pipeline);
+flowchart_layout!(arch_cloud_aws);
+flowchart_layout!(arch_cloud_k8s);
+flowchart_layout!(arch_compiler_pipeline);
+flowchart_layout!(arch_component);
+flowchart_layout!(arch_data_mesh);
+flowchart_layout!(arch_data_pipeline_etl);
+flowchart_layout!(arch_database_replication);
+flowchart_layout!(arch_event_driven);
+flowchart_layout!(arch_game_engine);
+flowchart_layout!(arch_hexagonal);
+flowchart_layout!(arch_iot_platform);
+flowchart_layout!(arch_message_queue);
+flowchart_layout!(arch_microservices_basic);
+flowchart_layout!(arch_microservices_ecommerce);
+flowchart_layout!(arch_ml_pipeline);
+flowchart_layout!(arch_monitoring_stack);
+flowchart_layout!(arch_multi_region);
+flowchart_layout!(arch_serverless);
+flowchart_layout!(arch_service_mesh);
+flowchart_layout!(arch_streaming_platform);
+flowchart_layout!(arch_zero_trust);
 
 /// State diagram golden layout tests: parse → bridge → layout → verify non-empty.
 macro_rules! state_layout {
@@ -180,4 +255,114 @@ fn compound_simple_subgraph_containment() {
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
     assert_subgraph_containment("compound_simple", &diagram, &result);
+}
+
+/// Helper: assert peer subgraphs (same parent level) don't overlap.
+///
+/// Two subgraphs are peers if neither is listed in the other's `subgraph_ids`
+/// and they share the same parent (or are both root-level). Overlap means their
+/// bounding boxes intersect, which would cause rendering artifacts.
+fn assert_peer_subgraphs_no_overlap(
+    name: &str,
+    diagram: &flowchart::ir::FlowDiagram,
+    result: &flowchart::bridge::LayoutResult,
+) {
+    use std::collections::HashMap;
+
+    // Build parent map: sg_id → parent_sg_id
+    let mut parent_of: HashMap<&str, &str> = HashMap::new();
+    for sg in &diagram.subgraphs {
+        for child_id in &sg.subgraph_ids {
+            parent_of.insert(child_id.as_str(), sg.id.as_str());
+        }
+    }
+
+    // Group subgraphs by parent (None = root level)
+    let mut peer_groups: HashMap<Option<&str>, Vec<&str>> = HashMap::new();
+    for sg in &diagram.subgraphs {
+        let parent = parent_of.get(sg.id.as_str()).copied();
+        peer_groups.entry(parent).or_default().push(sg.id.as_str());
+    }
+
+    // Check all pairs within each peer group
+    for (parent, peers) in &peer_groups {
+        for i in 0..peers.len() {
+            for j in (i + 1)..peers.len() {
+                let Some(a) = result.subgraphs.iter().find(|s| s.id == peers[i]) else {
+                    continue;
+                };
+                let Some(b) = result.subgraphs.iter().find(|s| s.id == peers[j]) else {
+                    continue;
+                };
+
+                let a_left = a.x - a.width / 2.0;
+                let a_right = a.x + a.width / 2.0;
+                let a_top = a.y - a.height / 2.0;
+                let a_bottom = a.y + a.height / 2.0;
+                let b_left = b.x - b.width / 2.0;
+                let b_right = b.x + b.width / 2.0;
+                let b_top = b.y - b.height / 2.0;
+                let b_bottom = b.y + b.height / 2.0;
+
+                let overlaps = a_left < b_right
+                    && b_left < a_right
+                    && a_top < b_bottom
+                    && b_top < a_bottom;
+
+                assert!(
+                    !overlaps,
+                    "{name}: peer subgraphs '{}' and '{}' overlap (parent: {:?})\n\
+                     '{}': [{a_left:.1}, {a_top:.1}] - [{a_right:.1}, {a_bottom:.1}]\n\
+                     '{}': [{b_left:.1}, {b_top:.1}] - [{b_right:.1}, {b_bottom:.1}]",
+                    peers[i], peers[j], parent,
+                    peers[i], peers[j],
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn compiler_pipeline_peer_subgraphs_no_overlap() {
+    let path = golden_dir().join("compiler_pipeline.mmd");
+    let text = fs::read_to_string(&path).unwrap();
+    let diagram = flowchart::parser::parse(&text).unwrap();
+    let result = flowchart::bridge::layout(&diagram);
+    assert_peer_subgraphs_no_overlap("compiler_pipeline", &diagram, &result);
+}
+
+#[test]
+fn mcp_server_peer_subgraphs_no_overlap() {
+    let path = golden_dir().join("mcp_server.mmd");
+    let text = fs::read_to_string(&path).unwrap();
+    let diagram = flowchart::parser::parse(&text).unwrap();
+    let result = flowchart::bridge::layout(&diagram);
+    assert_peer_subgraphs_no_overlap("mcp_server", &diagram, &result);
+}
+
+#[test]
+fn nested_compound_peer_subgraphs_no_overlap() {
+    let path = golden_dir().join("nested_compound.mmd");
+    let text = fs::read_to_string(&path).unwrap();
+    let diagram = flowchart::parser::parse(&text).unwrap();
+    let result = flowchart::bridge::layout(&diagram);
+    assert_peer_subgraphs_no_overlap("nested_compound", &diagram, &result);
+}
+
+#[test]
+fn arch_component_subgraph_containment() {
+    let path = golden_dir().join("arch_component.mmd");
+    let text = fs::read_to_string(&path).unwrap();
+    let diagram = flowchart::parser::parse(&text).unwrap();
+    let result = flowchart::bridge::layout(&diagram);
+    assert_subgraph_containment("arch_component", &diagram, &result);
+}
+
+#[test]
+fn arch_component_peer_subgraphs_no_overlap() {
+    let path = golden_dir().join("arch_component.mmd");
+    let text = fs::read_to_string(&path).unwrap();
+    let diagram = flowchart::parser::parse(&text).unwrap();
+    let result = flowchart::bridge::layout(&diagram);
+    assert_peer_subgraphs_no_overlap("arch_component", &diagram, &result);
 }

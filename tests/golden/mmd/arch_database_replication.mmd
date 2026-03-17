@@ -1,0 +1,71 @@
+flowchart TD
+    subgraph Application Layer
+        App1[App Server 1]
+        App2[App Server 2]
+        App3[App Server 3]
+        ConnPool[PgBouncer Pool]
+    end
+
+    subgraph Write Path
+        Primary[(PostgreSQL Primary)]
+        WAL[WAL Sender]
+        Logical[Logical Replication]
+    end
+
+    subgraph Read Replicas
+        Sync1[(Sync Replica 1)]
+        Async1[(Async Replica 2)]
+        Async2[(Async Replica 3)]
+        DelayedRep[(Delayed Replica - 1hr)]
+    end
+
+    subgraph Sharding
+        ShardRouter{Shard Router}
+        Shard1[(Shard 1: users A-M)]
+        Shard2[(Shard 2: users N-Z)]
+        Shard3[(Shard 3: archive)]
+    end
+
+    subgraph Backup and Recovery
+        BaseBackup[pg_basebackup]
+        WALArchive[WAL Archive - S3]
+        PITR[Point-in-Time Recovery]
+        Snapshot[Daily Snapshots]
+    end
+
+    subgraph Analytics
+        CDC[Debezium CDC]
+        Warehouse[(Data Warehouse)]
+        Reporting[Reporting Queries]
+    end
+
+    App1 --> ConnPool
+    App2 --> ConnPool
+    App3 --> ConnPool
+    ConnPool -->|writes| Primary
+    ConnPool -->|reads| Sync1
+    ConnPool -->|reads| Async1
+    ConnPool -->|reads| Async2
+
+    Primary --> WAL
+    WAL ==>|sync| Sync1
+    WAL ==>|async| Async1
+    WAL ==>|async| Async2
+    WAL ==>|delayed| DelayedRep
+    WAL --> WALArchive
+
+    Primary --> Logical
+    Logical --> ShardRouter
+    ShardRouter --> Shard1
+    ShardRouter --> Shard2
+    ShardRouter --> Shard3
+
+    Primary --> BaseBackup
+    BaseBackup --> Snapshot
+    WALArchive --> PITR
+    Snapshot --> PITR
+
+    Logical --> CDC
+    CDC --> Warehouse
+    Warehouse --> Reporting
+    DelayedRep -.-> Reporting

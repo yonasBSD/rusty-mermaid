@@ -25,7 +25,9 @@ impl ConstraintGraph {
     }
 
     pub(crate) fn add_edge(&mut self, from: NodeId, to: NodeId) {
-        self.edges.push((from, to));
+        if !self.edges.contains(&(from, to)) {
+            self.edges.push((from, to));
+        }
     }
 
     fn out_edges(&self, v: NodeId) -> impl Iterator<Item = NodeId> + '_ {

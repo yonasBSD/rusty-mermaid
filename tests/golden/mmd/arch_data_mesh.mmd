@@ -1,0 +1,89 @@
+graph TD
+    subgraph Domain: Orders
+        OrderAPI[Order API]
+        OrderProducer[Order Data Product]
+        OrderTransform[Transform Pipeline]
+        OrderStore[(Order Data Store)]
+        OrderCatalog[Data Catalog Entry]
+    end
+
+    subgraph Domain: Customers
+        CustAPI[Customer API]
+        CustProducer[Customer Data Product]
+        CustTransform[Transform Pipeline]
+        CustStore[(Customer Data Store)]
+        CustCatalog[Data Catalog Entry]
+    end
+
+    subgraph Domain: Inventory
+        InvAPI[Inventory API]
+        InvProducer[Inventory Data Product]
+        InvTransform[Transform Pipeline]
+        InvStore[(Inventory Data Store)]
+        InvCatalog[Data Catalog Entry]
+    end
+
+    subgraph Domain: Marketing
+        MktConsumer[Marketing Consumer]
+        MktEnrich[Enrichment Pipeline]
+        MktStore[(Marketing Data Store)]
+        MktDash[Campaign Dashboard]
+    end
+
+    subgraph Self-Serve Platform
+        DataCatalog[Federated Data Catalog]
+        AccessControl{Access Policies}
+        DataQuality[Quality Framework]
+        SchemaRegistry[Schema Registry]
+        Lineage[Data Lineage Graph]
+        Observability[Data Observability]
+    end
+
+    subgraph Infrastructure
+        Mesh[Data Mesh Bus]
+        Compute[Shared Compute]
+        Storage[Shared Storage]
+        Governance[Global Governance]
+    end
+
+    OrderAPI --> OrderTransform
+    OrderTransform --> OrderStore
+    OrderStore --> OrderProducer
+    OrderProducer --> Mesh
+    OrderCatalog --> DataCatalog
+
+    CustAPI --> CustTransform
+    CustTransform --> CustStore
+    CustStore --> CustProducer
+    CustProducer --> Mesh
+    CustCatalog --> DataCatalog
+
+    InvAPI --> InvTransform
+    InvTransform --> InvStore
+    InvStore --> InvProducer
+    InvProducer --> Mesh
+    InvCatalog --> DataCatalog
+
+    Mesh --> MktConsumer
+    MktConsumer --> MktEnrich
+    MktEnrich --> MktStore
+    MktStore --> MktDash
+
+    DataCatalog --> AccessControl
+    AccessControl --> Mesh
+    DataQuality -.-> OrderTransform
+    DataQuality -.-> CustTransform
+    DataQuality -.-> InvTransform
+    SchemaRegistry -.-> Mesh
+    Lineage -.-> DataCatalog
+    Observability -.-> DataQuality
+
+    Governance --> DataCatalog
+    Governance --> AccessControl
+    Governance --> SchemaRegistry
+    Compute -.-> OrderTransform
+    Compute -.-> CustTransform
+    Compute -.-> InvTransform
+    Storage -.-> OrderStore
+    Storage -.-> CustStore
+    Storage -.-> InvStore

@@ -1,0 +1,69 @@
+graph TD
+    subgraph Internet
+        Users[Users]
+        DNS[Route 53]
+    end
+
+    subgraph Edge
+        CF[CloudFront]
+        S3Static[S3 Static Assets]
+        WAF{AWS WAF}
+    end
+
+    subgraph VPC
+        subgraph Public Subnet
+            ALB[Application LB]
+            NAT[NAT Gateway]
+            Bastion[Bastion Host]
+        end
+        subgraph Private Subnet A
+            ECS1[ECS Fargate - API]
+            ECS2[ECS Fargate - Worker]
+            Lambda1[Lambda - Auth]
+            Lambda2[Lambda - Resize]
+        end
+        subgraph Private Subnet B
+            RDS[(RDS PostgreSQL)]
+            RDSReplica[(RDS Read Replica)]
+            Redis[(ElastiCache Redis)]
+            ES[(OpenSearch)]
+        end
+    end
+
+    subgraph AWS Services
+        SQS[SQS Queue]
+        SNS[SNS Topics]
+        SES[SES Email]
+        S3Data[S3 Data Bucket]
+        DynamoDB[(DynamoDB Sessions)]
+        Secrets[Secrets Manager]
+        CW[CloudWatch]
+    end
+
+    Users --> DNS
+    DNS --> CF
+    CF --> S3Static
+    CF --> WAF
+    WAF --> ALB
+    ALB --> ECS1
+    ALB --> Lambda1
+    ECS1 --> RDS
+    ECS1 --> RDSReplica
+    ECS1 --> Redis
+    ECS1 --> ES
+    ECS1 --> DynamoDB
+    ECS1 --> Secrets
+    ECS1 -.-> SQS
+    SQS -.-> ECS2
+    ECS2 --> RDS
+    ECS2 --> S3Data
+    ECS2 -.-> SNS
+    SNS -.-> SES
+    SNS -.-> Lambda2
+    Lambda2 --> S3Data
+    Lambda1 --> DynamoDB
+    NAT --> SQS
+    NAT --> SNS
+    ECS1 -.-> CW
+    ECS2 -.-> CW
+    Bastion -.-> ECS1

@@ -1,0 +1,16 @@
+flowchart LR
+    subgraph build[Build]
+        A[Checkout] --> B[Install Deps]
+        B --> C[Compile]
+    end
+    subgraph test[Test]
+        D[Unit Tests] --> E[Integration]
+        E --> F{Pass?}
+    end
+    subgraph deploy[Deploy]
+        G[Stage] --> H[Prod]
+    end
+    C --> D
+    F -->|Yes| G
+    F -->|No| I[Fix & Retry]
+    I --> A

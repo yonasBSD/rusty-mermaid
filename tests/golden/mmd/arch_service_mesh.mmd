@@ -1,0 +1,82 @@
+flowchart TD
+    subgraph Control Plane
+        Istiod[Istiod]
+        Pilot[Pilot - Config]
+        Citadel[Citadel - mTLS]
+        Galley[Galley - Validation]
+        CertAuth[CA Root]
+    end
+
+    subgraph Data Plane
+        subgraph Pod A
+            AppA[Service A]
+            ProxyA[Envoy Sidecar]
+        end
+        subgraph Pod B
+            AppB[Service B]
+            ProxyB[Envoy Sidecar]
+        end
+        subgraph Pod C
+            AppC[Service C]
+            ProxyC[Envoy Sidecar]
+        end
+        subgraph Pod D
+            AppD[Service D]
+            ProxyD[Envoy Sidecar]
+        end
+    end
+
+    subgraph Ingress
+        IngressGW[Istio Ingress Gateway]
+        VirtualSvc[Virtual Services]
+        DestRule[Destination Rules]
+    end
+
+    subgraph Observability
+        Kiali[Kiali Dashboard]
+        Zipkin[Zipkin Traces]
+        PromMesh[Prometheus]
+    end
+
+    subgraph Policies
+        AuthPolicy[Auth Policies]
+        RatePolicy[Rate Limits]
+        RetryPolicy[Retry Config]
+        CBPolicy[Circuit Breaker]
+    end
+
+    Istiod --> Pilot
+    Istiod --> Citadel
+    Istiod --> Galley
+    Citadel --> CertAuth
+
+    Pilot -.-> ProxyA
+    Pilot -.-> ProxyB
+    Pilot -.-> ProxyC
+    Pilot -.-> ProxyD
+    Citadel -.-> ProxyA
+    Citadel -.-> ProxyB
+
+    IngressGW --> VirtualSvc
+    VirtualSvc --> DestRule
+    DestRule --> ProxyA
+
+    AppA --> ProxyA
+    ProxyA ==>|mTLS| ProxyB
+    ProxyA ==>|mTLS| ProxyC
+    ProxyB ==>|mTLS| ProxyD
+    ProxyC ==>|mTLS| ProxyD
+    ProxyB --> AppB
+    ProxyC --> AppC
+    ProxyD --> AppD
+
+    ProxyA -.-> PromMesh
+    ProxyB -.-> PromMesh
+    ProxyC -.-> Zipkin
+    ProxyD -.-> Zipkin
+    PromMesh --> Kiali
+
+    AuthPolicy -.-> Istiod
+    RatePolicy -.-> Istiod
+    RetryPolicy -.-> Istiod
+    CBPolicy -.-> Istiod

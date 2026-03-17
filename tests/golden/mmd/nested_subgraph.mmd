@@ -1,0 +1,15 @@
+flowchart TD
+    subgraph frontend[Frontend]
+        A[React App] --> B[API Client]
+    end
+    subgraph backend[Backend]
+        subgraph api[API Layer]
+            C[Router] --> D[Controller]
+        end
+        subgraph data[Data Layer]
+            E[(Database)] --> F[Cache]
+        end
+        D --> E
+    end
+    B --> C
+    F -.-> B

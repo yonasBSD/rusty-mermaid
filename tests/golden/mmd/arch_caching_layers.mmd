@@ -1,0 +1,41 @@
+flowchart TD
+    Client[Client Browser] --> CDNCheck{CDN Cache Hit?}
+
+    CDNCheck -->|Hit| CDNResp[Serve from CDN]
+    CDNCheck -->|Miss| AppLB[App Load Balancer]
+
+    AppLB --> L1Check{L1 In-Memory?}
+    L1Check -->|Hit| L1Resp[Serve from Memory]
+    L1Check -->|Miss| L2Check{L2 Redis?}
+
+    L2Check -->|Hit| L2Resp[Serve from Redis]
+    L2Check -->|Miss| SessionCheck{Session Cache?}
+
+    SessionCheck -->|Hit| SessionResp[Serve Session]
+    SessionCheck -->|Miss| QueryCheck{Query Cache?}
+
+    QueryCheck -->|Hit| QueryResp[Serve Cached Query]
+    QueryCheck -->|Miss| DBQuery[Database Query]
+
+    DBQuery --> PGPool[Connection Pool]
+    PGPool --> PGPrimary[(PostgreSQL Primary)]
+    PGPool --> PGReplica[(Read Replica)]
+
+    DBQuery --> Hydrate[Hydrate Response]
+    Hydrate --> WriteL2[Write to Redis]
+    WriteL2 --> WriteL1[Write to Memory]
+    WriteL1 --> Response[Return Response]
+
+    subgraph Invalidation
+        WebhookInv[Webhook Trigger]
+        TTLExpiry[TTL Expiry]
+        WriteThrough[Write-Through]
+        PubSub[Redis Pub/Sub]
+    end
+
+    WebhookInv -.-> CDNPurge[CDN Purge]
+    TTLExpiry -.-> L1Check
+    TTLExpiry -.-> L2Check
+    WriteThrough -.-> PGPrimary
+    WriteThrough -.-> WriteL2
+    PubSub -.-> L1Check

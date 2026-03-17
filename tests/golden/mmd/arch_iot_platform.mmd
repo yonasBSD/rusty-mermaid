@@ -1,0 +1,99 @@
+flowchart TD
+    subgraph Edge Devices
+        Sensor1[Temperature Sensors]
+        Sensor2[Humidity Sensors]
+        Camera[IP Cameras]
+        Actuator[Smart Actuators]
+        Gateway[Edge Gateway]
+    end
+
+    subgraph Edge Computing
+        EdgeML[Edge ML Inference]
+        EdgeBuffer[Local Buffer]
+        EdgeRules{Edge Rules Engine}
+        MQTT[MQTT Broker]
+    end
+
+    subgraph Cloud Ingestion
+        IoTCore[IoT Core]
+        KinesisStream[Kinesis Data Stream]
+        IoTRules{IoT Rules Engine}
+        DeviceShadow[Device Shadow]
+    end
+
+    subgraph Processing
+        subgraph Real-time
+            KinesisAnalytics[Kinesis Analytics]
+            Lambda[Lambda Functions]
+            AlertEngine{Alert Threshold?}
+        end
+        subgraph Batch
+            Glue[AWS Glue ETL]
+            EMR[EMR Spark]
+            SageMaker[SageMaker Training]
+        end
+    end
+
+    subgraph Storage
+        TimeseriesDB[(TimescaleDB)]
+        S3Lake[S3 Data Lake]
+        DDB[(DynamoDB Metadata)]
+        Redshift[(Redshift Analytics)]
+    end
+
+    subgraph Applications
+        Dashboard[Real-time Dashboard]
+        MobileApp[Mobile App]
+        API[REST API]
+        Reports[Reporting Engine]
+        MLModels[ML Model Serving]
+    end
+
+    subgraph Alerts
+        SNS[SNS Notifications]
+        PagerDuty[PagerDuty]
+        SlackAlert[Slack Channel]
+    end
+
+    Sensor1 --> Gateway
+    Sensor2 --> Gateway
+    Camera --> Gateway
+    Gateway --> MQTT
+    MQTT --> EdgeML
+    MQTT --> EdgeBuffer
+    MQTT --> EdgeRules
+    EdgeRules -->|local action| Actuator
+    EdgeRules -->|cloud forward| IoTCore
+    EdgeBuffer --> IoTCore
+    EdgeML -.-> Actuator
+
+    IoTCore --> KinesisStream
+    IoTCore --> IoTRules
+    IoTCore --> DeviceShadow
+    DeviceShadow --> API
+
+    KinesisStream --> KinesisAnalytics
+    KinesisStream --> Lambda
+    KinesisAnalytics --> AlertEngine
+    AlertEngine -->|yes| SNS
+    AlertEngine -->|no| TimeseriesDB
+    Lambda --> TimeseriesDB
+    Lambda --> DDB
+
+    KinesisStream --> S3Lake
+    S3Lake --> Glue
+    Glue --> Redshift
+    S3Lake --> EMR
+    EMR --> SageMaker
+    SageMaker --> MLModels
+
+    TimeseriesDB --> Dashboard
+    TimeseriesDB --> API
+    Redshift --> Reports
+    DDB --> API
+    API --> MobileApp
+    MLModels --> EdgeML
+
+    SNS --> PagerDuty
+    SNS --> SlackAlert
+    SNS --> MobileApp

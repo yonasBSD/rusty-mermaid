@@ -1,0 +1,89 @@
+graph LR
+    subgraph Content Ingestion
+        Upload[Creator Upload]
+        LiveStream[Live Encoder]
+        Partner[Partner Feed]
+    end
+
+    subgraph Transcoding
+        TranscodeQ[Transcode Queue]
+        Worker1[FFmpeg Worker 1]
+        Worker2[FFmpeg Worker 2]
+        Worker3[FFmpeg Worker 3]
+        QualityCheck{Quality OK?}
+    end
+
+    subgraph Storage
+        Origin[Origin Server]
+        S3VOD[S3 VOD Storage]
+        S3Thumb[S3 Thumbnails]
+        Manifest[Manifest Generator]
+    end
+
+    subgraph Delivery
+        CDN1[CDN Region US]
+        CDN2[CDN Region EU]
+        CDN3[CDN Region APAC]
+        EdgeCache[Edge Cache]
+        ABR{Adaptive Bitrate}
+    end
+
+    subgraph Playback
+        WebPlayer[Web Player]
+        iOSPlayer[iOS Player]
+        AndroidPlayer[Android Player]
+        SmartTV[Smart TV App]
+    end
+
+    subgraph Backend
+        AuthSvc[Auth Service]
+        CatalogSvc[Catalog Service]
+        RecSvc[Recommendation Engine]
+        SubSvc[Subscription Service]
+        AnalyticsSvc[Analytics Service]
+        SearchSvc[Search Service]
+        CatalogDB[(Catalog DB)]
+        UserDB[(User DB)]
+        AnalyticsDB[(ClickHouse)]
+        SearchIdx[(Elasticsearch)]
+    end
+
+    Upload --> TranscodeQ
+    LiveStream --> TranscodeQ
+    Partner --> TranscodeQ
+    TranscodeQ --> Worker1
+    TranscodeQ --> Worker2
+    TranscodeQ --> Worker3
+    Worker1 --> QualityCheck
+    Worker2 --> QualityCheck
+    Worker3 --> QualityCheck
+    QualityCheck -->|pass| S3VOD
+    QualityCheck -->|fail| TranscodeQ
+    S3VOD --> Origin
+    S3VOD --> Manifest
+    Worker1 --> S3Thumb
+
+    Origin --> CDN1
+    Origin --> CDN2
+    Origin --> CDN3
+    CDN1 --> EdgeCache
+    CDN2 --> EdgeCache
+    CDN3 --> EdgeCache
+    EdgeCache --> ABR
+    ABR --> WebPlayer
+    ABR --> iOSPlayer
+    ABR --> AndroidPlayer
+    ABR --> SmartTV
+
+    WebPlayer --> AuthSvc
+    WebPlayer --> CatalogSvc
+    WebPlayer --> RecSvc
+    WebPlayer --> SearchSvc
+    AuthSvc --> UserDB
+    CatalogSvc --> CatalogDB
+    RecSvc --> AnalyticsDB
+    SubSvc --> UserDB
+    SearchSvc --> SearchIdx
+    WebPlayer -.-> AnalyticsSvc
+    AnalyticsSvc --> AnalyticsDB
+    Manifest --> CatalogSvc

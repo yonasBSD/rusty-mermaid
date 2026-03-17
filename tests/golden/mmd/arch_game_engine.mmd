@@ -1,0 +1,99 @@
+graph TD
+    subgraph Core
+        GameLoop[Game Loop]
+        ECS[Entity Component System]
+        EventSystem[Event System]
+        ResourceMgr[Resource Manager]
+        SceneGraph[Scene Graph]
+    end
+
+    subgraph Input
+        Keyboard[Keyboard Handler]
+        Mouse[Mouse Handler]
+        Gamepad[Gamepad Handler]
+        Touch[Touch Handler]
+        InputMapper[Input Mapper]
+    end
+
+    subgraph Physics
+        Collider[Collision Detection]
+        RigidBody[Rigid Body Dynamics]
+        Raycast[Raycasting]
+        PhysWorld[Physics World]
+    end
+
+    subgraph Rendering
+        RenderGraph[Render Graph]
+        ForwardPass[Forward Pass]
+        DeferredPass[Deferred Pass]
+        ShadowPass[Shadow Maps]
+        PostFX[Post Processing]
+        UIRender[UI Renderer]
+        GPU[GPU Command Buffer]
+    end
+
+    subgraph Audio
+        AudioMixer[Audio Mixer]
+        SFX[Sound Effects]
+        Music[Music Streamer]
+        Spatial[Spatial Audio]
+    end
+
+    subgraph AI
+        BehaviorTree[Behavior Trees]
+        Pathfinding[A* Pathfinding]
+        NavMesh[Navigation Mesh]
+        StateMachine[FSM Controller]
+    end
+
+    subgraph Network
+        NetClient[Network Client]
+        NetServer[Network Server]
+        Prediction[Client Prediction]
+        Reconcile[Server Reconciliation]
+        Snapshot[State Snapshots]
+    end
+
+    GameLoop --> ECS
+    GameLoop --> EventSystem
+    ECS --> SceneGraph
+
+    Keyboard --> InputMapper
+    Mouse --> InputMapper
+    Gamepad --> InputMapper
+    Touch --> InputMapper
+    InputMapper --> EventSystem
+
+    EventSystem --> PhysWorld
+    PhysWorld --> Collider
+    PhysWorld --> RigidBody
+    PhysWorld --> Raycast
+    Collider --> ECS
+
+    SceneGraph --> RenderGraph
+    RenderGraph --> ShadowPass
+    RenderGraph --> DeferredPass
+    RenderGraph --> ForwardPass
+    ShadowPass --> PostFX
+    DeferredPass --> PostFX
+    ForwardPass --> PostFX
+    PostFX --> UIRender
+    UIRender --> GPU
+    ResourceMgr --> GPU
+
+    EventSystem --> AudioMixer
+    AudioMixer --> SFX
+    AudioMixer --> Music
+    AudioMixer --> Spatial
+
+    ECS --> BehaviorTree
+    BehaviorTree --> Pathfinding
+    Pathfinding --> NavMesh
+    BehaviorTree --> StateMachine
+
+    EventSystem --> NetClient
+    NetClient --> Prediction
+    NetServer --> Reconcile
+    NetServer --> Snapshot
+    Snapshot -.-> NetClient
+    Prediction -.-> Reconcile

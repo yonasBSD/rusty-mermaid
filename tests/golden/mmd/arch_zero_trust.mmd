@@ -1,0 +1,49 @@
+flowchart TD
+    User[User] --> Device{Device Trusted?}
+
+    Device -->|No| Enroll[Device Enrollment]
+    Enroll --> MDM[MDM Check]
+    MDM --> Device
+
+    Device -->|Yes| Identity{Identity Verified?}
+
+    Identity -->|No| MFA[Multi-Factor Auth]
+    MFA --> IdP[Identity Provider]
+    IdP --> Identity
+
+    Identity -->|Yes| Context{Context Assessment}
+
+    Context --> Location{Location OK?}
+    Context --> Time{Access Hours?}
+    Context --> Risk{Risk Score?}
+
+    Location -->|Unusual| StepUp[Step-Up Auth]
+    Location -->|Normal| PolicyEngine
+    Time -->|Off-hours| StepUp
+    Time -->|Normal| PolicyEngine
+    Risk -->|High| Block[Block Access]
+    Risk -->|Medium| StepUp
+    Risk -->|Low| PolicyEngine
+    StepUp --> PolicyEngine
+
+    PolicyEngine[Policy Decision Point]
+
+    PolicyEngine --> ResourceType{Resource Type}
+    ResourceType -->|API| APIProxy[API Proxy]
+    ResourceType -->|App| AppProxy[App Proxy]
+    ResourceType -->|Infra| BastionProxy[Bastion Proxy]
+
+    APIProxy --> MicroSeg{Microsegmentation}
+    AppProxy --> MicroSeg
+    BastionProxy --> JIT[Just-in-Time Access]
+    JIT --> MicroSeg
+
+    MicroSeg --> Encrypt[End-to-End Encryption]
+    Encrypt --> Resource[Protected Resource]
+
+    Resource -.-> AuditLog[(Audit Log)]
+    Resource -.-> SIEM[SIEM Platform]
+    Resource -.-> Analytics[Security Analytics]
+    AuditLog -.-> SIEM
+    SIEM -.-> Analytics
+    Analytics -.-> PolicyEngine

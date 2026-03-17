@@ -15,6 +15,12 @@ use crate::util;
 /// Uses iterative barycenter heuristic: alternating up/down sweeps,
 /// sorting each layer by the weighted average position of adjacent-layer
 /// neighbors. Keeps the best ordering found.
+///
+/// For compound graphs, a constraint graph (CG) persists across ranks within
+/// each sweep. After sorting each rank, `add_subgraph_constraints` records
+/// which compound siblings appeared left-of-right, so subsequent ranks
+/// respect the same relative order — preventing subgraph bounding boxes
+/// from overlapping.
 pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
     let _layering = init_order::init_order(g);
 
@@ -35,13 +41,16 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
         let use_down = i % 2 == 1;
         let bias_right = i % 4 >= 2;
 
+        // One constraint graph per sweep, persisted across all ranks.
+        let mut cg = ConstraintGraph::new();
+
         if use_down {
             for rank in 1..=max {
-                sweep_layer(g, rank, bias_right, true);
+                sweep_layer(g, rank, bias_right, true, &mut cg);
             }
         } else {
             for rank in (0..max).rev() {
-                sweep_layer(g, rank, bias_right, false);
+                sweep_layer(g, rank, bias_right, false, &mut cg);
             }
         }
 
@@ -81,11 +90,16 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 /// the deepest common ancestor of all nodes at this rank. Border constraints
 /// are enforced by sort_subgraph placing border_left[rank] / border_right[rank]
 /// at the extremes of each compound group.
+///
+/// When nodes span multiple top-level compounds with no common ancestor,
+/// a temporary root is created (matching dagre's `buildLayerGraph` synthetic
+/// root) so `sort_subgraph` can handle the full hierarchy.
 fn sweep_layer(
     g: &mut Graph<NodeLabel, EdgeLabel>,
     rank: i32,
     bias_right: bool,
     use_in_edges: bool,
+    cg: &mut ConstraintGraph,
 ) {
     let layer_nodes: Vec<NodeId> = g
         .node_ids()
@@ -99,15 +113,52 @@ fn sweep_layer(
     let root = find_layer_root(g, &layer_nodes);
 
     if let Some(root_id) = root {
-        let cg = ConstraintGraph::new();
         let result =
-            sort_subgraph::sort_subgraph(g, root_id, &cg, bias_right, use_in_edges, rank);
+            sort_subgraph::sort_subgraph(g, root_id, cg, bias_right, use_in_edges, rank);
         for (i, &nid) in result.vs.iter().enumerate() {
             g.node_mut(nid).unwrap().order = i;
         }
+        add_subgraph_constraints(g, cg, &result.vs);
     } else {
-        // Truly flat graph (no compound nodes) — simple barycenter sort
-        flat_sort(g, &layer_nodes, bias_right, use_in_edges);
+        let has_compounds = layer_nodes.iter().any(|&nid| g.parent(nid).is_some());
+        if has_compounds {
+            // Multiple top-level compounds with no common root.
+            // Create a temp root (like dagre's buildLayerGraph synthetic root)
+            // so sort_subgraph can handle the full hierarchy.
+            let temp_root = g.add_node(NodeLabel::new(0.0, 0.0));
+
+            let mut top_nodes: Vec<NodeId> = Vec::new();
+            for &nid in &layer_nodes {
+                let top = if g.parent(nid).is_some() {
+                    top_ancestor(g, nid)
+                } else {
+                    nid
+                };
+                if !top_nodes.contains(&top) {
+                    top_nodes.push(top);
+                }
+            }
+
+            for &top in &top_nodes {
+                g.set_parent(top, temp_root);
+            }
+
+            let result =
+                sort_subgraph::sort_subgraph(g, temp_root, cg, bias_right, use_in_edges, rank);
+            for (i, &nid) in result.vs.iter().enumerate() {
+                g.node_mut(nid).unwrap().order = i;
+            }
+            add_subgraph_constraints(g, cg, &result.vs);
+
+            // Clean up: unparent and remove temp root
+            for &top in &top_nodes {
+                g.remove_parent(top);
+            }
+            g.remove_node(temp_root);
+        } else {
+            // Truly flat graph (no compound nodes) — simple barycenter sort
+            flat_sort(g, &layer_nodes, bias_right, use_in_edges);
+        }
     }
 }
 
@@ -207,6 +258,58 @@ fn flat_sort(
 
     for (order, &(nid, _, _)) in indexed.iter().enumerate() {
         g.node_mut(nid).unwrap().order = order;
+    }
+}
+
+/// Add constraints between peer compound nodes to prevent subgraph interleaving.
+///
+/// Port of dagre's `addSubgraphConstraints`. For each node in the ordered
+/// sequence, walks up the compound hierarchy. When it encounters a compound
+/// sibling that differs from the previously seen sibling at the same level,
+/// it adds a constraint edge (prev → current) to the CG. This forces
+/// consistent left-to-right ordering of peer subgraphs across all ranks
+/// within a sweep.
+fn add_subgraph_constraints(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    cg: &mut ConstraintGraph,
+    vs: &[NodeId],
+) {
+    use std::collections::HashMap;
+
+    let mut prev: HashMap<NodeId, NodeId> = HashMap::new(); // parent → last child seen
+    let mut root_prev: Option<NodeId> = None; // last top-level child seen
+
+    for &v in vs {
+        let mut child = match g.parent(v) {
+            Some(p) => p,
+            None => continue, // unparented nodes don't generate constraints
+        };
+
+        loop {
+            let parent = g.parent(child);
+
+            let prev_child = if let Some(parent_id) = parent {
+                let pc = prev.get(&parent_id).copied();
+                prev.insert(parent_id, child);
+                pc
+            } else {
+                let pc = root_prev;
+                root_prev = Some(child);
+                pc
+            };
+
+            if let Some(pc) = prev_child {
+                if pc != child {
+                    cg.add_edge(pc, child);
+                    break; // stop after first constraint per node (matches JS `return`)
+                }
+            }
+
+            match parent {
+                Some(p) => child = p,
+                None => break,
+            }
+        }
     }
 }
 

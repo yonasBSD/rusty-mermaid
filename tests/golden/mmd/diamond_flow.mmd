@@ -1,0 +1,9 @@
+flowchart TD
+    A[Request] --> B{Auth?}
+    B -->|Yes| C{Admin?}
+    B -->|No| D[401 Unauthorized]
+    C -->|Yes| E[Admin Panel]
+    C -->|No| F[User Dashboard]
+    E --> G[Response]
+    F --> G
+    D --> G

@@ -1,3 +1,6 @@
-graph TD
-    A[Node] --> B[Other]
-    A --> A
+flowchart TD
+    A[Idle] --> B{Event?}
+    B -->|Yes| C[Handle]
+    B -->|No| A
+    C --> C
+    C -->|Done| A

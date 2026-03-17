@@ -1,0 +1,64 @@
+flowchart TD
+    subgraph Command Side
+        UI[Web UI]
+        APICMD[Command API]
+        Validator{Validate}
+        CmdHandler[Command Handler]
+        EventStore[(Event Store)]
+    end
+
+    subgraph Event Bus
+        Kafka[Kafka Cluster]
+        DLQ[Dead Letter Queue]
+        SchemaReg[Schema Registry]
+    end
+
+    subgraph Projections
+        OrderProj[Order Projection]
+        InventoryProj[Inventory Projection]
+        ReportProj[Reporting Projection]
+        SearchProj[Search Projection]
+    end
+
+    subgraph Read Side
+        OrderDB[(Order Read DB)]
+        InventoryDB[(Inventory Read DB)]
+        ReportDB[(Report DW)]
+        SearchIdx[(Elasticsearch)]
+        QueryAPI[Query API]
+        Dashboard[Dashboard]
+    end
+
+    subgraph Sagas
+        OrderSaga[Order Saga]
+        PaymentSaga[Payment Saga]
+        CompensateSaga[Compensate Handler]
+    end
+
+    UI --> APICMD
+    APICMD --> Validator
+    Validator -->|valid| CmdHandler
+    Validator -->|invalid| UI
+    CmdHandler --> EventStore
+    EventStore -.-> Kafka
+    Kafka --> SchemaReg
+    Kafka --> OrderProj
+    Kafka --> InventoryProj
+    Kafka --> ReportProj
+    Kafka --> SearchProj
+    Kafka -.-> DLQ
+    Kafka --> OrderSaga
+    Kafka --> PaymentSaga
+    OrderProj --> OrderDB
+    InventoryProj --> InventoryDB
+    ReportProj --> ReportDB
+    SearchProj --> SearchIdx
+    OrderDB --> QueryAPI
+    InventoryDB --> QueryAPI
+    SearchIdx --> QueryAPI
+    ReportDB --> Dashboard
+    QueryAPI --> UI
+    OrderSaga -.-> CmdHandler
+    PaymentSaga -.-> CmdHandler
+    PaymentSaga -.-> CompensateSaga
+    CompensateSaga -.-> CmdHandler

@@ -1,0 +1,80 @@
+flowchart LR
+    subgraph Sources
+        MySQL[(MySQL OLTP)]
+        Postgres[(PostgreSQL)]
+        S3Raw[S3 Raw Logs]
+        Kafka[Kafka Topics]
+        API[REST APIs]
+        SFTP[SFTP Drops]
+    end
+
+    subgraph Ingestion
+        Debezium[Debezium CDC]
+        Firehose[Kinesis Firehose]
+        Airbyte[Airbyte Sync]
+        Custom[Custom Ingester]
+    end
+
+    subgraph Landing
+        S3Landing[S3 Landing Zone]
+        Schema{Schema Registry}
+    end
+
+    subgraph Transform
+        Spark[Spark Jobs]
+        DBT[dbt Models]
+        Quality{Data Quality}
+        Lineage[Lineage Tracker]
+    end
+
+    subgraph Storage
+        S3Lake[S3 Data Lake]
+        Iceberg[(Apache Iceberg)]
+        Redshift[(Redshift)]
+        Snowflake[(Snowflake)]
+    end
+
+    subgraph Serving
+        Looker[Looker]
+        Metabase[Metabase]
+        Notebook[Jupyter Notebooks]
+        MLFeatures[ML Feature Store]
+        APIServe[Data API]
+    end
+
+    subgraph Orchestration
+        Airflow[Apache Airflow]
+        Monitor[Pipeline Monitor]
+        AlertPager[PagerDuty]
+    end
+
+    MySQL --> Debezium
+    Postgres --> Debezium
+    S3Raw --> Firehose
+    Kafka --> Firehose
+    API --> Airbyte
+    SFTP --> Custom
+    Debezium --> S3Landing
+    Firehose --> S3Landing
+    Airbyte --> S3Landing
+    Custom --> S3Landing
+    S3Landing --> Schema
+    Schema --> Spark
+    Spark --> DBT
+    DBT --> Quality
+    Quality -->|pass| S3Lake
+    Quality -->|fail| Monitor
+    S3Lake --> Iceberg
+    Iceberg --> Redshift
+    Iceberg --> Snowflake
+    Redshift --> Looker
+    Redshift --> Metabase
+    Snowflake --> Looker
+    Snowflake --> Notebook
+    Iceberg --> MLFeatures
+    Iceberg --> APIServe
+    Airflow -.-> Spark
+    Airflow -.-> DBT
+    Airflow -.-> Custom
+    Lineage -.-> DBT
+    Monitor -.-> AlertPager
