@@ -94,6 +94,27 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             marker_end: None,
         });
     }
+    // Render concurrent region dashed rectangles (no fill — theming handled separately)
+    for rr in &layout.region_rects {
+        scene.push(Primitive::Rect {
+            bbox: BBox::new(
+                rr.x + rr.width / 2.0,
+                rr.y + rr.height / 2.0,
+                rr.width,
+                rr.height,
+            ),
+            rx: 0.0,
+            ry: 0.0,
+            style: Style {
+                fill: Some(Color::TRANSPARENT),
+                stroke: Some(Color::rgb(128, 128, 128)),
+                stroke_width: Some(0.5),
+                stroke_dasharray: Some(vec![10.0, 10.0]),
+                ..Default::default()
+            },
+        });
+    }
+
     // Edges behind nodes
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
@@ -258,7 +279,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
         }
     }
 
-    // Render concurrent region dividers
+    // Render concurrent region dividers (mermaid uses stroke-dasharray: 3)
     for div in &layout.dividers {
         scene.push(Primitive::Path {
             segments: vec![
@@ -268,7 +289,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             style: Style {
                 stroke: Some(Color::rgb(128, 128, 128)),
                 stroke_width: Some(1.0),
-                stroke_dasharray: Some(vec![10.0, 10.0]),
+                stroke_dasharray: Some(vec![3.0]),
                 ..Default::default()
             },
             marker_start: None,

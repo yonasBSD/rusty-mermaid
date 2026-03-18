@@ -7,7 +7,11 @@ pub fn style_attrs(style: &Style) -> Vec<(String, String)> {
     let mut attrs = Vec::new();
 
     if let Some(fill) = &style.fill {
-        attrs.push(("fill".into(), fill.to_string()));
+        if fill.a == 0 {
+            attrs.push(("fill".into(), "none".into()));
+        } else {
+            attrs.push(("fill".into(), fill.to_string()));
+        }
     }
     if let Some(stroke) = &style.stroke {
         attrs.push(("stroke".into(), stroke.to_string()));

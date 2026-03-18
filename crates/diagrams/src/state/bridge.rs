@@ -29,6 +29,17 @@ pub struct LayoutResult {
     pub height: f64,
     /// Dashed divider lines between concurrent regions.
     pub dividers: Vec<DividerLine>,
+    /// Dashed rectangles around each concurrent region.
+    pub region_rects: Vec<RegionRect>,
+}
+
+/// Bounding box for a concurrent region (rendered as a dashed rectangle).
+#[derive(Debug)]
+pub struct RegionRect {
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
 }
 
 /// A dashed line separating concurrent regions (vertical for side-by-side layout).
@@ -104,6 +115,13 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     let mut config = DagreConfig::default();
     config.rankdir = diagram.direction;
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+
+    // Post-layout adjustments (safe — doesn't affect dagre invariants)
+    fix_region_order(diagram, &mut g, &id_map);
+    center_region_content(diagram, &mut g, &id_map);
+    center_composite_content(diagram, &mut g, &id_map);
+    center_bullseyes(diagram, &mut g, &id_map);
+    center_external_connections(diagram, &mut g, &id_map);
 
     // Resolve per-node styles
     let node_styles = resolve_state_styles(diagram);
@@ -221,35 +239,43 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         }
     }
 
-    // Compute vertical divider lines between side-by-side concurrent regions
+    // Compute dividers + region rects together for concurrent compounds
     let mut dividers = Vec::new();
+    let mut region_rects = Vec::new();
     for node in &nodes {
         if node.region_count < 2 {
             continue;
         }
         let compound_top = node.y - node.height / 2.0 + 28.0; // below header
-        let compound_bottom = node.y + node.height / 2.0 - 8.0;
+        let compound_bottom = node.y + node.height / 2.0;
+        let compound_left = node.x - node.width / 2.0;
+        let compound_right = node.x + node.width / 2.0;
 
-        // Collect region x-extents and sort left-to-right
-        let mut region_edges: Vec<(f64, f64)> = Vec::new(); // (left, right)
-        for i in 0..node.region_count {
-            let region_key = format!("{}._region_{}", node.id, i);
-            if let Some(&region_nid) = id_map.get(&region_key) {
-                if let Some(rn) = g.node(region_nid) {
-                    region_edges.push((rn.x - rn.width / 2.0, rn.x + rn.width / 2.0));
-                }
-            }
-        }
-        region_edges.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
-
-        // Draw vertical dividers between adjacent regions
-        for i in 0..region_edges.len().saturating_sub(1) {
-            let div_x = (region_edges[i].1 + region_edges[i + 1].0) / 2.0;
+        // Equal-width partitions: dividers at compound_left + i * partition_width
+        let n = node.region_count as f64;
+        let partition_width = (compound_right - compound_left) / n;
+        let mut div_xs = Vec::new();
+        for i in 1..node.region_count {
+            let div_x = compound_left + partition_width * i as f64;
+            div_xs.push(div_x);
             dividers.push(DividerLine {
                 x1: div_x,
                 y1: compound_top,
                 x2: div_x,
                 y2: compound_bottom,
+            });
+        }
+
+        // Region rects span from compound edge → divider → compound edge
+        let mut boundaries = vec![compound_left];
+        boundaries.extend_from_slice(&div_xs);
+        boundaries.push(compound_right);
+        for w in boundaries.windows(2) {
+            region_rects.push(RegionRect {
+                x: w[0],
+                y: compound_top,
+                width: w[1] - w[0],
+                height: compound_bottom - compound_top,
             });
         }
     }
@@ -260,6 +286,436 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         width: max_x,
         height: max_y,
         dividers,
+        region_rects,
+    }
+}
+
+/// Enforce declaration order for concurrent regions.
+/// Dagre's order phase may swap region sub-compounds. If region_0 ends up
+/// to the right of region_1, mirror all descendants around the compound center.
+fn fix_region_order(
+    diagram: &StateDiagram,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    for s in &diagram.states {
+        fix_region_order_for_state(s, g, id_map);
+    }
+}
+
+fn fix_region_order_for_state(
+    state: &StateNode,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    let StateKind::Composite { regions, children, .. } = &state.kind else { return };
+
+    // Recurse into children first
+    for child in children {
+        fix_region_order_for_state(child, g, id_map);
+    }
+
+    if regions.len() < 2 {
+        return;
+    }
+
+    // Check if regions are in declaration order (left-to-right by x)
+    let mut region_xs: Vec<(usize, f64)> = Vec::new();
+    for (i, _) in regions.iter().enumerate() {
+        let rk = format!("{}._region_{}", state.id, i);
+        if let Some(&rnid) = id_map.get(&rk) {
+            if let Some(rn) = g.node(rnid) {
+                region_xs.push((i, rn.x));
+            }
+        }
+    }
+    if region_xs.len() < 2 {
+        return;
+    }
+
+    // Check if sorted by x matches declaration order
+    let in_order = region_xs.windows(2).all(|w| w[0].1 <= w[1].1);
+    if in_order {
+        return;
+    }
+
+    // Need to mirror: flip all descendants' x around compound center
+    let Some(&compound_nid) = id_map.get(&state.id) else { return };
+    let Some(compound_node) = g.node(compound_nid) else { return };
+    let cx = compound_node.x;
+
+    // Collect all descendant node IDs
+    let mut descendants = Vec::new();
+    collect_descendants(g, compound_nid, &mut descendants);
+
+    // Mirror node positions
+    for &nid in &descendants {
+        if let Some(n) = g.node_mut(nid) {
+            n.x = 2.0 * cx - n.x;
+        }
+    }
+
+    // Mirror edge points for edges fully within the compound
+    let desc_set: HashSet<NodeId> = descendants.iter().copied().collect();
+    for eid in g.edge_ids().collect::<Vec<_>>() {
+        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+        if desc_set.contains(&src) && desc_set.contains(&dst) {
+            if let Some(e) = g.edge_mut(eid) {
+                for pt in &mut e.points {
+                    pt.x = 2.0 * cx - pt.x;
+                }
+            }
+        }
+    }
+}
+
+fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId, out: &mut Vec<NodeId>) {
+    for child in g.children(nid).collect::<Vec<_>>() {
+        out.push(child);
+        collect_descendants(g, child, out);
+    }
+}
+
+/// Center each concurrent region's content within its visual partition.
+/// Partition = space between compound edge and divider line.
+fn center_region_content(
+    diagram: &StateDiagram,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    for s in &diagram.states {
+        center_region_content_for_state(s, g, id_map);
+    }
+}
+
+fn center_region_content_for_state(
+    state: &StateNode,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    let StateKind::Composite { regions, children, .. } = &state.kind else { return };
+    for child in children {
+        center_region_content_for_state(child, g, id_map);
+    }
+    if regions.len() < 2 {
+        return;
+    }
+
+    let Some(&compound_nid) = id_map.get(&state.id) else { return };
+    let Some(compound_node) = g.node(compound_nid) else { return };
+    let compound_left = compound_node.x - compound_node.width / 2.0;
+    let compound_right = compound_node.x + compound_node.width / 2.0;
+
+    // Collect region compounds and their content bounding boxes, sorted by x
+    let mut region_info: Vec<(NodeId, Vec<NodeId>, f64)> = Vec::new(); // (nid, descendants, content_cx)
+    for (i, _) in regions.iter().enumerate() {
+        let rk = format!("{}._region_{}", state.id, i);
+        if let Some(&rnid) = id_map.get(&rk) {
+            let mut descendants = Vec::new();
+            collect_descendants(g, rnid, &mut descendants);
+            // Content center = midpoint of descendant x bounding box
+            let (mut min_x, mut max_x) = (f64::MAX, f64::MIN);
+            for &nid in &descendants {
+                if let Some(n) = g.node(nid) {
+                    min_x = min_x.min(n.x - n.width / 2.0);
+                    max_x = max_x.max(n.x + n.width / 2.0);
+                }
+            }
+            if min_x < f64::MAX {
+                let content_cx = (min_x + max_x) / 2.0;
+                region_info.push((rnid, descendants, content_cx));
+            }
+        }
+    }
+    if region_info.len() < 2 {
+        return;
+    }
+    region_info.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
+
+    // Equal-width partitions: each region gets compound_width / n
+    let n = region_info.len() as f64;
+    let partition_width = (compound_right - compound_left) / n;
+
+    for (idx, (rnid, descendants, content_cx)) in region_info.iter().enumerate() {
+        let partition_cx = compound_left + partition_width * (idx as f64 + 0.5);
+        let dx = partition_cx - content_cx;
+        if dx.abs() < 0.5 {
+            continue;
+        }
+
+        // Shift region compound node
+        if let Some(rn) = g.node_mut(*rnid) {
+            rn.x += dx;
+        }
+        // Shift all descendants
+        for &nid in descendants {
+            if let Some(n) = g.node_mut(nid) {
+                n.x += dx;
+            }
+        }
+        // Shift edges fully within this region
+        let desc_set: HashSet<NodeId> =
+            std::iter::once(*rnid).chain(descendants.iter().copied()).collect();
+        for eid in g.edge_ids().collect::<Vec<_>>() {
+            let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+            if desc_set.contains(&src) && desc_set.contains(&dst) {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x += dx;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Center content of non-concurrent composites within compound bounds.
+/// Dagre may place children asymmetrically; this shifts them to the compound center.
+fn center_composite_content(
+    diagram: &StateDiagram,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    for s in &diagram.states {
+        center_composite_content_for_state(s, g, id_map);
+    }
+}
+
+fn center_composite_content_for_state(
+    state: &StateNode,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    let StateKind::Composite { regions, children, .. } = &state.kind else { return };
+    for child in children {
+        center_composite_content_for_state(child, g, id_map);
+    }
+    // Only for non-concurrent composites (concurrent handled by center_region_content)
+    if !regions.is_empty() {
+        return;
+    }
+
+    let Some(&compound_nid) = id_map.get(&state.id) else { return };
+    let compound_cx = g.node(compound_nid).map(|n| n.x).unwrap_or(0.0);
+
+    let mut descendants = Vec::new();
+    collect_descendants(g, compound_nid, &mut descendants);
+    if descendants.is_empty() {
+        return;
+    }
+
+    // Compute content bounding box center
+    let (mut min_x, mut max_x) = (f64::MAX, f64::MIN);
+    for &nid in &descendants {
+        if let Some(n) = g.node(nid) {
+            min_x = min_x.min(n.x - n.width / 2.0);
+            max_x = max_x.max(n.x + n.width / 2.0);
+        }
+    }
+    if min_x >= f64::MAX {
+        return;
+    }
+    let content_cx = (min_x + max_x) / 2.0;
+    let dx = compound_cx - content_cx;
+    if dx.abs() < 0.5 {
+        return;
+    }
+
+    // Shift all descendants
+    for &nid in &descendants {
+        if let Some(n) = g.node_mut(nid) {
+            n.x += dx;
+        }
+    }
+    // Shift edges fully within the compound
+    let desc_set: HashSet<NodeId> = descendants.iter().copied().collect();
+    for eid in g.edge_ids().collect::<Vec<_>>() {
+        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+        if desc_set.contains(&src) && desc_set.contains(&dst) {
+            if let Some(e) = g.edge_mut(eid) {
+                for pt in &mut e.points {
+                    pt.x += dx;
+                }
+            }
+        }
+    }
+}
+
+/// Center outer [*]_start / [*]_end bullseyes on their connected compound.
+/// After dagre layout, the bullseye x may not align with the compound center.
+fn center_bullseyes(
+    diagram: &StateDiagram,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    center_bullseyes_in_scope(
+        &diagram.transitions,
+        &diagram.states,
+        "",
+        g,
+        id_map,
+    );
+    // Recurse into composites
+    for s in &diagram.states {
+        center_bullseyes_in_state(s, g, id_map);
+    }
+}
+
+fn center_bullseyes_in_state(
+    state: &StateNode,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    let StateKind::Composite { transitions, children, .. } = &state.kind else { return };
+    let prefix = format!("{}.", state.id);
+    center_bullseyes_in_scope(transitions, children, &prefix, g, id_map);
+    for child in children {
+        center_bullseyes_in_state(child, g, id_map);
+    }
+}
+
+fn center_bullseyes_in_scope(
+    transitions: &[StateTransition],
+    _states: &[StateNode],
+    scope_prefix: &str,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    for t in transitions {
+        // [*] → target: center [*]_start on target's x
+        if t.src == "[*]" {
+            let start_key = format!("{scope_prefix}[*]_start");
+            let Some(&start_nid) = id_map.get(&start_key) else { continue };
+            let Some(&target_nid) = id_map.get(&t.dst) else { continue };
+            let target_x = g.node(target_nid).map(|n| n.x).unwrap_or(0.0);
+
+            if let Some(n) = g.node_mut(start_nid) {
+                n.x = target_x;
+            }
+            // Straighten all edge points for a clean vertical connection
+            for eid in g.out_edges(start_nid).collect::<Vec<_>>() {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x = target_x;
+                    }
+                }
+            }
+        }
+        // source → [*]: center [*]_end on source's x
+        if t.dst == "[*]" {
+            let end_key = format!("{scope_prefix}[*]_end");
+            let Some(&end_nid) = id_map.get(&end_key) else { continue };
+            let Some(&source_nid) = id_map.get(&t.src) else { continue };
+            let source_x = g.node(source_nid).map(|n| n.x).unwrap_or(0.0);
+
+            if let Some(n) = g.node_mut(end_nid) {
+                n.x = source_x;
+            }
+            // Straighten all edge points for a clean vertical connection
+            for eid in g.in_edges(end_nid).collect::<Vec<_>>() {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x = source_x;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Center external nodes that connect to composite states.
+/// e.g. `Active → Paused` — Paused should be centered on Active's x.
+fn center_external_connections(
+    diagram: &StateDiagram,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    center_external_in_scope(&diagram.transitions, &diagram.states, g, id_map);
+    for s in &diagram.states {
+        center_external_in_state(s, g, id_map);
+    }
+}
+
+fn center_external_in_state(
+    state: &StateNode,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    let StateKind::Composite { transitions, children, .. } = &state.kind else { return };
+    center_external_in_scope(transitions, children, g, id_map);
+    for child in children {
+        center_external_in_state(child, g, id_map);
+    }
+}
+
+fn center_external_in_scope(
+    transitions: &[StateTransition],
+    states: &[StateNode],
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+    id_map: &HashMap<String, NodeId>,
+) {
+    // Collect which external nodes need centering and their target x
+    let mut centered: HashSet<NodeId> = HashSet::new();
+
+    for t in transitions {
+        if t.src == "[*]" || t.dst == "[*]" {
+            continue;
+        }
+
+        let src_is_composite = is_compound_state(states, &t.src);
+        let dst_is_composite = is_compound_state(states, &t.dst);
+
+        // Composite → external: center external node on composite's x
+        if src_is_composite && !dst_is_composite {
+            let Some(&comp_nid) = id_map.get(&t.src) else { continue };
+            let Some(&ext_nid) = id_map.get(&t.dst) else { continue };
+            if centered.contains(&ext_nid) {
+                continue;
+            }
+            let comp_x = g.node(comp_nid).map(|n| n.x).unwrap_or(0.0);
+            let old_x = g.node(ext_nid).map(|n| n.x).unwrap_or(0.0);
+            let dx = comp_x - old_x;
+            if dx.abs() < 0.5 {
+                continue;
+            }
+            if let Some(n) = g.node_mut(ext_nid) {
+                n.x = comp_x;
+            }
+            // Shift edge points by dx (preserves dagre curve shape)
+            for eid in g.in_edges(ext_nid).chain(g.out_edges(ext_nid)).collect::<Vec<_>>() {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x += dx;
+                    }
+                }
+            }
+            centered.insert(ext_nid);
+        }
+        // External → composite: center external node on composite's x
+        if dst_is_composite && !src_is_composite {
+            let Some(&comp_nid) = id_map.get(&t.dst) else { continue };
+            let Some(&ext_nid) = id_map.get(&t.src) else { continue };
+            if centered.contains(&ext_nid) {
+                continue;
+            }
+            let comp_x = g.node(comp_nid).map(|n| n.x).unwrap_or(0.0);
+            let old_x = g.node(ext_nid).map(|n| n.x).unwrap_or(0.0);
+            let dx = comp_x - old_x;
+            if dx.abs() < 0.5 {
+                continue;
+            }
+            if let Some(n) = g.node_mut(ext_nid) {
+                n.x = comp_x;
+            }
+            for eid in g.in_edges(ext_nid).chain(g.out_edges(ext_nid)).collect::<Vec<_>>() {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x += dx;
+                    }
+                }
+            }
+            centered.insert(ext_nid);
+        }
     }
 }
 
@@ -926,5 +1382,29 @@ mod tests {
         // Should have at least one divider
         assert!(!result.dividers.is_empty(),
             "concurrent regions should produce divider lines");
+    }
+
+    #[test]
+    fn concurrent_regions_centered_in_partitions() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> NumLockOff\n        NumLockOff --> NumLockOn : EvNumLockPressed\n        NumLockOn --> NumLockOff : EvNumLockPressed\n        --\n        [*] --> CapsLockOff\n        CapsLockOff --> CapsLockOn : EvCapsLockPressed\n        CapsLockOn --> CapsLockOff : EvCapsLockPressed\n    }\n    Active --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let active = result.nodes.iter().find(|n| n.id == "Active").unwrap();
+        let numlock = result.nodes.iter().find(|n| n.id == "NumLockOff").unwrap();
+        let capslock = result.nodes.iter().find(|n| n.id == "CapsLockOff").unwrap();
+
+        let compound_left = active.x - active.width / 2.0;
+        let partition_width = active.width / 2.0;
+        let p0_cx = compound_left + partition_width * 0.5;
+        let p1_cx = compound_left + partition_width * 1.5;
+
+        assert!((numlock.x - p0_cx).abs() < 30.0,
+            "NumLockOff (x={:.1}) should be near partition 0 center ({:.1})",
+            numlock.x, p0_cx);
+        assert!((capslock.x - p1_cx).abs() < 30.0,
+            "CapsLockOff (x={:.1}) should be near partition 1 center ({:.1})",
+            capslock.x, p1_cx);
     }
 }
