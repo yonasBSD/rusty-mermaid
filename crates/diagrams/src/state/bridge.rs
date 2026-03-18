@@ -31,12 +31,13 @@ pub struct LayoutResult {
     pub dividers: Vec<DividerLine>,
 }
 
-/// A horizontal dashed line separating concurrent regions.
+/// A dashed line separating concurrent regions (vertical for side-by-side layout).
 #[derive(Debug)]
 pub struct DividerLine {
     pub x1: f64,
+    pub y1: f64,
     pub x2: f64,
-    pub y: f64,
+    pub y2: f64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -204,8 +205,8 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         let (src, dst) = g.edge_endpoints(eid).unwrap();
         if let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) {
             let matched = all_transitions.iter().find(|t| {
-                let s = resolve_pseudo(&t.src, src_id);
-                let d = resolve_pseudo(&t.dst, dst_id);
+                let s = resolve_pseudo(&t.src, src_id, true);
+                let d = resolve_pseudo(&t.dst, dst_id, false);
                 s && d
             });
             let Some(transition) = matched else { continue };
@@ -220,33 +221,35 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         }
     }
 
-    // Compute divider lines between concurrent regions
+    // Compute vertical divider lines between side-by-side concurrent regions
     let mut dividers = Vec::new();
     for node in &nodes {
         if node.region_count < 2 {
             continue;
         }
-        let left = node.x - node.width / 2.0 + 8.0;
-        let right = node.x + node.width / 2.0 - 8.0;
+        let compound_top = node.y - node.height / 2.0 + 28.0; // below header
+        let compound_bottom = node.y + node.height / 2.0 - 8.0;
 
-        // Find region sub-groups for this composite
-        let mut region_bottoms: Vec<f64> = Vec::new();
+        // Collect region x-extents and sort left-to-right
+        let mut region_edges: Vec<(f64, f64)> = Vec::new(); // (left, right)
         for i in 0..node.region_count {
             let region_key = format!("{}._region_{}", node.id, i);
             if let Some(&region_nid) = id_map.get(&region_key) {
                 if let Some(rn) = g.node(region_nid) {
-                    region_bottoms.push(rn.y + rn.height / 2.0 + x_shift * 0.0); // y not shifted
+                    region_edges.push((rn.x - rn.width / 2.0, rn.x + rn.width / 2.0));
                 }
             }
         }
-        region_bottoms.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        region_edges.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
 
-        // Draw dividers between regions (not after the last one)
-        for bottom in region_bottoms.iter().take(region_bottoms.len().saturating_sub(1)) {
+        // Draw vertical dividers between adjacent regions
+        for i in 0..region_edges.len().saturating_sub(1) {
+            let div_x = (region_edges[i].1 + region_edges[i + 1].0) / 2.0;
             dividers.push(DividerLine {
-                x1: left,
-                x2: right,
-                y: *bottom + 10.0, // small gap below region
+                x1: div_x,
+                y1: compound_top,
+                x2: div_x,
+                y2: compound_bottom,
             });
         }
     }
@@ -261,17 +264,33 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 }
 
 /// Check if a transition endpoint matches a resolved node ID.
-/// Handles [*] → scoped pseudo-state name mapping, and composite
-/// states redirected to inner pseudo-states.
-fn resolve_pseudo(transition_id: &str, node_id: &str) -> bool {
+/// `is_source` = true when matching the source side of a transition,
+/// false for the destination side.  This prevents false matches like
+/// `Active → [*]` matching a synthetic entry edge `Active.[*]_start → …`.
+fn resolve_pseudo(transition_id: &str, node_id: &str, is_source: bool) -> bool {
     if transition_id == "[*]" {
-        node_id.ends_with("[*]_start") || node_id.ends_with("[*]_end")
+        // [*] as source → only matches _start pseudo-states
+        // [*] as destination → only matches _end pseudo-states
+        if is_source {
+            node_id.ends_with("[*]_start")
+        } else {
+            node_id.ends_with("[*]_end")
+        }
     } else if transition_id == node_id {
         true
     } else {
-        // Composite redirect: transition says "Active", node is "Active.[*]_start"
-        node_id == format!("{transition_id}.[*]_start")
-            || node_id == format!("{transition_id}.[*]_end")
+        // Composite redirect: src "Active" → "Active.[*]_end" (exit)
+        //                     dst "Active" → "Active.[*]_start" (entry)
+        let prefix = format!("{transition_id}.");
+        if !node_id.starts_with(&prefix) {
+            return false;
+        }
+        let suffix = &node_id[prefix.len()..];
+        if is_source {
+            suffix == "[*]_end"
+        } else {
+            suffix == "[*]_start"
+        }
     }
 }
 
@@ -433,6 +452,51 @@ fn add_scope<'a>(
                             if let Some(&child_nid) = id_map.get(child.id.as_str()) {
                                 if g.parent(child_nid).is_none() {
                                     g.set_parent(child_nid, region_nid);
+                                }
+                            }
+                        }
+                    }
+
+                    // Create compound-level entry connecting to all region starts.
+                    // This centers the outer [*]_start bullseye above the compound.
+                    let mut region_starts = Vec::new();
+                    for (i, _) in regions.iter().enumerate() {
+                        let rk = format!("{}._region_{}", s.id, i);
+                        let sk = format!("{rk}.[*]_start");
+                        if let Some(&sn) = id_map.get(&sk) {
+                            region_starts.push(sn);
+                        }
+                    }
+                    if !region_starts.is_empty() {
+                        let entry_key = format!("{}.[*]_start", s.id);
+                        if !id_map.contains_key(&entry_key) {
+                            let entry_nid =
+                                g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+                            g.set_parent(entry_nid, nid);
+                            synthetic_ids.insert(entry_key.clone());
+                            id_map.insert(entry_key, entry_nid);
+                            for &rs in &region_starts {
+                                g.add_edge(entry_nid, rs, EdgeLabel::default());
+                            }
+                        }
+                    }
+
+                    // Create compound-level exit connecting from all regions' last children.
+                    // This centers the outer [*]_end bullseye below the compound.
+                    let is_src = transitions.iter().any(|t| t.src == s.id);
+                    if is_src {
+                        let exit_key = format!("{}.[*]_end", s.id);
+                        if !id_map.contains_key(&exit_key) {
+                            let exit_nid =
+                                g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+                            g.set_parent(exit_nid, nid);
+                            synthetic_ids.insert(exit_key.clone());
+                            id_map.insert(exit_key, exit_nid);
+                            for region in regions.iter() {
+                                if let Some(last) = region.children.last() {
+                                    if let Some(&cn) = id_map.get(last.id.as_str()) {
+                                        g.add_edge(cn, exit_nid, EdgeLabel::default());
+                                    }
                                 }
                             }
                         }

@@ -77,6 +77,8 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 TextAnchor::Middle => "middle",
                 TextAnchor::End => "end",
             };
+            let content = normalize_line_breaks(content);
+            let content: &str = &content;
             let lines: Vec<&str> = content.split('\n').collect();
             if lines.len() <= 1 {
                 // Single line
@@ -241,6 +243,35 @@ fn render_arc(
     }
     let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
     doc.empty_tag("path", &refs);
+}
+
+/// Convert `<br/>` variants to `\n` for SVG multi-line rendering.
+fn normalize_line_breaks(s: &str) -> std::borrow::Cow<'_, str> {
+    if !s.contains("<br") {
+        return std::borrow::Cow::Borrowed(s);
+    }
+    // Match <br>, <br/>, <br />, case-insensitive
+    let mut result = String::with_capacity(s.len());
+    let mut i = 0;
+    let bytes = s.as_bytes();
+    while i < bytes.len() {
+        if i + 3 < bytes.len() && bytes[i] == b'<'
+            && bytes[i + 1].to_ascii_lowercase() == b'b'
+            && bytes[i + 2].to_ascii_lowercase() == b'r'
+        {
+            let mut j = i + 3;
+            while j < bytes.len() && bytes[j] == b' ' { j += 1; }
+            if j < bytes.len() && bytes[j] == b'/' { j += 1; }
+            if j < bytes.len() && bytes[j] == b'>' {
+                result.push('\n');
+                i = j + 1;
+                continue;
+            }
+        }
+        result.push(bytes[i] as char);
+        i += 1;
+    }
+    std::borrow::Cow::Owned(result)
 }
 
 fn xml_escape(s: &str) -> String {
@@ -507,6 +538,32 @@ mod tests {
         });
         assert!(svg.contains(r#"font-style="italic"#));
         assert!(svg.contains(">world</tspan>"));
+    }
+
+    #[test]
+    fn render_text_br_to_multiline() {
+        let svg = render_one(&Primitive::Text {
+            position: Point::new(50.0, 50.0),
+            content: "line1<br/>line2".into(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle::default(),
+        });
+        // <br/> should produce multi-line tspans
+        assert!(svg.contains(">line1</tspan>"));
+        assert!(svg.contains(">line2</tspan>"));
+    }
+
+    #[test]
+    fn render_text_br_variant() {
+        let svg = render_one(&Primitive::Text {
+            position: Point::new(50.0, 50.0),
+            content: "a<br>b<br />c".into(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle::default(),
+        });
+        assert!(svg.contains(">a</tspan>"));
+        assert!(svg.contains(">b</tspan>"));
+        assert!(svg.contains(">c</tspan>"));
     }
 
     #[test]
