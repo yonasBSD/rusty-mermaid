@@ -18,7 +18,7 @@ const NOTE_PADDING: f64 = 10.0;
 /// Extra height added above compound nodes for the title + separator header.
 /// Dagre doesn't know about the header, so without this the first inner
 /// child overlaps the separator line.
-const COMPOUND_HEADER_HEIGHT: f64 = 3.0;
+const COMPOUND_HEADER_HEIGHT: f64 = 4.0;
 
 /// Layout result: node positions and edge points.
 #[derive(Debug)]
