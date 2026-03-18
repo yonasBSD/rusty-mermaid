@@ -159,7 +159,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
-    let edges = extract_edge_layouts(diagram, &g, &nid_to_id, measurer);
+    let mut edges = extract_edge_layouts(diagram, &g, &nid_to_id, measurer);
 
     // Extract subgraph positions from dagre's compound node bounds
     // (padding and label space are already included by remove_border_nodes).
@@ -181,6 +181,46 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             max_x = max_x.max(n.x + n.width / 2.0);
             max_y = max_y.max(n.y + n.height / 2.0);
         }
+    }
+
+    // Expand bounds to include edge label extents (labels can be wider
+    // than the gap between nodes, extending past the node bounding box).
+    let mut min_x: f64 = 0.0;
+    let mut min_y: f64 = 0.0;
+    let label_pad = 4.0;
+    for edge in &edges {
+        if let Some(size) = edge.label_size {
+            if edge.points.len() < 2 { continue; }
+            let mid = edge.points[edge.points.len() / 2];
+            let lw = size.0 + label_pad * 2.0;
+            let lh = size.1 + label_pad * 2.0;
+            min_x = min_x.min(mid.x - lw / 2.0);
+            min_y = min_y.min(mid.y - lh / 2.0);
+            max_x = max_x.max(mid.x + lw / 2.0);
+            max_y = max_y.max(mid.y + lh / 2.0);
+        }
+    }
+
+    // Shift everything if edge labels extend past the origin
+    if min_x < 0.0 || min_y < 0.0 {
+        let dx = if min_x < 0.0 { -min_x } else { 0.0 };
+        let dy = if min_y < 0.0 { -min_y } else { 0.0 };
+        for node in &mut nodes {
+            node.x += dx;
+            node.y += dy;
+        }
+        for edge in &mut edges {
+            for pt in &mut edge.points {
+                pt.x += dx;
+                pt.y += dy;
+            }
+        }
+        for sg in &mut subgraphs {
+            sg.x += dx;
+            sg.y += dy;
+        }
+        max_x += dx;
+        max_y += dy;
     }
 
     LayoutResult {
