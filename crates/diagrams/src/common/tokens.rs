@@ -68,11 +68,44 @@ pub fn node_id<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
 }
 
 /// Parse a double-quoted string, returning the content between quotes.
-/// Mermaid doesn't support backslash escapes in quoted strings.
 pub fn quoted_string<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
     ('"', take_while(0.., |c: char| c != '"'), '"')
         .map(|(_, content, _): (_, &str, _)| content)
         .parse_next(input)
+}
+
+/// Convert `\uXXXX` escape sequences to actual Unicode characters.
+/// Leaves other backslash sequences (e.g. `\n`, `\\`) untouched.
+pub fn unescape_unicode(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut chars = s.chars();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            // Peek at next char
+            let mut peek = chars.clone();
+            if peek.next() == Some('u') {
+                let hex: String = peek.clone().take(4).collect();
+                if hex.len() == 4 && hex.chars().all(|h| h.is_ascii_hexdigit()) {
+                    if let Some(decoded) = u32::from_str_radix(&hex, 16)
+                        .ok()
+                        .and_then(char::from_u32)
+                    {
+                        result.push(decoded);
+                        // Advance past 'u' + 4 hex digits
+                        chars.next(); // 'u'
+                        for _ in 0..4 {
+                            chars.next();
+                        }
+                        continue;
+                    }
+                }
+            }
+            result.push(c);
+        } else {
+            result.push(c);
+        }
+    }
+    result
 }
 
 /// Parse a direction keyword: TB, TD, BT, LR, RL.
@@ -235,5 +268,32 @@ mod tests {
         let mut input = "%% this is a comment\nnext";
         line_comment.parse_next(&mut input).unwrap();
         assert_eq!(input, "\nnext");
+    }
+
+    #[test]
+    fn unescape_basic() {
+        assert_eq!(unescape_unicode(r"\u00e9"), "é");
+        assert_eq!(unescape_unicode(r"\u2615"), "☕");
+        assert_eq!(unescape_unicode(r"Caf\u00e9 \u2615"), "Café ☕");
+    }
+
+    #[test]
+    fn unescape_no_escapes() {
+        assert_eq!(unescape_unicode("hello"), "hello");
+        assert_eq!(unescape_unicode("Café ☕"), "Café ☕");
+    }
+
+    #[test]
+    fn unescape_partial_sequence() {
+        // Incomplete \u sequences left as-is
+        assert_eq!(unescape_unicode(r"\u00"), r"\u00");
+        assert_eq!(unescape_unicode(r"\u"), r"\u");
+        assert_eq!(unescape_unicode(r"\uzzz"), r"\uzzz");
+    }
+
+    #[test]
+    fn unescape_cjk_and_symbols() {
+        assert_eq!(unescape_unicode(r"\u4f60\u597d"), "你好");
+        assert_eq!(unescape_unicode(r"\u03b1 + \u03b2"), "α + β");
     }
 }

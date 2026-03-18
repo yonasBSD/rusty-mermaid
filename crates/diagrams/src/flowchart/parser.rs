@@ -5,7 +5,9 @@ use winnow::token::{any, take_while};
 
 use crate::common::error::{ParseError, ParseErrorKind};
 use crate::common::styling::{class_apply_body, class_def_body, style_properties, style_stmt_body};
-use crate::common::tokens::{direction, node_id, quoted_string, skip, style_class, text_until, ws};
+use crate::common::tokens::{
+    direction, node_id, quoted_string, skip, style_class, text_until, unescape_unicode, ws,
+};
 
 use super::ir::*;
 
@@ -241,7 +243,8 @@ fn parse_node_ref(
     // Parse optional :::className
     let class = opt(style_class).parse_next(input)?;
 
-    if let Ok((shape, label)) = shape_label {
+    if let Ok((shape, raw_label)) = shape_label {
+        let label = unescape_unicode(&raw_label);
         // Add or update vertex
         if let Some(v) = diagram.vertices.iter_mut().find(|v| v.id == id_str) {
             // Update label/shape if redefined
@@ -455,6 +458,8 @@ fn parse_edge_operator(
     } else {
         None
     };
+
+    let label = label.map(|l| unescape_unicode(&l));
 
     Ok((label, stroke, start_arrow, end_arrow, minlen))
 }

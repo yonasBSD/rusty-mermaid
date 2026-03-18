@@ -6,7 +6,7 @@ use rusty_mermaid_core::Direction;
 
 use crate::common::error::{ParseError, ParseErrorKind};
 use crate::common::styling::{class_apply_body, class_def_body, style_stmt_body, ClassDef};
-use crate::common::tokens::{identifier, skip, ws};
+use crate::common::tokens::{identifier, skip, unescape_unicode, ws};
 
 use super::ir::*;
 
@@ -292,7 +292,7 @@ fn parse_composite_state(
         "as".parse_next(input)?;
         ws.parse_next(input)?;
         let id = identifier.parse_next(input)?;
-        (Some(label.to_string()), id.to_string())
+        (Some(unescape_unicode(label)), id.to_string())
     } else {
         let id = identifier.parse_next(input)?;
         (None, id.to_string())
@@ -387,7 +387,7 @@ fn parse_state_decl(input: &mut &str) -> ModalResult<StateNode> {
         "as".parse_next(input)?;
         ws.parse_next(input)?;
         let id = identifier.parse_next(input)?;
-        (Some(label.to_string()), id.to_string())
+        (Some(unescape_unicode(label)), id.to_string())
     } else {
         let id = identifier.parse_next(input)?;
         (None, id.to_string())
@@ -415,7 +415,7 @@ fn parse_state_label(input: &mut &str) -> ModalResult<StateNode> {
     ':'.parse_next(input)?;
     ws.parse_next(input)?;
     let label = take_while(1.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
-    Ok(StateNode::new(id, StateKind::Normal).with_label(label.trim()))
+    Ok(StateNode::new(id, StateKind::Normal).with_label(&unescape_unicode(label.trim())))
 }
 
 /// Parse `A --> B` or `A --> B : label`.
@@ -431,7 +431,7 @@ fn parse_transition(input: &mut &str) -> ModalResult<StateTransition> {
     Ok(StateTransition {
         src: src.to_string(),
         dst: dst.to_string(),
-        label: label.map(|s| s.to_string()),
+        label: label.map(|s| unescape_unicode(s)),
     })
 }
 
