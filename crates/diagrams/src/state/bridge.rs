@@ -86,6 +86,8 @@ pub struct EdgeLayout {
     pub dst: String,
     pub points: Vec<(f64, f64)>,
     pub label: Option<String>,
+    /// Measured label dimensions (width, height) for background rect.
+    pub label_size: Option<(f64, f64)>,
 }
 
 /// Layout with the default text measurer.
@@ -235,6 +237,12 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 
             // Re-clip edge endpoints for non-rect shapes (diamond, circle).
             if points.len() >= 2 {
+                // Detect if center_bullseyes aligned all points to the same x.
+                let aligned_x = {
+                    let all_same = points.windows(2).all(|w| (w[0].0 - w[1].0).abs() < 0.5);
+                    if all_same { Some(points[0].0) } else { None }
+                };
+
                 let src_node = g.node(src).unwrap();
                 let src_shape = node_shape(&diagram.states, src_id);
                 let adj = points[1];
@@ -253,13 +261,28 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
                 ) {
                     points[last] = p;
                 }
+
+                // Restore x-alignment if center_bullseyes straightened this edge.
+                // Re-clipping against an inner pseudo-state (whose dagre position
+                // differs from the compound center) can introduce x-offset that
+                // would otherwise survive through Basis interpolation and compound
+                // boundary clipping.
+                if let Some(ax) = aligned_x {
+                    points[0].0 = ax;
+                    points[last].0 = ax;
+                }
             }
 
+            let label_size = transition.label.as_ref().map(|l| {
+                let edge_style = TextStyle { font_size: 12.0, ..style.clone() };
+                measurer.measure(l, &edge_style)
+            });
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
                 points,
                 label: transition.label.clone(),
+                label_size,
             });
         }
     }

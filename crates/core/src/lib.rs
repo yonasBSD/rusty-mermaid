@@ -12,6 +12,6 @@ pub use geometry::{intersect_circle, intersect_ellipse, intersect_polygon, inter
 pub use renderer::Renderer;
 pub use scene::{MarkerType, PathSegment, Primitive, Scene, TextAnchor, Transform};
 pub use shape::Shape;
-pub use style::{FontWeight, Style, TextStyle};
+pub use style::{FontWeight, Style, TextStyle, Theme};
 pub use text::{SimpleTextMeasure, TextMeasure};
 pub use types::{BBox, Color, Direction, Point};

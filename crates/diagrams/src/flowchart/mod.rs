@@ -4,24 +4,24 @@ pub mod parser;
 
 use rusty_mermaid_core::{
     BBox, Color, CurveType, MarkerType, PathSegment, Point, Primitive, Scene, Shape, Style,
-    TextAnchor, TextStyle, interpolate,
+    TextAnchor, TextStyle, Theme, interpolate,
 };
 
 use bridge::{LayoutResult, NodeLayout};
 use ir::{ArrowEnd, StrokeType};
 
-fn node_style() -> Style {
+fn node_style(theme: &Theme) -> Style {
     Style {
-        fill: Some(Color::WHITE),
-        stroke: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.node_fill),
+        stroke: Some(theme.node_stroke),
         stroke_width: Some(1.5),
         ..Default::default()
     }
 }
 
-fn edge_style(stroke: StrokeType) -> Style {
+fn edge_style(stroke: StrokeType, theme: &Theme) -> Style {
     Style {
-        stroke: Some(Color::rgb(51, 51, 51)),
+        stroke: Some(theme.edge_stroke),
         stroke_width: Some(match stroke {
             StrokeType::Thick => 3.5,
             _ => 1.5,
@@ -34,25 +34,25 @@ fn edge_style(stroke: StrokeType) -> Style {
     }
 }
 
-fn label_style() -> TextStyle {
+fn label_style(theme: &Theme) -> TextStyle {
     TextStyle {
-        fill: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.node_text),
         ..Default::default()
     }
 }
 
-fn edge_label_style() -> TextStyle {
+fn edge_label_style(theme: &Theme) -> TextStyle {
     TextStyle {
         font_size: 12.0,
-        fill: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.edge_label_text),
         ..Default::default()
     }
 }
 
-fn edge_label_bg_style() -> Style {
+fn edge_label_bg_style(theme: &Theme) -> Style {
     Style {
-        fill: Some(Color::rgb(232, 232, 232)),
-        stroke: Some(Color::rgb(232, 232, 232)),
+        fill: Some(theme.edge_label_bg),
+        stroke: Some(theme.edge_label_bg),
         stroke_width: Some(0.5),
         ..Default::default()
     }
@@ -60,30 +60,36 @@ fn edge_label_bg_style() -> Style {
 
 /// Convert a flowchart layout result into a Scene of drawing primitives.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
+    to_scene_themed(layout, &Theme::default())
+}
+
+/// Convert a flowchart layout result into a themed Scene.
+pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
-    layout_to_scene(layout, &mut scene);
+    scene.marker_color = Some(theme.edge_stroke);
+    layout_to_scene(layout, &mut scene, theme);
     scene
 }
 
-fn subgraph_style() -> Style {
+fn subgraph_style(theme: &Theme) -> Style {
     Style {
-        fill: Some(Color::rgb(236, 236, 236)),
-        stroke: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.subgraph_fill),
+        stroke: Some(theme.subgraph_stroke),
         stroke_width: Some(1.0),
         ..Default::default()
     }
 }
 
-fn subgraph_label_style() -> TextStyle {
+fn subgraph_label_style(theme: &Theme) -> TextStyle {
     TextStyle {
         font_size: 13.0,
-        fill: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.subgraph_label),
         font_weight: rusty_mermaid_core::FontWeight::Bold,
         ..Default::default()
     }
 }
 
-fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
+fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     // Draw subgraph boundaries first (behind nodes)
     for sg in &layout.subgraphs {
         let bbox = BBox::new(sg.x, sg.y, sg.width, sg.height);
@@ -91,7 +97,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             bbox,
             rx: 5.0,
             ry: 5.0,
-            style: subgraph_style(),
+            style: subgraph_style(theme),
         });
         if let Some(label) = &sg.label {
             let top_y = sg.y - sg.height / 2.0;
@@ -100,7 +106,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 position: Point::new(left_x + 8.0, top_y + 12.0),
                 content: label.clone(),
                 anchor: TextAnchor::Start,
-                style: subgraph_label_style(),
+                style: subgraph_label_style(theme),
             });
         }
     }
@@ -124,7 +130,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 ArrowEnd::None => None,
             };
 
-            let mut estyle = edge_style(edge.stroke);
+            let mut estyle = edge_style(edge.stroke, theme);
             if let Some(custom) = &edge.custom_style {
                 if custom.stroke.is_some() { estyle.stroke = custom.stroke; }
                 if custom.stroke_width.is_some() { estyle.stroke_width = custom.stroke_width; }
@@ -149,21 +155,21 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                         bbox: BBox::new(mid.x, mid.y, lw + pad * 2.0, lh + pad * 2.0),
                         rx: 2.0,
                         ry: 2.0,
-                        style: edge_label_bg_style(),
+                        style: edge_label_bg_style(theme),
                     });
                 }
                 scene.push(Primitive::Text {
                     position: *mid,
                     content: label.clone(),
                     anchor: TextAnchor::Middle,
-                    style: edge_label_style(),
+                    style: edge_label_style(theme),
                 });
             }
         }
     }
 
     for node in &layout.nodes {
-        render_node(node, scene);
+        render_node(node, scene, theme);
     }
 }
 
@@ -172,8 +178,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
 // ---------------------------------------------------------------------------
 
 /// Merge a node's custom style (from classDef/style/:::class) onto the defaults.
-fn merge_node_style(node: &NodeLayout) -> Style {
-    let mut style = node_style();
+fn merge_node_style(node: &NodeLayout, theme: &Theme) -> Style {
+    let mut style = node_style(theme);
     if let Some(custom) = &node.custom_style {
         if custom.fill.is_some() {
             style.fill = custom.fill;
@@ -194,8 +200,8 @@ fn merge_node_style(node: &NodeLayout) -> Style {
     style
 }
 
-fn render_node(node: &NodeLayout, scene: &mut Scene) {
-    let style = merge_node_style(node);
+fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    let style = merge_node_style(node, theme);
     let node_fill = style.fill;
     let cx = node.x;
     let cy = node.y;
@@ -303,7 +309,7 @@ fn render_node(node: &NodeLayout, scene: &mut Scene) {
     };
 
     // Pick text color that contrasts with the node fill.
-    let mut lstyle = label_style();
+    let mut lstyle = label_style(theme);
     if let Some(fill) = node_fill {
         let lum = fill.luminance();
         if lum < 0.4 {

@@ -4,22 +4,22 @@ pub mod parser;
 
 use rusty_mermaid_core::{
     BBox, Color, CurveType, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle,
-    interpolate,
+    Theme, interpolate,
 };
 
 use bridge::{LayoutResult, NodeLayout, NodeShape};
 
-fn node_style() -> Style {
+fn node_style(theme: &Theme) -> Style {
     Style {
-        fill: Some(Color::WHITE),
-        stroke: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.node_fill),
+        stroke: Some(theme.node_stroke),
         stroke_width: Some(1.5),
         ..Default::default()
     }
 }
 
-fn merge_node_style(node: &NodeLayout) -> Style {
-    let mut style = node_style();
+fn merge_node_style(node: &NodeLayout, theme: &Theme) -> Style {
+    let mut style = node_style(theme);
     if let Some(custom) = &node.custom_style {
         if custom.fill.is_some() { style.fill = custom.fill; }
         if custom.stroke.is_some() { style.stroke = custom.stroke; }
@@ -30,29 +30,35 @@ fn merge_node_style(node: &NodeLayout) -> Style {
     style
 }
 
-fn label_style() -> TextStyle {
+fn label_style(theme: &Theme) -> TextStyle {
     TextStyle {
-        fill: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.node_text),
         ..Default::default()
     }
 }
 
 /// Convert a state diagram layout result into a Scene of drawing primitives.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
+    to_scene_themed(layout, &Theme::default())
+}
+
+/// Convert a state diagram layout result into a themed Scene.
+pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
-    layout_to_scene(layout, &mut scene);
+    scene.marker_color = Some(theme.edge_stroke);
+    layout_to_scene(layout, &mut scene, theme);
     scene
 }
 
-fn edge_label_style() -> TextStyle {
+fn edge_label_style(theme: &Theme) -> TextStyle {
     TextStyle {
         font_size: 12.0,
-        fill: Some(Color::rgb(51, 51, 51)),
+        fill: Some(theme.edge_label_text),
         ..Default::default()
     }
 }
 
-fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
+fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     let compounds: Vec<&NodeLayout> = layout.nodes.iter().filter(|n| n.is_compound).collect();
 
     // Render compound (container) nodes first so children draw on top
@@ -62,11 +68,24 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
         let right = node.x + node.width / 2.0;
         let top = node.y - node.height / 2.0;
 
+        let mut cstyle = Style {
+            fill: Some(theme.composite_fill),
+            stroke: Some(theme.composite_stroke),
+            stroke_width: Some(1.5),
+            ..Default::default()
+        };
+        if let Some(custom) = &node.custom_style {
+            if custom.fill.is_some() { cstyle.fill = custom.fill; }
+            if custom.stroke.is_some() { cstyle.stroke = custom.stroke; }
+            if custom.stroke_width.is_some() { cstyle.stroke_width = custom.stroke_width; }
+            if custom.stroke_dasharray.is_some() { cstyle.stroke_dasharray = custom.stroke_dasharray.clone(); }
+            if custom.opacity.is_some() { cstyle.opacity = custom.opacity; }
+        }
         scene.push(Primitive::Rect {
             bbox,
             rx: 5.0,
             ry: 5.0,
-            style: merge_node_style(node),
+            style: cstyle,
         });
 
         // Compound label at the top of the box
@@ -75,7 +94,10 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             position: Point::new(node.x, label_y),
             content: node.label.clone(),
             anchor: TextAnchor::Middle,
-            style: label_style(),
+            style: TextStyle {
+                fill: Some(theme.composite_label),
+                ..Default::default()
+            },
         });
 
         // Header separator line below the label
@@ -86,7 +108,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 PathSegment::LineTo(Point::new(right, sep_y)),
             ],
             style: Style {
-                stroke: Some(Color::rgb(51, 51, 51)),
+                stroke: Some(theme.composite_stroke),
                 stroke_width: Some(1.0),
                 ..Default::default()
             },
@@ -94,7 +116,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             marker_end: None,
         });
     }
-    // Render concurrent region dashed rectangles (no fill — theming handled separately)
+    // Render concurrent region dashed rectangles
     for rr in &layout.region_rects {
         scene.push(Primitive::Rect {
             bbox: BBox::new(
@@ -107,7 +129,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             ry: 0.0,
             style: Style {
                 fill: Some(Color::TRANSPARENT),
-                stroke: Some(Color::rgb(128, 128, 128)),
+                stroke: Some(theme.region_stroke),
                 stroke_width: Some(0.5),
                 stroke_dasharray: Some(vec![10.0, 10.0]),
                 ..Default::default()
@@ -128,18 +150,37 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             let label_pos = path_midpoint(&segments);
             scene.push(Primitive::Path {
                 segments,
-                style: Style::default(),
+                style: Style {
+                    stroke: Some(theme.edge_stroke),
+                    stroke_width: Some(1.5),
+                    ..Default::default()
+                },
                 marker_start: None,
                 marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
             });
             if let Some(label) = &edge.label {
                 let mid = label_pos
                     .unwrap_or(points[points.len() / 2]);
+                // Background rect behind label for readability
+                if let Some((lw, lh)) = edge.label_size {
+                    let pad = 4.0;
+                    scene.push(Primitive::Rect {
+                        bbox: BBox::new(mid.x, mid.y, lw + pad * 2.0, lh + pad * 2.0),
+                        rx: 2.0,
+                        ry: 2.0,
+                        style: Style {
+                            fill: Some(theme.edge_label_bg),
+                            stroke: Some(theme.edge_label_bg),
+                            stroke_width: Some(0.5),
+                            ..Default::default()
+                        },
+                    });
+                }
                 scene.push(Primitive::Text {
                     position: mid,
                     content: label.clone(),
                     anchor: TextAnchor::Middle,
-                    style: edge_label_style(),
+                    style: edge_label_style(theme),
                 });
             }
         }
@@ -153,8 +194,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     center: Point::new(node.x, node.y),
                     radius: node.width / 2.0,
                     style: Style {
-                        fill: Some(Color::rgb(51, 51, 51)),
-                        stroke: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(theme.start_fill),
+                        stroke: Some(theme.start_fill),
                         ..Default::default()
                     },
                 });
@@ -165,8 +206,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     center: Point::new(node.x, node.y),
                     radius: r,
                     style: Style {
-                        fill: None,
-                        stroke: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(Color::TRANSPARENT),
+                        stroke: Some(theme.node_stroke),
                         stroke_width: Some(1.5),
                         ..Default::default()
                     },
@@ -175,7 +216,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     center: Point::new(node.x, node.y),
                     radius: r - 4.0,
                     style: Style {
-                        fill: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(theme.end_inner_fill),
                         ..Default::default()
                     },
                 });
@@ -186,8 +227,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     rx: 0.0,
                     ry: 0.0,
                     style: Style {
-                        fill: Some(Color::rgb(51, 51, 51)),
-                        stroke: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(theme.start_fill),
+                        stroke: Some(theme.start_fill),
                         ..Default::default()
                     },
                 });
@@ -202,7 +243,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                         Point::new(node.x, node.y + hh),
                         Point::new(node.x - hw, node.y),
                     ],
-                    style: merge_node_style(node),
+                    style: merge_node_style(node, theme),
                 });
             }
             NodeShape::NoteRect => {
@@ -211,8 +252,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     rx: 0.0,
                     ry: 0.0,
                     style: Style {
-                        fill: Some(Color::rgb(255, 255, 204)),
-                        stroke: Some(Color::rgb(170, 170, 51)),
+                        fill: Some(theme.note_fill),
+                        stroke: Some(theme.note_stroke),
                         stroke_width: Some(1.0),
                         ..Default::default()
                     },
@@ -223,7 +264,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     anchor: TextAnchor::Middle,
                     style: TextStyle {
                         font_size: 12.0,
-                        fill: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(theme.note_text),
                         ..Default::default()
                     },
                 });
@@ -234,8 +275,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     center: Point::new(node.x, node.y),
                     radius: r,
                     style: Style {
-                        fill: Some(Color::WHITE),
-                        stroke: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(theme.composite_fill),
+                        stroke: Some(theme.node_stroke),
                         stroke_width: Some(1.5),
                         ..Default::default()
                     },
@@ -246,13 +287,13 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     anchor: TextAnchor::Middle,
                     style: TextStyle {
                         font_size: 12.0,
-                        fill: Some(Color::rgb(51, 51, 51)),
+                        fill: Some(theme.node_text),
                         ..Default::default()
                     },
                 });
             }
             NodeShape::RoundedRect => {
-                let style = merge_node_style(node);
+                let style = merge_node_style(node, theme);
                 let node_fill = style.fill;
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(node.x, node.y, node.width, node.height),
@@ -260,7 +301,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                     ry: 5.0,
                     style,
                 });
-                let mut lstyle = label_style();
+                let mut lstyle = label_style(theme);
                 if let Some(fill) = node_fill {
                     let lum = fill.luminance();
                     if lum < 0.4 {
@@ -287,7 +328,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 PathSegment::LineTo(Point::new(div.x2, div.y2)),
             ],
             style: Style {
-                stroke: Some(Color::rgb(128, 128, 128)),
+                stroke: Some(theme.divider_stroke),
                 stroke_width: Some(1.0),
                 stroke_dasharray: Some(vec![3.0]),
                 ..Default::default()

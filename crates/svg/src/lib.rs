@@ -26,8 +26,13 @@ impl Renderer for SvgRenderer {
         // Emit marker defs if any paths use markers
         let markers = collect_markers(&scene.primitives);
         if !markers.is_empty() {
+            let color = scene
+                .marker_color
+                .as_ref()
+                .map(|c| c.to_string())
+                .unwrap_or_else(|| "#333333".to_string());
             doc.open_tag("defs", &[]);
-            doc.raw(&marker_defs(&markers));
+            doc.raw(&marker_defs(&markers, &color));
             doc.close_tag("defs");
         }
 

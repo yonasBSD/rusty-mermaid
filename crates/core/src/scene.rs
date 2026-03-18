@@ -1,4 +1,4 @@
-use crate::{BBox, Point, Style, TextStyle};
+use crate::{BBox, Color, Point, Style, TextStyle};
 
 /// Backend-agnostic drawing output. The contract between layout and rendering.
 #[derive(Debug, Clone)]
@@ -6,6 +6,7 @@ pub struct Scene {
     pub width: f64,
     pub height: f64,
     pub primitives: Vec<Primitive>,
+    pub marker_color: Option<Color>,
 }
 
 impl Scene {
@@ -14,6 +15,7 @@ impl Scene {
             width,
             height,
             primitives: Vec::new(),
+            marker_color: None,
         }
     }
 
