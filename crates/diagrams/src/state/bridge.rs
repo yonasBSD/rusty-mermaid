@@ -21,9 +21,9 @@ const FORK_JOIN_HEIGHT: f64 = 7.0;
 const CHOICE_SIZE: f64 = 28.0;
 const NOTE_PADDING: f64 = 10.0;
 /// Extra height added above compound nodes for the title + separator header.
-/// Dagre doesn't know about the header, so without this the first inner
-/// child overlaps the separator line.
-const COMPOUND_HEADER_HEIGHT: f64 = 4.0;
+/// With a 24px header, dagre's natural compound padding provides enough room
+/// so no additional extension is needed (previously 4.0 with a 28px header).
+const COMPOUND_HEADER_HEIGHT: f64 = 0.0;
 
 /// Layout result: node positions and edge points.
 #[derive(Debug)]
@@ -155,13 +155,20 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         max_y = max_y.max(note_y + note_h / 2.0);
     }
 
-    // Extend compound rects upward to make room for the title + separator
-    // header.  Dagre doesn't know about the header, so without this the
-    // first inner child circle overlaps the separator line.
+    // Adjust compound rects: extend height for header, expand width for label.
+    // Dagre sizes compounds from border nodes (children) and doesn't account
+    // for the header label text, so short labels like "A" are fine but longer
+    // labels like "Placeholder" can overflow the box.
     for node in &mut nodes {
         if node.is_compound {
             node.height += COMPOUND_HEADER_HEIGHT;
             node.y -= COMPOUND_HEADER_HEIGHT / 2.0;
+
+            let (label_w, _) = measurer.measure(&node.label, &style);
+            let min_width = label_w + 20.0; // 10px padding each side
+            if node.width < min_width {
+                node.width = min_width;
+            }
         }
     }
 
@@ -258,7 +265,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         if node.region_count < 2 {
             continue;
         }
-        let compound_top = node.y - node.height / 2.0 + 28.0; // below header
+        let compound_top = node.y - node.height / 2.0 + 24.0; // below header
         let compound_bottom = node.y + node.height / 2.0;
         let compound_left = node.x - node.width / 2.0;
         let compound_right = node.x + node.width / 2.0;

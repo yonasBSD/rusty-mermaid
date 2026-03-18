@@ -54,7 +54,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         });
 
         // Compound label at the top of the box
-        let label_y = top + 14.0;
+        let label_y = top + 12.0;
         scene.push(Primitive::Text {
             position: Point::new(node.x, label_y),
             content: node.label.clone(),
@@ -66,7 +66,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         });
 
         // Header separator line below the label
-        let sep_y = top + 28.0;
+        let sep_y = top + 24.0;
         scene.push(Primitive::Path {
             segments: vec![
                 PathSegment::MoveTo(Point::new(left, sep_y)),
@@ -309,6 +309,12 @@ fn clip_path_at_rect(
         }
         (Some(f), Some(l)) if inside(&f) && !inside(&l) => {
             clip_path_exiting(segments, left, right, top, bottom)
+        }
+        (Some(f), Some(l)) if inside(&f) && inside(&l) => {
+            // U-turn: path exits the compound and re-enters.
+            // Keep the start (bullseye connection), clip at re-entry so the
+            // arrow tip touches the compound boundary instead of penetrating.
+            clip_path_entering(segments, left, right, top, bottom)
         }
         _ => segments.to_vec(),
     }
