@@ -47,13 +47,13 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
 "##
         ),
         MarkerType::Circle => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
   <circle cx="5" cy="5" r="4" fill="{color}" />
 </marker>
 "##
         ),
         MarkerType::Cross => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
   <path d="M2 2 L8 8 M8 2 L2 8" stroke="{color}" stroke-width="1.5" />
 </marker>
 "##
