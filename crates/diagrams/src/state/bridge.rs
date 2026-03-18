@@ -47,6 +47,7 @@ pub enum NodeShape {
     ForkJoinBar,
     ChoiceDiamond,
     NoteRect,
+    HistoryCircle,
 }
 
 #[derive(Debug)]
@@ -317,6 +318,7 @@ fn node_shape(states: &[super::ir::StateNode], id: &str) -> NodeShape {
         Some(StateKind::Choice) => NodeShape::ChoiceDiamond,
         Some(StateKind::Start) => NodeShape::StartCircle,
         Some(StateKind::End) => NodeShape::EndBullseye,
+        Some(StateKind::History) => NodeShape::HistoryCircle,
         _ => NodeShape::RoundedRect,
     }
 }
@@ -459,7 +461,8 @@ fn add_scope<'a>(
 
                 continue; // already added the node
             }
-            StateKind::Normal | StateKind::History => {
+            StateKind::History => (START_END_SIZE, START_END_SIZE),
+            StateKind::Normal => {
                 let text = s.label.as_deref().unwrap_or(&s.id);
                 let (tw, th) = measurer.measure(text, style);
                 (tw + PADDING_X * 2.0, th + PADDING_Y * 2.0)
@@ -775,6 +778,18 @@ mod tests {
 
         let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
         assert_eq!(a.shape, NodeShape::RoundedRect);
+    }
+
+    #[test]
+    fn history_state_shape_is_circle() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    state h1 <<history>>\n    [*] --> h1\n    h1 --> A"
+        ).unwrap();
+        let result = layout(&d);
+        let h = result.nodes.iter().find(|n| n.id == "h1").unwrap();
+        assert_eq!(h.shape, NodeShape::HistoryCircle);
+        // Should be sized like start/end circles
+        assert!((h.width - 16.0).abs() < 1.0);
     }
 
     #[test]

@@ -66,7 +66,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
             bbox,
             rx: 5.0,
             ry: 5.0,
-            style: node_style(),
+            style: merge_node_style(node),
         });
 
         // Compound label at the top of the box
@@ -197,6 +197,29 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene) {
                 scene.push(Primitive::Text {
                     position: Point::new(node.x, node.y),
                     content: node.label.clone(),
+                    anchor: TextAnchor::Middle,
+                    style: TextStyle {
+                        font_size: 12.0,
+                        fill: Some(Color::rgb(51, 51, 51)),
+                        ..Default::default()
+                    },
+                });
+            }
+            NodeShape::HistoryCircle => {
+                let r = node.width / 2.0;
+                scene.push(Primitive::Circle {
+                    center: Point::new(node.x, node.y),
+                    radius: r,
+                    style: Style {
+                        fill: Some(Color::WHITE),
+                        stroke: Some(Color::rgb(51, 51, 51)),
+                        stroke_width: Some(1.5),
+                        ..Default::default()
+                    },
+                });
+                scene.push(Primitive::Text {
+                    position: Point::new(node.x, node.y),
+                    content: "H".to_string(),
                     anchor: TextAnchor::Middle,
                     style: TextStyle {
                         font_size: 12.0,

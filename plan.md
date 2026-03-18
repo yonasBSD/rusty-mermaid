@@ -781,23 +781,38 @@ Phase 6: state diagram feature parity
   [ ] 6.8r ── visual review ──
 
 Phase 7: text measurement
-  [ ] 7.1  Font metrics table: embed width table for default monospace
+  [x] 7.1  Font metrics table: embed width table for default monospace
             font (Intel One Mono or fallback). Per-glyph widths for
             ASCII, average for non-ASCII. Replace char-counting.
-  [ ] 7.2  Multi-line measurement: properly handle line breaks,
+  [x] 7.2  Multi-line measurement: properly handle line breaks,
             return (max_line_width, n_lines * line_height)
-  [ ] 7.3  HTML-aware measurement: strip tags but respect <br/> for
+  [x] 7.3  HTML-aware measurement: strip tags but respect <br/> for
             height; ignore <b>/<i> width differences (monospace)
-  [ ] 7.4  Validate: compare layout positions before/after on all
+  [x] 7.4  Validate: compare layout positions before/after on all
             gallery .mmd files; ensure no regressions > 2px
   [ ] 7.4r ── visual review ──
 
 Phase 8: curve interpolation (remaining)
-  [ ] 8.1  Cardinal spline interpolation
-  [ ] 8.2  CatmullRom interpolation
-  [ ] 8.3  MonotoneX / MonotoneY interpolation
-  [ ] 8.4  Natural cubic spline interpolation
+  [x] 8.1  Cardinal spline interpolation
+  [x] 8.2  CatmullRom interpolation
+  [x] 8.3  MonotoneX / MonotoneY interpolation
+  [x] 8.4  Natural cubic spline interpolation
   [ ] 8.4r ── visual review ──
+
+Phase 8b: compatibility fixes
+  [x] 8b.1 Compound states: apply custom styles (was hardcoded node_style())
+  [x] 8b.2 State top-level `direction` keyword: wire to diagram (was discarded)
+  [x] 8b.3 History state: render as circle with "H" (was plain rect)
+  [x] 8b.4 Flowchart minlen: cap at 10 (mermaid.js parity)
+
+Known limitations (acceptable, not blocking):
+  [-] `@{shape: name}` block property syntax (mermaid v11, large parser addition)
+  [-] Invisible edge stroke (`~`) — rarely used layout hint
+  [-] Edge CSS animation — browser-only, not relevant to static SVG
+  [-] Compound edge clipping on spline curves — clips pre-interpolation,
+      spline may visually enter compound border; minor visual edge case
+  [-] `<br/>` in node labels not converted to newline in SVG renderer
+      (HTML tags stripped for measurement but not rendered as line breaks)
 
 Phase 9: remaining diagrams + gpui                    (discuss plan separately)
   [ ] 9.x  class, ER, sequence, gantt, pie, mindmap, etc.

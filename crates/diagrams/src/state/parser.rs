@@ -32,6 +32,7 @@ fn parse_state_diagram(input: &mut &str) -> ModalResult<StateDiagram> {
         &mut diagram.notes,
         &mut diagram.class_defs,
         &mut diagram.style_stmts,
+        Some(&mut diagram.direction),
     )?;
     Ok(diagram)
 }
@@ -52,13 +53,14 @@ fn parse_body(
     notes: &mut Vec<StateNote>,
     class_defs: &mut Vec<ClassDef>,
     style_stmts: &mut Vec<StateStyleStmt>,
+    mut direction: Option<&mut Direction>,
 ) -> ModalResult<()> {
     loop {
         skip.parse_next(input)?;
         if input.is_empty() || input.starts_with('}') {
             break;
         }
-        if !try_parse_statement(input, states, transitions, notes, class_defs, style_stmts)? {
+        if !try_parse_statement(input, states, transitions, notes, class_defs, style_stmts, direction.as_deref_mut())? {
             // Skip unrecognized character
             if !input.is_empty() {
                 *input = &input[1..];
@@ -76,6 +78,7 @@ fn try_parse_statement(
     notes: &mut Vec<StateNote>,
     class_defs: &mut Vec<ClassDef>,
     style_stmts: &mut Vec<StateStyleStmt>,
+    direction: Option<&mut Direction>,
 ) -> ModalResult<bool> {
     // Try classDef
     if input.starts_with("classDef") {
@@ -119,7 +122,9 @@ fn try_parse_statement(
 
     // Try direction statement
     if let Some(dir) = opt(parse_direction_stmt).parse_next(input)? {
-        let _ = dir;
+        if let Some(d) = direction {
+            *d = dir;
+        }
         return Ok(true);
     }
 
@@ -334,7 +339,7 @@ fn parse_composite_state(
             continue;
         }
 
-        if !try_parse_statement(input, &mut region_children, &mut region_trans, &mut notes, class_defs, style_stmts)? {
+        if !try_parse_statement(input, &mut region_children, &mut region_trans, &mut notes, class_defs, style_stmts, None)? {
             if !input.is_empty() {
                 *input = &input[1..];
             }
@@ -548,6 +553,20 @@ mod tests {
         } else {
             panic!("expected composite");
         }
+    }
+
+    #[test]
+    fn parse_top_level_direction() {
+        let input = "stateDiagram-v2\n    direction LR\n    A --> B";
+        let d = parse(input).unwrap();
+        assert_eq!(d.direction, Direction::LR);
+    }
+
+    #[test]
+    fn parse_direction_defaults_to_tb() {
+        let input = "stateDiagram-v2\n    A --> B";
+        let d = parse(input).unwrap();
+        assert_eq!(d.direction, Direction::TB);
     }
 
     #[test]
