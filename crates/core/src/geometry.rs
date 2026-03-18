@@ -275,4 +275,273 @@ mod tests {
         );
         assert!(hit.is_none());
     }
+
+    // ── Circle edge cases ──
+
+    #[test]
+    fn circle_zero_radius() {
+        // Zero-radius circle collapses to center point
+        let p = intersect_circle(Point::new(5.0, 5.0), 0.0, Point::new(100.0, 5.0));
+        assert_point_near(p, Point::new(5.0, 5.0));
+    }
+
+    #[test]
+    fn circle_point_at_center_returns_right() {
+        // Degenerate ray: point == center, falls back to (center.x + r, center.y)
+        let center = Point::new(0.0, 0.0);
+        let p = intersect_circle(center, 25.0, center);
+        assert_point_near(p, Point::new(25.0, 0.0));
+    }
+
+    #[test]
+    fn circle_point_on_boundary() {
+        // Point exactly on boundary — result should equal the point itself
+        let center = Point::new(0.0, 0.0);
+        let r = 50.0;
+        let boundary = Point::new(50.0, 0.0);
+        let p = intersect_circle(center, r, boundary);
+        assert_point_near(p, boundary);
+    }
+
+    #[test]
+    fn circle_point_on_boundary_diagonal() {
+        let center = Point::new(0.0, 0.0);
+        let r = 50.0;
+        let c = r / 2.0_f64.sqrt();
+        let boundary = Point::new(c, c);
+        let p = intersect_circle(center, r, boundary);
+        assert_point_near(p, boundary);
+    }
+
+    #[test]
+    fn circle_axis_aligned_left() {
+        let p = intersect_circle(Point::new(0.0, 0.0), 30.0, Point::new(-100.0, 0.0));
+        assert_point_near(p, Point::new(-30.0, 0.0));
+    }
+
+    #[test]
+    fn circle_axis_aligned_up() {
+        let p = intersect_circle(Point::new(0.0, 0.0), 30.0, Point::new(0.0, -100.0));
+        assert_point_near(p, Point::new(0.0, -30.0));
+    }
+
+    #[test]
+    fn circle_axis_aligned_down() {
+        let p = intersect_circle(Point::new(0.0, 0.0), 30.0, Point::new(0.0, 100.0));
+        assert_point_near(p, Point::new(0.0, 30.0));
+    }
+
+    // ── Rect edge cases ──
+
+    #[test]
+    fn rect_axis_aligned_left() {
+        let bbox = BBox::new(0.0, 0.0, 100.0, 60.0);
+        let p = intersect_rect(&bbox, Point::new(-200.0, 0.0));
+        assert_point_near(p, Point::new(-50.0, 0.0));
+    }
+
+    #[test]
+    fn rect_axis_aligned_bottom() {
+        let bbox = BBox::new(0.0, 0.0, 100.0, 60.0);
+        let p = intersect_rect(&bbox, Point::new(0.0, 200.0));
+        assert_point_near(p, Point::new(0.0, 30.0));
+    }
+
+    #[test]
+    fn rect_large_coordinates() {
+        let bbox = BBox::new(1e8, 1e8, 100.0, 60.0);
+        let p = intersect_rect(&bbox, Point::new(1e8 + 200.0, 1e8));
+        assert_point_near(p, Point::new(1e8 + 50.0, 1e8));
+    }
+
+    #[test]
+    fn rect_very_close_point() {
+        // Point barely to the right of center — still a valid horizontal ray
+        let bbox = BBox::new(0.0, 0.0, 100.0, 60.0);
+        let p = intersect_rect(&bbox, Point::new(1e-12, 0.0));
+        // dx=1e-12 > EPSILON, dy=0 → pure horizontal ray hits right edge
+        assert_point_near(p, Point::new(50.0, 0.0));
+    }
+
+    // ── Ellipse edge cases ──
+
+    #[test]
+    fn ellipse_point_at_center() {
+        // Degenerate ray falls back to (center.x + rx, center.y)
+        let center = Point::new(10.0, 20.0);
+        let p = intersect_ellipse(center, 80.0, 40.0, center);
+        assert_point_near(p, Point::new(90.0, 20.0));
+    }
+
+    #[test]
+    fn ellipse_axis_aligned_left() {
+        let p = intersect_ellipse(Point::new(0.0, 0.0), 80.0, 40.0, Point::new(-200.0, 0.0));
+        assert_point_near(p, Point::new(-80.0, 0.0));
+    }
+
+    #[test]
+    fn ellipse_axis_aligned_bottom() {
+        let p = intersect_ellipse(Point::new(0.0, 0.0), 80.0, 40.0, Point::new(0.0, 200.0));
+        assert_point_near(p, Point::new(0.0, 40.0));
+    }
+
+    #[test]
+    fn ellipse_large_coordinates() {
+        let center = Point::new(1e8, 1e8);
+        let p = intersect_ellipse(center, 80.0, 40.0, Point::new(1e8 + 200.0, 1e8));
+        assert_point_near(p, Point::new(1e8 + 80.0, 1e8));
+    }
+
+    // ── Polygon edge cases ──
+
+    #[test]
+    fn polygon_axis_aligned_up() {
+        let verts = [
+            Point::new(50.0, 0.0),
+            Point::new(0.0, 50.0),
+            Point::new(-50.0, 0.0),
+            Point::new(0.0, -50.0),
+        ];
+        let center = Point::new(0.0, 0.0);
+        let p = intersect_polygon(&verts, center, Point::new(0.0, -100.0));
+        assert_point_near(p, Point::new(0.0, -50.0));
+    }
+
+    #[test]
+    fn polygon_axis_aligned_left() {
+        let verts = [
+            Point::new(50.0, 0.0),
+            Point::new(0.0, 50.0),
+            Point::new(-50.0, 0.0),
+            Point::new(0.0, -50.0),
+        ];
+        let center = Point::new(0.0, 0.0);
+        let p = intersect_polygon(&verts, center, Point::new(-100.0, 0.0));
+        assert_point_near(p, Point::new(-50.0, 0.0));
+    }
+
+    #[test]
+    fn polygon_large_coordinates() {
+        let offset = 1e8;
+        let verts = [
+            Point::new(offset + 50.0, offset),
+            Point::new(offset, offset + 50.0),
+            Point::new(offset - 50.0, offset),
+            Point::new(offset, offset - 50.0),
+        ];
+        let center = Point::new(offset, offset);
+        let target = Point::new(offset + 200.0, offset);
+        let p = intersect_polygon(&verts, center, target);
+        assert_point_near(p, Point::new(offset + 50.0, offset));
+    }
+
+    #[test]
+    fn polygon_ray_from_center_coincident_with_target() {
+        // Target == center: ray has no direction, should return target as fallback
+        let verts = [
+            Point::new(50.0, 0.0),
+            Point::new(0.0, 50.0),
+            Point::new(-50.0, 0.0),
+            Point::new(0.0, -50.0),
+        ];
+        let center = Point::new(0.0, 0.0);
+        // segment_ray_intersect will have zero-length ray direction → denom ~ 0 → all None
+        // intersect_polygon returns target as fallback
+        let p = intersect_polygon(&verts, center, center);
+        assert_point_near(p, center);
+    }
+
+    #[test]
+    fn polygon_triangle() {
+        let verts = [
+            Point::new(0.0, -30.0),
+            Point::new(30.0, 30.0),
+            Point::new(-30.0, 30.0),
+        ];
+        let center = Point::new(0.0, 0.0);
+        let p = intersect_polygon(&verts, center, Point::new(0.0, -100.0));
+        assert_point_near(p, Point::new(0.0, -30.0));
+    }
+
+    #[test]
+    #[should_panic(expected = "polygon needs at least 3 vertices")]
+    fn polygon_degenerate_two_points() {
+        let verts = [Point::new(0.0, 0.0), Point::new(10.0, 10.0)];
+        let center = Point::new(5.0, 0.0);
+        let target = Point::new(20.0, 0.0);
+        intersect_polygon(&verts, center, target);
+    }
+
+    #[test]
+    #[should_panic(expected = "polygon needs at least 3 vertices")]
+    fn polygon_degenerate_single_point() {
+        let verts = [Point::new(0.0, 0.0)];
+        let center = Point::new(5.0, 0.0);
+        let target = Point::new(20.0, 0.0);
+        intersect_polygon(&verts, center, target);
+    }
+
+    // ── Segment-ray edge cases ──
+
+    #[test]
+    fn segment_ray_nearly_coincident_points() {
+        // Ray origin and target are nearly the same point
+        let hit = segment_ray_intersect(
+            Point::new(-10.0, -5.0),
+            Point::new(10.0, -5.0),
+            Point::new(0.0, 0.0),
+            Point::new(0.0, 1e-15),
+        );
+        // Direction is essentially zero → denom ~ 0 → None
+        assert!(hit.is_none());
+    }
+
+    #[test]
+    fn segment_ray_exact_endpoint_hit() {
+        // Ray aimed exactly at segment endpoint
+        let hit = segment_ray_intersect(
+            Point::new(10.0, 0.0),
+            Point::new(10.0, 10.0),
+            Point::new(0.0, 0.0),
+            Point::new(10.0, 0.0),
+        );
+        // t=0 (start of segment), u>0 → should hit
+        assert!(hit.is_some());
+        assert_point_near(hit.unwrap(), Point::new(10.0, 0.0));
+    }
+
+    #[test]
+    fn segment_ray_large_coordinates() {
+        let offset = 1e8;
+        let hit = segment_ray_intersect(
+            Point::new(offset + 10.0, offset - 5.0),
+            Point::new(offset + 10.0, offset + 5.0),
+            Point::new(offset, offset),
+            Point::new(offset + 100.0, offset),
+        );
+        assert!(hit.is_some());
+        assert_point_near(hit.unwrap(), Point::new(offset + 10.0, offset));
+    }
+
+    // ── Circle: large coordinates ──
+
+    #[test]
+    fn circle_large_coordinates() {
+        let center = Point::new(1e8, 1e8);
+        let p = intersect_circle(center, 50.0, Point::new(1e8 + 200.0, 1e8));
+        assert_point_near(p, Point::new(1e8 + 50.0, 1e8));
+    }
+
+    // ── Circle: very close point (nearly coincident, but not exactly) ──
+
+    #[test]
+    fn circle_very_close_point() {
+        // Point extremely close to center but not exactly at center
+        let center = Point::new(0.0, 0.0);
+        let r = 50.0;
+        let tiny = 1e-10;
+        let p = intersect_circle(center, r, Point::new(tiny, 0.0));
+        // Should normalize the direction and project to boundary
+        assert_point_near(p, Point::new(r, 0.0));
+    }
 }
