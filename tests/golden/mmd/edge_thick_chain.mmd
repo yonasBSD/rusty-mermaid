@@ -1,0 +1,6 @@
+flowchart LR
+    A[Ingress] ==> B[Load Balancer]
+    B ==> C[App Server]
+    C ==> D[Database]
+    D ==>|response| C
+    C ==>|response| A

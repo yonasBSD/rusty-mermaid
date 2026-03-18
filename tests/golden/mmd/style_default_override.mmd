@@ -1,0 +1,9 @@
+flowchart TD
+    A[Gets Default] --> B[Gets Default]
+    B --> C[Overridden]
+    C --> D[Also Overridden]
+    D --> E[Back to Default]
+
+    classDef default fill:#e8e8e8,stroke:#999,stroke-width:1px,color:#333
+    classDef special fill:#4caf50,stroke:#2e7d32,stroke-width:3px,color:#fff
+    class C,D special

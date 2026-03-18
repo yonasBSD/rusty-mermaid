@@ -1,0 +1,11 @@
+flowchart TD
+    A[Node A] <--> B[Node B]
+    C[Node C] <-.-> D[Node D]
+    E[Node E] <==> F[Node F]
+    A <--> C
+    B <-.-> D
+    C <==> E
+    %% With labels
+    G[Peer 1] <-->|sync| H[Peer 2]
+    H <-.->|heartbeat| I[Peer 3]
+    I <==>|replicate| G

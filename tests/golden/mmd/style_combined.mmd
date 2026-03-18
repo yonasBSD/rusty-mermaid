@@ -1,0 +1,11 @@
+flowchart TD
+    A[ClassDef Applied]:::highlight --> B[Inline Styled]
+    B --> C[Class Statement]
+    C --> D[Unstyled Node]
+    D --> E[Mixed]:::dimmed
+
+    classDef highlight fill:#f9f,stroke:#333,stroke-width:4px
+    classDef dimmed fill:#eee,stroke:#999,color:#666
+    class C highlight
+    style B fill:#bbf,stroke:#00f,stroke-width:2px
+    style E fill:#ffa,stroke:#aa0

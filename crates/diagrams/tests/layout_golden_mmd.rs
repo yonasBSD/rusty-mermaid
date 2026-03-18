@@ -112,6 +112,36 @@ flowchart_layout!(ci_pipeline);
 flowchart_layout!(compiler_pipeline);
 flowchart_layout!(mcp_server);
 
+// Styling combinations
+flowchart_layout!(style_combined);
+flowchart_layout!(style_multiple_classes);
+flowchart_layout!(style_default_override);
+flowchart_layout!(style_linkstyle_all);
+flowchart_layout!(style_opacity);
+flowchart_layout!(style_showcase);
+
+// Text variations
+flowchart_layout!(text_html_tags);
+flowchart_layout!(text_very_long);
+flowchart_layout!(text_single_char);
+flowchart_layout!(text_special_chars);
+flowchart_layout!(text_unicode_emoji);
+flowchart_layout!(multiline_labels);
+flowchart_layout!(markdown_labels);
+
+// Layout stress tests
+flowchart_layout!(layout_two_nodes_no_edge);
+flowchart_layout!(layout_binary_tree);
+flowchart_layout!(layout_parallel_chains);
+flowchart_layout!(layout_deep_nesting);
+flowchart_layout!(layout_cross_subgraph_edges);
+
+// Combined features
+flowchart_layout!(combo_styled_shapes);
+flowchart_layout!(combo_all_arrows_labeled);
+flowchart_layout!(combo_subgraph_styled);
+flowchart_layout!(edge_styles);
+
 // Architecture diagrams
 flowchart_layout!(arch_api_gateway);
 flowchart_layout!(arch_auth_flow);

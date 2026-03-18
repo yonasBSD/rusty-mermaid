@@ -1,0 +1,9 @@
+flowchart TD
+    A[Client] --> B[Gateway]
+    B ==> C[Primary Service]
+    B -.-> D[Fallback Service]
+    C --> E[Database]
+    D -.-> E
+    E ==>|critical path| F[Response]
+    C -.->|log| G[Monitor]
+    D -.->|log| G

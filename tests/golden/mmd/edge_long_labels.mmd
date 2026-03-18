@@ -1,0 +1,6 @@
+flowchart TD
+    A[Start] -->|This is a very long edge label that should test how the renderer handles text positioning on edges| B[End]
+    C[Input] -->|Validates schema, checks auth, applies rate limiting| D[Process]
+    D -->|Transforms payload and enriches with metadata| E[Output]
+    E -.->|Asynchronous callback with retry on failure| C
+    F[Source] ==>|High-throughput critical data pipeline| G[Sink]

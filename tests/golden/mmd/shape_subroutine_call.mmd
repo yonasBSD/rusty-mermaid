@@ -1,0 +1,8 @@
+flowchart TD
+    Start[Main Program] --> Init[[Initialize]]
+    Init --> Loop{More Items?}
+    Loop -->|Yes| Proc[[Process Item]]
+    Proc --> Validate[[Validate Result]]
+    Validate --> Loop
+    Loop -->|No| Cleanup[[Cleanup]]
+    Cleanup --> End[Exit]

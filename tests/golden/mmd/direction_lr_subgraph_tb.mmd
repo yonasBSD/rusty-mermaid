@@ -1,0 +1,14 @@
+flowchart LR
+    Input[Request] --> subA
+    subgraph subA[Authentication]
+        direction TB
+        Check[Check Token] --> Validate[Validate Claims]
+        Validate --> Authorize[Authorize]
+    end
+    subA --> subB
+    subgraph subB[Processing]
+        direction TB
+        Parse[Parse Body] --> Transform[Transform]
+        Transform --> Enrich[Enrich]
+    end
+    subB --> Output[Response]

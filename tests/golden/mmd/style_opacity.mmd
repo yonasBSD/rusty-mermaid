@@ -1,0 +1,12 @@
+flowchart TD
+    A[Full Opacity] --> B[Half Opacity]
+    B --> C[Quarter Opacity]
+    C --> D[Restored]
+
+    style A fill:#4caf50,stroke:#333,opacity:1
+    style B fill:#4caf50,stroke:#333,opacity:0.5
+    style C fill:#4caf50,stroke:#333,opacity:0.25
+    style D fill:#f44336,stroke:#333,opacity:0.75
+    linkStyle 0 stroke:#f00,stroke-width:3px,opacity:1
+    linkStyle 1 stroke:#f00,stroke-width:3px,opacity:0.5
+    linkStyle 2 stroke:#f00,stroke-width:3px,opacity:0.25

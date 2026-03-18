@@ -1,0 +1,14 @@
+stateDiagram-v2
+    [*] --> Workflow
+    state Workflow {
+        [*] --> Draft
+        Draft --> Review : submit
+        Review --> Approved : accept
+        Review --> Draft : revise
+        Approved --> [*]
+        note right of Draft : Author edits content
+        note left of Review : Reviewer checks quality
+        note right of Approved : Ready for publish
+    }
+    Workflow --> [*]
+    note right of Workflow : Main editing pipeline

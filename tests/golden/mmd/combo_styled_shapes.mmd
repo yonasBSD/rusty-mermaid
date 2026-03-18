@@ -1,0 +1,12 @@
+flowchart TD
+    A([Stadium]):::green --> B{Diamond}:::red
+    B --> C[(Cylinder)]:::blue
+    B --> D((Circle)):::green
+    C --> E[[Subroutine]]:::red
+    D --> E
+    E --> F{{Hexagon}}:::blue
+    F --> G[/Parallelogram/]:::green
+
+    classDef green fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    classDef red fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
+    classDef blue fill:#bbdefb,stroke:#0d47a1,stroke-width:2px

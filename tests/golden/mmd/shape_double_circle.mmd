@@ -1,0 +1,7 @@
+flowchart TD
+    Start((Start)) --> A(((Accept State)))
+    Start --> B((Normal))
+    B --> C(((Final Accept)))
+    A --> C
+    B --> D(((Error State)))
+    D --> Start

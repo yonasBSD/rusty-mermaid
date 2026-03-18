@@ -1,0 +1,41 @@
+{
+  "rect_count": 0,
+  "circle_count": 8,
+  "ellipse_count": 0,
+  "path_count": 6,
+  "polygon_count": 0,
+  "text_count": 5,
+  "arc_count": 0,
+  "text_contents": [
+    "Accept State",
+    "Error State",
+    "Final Accept",
+    "Normal",
+    "Start"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

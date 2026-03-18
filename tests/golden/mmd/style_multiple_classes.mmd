@@ -1,0 +1,15 @@
+flowchart TD
+    A[One Class] --> B[Two Classes]
+    B --> C[Another Two]
+    C --> D[Default Only]
+
+    classDef bordered stroke:#333,stroke-width:3px
+    classDef redFill fill:#fcc
+    classDef blueFill fill:#ccf
+    classDef bold font-weight:bold
+    class A bordered
+    class B bordered
+    class B redFill
+    class C bordered
+    class C redFill
+    class D blueFill

@@ -1,0 +1,26 @@
+stateDiagram-v2
+    [*] --> OrderPlaced
+    OrderPlaced --> PaymentPending : checkout
+    PaymentPending --> PaymentProcessing : pay
+    PaymentProcessing --> PaymentFailed : declined
+    PaymentProcessing --> PaymentConfirmed : approved
+    PaymentFailed --> PaymentPending : retry
+    PaymentConfirmed --> FraudCheck
+    FraudCheck --> FraudFlagged : suspicious
+    FraudCheck --> InventoryCheck : cleared
+    FraudFlagged --> ManualReview
+    ManualReview --> Cancelled : reject
+    ManualReview --> InventoryCheck : approve
+    InventoryCheck --> BackorderQueue : unavailable
+    InventoryCheck --> Picking : available
+    BackorderQueue --> InventoryCheck : restocked
+    Picking --> Packing : picked
+    Packing --> LabelPrinting : packed
+    LabelPrinting --> ReadyToShip : labeled
+    ReadyToShip --> InTransit : dispatched
+    InTransit --> OutForDelivery : local hub
+    OutForDelivery --> Delivered : received
+    OutForDelivery --> DeliveryFailed : no access
+    DeliveryFailed --> InTransit : reschedule
+    Delivered --> [*]
+    Cancelled --> [*]

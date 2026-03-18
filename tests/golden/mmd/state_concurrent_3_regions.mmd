@@ -1,0 +1,16 @@
+stateDiagram-v2
+    [*] --> Dashboard
+    state Dashboard {
+        [*] --> FetchingData
+        FetchingData --> DataReady : loaded
+        DataReady --> FetchingData : refresh
+        --
+        [*] --> Disconnected
+        Disconnected --> Connected : connect
+        Connected --> Disconnected : disconnect
+        --
+        [*] --> LogsIdle
+        LogsIdle --> Streaming : startLogs
+        Streaming --> LogsIdle : stopLogs
+    }
+    Dashboard --> [*]

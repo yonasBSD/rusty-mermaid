@@ -1,0 +1,17 @@
+stateDiagram-v2
+    [*] --> Outer
+    state Outer {
+        [*] --> Middle
+        state Middle {
+            [*] --> Inner
+            state Inner {
+                [*] --> Core
+                Core --> Processing
+                Processing --> Core
+                Processing --> [*]
+            }
+            Inner --> [*]
+        }
+        Middle --> [*]
+    }
+    Outer --> [*]

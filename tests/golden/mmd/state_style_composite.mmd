@@ -1,0 +1,14 @@
+stateDiagram-v2
+    [*] --> Pipeline
+    state Pipeline {
+        [*] --> Build
+        Build --> Test : compiled
+        Test --> Deploy : passed
+        Deploy --> [*]
+    }
+    Pipeline --> [*]
+
+    style Pipeline fill:#f5f5f5,stroke:#616161,stroke-width:2px
+    style Build fill:#c8e6c9,stroke:#2e7d32
+    style Test fill:#bbdefb,stroke:#1565c0
+    style Deploy fill:#ffe0b2,stroke:#e65100

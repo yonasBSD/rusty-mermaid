@@ -1,0 +1,62 @@
+flowchart TD
+    %% Ingress layer
+    LB[Load Balancer] --> GW1[Gateway 1]
+    LB --> GW2[Gateway 2]
+    %% Auth
+    GW1 --> Auth[Auth Service]
+    GW2 --> Auth
+    Auth --> Session[(Session Store)]
+    %% API layer
+    Auth --> API1[User API]
+    Auth --> API2[Order API]
+    Auth --> API3[Product API]
+    Auth --> API4[Search API]
+    Auth --> API5[Payment API]
+    %% User domain
+    API1 --> U1[User Logic]
+    U1 --> U2[Profile Mgr]
+    U1 --> U3[Preferences]
+    U2 --> UDB[(User DB)]
+    U3 --> UDB
+    %% Order domain
+    API2 --> O1[Order Logic]
+    O1 --> O2[Cart]
+    O1 --> O3[Checkout]
+    O2 --> ODB[(Order DB)]
+    O3 --> ODB
+    O3 --> API5
+    %% Product domain
+    API3 --> P1[Catalog]
+    P1 --> P2[Inventory]
+    P1 --> P3[Pricing]
+    P2 --> PDB[(Product DB)]
+    P3 --> PDB
+    %% Search domain
+    API4 --> S1[Indexer]
+    API4 --> S2[Query Engine]
+    S1 --> ES[(Search Index)]
+    S2 --> ES
+    S1 --> PDB
+    %% Payment domain
+    API5 --> Pay1[Payment Processor]
+    Pay1 --> Pay2[Fraud Check]
+    Pay2 --> Pay3[Settlement]
+    Pay3 --> PayDB[(Ledger DB)]
+    Pay1 --> PayDB
+    %% Events
+    O3 --> MQ{{Message Queue}}
+    MQ --> E1[Order Events]
+    MQ --> E2[Payment Events]
+    MQ --> E3[Inventory Events]
+    E1 --> N1[Notification]
+    E2 --> N1
+    E3 --> P2
+    %% Monitoring
+    N1 --> Email[Email Sender]
+    N1 --> SMS[SMS Sender]
+    N1 --> Push[Push Notify]
+    %% Analytics
+    E1 --> A1[Analytics Ingest]
+    E2 --> A1
+    A1 --> DW[(Data Warehouse)]
+    DW --> Dash[Dashboard]

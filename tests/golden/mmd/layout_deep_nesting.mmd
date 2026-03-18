@@ -1,0 +1,14 @@
+flowchart TD
+    subgraph L1[Level 1]
+        subgraph L2[Level 2]
+            subgraph L3[Level 3]
+                subgraph L4[Level 4]
+                    X[Deepest Node]
+                end
+                Y[Level 3 Node] --> X
+            end
+            Z[Level 2 Node] --> Y
+        end
+        W[Level 1 Node] --> Z
+    end
+    V[Outside] --> W

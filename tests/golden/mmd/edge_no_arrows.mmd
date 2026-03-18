@@ -1,0 +1,12 @@
+flowchart TD
+    A[Alpha] --- B[Beta]
+    B --- C[Gamma]
+    C --- D[Delta]
+    D --- A
+    %% Dotted and thick open edges
+    E[Epsilon] -.- F[Zeta]
+    F === G[Eta]
+    G -.- E
+    %% Open edges with labels
+    A -- sibling --- E
+    B -- related --- F

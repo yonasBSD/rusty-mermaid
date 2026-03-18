@@ -1,0 +1,7 @@
+flowchart TD
+    DB1[(Users DB)] --> Svc1[Auth Service]
+    DB2[(Orders DB)] --> Svc2[Order Service]
+    DB3[(Cache)] --> Svc1
+    DB3 --> Svc2
+    Svc1 --> GW[API Gateway]
+    Svc2 --> GW

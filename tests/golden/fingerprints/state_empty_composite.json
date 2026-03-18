@@ -1,0 +1,26 @@
+{
+  "rect_count": 1,
+  "circle_count": 3,
+  "ellipse_count": 0,
+  "path_count": 3,
+  "polygon_count": 0,
+  "text_count": 1,
+  "arc_count": 0,
+  "text_contents": [
+    "Placeholder"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "circle",
+    "circle",
+    "circle",
+    "path",
+    "path",
+    "path",
+    "rect",
+    "text"
+  ]
+}

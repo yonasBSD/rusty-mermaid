@@ -1,0 +1,13 @@
+stateDiagram-v2
+    [*] --> Editor
+    state Editor {
+        state hist1 <<history>>
+        [*] --> Editing
+        Editing --> Saving : save
+        Saving --> Editing : done
+        Editing --> Previewing : preview
+        Previewing --> Editing : back
+        Saving --> hist1 : interrupt
+    }
+    Editor --> Suspended : suspend
+    Suspended --> Editor : resume

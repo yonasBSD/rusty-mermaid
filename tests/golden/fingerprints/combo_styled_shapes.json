@@ -1,0 +1,48 @@
+{
+  "rect_count": 2,
+  "circle_count": 1,
+  "ellipse_count": 0,
+  "path_count": 11,
+  "polygon_count": 3,
+  "text_count": 7,
+  "arc_count": 0,
+  "text_contents": [
+    "Circle",
+    "Cylinder",
+    "Diamond",
+    "Hexagon",
+    "Parallelogram",
+    "Stadium",
+    "Subroutine"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "circle",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "polygon",
+    "polygon",
+    "polygon",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

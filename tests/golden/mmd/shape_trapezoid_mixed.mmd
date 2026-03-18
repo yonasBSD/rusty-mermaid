@@ -1,0 +1,6 @@
+flowchart TD
+    T1[/Wide Top\] -->|narrows| T2[\Wide Bottom/]
+    T2 -->|expands| T3[/Another Top\]
+    T3 --> R1[Regular Rect]
+    R1 --> T4[\Final Trap/]
+    T1 -->|skip| T4

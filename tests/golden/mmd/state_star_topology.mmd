@@ -1,0 +1,21 @@
+stateDiagram-v2
+    [*] --> Hub
+    Hub --> Auth : authenticate
+    Hub --> Search : query
+    Hub --> Upload : send file
+    Hub --> Download : fetch file
+    Hub --> Settings : configure
+    Hub --> Profile : view profile
+    Hub --> Notifications : check alerts
+    Hub --> Analytics : view stats
+    Hub --> Help : open help
+    Auth --> Hub : done
+    Search --> Hub : done
+    Upload --> Hub : done
+    Download --> Hub : done
+    Settings --> Hub : done
+    Profile --> Hub : done
+    Notifications --> Hub : done
+    Analytics --> Hub : done
+    Help --> Hub : done
+    Hub --> [*] : logout

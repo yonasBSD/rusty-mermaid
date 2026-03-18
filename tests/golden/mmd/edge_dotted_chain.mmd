@@ -1,0 +1,6 @@
+flowchart LR
+    A[Source] -.-> B[Filter]
+    B -.-> C[Transform]
+    C -.-> D[Validate]
+    D -.-> E[Sink]
+    E -.->|retry| B

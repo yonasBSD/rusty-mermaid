@@ -1,0 +1,21 @@
+stateDiagram-v2
+    [*] --> System
+    state System {
+        [*] --> Subsystem
+        state Subsystem {
+            [*] --> Module
+            state Module {
+                [*] --> Component
+                state Component {
+                    [*] --> Ready
+                    Ready --> Busy
+                    Busy --> Ready
+                    Busy --> [*]
+                }
+                Component --> [*]
+            }
+            Module --> [*]
+        }
+        Subsystem --> [*]
+    }
+    System --> [*]

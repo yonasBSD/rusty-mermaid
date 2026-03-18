@@ -1,0 +1,20 @@
+stateDiagram-v2
+    state fork1 <<fork>>
+    state join1 <<join>>
+    state fork2 <<fork>>
+    state join2 <<join>>
+
+    [*] --> fork1
+    fork1 --> Download
+    fork1 --> Validate
+    fork1 --> Notify
+    Download --> join1
+    Validate --> join1
+    Notify --> join1
+    join1 --> Transform
+    Transform --> fork2
+    fork2 --> Compress
+    fork2 --> Encrypt
+    Compress --> join2
+    Encrypt --> join2
+    join2 --> [*]

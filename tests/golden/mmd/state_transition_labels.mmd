@@ -1,0 +1,11 @@
+stateDiagram-v2
+    [*] --> Idle : initialize
+    Idle --> Connecting : connect request
+    Connecting --> Connected : handshake complete
+    Connected --> Sending : send data
+    Sending --> Waiting : awaiting response
+    Waiting --> Processing : response received
+    Processing --> Connected : request handled
+    Connected --> Disconnecting : close connection
+    Disconnecting --> Idle : cleanup done
+    Idle --> [*] : shutdown

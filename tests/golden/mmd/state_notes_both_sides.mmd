@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Active : start
+    Active --> Idle : stop
+    Active --> [*] : terminate
+    note left of Idle : Waiting for input
+    note right of Idle : Low power mode
+    note left of Active : Processing tasks
+    note right of Active : High CPU usage

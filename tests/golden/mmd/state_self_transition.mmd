@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> Polling
+    Polling --> Polling : tick
+    Polling --> Polling : retry
+    Polling --> Received : data available
+    Received --> Processing
+    Processing --> Processing : partial result
+    Processing --> Done : complete
+    Done --> [*]

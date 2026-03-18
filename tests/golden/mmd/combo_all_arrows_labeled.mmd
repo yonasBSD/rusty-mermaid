@@ -1,0 +1,12 @@
+flowchart TD
+    A[Center] -->|normal arrow| B[Normal]
+    A ==>|thick arrow| C[Thick]
+    A -.->|dotted arrow| D[Dotted]
+    A ---|open solid| E[Open]
+    A --o|circle end| F[Circle]
+    A --x|cross end| G[Cross]
+    B <-->|bidirectional| C
+    D o--o|bidir circle| E
+    F x--x|bidir cross| G
+    C == thick label ==> H[Labeled Thick]
+    D -. dotted label .-> I[Labeled Dotted]

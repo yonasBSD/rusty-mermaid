@@ -1,0 +1,7 @@
+flowchart LR
+    In1[/User Input/] --> P1[Validate]
+    In2[/File Upload/] --> P2[Parse]
+    P1 --> P3[Transform]
+    P2 --> P3
+    P3 --> Out1[\Report\]
+    P3 --> Out2[\Summary\]

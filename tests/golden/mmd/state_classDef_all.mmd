@@ -1,0 +1,16 @@
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> InProgress : assign
+    InProgress --> Review : submit
+    Review --> Done : approve
+    Review --> InProgress : reject
+    Done --> [*]
+
+    classDef waiting fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef active fill:#e8f5e9,stroke:#1b5e20,stroke-width:3px
+    classDef finished fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px
+
+    class Pending waiting
+    class InProgress active
+    class Review waiting
+    class Done finished

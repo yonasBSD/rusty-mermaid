@@ -1,0 +1,29 @@
+stateDiagram-v2
+    state fork1 <<fork>>
+    state join1 <<join>>
+    state decide <<choice>>
+    state hist1 <<history>>
+
+    [*] --> Idle
+    Idle --> fork1 : begin
+    fork1 --> TaskA
+    fork1 --> TaskB
+    TaskA --> join1
+    TaskB --> join1
+    join1 --> decide
+    decide --> Approved : valid
+    decide --> Rejected : invalid
+    Approved --> hist1
+    hist1 --> Done
+    Rejected --> Idle : retry
+
+    state Active {
+        [*] --> Running
+        Running --> Paused
+        Paused --> Running
+        --
+        [*] --> Logging
+        Logging --> Logging
+    }
+    Done --> Active
+    Active --> [*]

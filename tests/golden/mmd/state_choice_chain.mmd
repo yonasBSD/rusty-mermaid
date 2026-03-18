@@ -1,0 +1,17 @@
+stateDiagram-v2
+    state isValid <<choice>>
+    state hasStock <<choice>>
+    state isPremium <<choice>>
+
+    [*] --> Received
+    Received --> isValid
+    isValid --> hasStock : valid
+    isValid --> Rejected : invalid
+    hasStock --> isPremium : in stock
+    hasStock --> Backordered : out of stock
+    isPremium --> Express : premium
+    isPremium --> Standard : regular
+    Express --> [*]
+    Standard --> [*]
+    Rejected --> [*]
+    Backordered --> [*]

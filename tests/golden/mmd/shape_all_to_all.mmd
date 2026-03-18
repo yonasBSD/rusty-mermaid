@@ -1,0 +1,21 @@
+flowchart TD
+    R[Rect] --> RR(Rounded)
+    RR --> S([Stadium])
+    S --> Sub[[Subroutine]]
+    Sub --> Cyl[(Cylinder)]
+    Cyl --> C((Circle))
+    C --> DC(((Double Circle)))
+    DC --> D{Diamond}
+    D --> H{{Hexagon}}
+    H --> P[/Parallelogram/]
+    P --> PA[\Alt Parallelogram\]
+    PA --> T[/Trapezoid\]
+    T --> TA[\Alt Trapezoid/]
+    TA --> A>Asymmetric]
+    A --> R
+    %% Cross-connections for adjacency coverage
+    R --> D
+    RR --> H
+    S --> C
+    Sub --> P
+    Cyl --> DC

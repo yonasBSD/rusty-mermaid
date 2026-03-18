@@ -63,6 +63,32 @@ parse_flowchart!(nested_compound);
 parse_flowchart!(compiler_pipeline);
 parse_flowchart!(mcp_server);
 
+// Styling combinations
+parse_flowchart!(style_combined);
+parse_flowchart!(style_multiple_classes);
+parse_flowchart!(style_default_override);
+parse_flowchart!(style_linkstyle_all);
+parse_flowchart!(style_opacity);
+
+// Text variations
+parse_flowchart!(text_html_tags);
+parse_flowchart!(text_very_long);
+parse_flowchart!(text_single_char);
+parse_flowchart!(text_special_chars);
+parse_flowchart!(text_unicode_emoji);
+
+// Layout stress tests
+parse_flowchart!(layout_two_nodes_no_edge);
+parse_flowchart!(layout_binary_tree);
+parse_flowchart!(layout_parallel_chains);
+parse_flowchart!(layout_deep_nesting);
+parse_flowchart!(layout_cross_subgraph_edges);
+
+// Combined features
+parse_flowchart!(combo_styled_shapes);
+parse_flowchart!(combo_all_arrows_labeled);
+parse_flowchart!(combo_subgraph_styled);
+
 parse_state!(state_simple);
 parse_state!(state_fork_join);
 parse_state!(state_composite);

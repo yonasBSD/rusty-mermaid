@@ -1,0 +1,10 @@
+flowchart TD
+    D1{Validate Input} --> D2{Check Auth}
+    D2 -->|Pass| D3{Rate Limit?}
+    D2 -->|Fail| Err[Error]
+    D3 -->|OK| D4{Has Cache?}
+    D3 -->|Over| Err
+    D4 -->|Hit| Cache[Return Cache]
+    D4 -->|Miss| D5{DB Available?}
+    D5 -->|Yes| OK[Query DB]
+    D5 -->|No| Err

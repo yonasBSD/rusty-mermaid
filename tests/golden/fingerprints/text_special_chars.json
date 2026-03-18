@@ -1,0 +1,48 @@
+{
+  "rect_count": 8,
+  "circle_count": 0,
+  "ellipse_count": 0,
+  "path_count": 7,
+  "polygon_count": 0,
+  "text_count": 8,
+  "arc_count": 0,
+  "text_contents": [
+    " escaped",
+    "100% Complete",
+    "Ampersand & Co.",
+    "Line 1; Line 2",
+    "Price: $99.99",
+    "Yes/No?",
+    "a + b = c",
+    "path/to/file.rs"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

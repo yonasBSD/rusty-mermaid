@@ -1,0 +1,48 @@
+{
+  "rect_count": 6,
+  "circle_count": 6,
+  "ellipse_count": 0,
+  "path_count": 7,
+  "polygon_count": 0,
+  "text_count": 6,
+  "arc_count": 0,
+  "text_contents": [
+    "Build",
+    "Deploy",
+    "Pipeline",
+    "Test",
+    "compiled",
+    "passed"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

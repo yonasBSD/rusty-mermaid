@@ -1,0 +1,9 @@
+flowchart TD
+    A[Hub] --o B[Circle End]
+    A --x C[Cross End]
+    D[Left] o--o E[Right]
+    F[Left] x--x G[Right]
+    %% Mixed with labels
+    A --o|data| H[Store]
+    A --x|reject| I[Dead Letter]
+    J[Peer] o--o|sync| K[Peer]

@@ -1,0 +1,8 @@
+flowchart TD
+    A[State Machine] -->|tick| A
+    A -.->|check| A
+    A ==>|reset| A
+    A --> B[Output]
+    B --> C[Log]
+    C -->|retry| C
+    B -->|error| A
