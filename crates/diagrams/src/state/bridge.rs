@@ -1,6 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
-use rusty_mermaid_core::{Color, SimpleTextMeasure, Style, TextMeasure, TextStyle};
+use rusty_mermaid_core::{
+    intersect_circle, intersect_polygon, Color, Point, SimpleTextMeasure, Style, TextMeasure,
+    TextStyle,
+};
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -228,7 +231,30 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             });
             let Some(transition) = matched else { continue };
             let e = g.edge(eid).unwrap();
-            let points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x + x_shift, p.y)).collect();
+            let mut points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x + x_shift, p.y)).collect();
+
+            // Re-clip edge endpoints for non-rect shapes (diamond, circle).
+            if points.len() >= 2 {
+                let src_node = g.node(src).unwrap();
+                let src_shape = node_shape(&diagram.states, src_id);
+                let adj = points[1];
+                if let Some(p) = state_shape_intersect(
+                    src_shape, src_node.x + x_shift, src_node.y, src_node.width, src_node.height, adj,
+                ) {
+                    points[0] = p;
+                }
+
+                let last = points.len() - 1;
+                let dst_node = g.node(dst).unwrap();
+                let dst_shape = node_shape(&diagram.states, dst_id);
+                let adj = points[last - 1];
+                if let Some(p) = state_shape_intersect(
+                    dst_shape, dst_node.x + x_shift, dst_node.y, dst_node.width, dst_node.height, adj,
+                ) {
+                    points[last] = p;
+                }
+            }
+
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
                 dst: dst_id.to_string(),
@@ -740,6 +766,41 @@ fn find_state_label(states: &[super::ir::StateNode], id: &str) -> Option<String>
 }
 
 /// Determine the rendering shape for a node based on its ID and IR kind.
+/// Re-clip an edge endpoint to the actual node shape instead of dagre's
+/// default bounding-box rectangle.
+fn state_shape_intersect(
+    shape: NodeShape,
+    cx: f64,
+    cy: f64,
+    w: f64,
+    h: f64,
+    adj: (f64, f64),
+) -> Option<(f64, f64)> {
+    let center = Point::new(cx, cy);
+    let target = Point::new(adj.0, adj.1);
+    let hw = w / 2.0;
+    let hh = h / 2.0;
+
+    let p = match shape {
+        NodeShape::ChoiceDiamond => {
+            let verts = [
+                Point::new(cx, cy - hh),
+                Point::new(cx + hw, cy),
+                Point::new(cx, cy + hh),
+                Point::new(cx - hw, cy),
+            ];
+            intersect_polygon(&verts, center, target)
+        }
+        NodeShape::StartCircle | NodeShape::EndBullseye | NodeShape::HistoryCircle => {
+            let r = w.max(h) / 2.0;
+            intersect_circle(center, r, target)
+        }
+        _ => return None,
+    };
+
+    Some((p.x, p.y))
+}
+
 fn node_shape(states: &[super::ir::StateNode], id: &str) -> NodeShape {
     if id.ends_with("[*]_start") {
         return NodeShape::StartCircle;
@@ -1231,6 +1292,45 @@ mod tests {
         assert!(end.y > active_bottom,
             "[*]_end (y={}) should be below Active bottom (y={active_bottom})",
             end.y);
+    }
+
+    #[test]
+    fn choice_diamond_edges_clip_to_polygon() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    state check <<choice>>\n    [*] --> check\n    check --> A : yes\n    check --> B : no\n    A --> [*]\n    B --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let check = result.nodes.iter().find(|n| n.id == "check").unwrap();
+        let check_bottom_y = check.y + check.height / 2.0;
+        let check_bottom_x = check.x; // diamond's bottom vertex
+
+        // Edges from check should start ON the diamond polygon, not at the
+        // bounding box corners. For edges going down-left/down-right, the
+        // start point should be on the diamond edge, not at (corner_x, bottom_y).
+        let check_to_a = result.edges.iter()
+            .find(|e| e.src == "check" && e.dst == "A")
+            .expect("check → A edge");
+        let check_to_b = result.edges.iter()
+            .find(|e| e.src == "check" && e.dst == "B")
+            .expect("check → B edge");
+
+        let (ax, ay) = check_to_a.points[0];
+        let (bx, by) = check_to_b.points[0];
+
+        // The start points should NOT be at the exact bottom-y of the bounding
+        // box (that would be rect clipping). For diagonal exits, the polygon
+        // intersection hits the diamond's slanted edge, producing y < bottom_y.
+        // At minimum, for points not directly below center, x should differ
+        // from center AND y should be < bottom_y (on the slanted edge).
+        if (ax - check_bottom_x).abs() > 1.0 {
+            assert!(ay < check_bottom_y - 0.5,
+                "check→A start ({ax:.1},{ay:.1}) should be on diamond edge, not bbox bottom y={check_bottom_y:.1}");
+        }
+        if (bx - check_bottom_x).abs() > 1.0 {
+            assert!(by < check_bottom_y - 0.5,
+                "check→B start ({bx:.1},{by:.1}) should be on diamond edge, not bbox bottom y={check_bottom_y:.1}");
+        }
     }
 
     #[test]
