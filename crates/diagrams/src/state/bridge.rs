@@ -118,8 +118,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 
     // Post-layout adjustments (safe — doesn't affect dagre invariants)
     fix_region_order(diagram, &mut g, &id_map);
-    center_region_content(diagram, &mut g, &id_map);
-    center_composite_content(diagram, &mut g, &id_map);
+    center_content(diagram, &mut g, &id_map);
     center_bullseyes(diagram, &mut g, &id_map);
     center_external_connections(diagram, &mut g, &id_map);
 
@@ -376,76 +375,85 @@ fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId, out: &mut V
     }
 }
 
-/// Center each concurrent region's content within its visual partition.
-/// Partition = space between compound edge and divider line.
-fn center_region_content(
+/// Center composite content within compound bounds.
+/// Non-concurrent: centers all descendants on the compound center.
+/// Concurrent: centers each region's descendants within its equal-width partition.
+fn center_content(
     diagram: &StateDiagram,
     g: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &HashMap<String, NodeId>,
 ) {
     for s in &diagram.states {
-        center_region_content_for_state(s, g, id_map);
+        center_content_for_state(s, g, id_map);
     }
 }
 
-fn center_region_content_for_state(
+fn center_content_for_state(
     state: &StateNode,
     g: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &HashMap<String, NodeId>,
 ) {
     let StateKind::Composite { regions, children, .. } = &state.kind else { return };
+    // Recurse into children first (handles nested composites)
     for child in children {
-        center_region_content_for_state(child, g, id_map);
-    }
-    if regions.len() < 2 {
-        return;
+        center_content_for_state(child, g, id_map);
     }
 
     let Some(&compound_nid) = id_map.get(&state.id) else { return };
     let Some(compound_node) = g.node(compound_nid) else { return };
-    let compound_left = compound_node.x - compound_node.width / 2.0;
-    let compound_right = compound_node.x + compound_node.width / 2.0;
+    let compound_cx = compound_node.x;
+    let compound_left = compound_cx - compound_node.width / 2.0;
+    let compound_right = compound_cx + compound_node.width / 2.0;
 
-    // Collect region compounds and their content bounding boxes, sorted by x
-    let mut region_info: Vec<(NodeId, Vec<NodeId>, f64)> = Vec::new(); // (nid, descendants, content_cx)
-    for (i, _) in regions.iter().enumerate() {
-        let rk = format!("{}._region_{}", state.id, i);
-        if let Some(&rnid) = id_map.get(&rk) {
-            let mut descendants = Vec::new();
-            collect_descendants(g, rnid, &mut descendants);
-            // Content center = midpoint of descendant x bounding box
-            let (mut min_x, mut max_x) = (f64::MAX, f64::MIN);
-            for &nid in &descendants {
-                if let Some(n) = g.node(nid) {
-                    min_x = min_x.min(n.x - n.width / 2.0);
-                    max_x = max_x.max(n.x + n.width / 2.0);
-                }
-            }
-            if min_x < f64::MAX {
-                let content_cx = (min_x + max_x) / 2.0;
-                region_info.push((rnid, descendants, content_cx));
-            }
+    // Build list of (root_nid, descendants, target_cx) for each partition.
+    // Non-concurrent: one partition = entire compound.
+    // Concurrent: one partition per region, equal-width.
+    let partitions: Vec<(NodeId, Vec<NodeId>, f64)> = if regions.len() >= 2 {
+        let n = regions.len() as f64;
+        let pw = (compound_right - compound_left) / n;
+
+        let mut parts: Vec<(NodeId, Vec<NodeId>, f64, f64)> = Vec::new();
+        for (i, _) in regions.iter().enumerate() {
+            let rk = format!("{}._region_{}", state.id, i);
+            let Some(&rnid) = id_map.get(&rk) else { continue };
+            let mut desc = Vec::new();
+            collect_descendants(g, rnid, &mut desc);
+            let cx = content_bbox_cx(g, &desc);
+            parts.push((rnid, desc, cx, cx)); // cx used for sorting
         }
-    }
-    if region_info.len() < 2 {
-        return;
-    }
-    region_info.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
+        if parts.len() < 2 {
+            return;
+        }
+        parts.sort_by(|a, b| a.3.partial_cmp(&b.3).unwrap());
+        parts
+            .into_iter()
+            .enumerate()
+            .map(|(idx, (rnid, desc, _, _))| {
+                let target = compound_left + pw * (idx as f64 + 0.5);
+                (rnid, desc, target)
+            })
+            .collect()
+    } else {
+        let mut desc = Vec::new();
+        collect_descendants(g, compound_nid, &mut desc);
+        if desc.is_empty() {
+            return;
+        }
+        vec![(compound_nid, desc, compound_cx)]
+    };
 
-    // Equal-width partitions: each region gets compound_width / n
-    let n = region_info.len() as f64;
-    let partition_width = (compound_right - compound_left) / n;
-
-    for (idx, (rnid, descendants, content_cx)) in region_info.iter().enumerate() {
-        let partition_cx = compound_left + partition_width * (idx as f64 + 0.5);
-        let dx = partition_cx - content_cx;
+    for (root_nid, descendants, target_cx) in &partitions {
+        let cx = content_bbox_cx(g, descendants);
+        let dx = target_cx - cx;
         if dx.abs() < 0.5 {
             continue;
         }
 
-        // Shift region compound node
-        if let Some(rn) = g.node_mut(*rnid) {
-            rn.x += dx;
+        // Shift the partition root (region compound for concurrent, skip for non-concurrent)
+        if *root_nid != compound_nid {
+            if let Some(rn) = g.node_mut(*root_nid) {
+                rn.x += dx;
+            }
         }
         // Shift all descendants
         for &nid in descendants {
@@ -453,9 +461,10 @@ fn center_region_content_for_state(
                 n.x += dx;
             }
         }
-        // Shift edges fully within this region
-        let desc_set: HashSet<NodeId> =
-            std::iter::once(*rnid).chain(descendants.iter().copied()).collect();
+        // Shift edges fully within this partition
+        let desc_set: HashSet<NodeId> = std::iter::once(*root_nid)
+            .chain(descendants.iter().copied())
+            .collect();
         for eid in g.edge_ids().collect::<Vec<_>>() {
             let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
             if desc_set.contains(&src) && desc_set.contains(&dst) {
@@ -469,76 +478,16 @@ fn center_region_content_for_state(
     }
 }
 
-/// Center content of non-concurrent composites within compound bounds.
-/// Dagre may place children asymmetrically; this shifts them to the compound center.
-fn center_composite_content(
-    diagram: &StateDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
-) {
-    for s in &diagram.states {
-        center_composite_content_for_state(s, g, id_map);
-    }
-}
-
-fn center_composite_content_for_state(
-    state: &StateNode,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
-) {
-    let StateKind::Composite { regions, children, .. } = &state.kind else { return };
-    for child in children {
-        center_composite_content_for_state(child, g, id_map);
-    }
-    // Only for non-concurrent composites (concurrent handled by center_region_content)
-    if !regions.is_empty() {
-        return;
-    }
-
-    let Some(&compound_nid) = id_map.get(&state.id) else { return };
-    let compound_cx = g.node(compound_nid).map(|n| n.x).unwrap_or(0.0);
-
-    let mut descendants = Vec::new();
-    collect_descendants(g, compound_nid, &mut descendants);
-    if descendants.is_empty() {
-        return;
-    }
-
-    // Compute content bounding box center
+/// Compute the horizontal center of a group of nodes' bounding box.
+fn content_bbox_cx(g: &Graph<NodeLabel, EdgeLabel>, nodes: &[NodeId]) -> f64 {
     let (mut min_x, mut max_x) = (f64::MAX, f64::MIN);
-    for &nid in &descendants {
+    for &nid in nodes {
         if let Some(n) = g.node(nid) {
             min_x = min_x.min(n.x - n.width / 2.0);
             max_x = max_x.max(n.x + n.width / 2.0);
         }
     }
-    if min_x >= f64::MAX {
-        return;
-    }
-    let content_cx = (min_x + max_x) / 2.0;
-    let dx = compound_cx - content_cx;
-    if dx.abs() < 0.5 {
-        return;
-    }
-
-    // Shift all descendants
-    for &nid in &descendants {
-        if let Some(n) = g.node_mut(nid) {
-            n.x += dx;
-        }
-    }
-    // Shift edges fully within the compound
-    let desc_set: HashSet<NodeId> = descendants.iter().copied().collect();
-    for eid in g.edge_ids().collect::<Vec<_>>() {
-        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
-        if desc_set.contains(&src) && desc_set.contains(&dst) {
-            if let Some(e) = g.edge_mut(eid) {
-                for pt in &mut e.points {
-                    pt.x += dx;
-                }
-            }
-        }
-    }
+    (min_x + max_x) / 2.0
 }
 
 /// Center outer [*]_start / [*]_end bullseyes on their connected compound.
