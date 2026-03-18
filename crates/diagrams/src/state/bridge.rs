@@ -530,42 +530,52 @@ fn center_bullseyes_in_scope(
     g: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &HashMap<String, NodeId>,
 ) {
-    for t in transitions {
-        // [*] → target: center [*]_start on target's x
-        if t.src == "[*]" {
-            let start_key = format!("{scope_prefix}[*]_start");
-            let Some(&start_nid) = id_map.get(&start_key) else { continue };
-            let Some(&target_nid) = id_map.get(&t.dst) else { continue };
-            let target_x = g.node(target_nid).map(|n| n.x).unwrap_or(0.0);
+    // Only center+straighten when exactly one transition connects to the
+    // pseudo-state. With multiple sources/targets, dagre's layout is better
+    // than forcing everything to one x coordinate (which overwrites earlier
+    // positioning — the bug this fixes).
+    let start_targets: Vec<&str> = transitions
+        .iter()
+        .filter(|t| t.src == "[*]")
+        .map(|t| t.dst.as_str())
+        .collect();
+    let end_sources: Vec<&str> = transitions
+        .iter()
+        .filter(|t| t.dst == "[*]")
+        .map(|t| t.src.as_str())
+        .collect();
 
-            if let Some(n) = g.node_mut(start_nid) {
-                n.x = target_x;
-            }
-            // Straighten all edge points for a clean vertical connection
-            for eid in g.out_edges(start_nid).collect::<Vec<_>>() {
-                if let Some(e) = g.edge_mut(eid) {
-                    for pt in &mut e.points {
-                        pt.x = target_x;
-                    }
+    if start_targets.len() == 1 {
+        let start_key = format!("{scope_prefix}[*]_start");
+        let Some(&start_nid) = id_map.get(&start_key) else { return };
+        let Some(&target_nid) = id_map.get(start_targets[0]) else { return };
+        let target_x = g.node(target_nid).map(|n| n.x).unwrap_or(0.0);
+
+        if let Some(n) = g.node_mut(start_nid) {
+            n.x = target_x;
+        }
+        for eid in g.out_edges(start_nid).collect::<Vec<_>>() {
+            if let Some(e) = g.edge_mut(eid) {
+                for pt in &mut e.points {
+                    pt.x = target_x;
                 }
             }
         }
-        // source → [*]: center [*]_end on source's x
-        if t.dst == "[*]" {
-            let end_key = format!("{scope_prefix}[*]_end");
-            let Some(&end_nid) = id_map.get(&end_key) else { continue };
-            let Some(&source_nid) = id_map.get(&t.src) else { continue };
-            let source_x = g.node(source_nid).map(|n| n.x).unwrap_or(0.0);
+    }
 
-            if let Some(n) = g.node_mut(end_nid) {
-                n.x = source_x;
-            }
-            // Straighten all edge points for a clean vertical connection
-            for eid in g.in_edges(end_nid).collect::<Vec<_>>() {
-                if let Some(e) = g.edge_mut(eid) {
-                    for pt in &mut e.points {
-                        pt.x = source_x;
-                    }
+    if end_sources.len() == 1 {
+        let end_key = format!("{scope_prefix}[*]_end");
+        let Some(&end_nid) = id_map.get(&end_key) else { return };
+        let Some(&source_nid) = id_map.get(end_sources[0]) else { return };
+        let source_x = g.node(source_nid).map(|n| n.x).unwrap_or(0.0);
+
+        if let Some(n) = g.node_mut(end_nid) {
+            n.x = source_x;
+        }
+        for eid in g.in_edges(end_nid).collect::<Vec<_>>() {
+            if let Some(e) = g.edge_mut(eid) {
+                for pt in &mut e.points {
+                    pt.x = source_x;
                 }
             }
         }
@@ -1331,6 +1341,41 @@ mod tests {
         // Should have at least one divider
         assert!(!result.dividers.is_empty(),
             "concurrent regions should produce divider lines");
+    }
+
+    #[test]
+    fn multi_source_end_bullseye_preserves_edges() {
+        // When multiple transitions target [*], each edge should connect
+        // from its own source — not all get overwritten to the last source's x.
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Still\n    Still --> [*]\n    Still --> Moving\n    Moving --> Still\n    Moving --> Crash\n    Crash --> [*]"
+        ).unwrap();
+        let result = layout(&d);
+
+        let still = result.nodes.iter().find(|n| n.id == "Still").unwrap();
+        let crash = result.nodes.iter().find(|n| n.id == "Crash").unwrap();
+
+        // Both edges to [*]_end should exist
+        let still_to_end = result.edges.iter()
+            .find(|e| e.src == "Still" && e.dst == "[*]_end")
+            .expect("Still → [*]_end edge should exist");
+        let crash_to_end = result.edges.iter()
+            .find(|e| e.src == "Crash" && e.dst == "[*]_end")
+            .expect("Crash → [*]_end edge should exist");
+
+        // The Still→[*] edge's last point should be closer to Still's x than Crash's x.
+        // (Before the fix, both edges would have all points at Crash's x.)
+        let still_edge_start_x = still_to_end.points.first().unwrap().0;
+        let crash_edge_start_x = crash_to_end.points.first().unwrap().0;
+
+        // The edges should start from different x positions (their respective sources)
+        assert!(
+            (still_edge_start_x - crash_edge_start_x).abs() > 1.0
+                || (still.x - crash.x).abs() < 1.0, // unless they happen to be x-aligned
+            "Still→[*] edge start (x={:.1}) and Crash→[*] edge start (x={:.1}) should differ \
+             (Still.x={:.1}, Crash.x={:.1})",
+            still_edge_start_x, crash_edge_start_x, still.x, crash.x
+        );
     }
 
     #[test]
