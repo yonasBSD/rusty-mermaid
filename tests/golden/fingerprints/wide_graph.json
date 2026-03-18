@@ -1,0 +1,48 @@
+{
+  "rect_count": 7,
+  "circle_count": 0,
+  "ellipse_count": 0,
+  "path_count": 10,
+  "polygon_count": 0,
+  "text_count": 7,
+  "arc_count": 0,
+  "text_contents": [
+    "Branch 1",
+    "Branch 2",
+    "Branch 3",
+    "Branch 4",
+    "Branch 5",
+    "Merge",
+    "Root"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

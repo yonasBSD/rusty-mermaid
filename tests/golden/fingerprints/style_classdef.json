@@ -1,0 +1,35 @@
+{
+  "rect_count": 5,
+  "circle_count": 0,
+  "ellipse_count": 0,
+  "path_count": 3,
+  "polygon_count": 0,
+  "text_count": 5,
+  "arc_count": 0,
+  "text_contents": [
+    "End",
+    "Inline",
+    "Normal",
+    "Process",
+    "Start"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "path",
+    "path",
+    "path",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "rect_count": 4,
+  "circle_count": 1,
+  "ellipse_count": 0,
+  "path_count": 10,
+  "polygon_count": 2,
+  "text_count": 8,
+  "arc_count": 0,
+  "text_contents": [
+    "Database",
+    "Decision",
+    "Done",
+    "No",
+    "Output",
+    "Process",
+    "Start",
+    "Yes"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "circle",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "polygon",
+    "polygon",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

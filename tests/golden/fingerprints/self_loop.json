@@ -1,0 +1,40 @@
+{
+  "rect_count": 5,
+  "circle_count": 0,
+  "ellipse_count": 0,
+  "path_count": 5,
+  "polygon_count": 1,
+  "text_count": 6,
+  "arc_count": 0,
+  "text_contents": [
+    "Done",
+    "Event?",
+    "Handle",
+    "Idle",
+    "No",
+    "Yes"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "polygon",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

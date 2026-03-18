@@ -1,0 +1,33 @@
+{
+  "rect_count": 4,
+  "circle_count": 0,
+  "ellipse_count": 0,
+  "path_count": 4,
+  "polygon_count": 0,
+  "text_count": 4,
+  "arc_count": 0,
+  "text_contents": [
+    "Medium label here",
+    "S",
+    "S",
+    "This is a very wide node label"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "path",
+    "path",
+    "path",
+    "path",
+    "rect",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text",
+    "text"
+  ]
+}

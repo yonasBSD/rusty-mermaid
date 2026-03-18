@@ -1,0 +1,35 @@
+{
+  "rect_count": 3,
+  "circle_count": 3,
+  "ellipse_count": 0,
+  "path_count": 6,
+  "polygon_count": 0,
+  "text_count": 3,
+  "arc_count": 0,
+  "text_contents": [
+    "Crash",
+    "Moving",
+    "Still"
+  ],
+  "marker_types": [
+    "ArrowPoint"
+  ],
+  "has_groups": false,
+  "primitive_types_sorted": [
+    "circle",
+    "circle",
+    "circle",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "rect",
+    "rect",
+    "rect",
+    "text",
+    "text",
+    "text"
+  ]
+}
