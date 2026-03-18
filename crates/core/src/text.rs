@@ -39,17 +39,74 @@ impl SimpleTextMeasure {
     }
 }
 
+/// CJK glyph width relative to Latin in monospace fonts.
+/// Terminal convention is 2.0, but actual monospace fonts (Intel One Mono,
+/// JetBrains Mono, etc.) render CJK at roughly 1.0em vs Latin's 0.6em,
+/// giving a ratio of ~1.67. We use 1.7 for comfortable padding.
+const CJK_WIDTH_RATIO: f64 = 1.7;
+
 impl TextMeasure for SimpleTextMeasure {
     fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64) {
         let scale = style.font_size / 14.0;
         let stripped = strip_markup(text);
         let lines: Vec<&str> = stripped.split('\n').collect();
-        let max_chars = lines.iter().map(|l| l.chars().count()).max().unwrap_or(0);
+        let max_width = lines
+            .iter()
+            .map(|l| {
+                l.chars()
+                    .map(|c| if is_wide_char(c) { CJK_WIDTH_RATIO } else { 1.0 })
+                    .sum::<f64>()
+            })
+            .fold(0.0f64, f64::max);
 
-        let width = max_chars as f64 * self.avg_char_width * scale;
+        let width = max_width * self.avg_char_width * scale;
         let height = lines.len() as f64 * self.line_height * scale;
         (width, height)
     }
+}
+
+/// Check if a character is East Asian Wide or Fullwidth per UAX #11.
+/// Covers the most common ranges; not exhaustive but sufficient for
+/// CJK, Japanese kana, Korean, and fullwidth Latin/symbols.
+fn is_wide_char(c: char) -> bool {
+    let cp = c as u32;
+    matches!(cp,
+        // CJK Unified Ideographs
+        0x4E00..=0x9FFF |
+        // CJK Extension A
+        0x3400..=0x4DBF |
+        // CJK Extension B+
+        0x20000..=0x2A6DF |
+        // CJK Compatibility Ideographs
+        0xF900..=0xFAFF |
+        // Hiragana
+        0x3040..=0x309F |
+        // Katakana
+        0x30A0..=0x30FF |
+        // CJK Symbols and Punctuation
+        0x3000..=0x303F |
+        // Hangul Syllables
+        0xAC00..=0xD7AF |
+        // Hangul Jamo
+        0x1100..=0x11FF |
+        // Hangul Compatibility Jamo
+        0x3130..=0x318F |
+        // Fullwidth Forms (fullwidth Latin, etc.)
+        0xFF01..=0xFF60 |
+        // Halfwidth CJK punctuation (these are actually narrow, skip)
+        // Enclosed CJK Letters
+        0x3200..=0x32FF |
+        // CJK Compatibility
+        0x3300..=0x33FF |
+        // Katakana Phonetic Extensions
+        0x31F0..=0x31FF |
+        // Bopomofo
+        0x3100..=0x312F |
+        // CJK Radicals Supplement
+        0x2E80..=0x2EFF |
+        // Kangxi Radicals
+        0x2F00..=0x2FDF
+    )
 }
 
 /// Strip HTML tags and markdown markers from text for measurement.
@@ -193,5 +250,50 @@ mod tests {
         let m = SimpleTextMeasure::default();
         assert!((m.avg_char_width - 8.4).abs() < f64::EPSILON);
         assert!((m.line_height - 16.8).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn cjk_chars_wider_than_latin() {
+        let m = SimpleTextMeasure::default();
+        // "你好世界" = 4 CJK chars × 1.7 × 8.4 = 57.12
+        let (w, _) = m.measure("你好世界", &default_style());
+        assert!((w - 4.0 * 1.7 * 8.4).abs() < 1e-10);
+    }
+
+    #[test]
+    fn japanese_kana_wider_than_latin() {
+        let m = SimpleTextMeasure::default();
+        // "こんにちは世界" = 7 wide chars × 1.7 × 8.4
+        let (w, _) = m.measure("こんにちは世界", &default_style());
+        assert!((w - 7.0 * 1.7 * 8.4).abs() < 1e-10);
+    }
+
+    #[test]
+    fn mixed_latin_cjk() {
+        let m = SimpleTextMeasure::default();
+        // "Hi你好" = 2×1.0 + 2×1.7 = 5.4 units × 8.4 = 45.36
+        let (w, _) = m.measure("Hi你好", &default_style());
+        assert!((w - (2.0 + 2.0 * 1.7) * 8.4).abs() < 1e-10);
+    }
+
+    #[test]
+    fn latin_and_cyrillic_are_narrow() {
+        let m = SimpleTextMeasure::default();
+        let (w_latin, _) = m.measure("hello", &default_style());
+        let (w_cyrillic, _) = m.measure("приве", &default_style());
+        // Both 5 chars × 1.0 × 8.4 = 42.0
+        assert!((w_latin - 42.0).abs() < 1e-10);
+        assert!((w_cyrillic - 42.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn wide_char_detection() {
+        assert!(is_wide_char('你'));  // CJK ideograph
+        assert!(is_wide_char('こ'));  // Hiragana
+        assert!(is_wide_char('ア'));  // Katakana
+        assert!(is_wide_char('한'));  // Hangul
+        assert!(!is_wide_char('A'));  // Latin
+        assert!(!is_wide_char('Я'));  // Cyrillic
+        assert!(!is_wide_char('م'));  // Arabic
     }
 }
