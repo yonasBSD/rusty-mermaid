@@ -7,7 +7,8 @@ use rusty_mermaid_core::{
     TextStyle, Theme, interpolate,
 };
 
-use bridge::{LayoutResult, NodeLayout};
+use bridge::LayoutResult;
+use crate::common::layout::NodeLayout;
 
 use crate::common::rendering::{
     contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
@@ -611,6 +612,7 @@ fn segment_intersect(a: &Point, b: &Point, c: &Point, d: &Point) -> Option<(f64,
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::common::test_helpers::test_helpers::*;
     use rusty_mermaid_core::MarkerType;
 
     #[test]
@@ -621,8 +623,7 @@ mod tests {
         let layout = crate::state::bridge::layout(&d);
         let scene = to_scene(&layout);
 
-        assert!(scene.width > 0.0);
-        assert!(scene.height > 0.0);
+        assert_scene_valid(&scene);
 
         let prims = scene.primitives();
         // At least: start circle + 2 state rects + 2 state labels + 2 edge paths
@@ -642,16 +643,11 @@ mod tests {
         let layout = crate::state::bridge::layout(&d);
         let scene = to_scene(&layout);
 
-        let circles: Vec<_> = scene
-            .primitives()
-            .iter()
-            .filter(|p| matches!(p, Primitive::Circle { .. }))
-            .collect();
         // Start circle (filled) + end bullseye (outer + inner = 2 circles)
         assert!(
-            circles.len() >= 3,
+            count_circles(&scene) >= 3,
             "expected at least 3 Circle primitives (start + end bullseye), got {}",
-            circles.len()
+            count_circles(&scene)
         );
     }
 
@@ -664,6 +660,7 @@ mod tests {
         let layout = crate::state::bridge::layout(&d);
         let scene = to_scene(&layout);
 
+        // This filter is test-specific (checks rx/ry values), keep inline
         let rects: Vec<_> = scene
             .primitives()
             .iter()
@@ -712,17 +709,13 @@ mod tests {
         let scene = to_scene(&layout);
 
         // Compound state produces: background Rect + label Text + separator Path
-        let rects: Vec<_> = scene
-            .primitives()
-            .iter()
-            .filter(|p| matches!(p, Primitive::Rect { .. }))
-            .collect();
         assert!(
-            !rects.is_empty(),
+            has_rect(&scene),
             "compound state should produce background Rect"
         );
 
         // Separator line: a Path with exactly 2 segments (MoveTo + LineTo)
+        // Test-specific filter — keep inline
         let separator_paths: Vec<_> = scene
             .primitives()
             .iter()
@@ -746,11 +739,7 @@ mod tests {
         );
 
         // Compound label text
-        let has_label = scene
-            .primitives()
-            .iter()
-            .any(|p| matches!(p, Primitive::Text { content, .. } if content == "Outer"));
-        assert!(has_label, "compound state label should appear in scene");
+        assert!(has_text(&scene, "Outer"), "compound state label should appear in scene");
     }
 
     #[test]

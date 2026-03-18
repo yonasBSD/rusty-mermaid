@@ -7,6 +7,7 @@ use rusty_mermaid_core::{
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
+use crate::common::layout::{ArrowEnd, EdgeLayout, NodeLayout, StrokeType};
 use crate::common::rendering::apply_style_properties;
 use crate::common::styling::StyleProperty;
 
@@ -51,31 +52,6 @@ pub struct RegionRect {
 pub struct DividerLine {
     pub start: Point,
     pub end: Point,
-}
-
-#[derive(Debug)]
-pub struct NodeLayout {
-    pub id: String,
-    pub label: String,
-    pub x: f64,
-    pub y: f64,
-    pub width: f64,
-    pub height: f64,
-    pub is_compound: bool,
-    pub shape: Shape,
-    pub custom_style: Option<Style>,
-    /// Number of concurrent regions (0 = not concurrent).
-    pub region_count: usize,
-}
-
-#[derive(Debug)]
-pub struct EdgeLayout {
-    pub src: String,
-    pub dst: String,
-    pub points: Vec<Point>,
-    pub label: Option<String>,
-    /// Measured label dimensions (width, height) for background rect.
-    pub label_size: Option<(f64, f64)>,
 }
 
 /// Layout with the default text measurer.
@@ -267,6 +243,10 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
                 points,
                 label: transition.label.clone(),
                 label_size,
+                stroke: StrokeType::Normal,
+                start_arrow: ArrowEnd::None,
+                end_arrow: ArrowEnd::Arrow,
+                custom_style: None,
             });
         }
     }

@@ -7,7 +7,8 @@ use rusty_mermaid_core::{
     TextStyle, Theme, interpolate,
 };
 
-use bridge::{LayoutResult, NodeLayout};
+use bridge::LayoutResult;
+use crate::common::layout::NodeLayout;
 use ir::{ArrowEnd, StrokeType};
 
 use crate::common::rendering::{
@@ -440,6 +441,7 @@ fn render_subroutine(bbox: BBox, style: Style, scene: &mut Scene) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::common::test_helpers::test_helpers::*;
 
     #[test]
     fn simple_flowchart_to_scene() {
@@ -447,19 +449,15 @@ mod tests {
         let layout = crate::flowchart::bridge::layout(&d);
         let scene = to_scene(&layout);
 
-        assert!(scene.width > 0.0);
-        assert!(scene.height > 0.0);
+        assert_scene_valid(&scene);
 
         let prims = scene.primitives();
         // At minimum: 2 nodes (Rect + Text each) + 1 edge (Path)
         assert!(prims.len() >= 5, "expected at least 5 primitives, got {}", prims.len());
 
-        let has_rect = prims.iter().any(|p| matches!(p, Primitive::Rect { .. }));
-        let has_path = prims.iter().any(|p| matches!(p, Primitive::Path { .. }));
-        let has_text = prims.iter().any(|p| matches!(p, Primitive::Text { .. }));
-        assert!(has_rect, "scene should contain Rect primitives for nodes");
-        assert!(has_path, "scene should contain Path primitives for edges");
-        assert!(has_text, "scene should contain Text primitives for labels");
+        assert!(has_rect(&scene), "scene should contain Rect primitives for nodes");
+        assert!(has_path(&scene), "scene should contain Path primitives for edges");
+        assert!(count_texts(&scene) > 0, "scene should contain Text primitives for labels");
     }
 
     #[test]
@@ -468,16 +466,16 @@ mod tests {
         let layout = crate::flowchart::bridge::layout(&d);
         let scene = to_scene(&layout);
 
+        assert!(
+            count_polygons(&scene) > 0,
+            "diamond shape should produce at least one Polygon primitive"
+        );
+        // Diamond has exactly 4 points
         let polygons: Vec<_> = scene
             .primitives()
             .iter()
             .filter(|p| matches!(p, Primitive::Polygon { .. }))
             .collect();
-        assert!(
-            !polygons.is_empty(),
-            "diamond shape should produce at least one Polygon primitive"
-        );
-        // Diamond has exactly 4 points
         if let Primitive::Polygon { points, .. } = &polygons[0] {
             assert_eq!(points.len(), 4, "diamond polygon should have 4 vertices");
         }
@@ -489,15 +487,15 @@ mod tests {
         let layout = crate::flowchart::bridge::layout(&d);
         let scene = to_scene(&layout);
 
+        assert!(
+            has_circle(&scene),
+            "circle shape should produce Circle primitive"
+        );
         let circles: Vec<_> = scene
             .primitives()
             .iter()
             .filter(|p| matches!(p, Primitive::Circle { .. }))
             .collect();
-        assert!(
-            !circles.is_empty(),
-            "circle shape should produce Circle primitive"
-        );
         if let Primitive::Circle { radius, .. } = &circles[0] {
             assert!(*radius > 0.0);
         }
@@ -538,29 +536,25 @@ mod tests {
 
         // Subgraph rect is rendered first, before node rects.
         // Count all rects: should be at least 3 (1 subgraph + 2 nodes).
+        assert!(
+            count_rects(&scene) >= 3,
+            "expected at least 3 Rects (1 subgraph bg + 2 nodes), got {}",
+            count_rects(&scene)
+        );
+
+        // First rect should be the subgraph background (rendered before nodes)
         let rects: Vec<_> = scene
             .primitives()
             .iter()
             .filter(|p| matches!(p, Primitive::Rect { .. }))
             .collect();
-        assert!(
-            rects.len() >= 3,
-            "expected at least 3 Rects (1 subgraph bg + 2 nodes), got {}",
-            rects.len()
-        );
-
-        // First rect should be the subgraph background (rendered before nodes)
         if let Primitive::Rect { rx, ry, .. } = &rects[0] {
             assert!((*rx - 5.0).abs() < f64::EPSILON, "subgraph rect should have rx=5");
             assert!((*ry - 5.0).abs() < f64::EPSILON, "subgraph rect should have ry=5");
         }
 
         // Subgraph label text should appear
-        let has_sg_label = scene
-            .primitives()
-            .iter()
-            .any(|p| matches!(p, Primitive::Text { content, .. } if content == "My Group"));
-        assert!(has_sg_label, "subgraph label text should be in scene");
+        assert!(has_text(&scene, "My Group"), "subgraph label text should be in scene");
     }
 
     #[test]

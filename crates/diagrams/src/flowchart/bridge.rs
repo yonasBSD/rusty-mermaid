@@ -10,6 +10,7 @@ use rusty_mermaid_graph::{Graph, NodeId};
 use rusty_mermaid_core::Shape;
 
 use super::ir::{ArrowEnd, FlowDiagram, StrokeType};
+use crate::common::layout::{EdgeLayout, NodeLayout};
 use crate::common::rendering::apply_style_properties;
 use crate::common::styling::StyleProperty;
 use crate::common::tokens::strip_html_tags;
@@ -25,34 +26,6 @@ pub struct LayoutResult {
     pub subgraphs: Vec<SubgraphLayout>,
     pub width: f64,
     pub height: f64,
-}
-
-#[derive(Debug)]
-pub struct NodeLayout {
-    pub id: String,
-    pub label: String,
-    pub shape: Shape,
-    pub x: f64,
-    pub y: f64,
-    pub width: f64,
-    pub height: f64,
-    /// Resolved style from classDef, class, style, and :::class.
-    pub custom_style: Option<Style>,
-}
-
-#[derive(Debug)]
-pub struct EdgeLayout {
-    pub src: String,
-    pub dst: String,
-    pub points: Vec<Point>,
-    pub label: Option<String>,
-    /// Measured label dimensions (width, height) for background rect.
-    pub label_size: Option<(f64, f64)>,
-    pub stroke: StrokeType,
-    pub start_arrow: ArrowEnd,
-    pub end_arrow: ArrowEnd,
-    /// Resolved style from linkStyle statements.
-    pub custom_style: Option<Style>,
 }
 
 #[derive(Debug)]
@@ -177,7 +150,9 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
                 y: n.y,
                 width: n.width,
                 height: n.height,
+                is_compound: false,
                 custom_style: node_styles.get(v.id.as_str()).cloned(),
+                region_count: 0,
             });
             max_x = max_x.max(n.x + n.width / 2.0);
             max_y = max_y.max(n.y + n.height / 2.0);

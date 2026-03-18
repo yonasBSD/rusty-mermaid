@@ -2,6 +2,8 @@ use rusty_mermaid_core::{Direction, Shape};
 
 use crate::common::styling::{ClassDef, StyleProperty};
 
+pub use crate::common::layout::{ArrowEnd, StrokeType};
+
 /// A parsed flowchart diagram.
 #[derive(Debug, Clone)]
 pub struct FlowDiagram {
@@ -22,25 +24,6 @@ pub struct FlowVertex {
     pub label: String,
     pub shape: Shape,
     pub classes: Vec<String>,
-}
-
-/// Edge stroke type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum StrokeType {
-    #[default]
-    Normal,
-    Thick,
-    Dotted,
-}
-
-/// Arrow endpoint marker.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum ArrowEnd {
-    #[default]
-    Arrow,
-    Circle,
-    Cross,
-    None,
 }
 
 /// A flowchart edge.
