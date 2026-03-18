@@ -6,3 +6,6 @@ license.workspace = true
 description = "Shared types, geometry, drawing primitives, and traits"
 
 [dependencies]
+
+[dev-dependencies]
+proptest = "1"

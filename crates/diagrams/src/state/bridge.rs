@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use rusty_mermaid_core::{
-    BBox, intersect_circle, intersect_polygon, Point, SimpleTextMeasure, Style, TextMeasure,
+    BBox, Shape, intersect_circle, intersect_polygon, Point, SimpleTextMeasure, Style, TextMeasure,
     TextStyle,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
@@ -53,17 +53,6 @@ pub struct DividerLine {
     pub end: Point,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum NodeShape {
-    RoundedRect,
-    StartCircle,
-    EndBullseye,
-    ForkJoinBar,
-    ChoiceDiamond,
-    NoteRect,
-    HistoryCircle,
-}
-
 #[derive(Debug)]
 pub struct NodeLayout {
     pub id: String,
@@ -73,7 +62,7 @@ pub struct NodeLayout {
     pub width: f64,
     pub height: f64,
     pub is_compound: bool,
-    pub shape: NodeShape,
+    pub shape: Shape,
     pub custom_style: Option<Style>,
     /// Number of concurrent regions (0 = not concurrent).
     pub region_count: usize,
@@ -182,7 +171,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             width: note_w,
             height: note_h,
             is_compound: false,
-            shape: NodeShape::NoteRect,
+            shape: Shape::Note,
             custom_style: None,
             region_count: 0,
         });
@@ -784,14 +773,14 @@ fn find_state_label(states: &[super::ir::StateNode], id: &str) -> Option<String>
 /// Determine the rendering shape for a node based on its ID and IR kind.
 /// Re-clip an edge endpoint to the actual node shape instead of dagre's
 /// default bounding-box rectangle.
-fn state_shape_intersect(shape: NodeShape, bbox: BBox, adj: Point) -> Option<Point> {
+fn state_shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> {
     let (cx, cy) = (bbox.x, bbox.y);
     let center = Point::new(cx, cy);
     let target = adj;
     let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
 
     let p = match shape {
-        NodeShape::ChoiceDiamond => {
+        Shape::Choice => {
             let verts = [
                 Point::new(cx, cy - hh),
                 Point::new(cx + hw, cy),
@@ -800,7 +789,7 @@ fn state_shape_intersect(shape: NodeShape, bbox: BBox, adj: Point) -> Option<Poi
             ];
             intersect_polygon(&verts, center, target)
         }
-        NodeShape::StartCircle | NodeShape::EndBullseye | NodeShape::HistoryCircle => {
+        Shape::StateStart | Shape::StateEnd | Shape::History => {
             let r = bbox.width.max(bbox.height) / 2.0;
             intersect_circle(center, r, target)
         }
@@ -810,20 +799,20 @@ fn state_shape_intersect(shape: NodeShape, bbox: BBox, adj: Point) -> Option<Poi
     Some(p)
 }
 
-fn node_shape(states: &[super::ir::StateNode], id: &str) -> NodeShape {
+fn node_shape(states: &[super::ir::StateNode], id: &str) -> Shape {
     if id.ends_with("[*]_start") {
-        return NodeShape::StartCircle;
+        return Shape::StateStart;
     }
     if id.ends_with("[*]_end") {
-        return NodeShape::EndBullseye;
+        return Shape::StateEnd;
     }
     match find_state_kind(states, id) {
-        Some(StateKind::Fork | StateKind::Join) => NodeShape::ForkJoinBar,
-        Some(StateKind::Choice) => NodeShape::ChoiceDiamond,
-        Some(StateKind::Start) => NodeShape::StartCircle,
-        Some(StateKind::End) => NodeShape::EndBullseye,
-        Some(StateKind::History) => NodeShape::HistoryCircle,
-        _ => NodeShape::RoundedRect,
+        Some(StateKind::Fork | StateKind::Join) => Shape::ForkJoin,
+        Some(StateKind::Choice) => Shape::Choice,
+        Some(StateKind::Start) => Shape::StateStart,
+        Some(StateKind::End) => Shape::StateEnd,
+        Some(StateKind::History) => Shape::History,
+        _ => Shape::RoundedRect,
     }
 }
 
@@ -1321,22 +1310,22 @@ mod tests {
         let result = layout(&d);
 
         let start = result.nodes.iter().find(|n| n.id == "[*]_start").unwrap();
-        assert_eq!(start.shape, NodeShape::StartCircle);
+        assert_eq!(start.shape, Shape::StateStart);
 
         let end = result.nodes.iter().find(|n| n.id == "[*]_end").unwrap();
-        assert_eq!(end.shape, NodeShape::EndBullseye);
+        assert_eq!(end.shape, Shape::StateEnd);
 
         let fork = result.nodes.iter().find(|n| n.id == "fork1").unwrap();
-        assert_eq!(fork.shape, NodeShape::ForkJoinBar);
+        assert_eq!(fork.shape, Shape::ForkJoin);
 
         let join = result.nodes.iter().find(|n| n.id == "join1").unwrap();
-        assert_eq!(join.shape, NodeShape::ForkJoinBar);
+        assert_eq!(join.shape, Shape::ForkJoin);
 
         let choice = result.nodes.iter().find(|n| n.id == "check").unwrap();
-        assert_eq!(choice.shape, NodeShape::ChoiceDiamond);
+        assert_eq!(choice.shape, Shape::Choice);
 
         let a = result.nodes.iter().find(|n| n.id == "A").unwrap();
-        assert_eq!(a.shape, NodeShape::RoundedRect);
+        assert_eq!(a.shape, Shape::RoundedRect);
     }
 
     #[test]
@@ -1346,7 +1335,7 @@ mod tests {
         ).unwrap();
         let result = layout(&d);
         let h = result.nodes.iter().find(|n| n.id == "h1").unwrap();
-        assert_eq!(h.shape, NodeShape::HistoryCircle);
+        assert_eq!(h.shape, Shape::History);
         // Should be sized like start/end circles
         assert!((h.width - 16.0).abs() < 1.0);
     }
@@ -1377,7 +1366,7 @@ mod tests {
         let still = result.nodes.iter().find(|n| n.id == "Still").unwrap();
         let note = result.nodes.iter().find(|n| n.id == "Still-note").unwrap();
 
-        assert_eq!(note.shape, NodeShape::NoteRect);
+        assert_eq!(note.shape, Shape::Note);
         assert_eq!(note.label, "idle state");
         // Note should be to the right of the state
         assert!(note.x > still.x,
@@ -1394,7 +1383,7 @@ mod tests {
         let still = result.nodes.iter().find(|n| n.id == "Still").unwrap();
         let note = result.nodes.iter().find(|n| n.id == "Still-note").unwrap();
 
-        assert_eq!(note.shape, NodeShape::NoteRect);
+        assert_eq!(note.shape, Shape::Note);
         // Note should be to the left of the state
         assert!(note.x < still.x,
             "note (x={:.1}) should be left of Still (x={:.1})", note.x, still.x);
@@ -1507,23 +1496,23 @@ mod tests {
     #[test]
     fn intersect_rounded_rect_returns_none() {
         let bbox = bbox_at_origin(100.0, 60.0);
-        assert!(state_shape_intersect(NodeShape::RoundedRect, bbox, Point::new(0.0, -100.0)).is_none());
-        assert!(state_shape_intersect(NodeShape::RoundedRect, bbox, Point::new(100.0, 0.0)).is_none());
-        assert!(state_shape_intersect(NodeShape::RoundedRect, bbox, Point::new(50.0, 50.0)).is_none());
+        assert!(state_shape_intersect(Shape::RoundedRect, bbox, Point::new(0.0, -100.0)).is_none());
+        assert!(state_shape_intersect(Shape::RoundedRect, bbox, Point::new(100.0, 0.0)).is_none());
+        assert!(state_shape_intersect(Shape::RoundedRect, bbox, Point::new(50.0, 50.0)).is_none());
     }
 
     #[test]
     fn intersect_fork_join_bar_returns_none() {
         let bbox = bbox_at_origin(70.0, 7.0);
-        assert!(state_shape_intersect(NodeShape::ForkJoinBar, bbox, Point::new(0.0, -50.0)).is_none());
-        assert!(state_shape_intersect(NodeShape::ForkJoinBar, bbox, Point::new(100.0, 100.0)).is_none());
+        assert!(state_shape_intersect(Shape::ForkJoin, bbox, Point::new(0.0, -50.0)).is_none());
+        assert!(state_shape_intersect(Shape::ForkJoin, bbox, Point::new(100.0, 100.0)).is_none());
     }
 
     #[test]
     fn intersect_note_rect_returns_none() {
         let bbox = bbox_at_origin(80.0, 40.0);
-        assert!(state_shape_intersect(NodeShape::NoteRect, bbox, Point::new(0.0, -50.0)).is_none());
-        assert!(state_shape_intersect(NodeShape::NoteRect, bbox, Point::new(-100.0, 0.0)).is_none());
+        assert!(state_shape_intersect(Shape::Note, bbox, Point::new(0.0, -50.0)).is_none());
+        assert!(state_shape_intersect(Shape::Note, bbox, Point::new(-100.0, 0.0)).is_none());
     }
 
     // --- Circle shapes: StartCircle, EndBullseye, HistoryCircle ---
@@ -1535,7 +1524,7 @@ mod tests {
     fn intersect_start_circle_from_above() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(0.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(0.0, -100.0)).unwrap();
         assert_point_near(p, Point::new(0.0, -r), 1e-6, "start circle from above");
     }
 
@@ -1543,7 +1532,7 @@ mod tests {
     fn intersect_start_circle_from_below() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(0.0, 100.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(0.0, 100.0)).unwrap();
         assert_point_near(p, Point::new(0.0, r), 1e-6, "start circle from below");
     }
 
@@ -1551,7 +1540,7 @@ mod tests {
     fn intersect_start_circle_from_left() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(-100.0, 0.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(-100.0, 0.0)).unwrap();
         assert_point_near(p, Point::new(-r, 0.0), 1e-6, "start circle from left");
     }
 
@@ -1559,7 +1548,7 @@ mod tests {
     fn intersect_start_circle_from_right() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(100.0, 0.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(100.0, 0.0)).unwrap();
         assert_point_near(p, Point::new(r, 0.0), 1e-6, "start circle from right");
     }
 
@@ -1567,7 +1556,7 @@ mod tests {
     fn intersect_start_circle_diagonal() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(100.0, 100.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(100.0, 100.0)).unwrap();
         let s = r / 2.0_f64.sqrt();
         assert_point_near(p, Point::new(s, s), 1e-6, "start circle diagonal");
         // Point should be on the circle boundary
@@ -1579,7 +1568,7 @@ mod tests {
     fn intersect_end_bullseye_from_above() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::EndBullseye, bbox, Point::new(0.0, -50.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateEnd, bbox, Point::new(0.0, -50.0)).unwrap();
         assert_point_near(p, Point::new(0.0, -r), 1e-6, "end bullseye from above");
     }
 
@@ -1587,7 +1576,7 @@ mod tests {
     fn intersect_end_bullseye_diagonal() {
         let r = 10.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::EndBullseye, bbox, Point::new(-80.0, 80.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateEnd, bbox, Point::new(-80.0, 80.0)).unwrap();
         let s = r / 2.0_f64.sqrt();
         assert_point_near(p, Point::new(-s, s), 1e-6, "end bullseye diagonal bottom-left");
     }
@@ -1596,7 +1585,7 @@ mod tests {
     fn intersect_history_circle_from_right() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::HistoryCircle, bbox, Point::new(200.0, 0.0)).unwrap();
+        let p = state_shape_intersect(Shape::History, bbox, Point::new(200.0, 0.0)).unwrap();
         assert_point_near(p, Point::new(r, 0.0), 1e-6, "history circle from right");
     }
 
@@ -1604,7 +1593,7 @@ mod tests {
     fn intersect_history_circle_diagonal() {
         let r = 8.0;
         let bbox = bbox_at_origin(r * 2.0, r * 2.0);
-        let p = state_shape_intersect(NodeShape::HistoryCircle, bbox, Point::new(-50.0, -50.0)).unwrap();
+        let p = state_shape_intersect(Shape::History, bbox, Point::new(-50.0, -50.0)).unwrap();
         let dist = (p.x * p.x + p.y * p.y).sqrt();
         assert!(approx_eq(dist, r, 1e-6), "history circle diagonal point on boundary");
     }
@@ -1614,7 +1603,7 @@ mod tests {
         // When width != height, radius = max(w, h) / 2
         let bbox = BBox::new(0.0, 0.0, 20.0, 10.0);
         let r = 10.0; // max(20, 10) / 2
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(0.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(0.0, -100.0)).unwrap();
         assert_point_near(p, Point::new(0.0, -r), 1e-6, "radius uses max dimension");
     }
 
@@ -1628,7 +1617,7 @@ mod tests {
     fn intersect_diamond_from_above() {
         let s = 28.0;
         let bbox = bbox_at_origin(s, s);
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(0.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(0.0, -100.0)).unwrap();
         // Directly above center hits the top vertex
         assert_point_near(p, Point::new(0.0, -s / 2.0), 1e-6, "diamond from above");
     }
@@ -1637,7 +1626,7 @@ mod tests {
     fn intersect_diamond_from_below() {
         let s = 28.0;
         let bbox = bbox_at_origin(s, s);
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(0.0, 100.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(0.0, 100.0)).unwrap();
         assert_point_near(p, Point::new(0.0, s / 2.0), 1e-6, "diamond from below");
     }
 
@@ -1645,7 +1634,7 @@ mod tests {
     fn intersect_diamond_from_left() {
         let s = 28.0;
         let bbox = bbox_at_origin(s, s);
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(-100.0, 0.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(-100.0, 0.0)).unwrap();
         assert_point_near(p, Point::new(-s / 2.0, 0.0), 1e-6, "diamond from left");
     }
 
@@ -1653,7 +1642,7 @@ mod tests {
     fn intersect_diamond_from_right() {
         let s = 28.0;
         let bbox = bbox_at_origin(s, s);
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(100.0, 0.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(100.0, 0.0)).unwrap();
         assert_point_near(p, Point::new(s / 2.0, 0.0), 1e-6, "diamond from right");
     }
 
@@ -1664,7 +1653,7 @@ mod tests {
         let s = 28.0;
         let hw = s / 2.0;
         let bbox = bbox_at_origin(s, s);
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(100.0, 100.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(100.0, 100.0)).unwrap();
         // The bottom-right edge goes from (hw, 0) to (0, hw).
         // Midpoint of that edge = (hw/2, hw/2).
         // A ray at 45 degrees hits exactly the midpoint for a square diamond.
@@ -1676,7 +1665,7 @@ mod tests {
         let s = 28.0;
         let hw = s / 2.0;
         let bbox = bbox_at_origin(s, s);
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(-100.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(-100.0, -100.0)).unwrap();
         // Top-left edge: from (0, -hw) to (-hw, 0). Midpoint = (-hw/2, -hw/2).
         assert_point_near(p, Point::new(-hw / 2.0, -hw / 2.0), 1e-6, "diamond 45-deg top-left");
     }
@@ -1687,10 +1676,10 @@ mod tests {
         // Vertices: top=(0,-10), right=(20,0), bottom=(0,10), left=(-20,0)
         let bbox = bbox_at_origin(40.0, 20.0);
         // Ray from center straight up
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(0.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(0.0, -100.0)).unwrap();
         assert_point_near(p, Point::new(0.0, -10.0), 1e-6, "non-square diamond from above");
         // Ray from center straight right
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(100.0, 0.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(100.0, 0.0)).unwrap();
         assert_point_near(p, Point::new(20.0, 0.0), 1e-6, "non-square diamond from right");
     }
 
@@ -1704,7 +1693,7 @@ mod tests {
         // Shoot a non-axis-aligned ray (e.g., 30 degrees from horizontal)
         let angle = std::f64::consts::FRAC_PI_6; // 30 degrees
         let target = Point::new(100.0 * angle.cos(), 100.0 * angle.sin());
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, target).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, target).unwrap();
 
         // For a square diamond centered at origin with half-width hw,
         // a point is on the boundary iff |x|/hw + |y|/hw == 1
@@ -1727,7 +1716,7 @@ mod tests {
         for deg in (0..360).step_by(15) {
             let angle = (deg as f64).to_radians();
             let target = Point::new(100.0 * angle.cos(), 100.0 * angle.sin());
-            let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, target).unwrap();
+            let p = state_shape_intersect(Shape::Choice, bbox, target).unwrap();
             let boundary_check = p.x.abs() / hw + p.y.abs() / hw;
             assert!(
                 approx_eq(boundary_check, 1.0, 1e-4),
@@ -1747,7 +1736,7 @@ mod tests {
         for deg in (0..360).step_by(15) {
             let angle = (deg as f64).to_radians();
             let target = Point::new(100.0 * angle.cos(), 100.0 * angle.sin());
-            let p = state_shape_intersect(NodeShape::StartCircle, bbox, target).unwrap();
+            let p = state_shape_intersect(Shape::StateStart, bbox, target).unwrap();
             let dist = (p.x * p.x + p.y * p.y).sqrt();
             assert!(
                 approx_eq(dist, r, 1e-6),
@@ -1763,10 +1752,10 @@ mod tests {
         let bbox = BBox::new(50.0, 30.0, 16.0, 16.0);
         let r = 8.0;
         // Target far above the center
-        let p = state_shape_intersect(NodeShape::StartCircle, bbox, Point::new(50.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateStart, bbox, Point::new(50.0, -100.0)).unwrap();
         assert_point_near(p, Point::new(50.0, 30.0 - r), 1e-6, "offset center from above");
         // Target to the right
-        let p = state_shape_intersect(NodeShape::EndBullseye, bbox, Point::new(200.0, 30.0)).unwrap();
+        let p = state_shape_intersect(Shape::StateEnd, bbox, Point::new(200.0, 30.0)).unwrap();
         assert_point_near(p, Point::new(50.0 + r, 30.0), 1e-6, "offset center from right");
     }
 
@@ -1775,10 +1764,10 @@ mod tests {
         let bbox = BBox::new(100.0, 50.0, 28.0, 28.0);
         let hw = 14.0;
         // Target directly above
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(100.0, -100.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(100.0, -100.0)).unwrap();
         assert_point_near(p, Point::new(100.0, 50.0 - hw), 1e-6, "offset diamond from above");
         // Target directly right
-        let p = state_shape_intersect(NodeShape::ChoiceDiamond, bbox, Point::new(300.0, 50.0)).unwrap();
+        let p = state_shape_intersect(Shape::Choice, bbox, Point::new(300.0, 50.0)).unwrap();
         assert_point_near(p, Point::new(100.0 + hw, 50.0), 1e-6, "offset diamond from right");
     }
 }

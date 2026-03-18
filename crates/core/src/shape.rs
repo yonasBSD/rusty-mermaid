@@ -22,6 +22,7 @@ pub enum Shape {
     StateEnd,
     ForkJoin,
     Choice,
+    History,
     // Class/ER
     ClassBox,
     ErEntity,

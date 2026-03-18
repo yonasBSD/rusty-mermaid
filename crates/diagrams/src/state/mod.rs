@@ -3,11 +3,11 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, Color, CurveType, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle,
-    Theme, interpolate,
+    BBox, Color, CurveType, PathSegment, Point, Primitive, Scene, Shape, Style, TextAnchor,
+    TextStyle, Theme, interpolate,
 };
 
-use bridge::{LayoutResult, NodeLayout, NodeShape};
+use bridge::{LayoutResult, NodeLayout};
 
 use crate::common::rendering::{
     contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
@@ -129,7 +129,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     // Then render leaf nodes on top
     for node in layout.nodes.iter().filter(|n| !n.is_compound) {
         match node.shape {
-            NodeShape::StartCircle => {
+            Shape::StateStart => {
                 scene.push(Primitive::Circle {
                     center: Point::new(node.x, node.y),
                     radius: node.width / 2.0,
@@ -140,7 +140,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     },
                 });
             }
-            NodeShape::EndBullseye => {
+            Shape::StateEnd => {
                 let r = node.width / 2.0;
                 scene.push(Primitive::Circle {
                     center: Point::new(node.x, node.y),
@@ -161,7 +161,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     },
                 });
             }
-            NodeShape::ForkJoinBar => {
+            Shape::ForkJoin => {
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(node.x, node.y, node.width, node.height),
                     rx: 0.0,
@@ -173,7 +173,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     },
                 });
             }
-            NodeShape::ChoiceDiamond => {
+            Shape::Choice => {
                 let hw = node.width / 2.0;
                 let hh = node.height / 2.0;
                 scene.push(Primitive::Polygon {
@@ -186,7 +186,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     style: merge_custom_style(node.custom_style.as_ref(), theme),
                 });
             }
-            NodeShape::NoteRect => {
+            Shape::Note => {
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(node.x, node.y, node.width, node.height),
                     rx: 0.0,
@@ -209,7 +209,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     },
                 });
             }
-            NodeShape::HistoryCircle => {
+            Shape::History => {
                 let r = node.width / 2.0;
                 scene.push(Primitive::Circle {
                     center: Point::new(node.x, node.y),
@@ -232,7 +232,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     },
                 });
             }
-            NodeShape::RoundedRect => {
+            Shape::RoundedRect | _ => {
                 let style = merge_custom_style(node.custom_style.as_ref(), theme);
                 let node_fill = style.fill;
                 scene.push(Primitive::Rect {

@@ -544,4 +544,89 @@ mod tests {
         // Should normalize the direction and project to boundary
         assert_point_near(p, Point::new(r, 0.0));
     }
+
+    // ── Property-based tests ──
+
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn circle_intersect_lands_on_boundary(
+            cx in -100.0..100.0f64,
+            cy in -100.0..100.0f64,
+            r in 1.0..50.0f64,
+            angle in 0.0..std::f64::consts::TAU,
+            dist in 1.1..100.0f64,
+        ) {
+            let center = Point::new(cx, cy);
+            let target = Point::new(cx + r * dist * angle.cos(), cy + r * dist * angle.sin());
+            let hit = intersect_circle(center, r, target);
+            let d = ((hit.x - cx).powi(2) + (hit.y - cy).powi(2)).sqrt();
+            prop_assert!((d - r).abs() < 1e-6, "hit at distance {d} from center, expected {r}");
+        }
+
+        #[test]
+        fn rect_intersect_on_boundary(
+            cx in -100.0..100.0f64,
+            cy in -100.0..100.0f64,
+            w in 10.0..200.0f64,
+            h in 10.0..200.0f64,
+            angle in 0.0..std::f64::consts::TAU,
+        ) {
+            let bbox = BBox::new(cx, cy, w, h);
+            let far = 500.0;
+            let target = Point::new(cx + far * angle.cos(), cy + far * angle.sin());
+            let hit = intersect_rect(&bbox, target);
+            let hw = w / 2.0;
+            let hh = h / 2.0;
+            let on_left_or_right = (hit.x - cx).abs() >= hw - 1e-6;
+            let on_top_or_bottom = (hit.y - cy).abs() >= hh - 1e-6;
+            let within_x = (hit.x - cx).abs() <= hw + 1e-6;
+            let within_y = (hit.y - cy).abs() <= hh + 1e-6;
+            prop_assert!(
+                (on_left_or_right && within_y) || (on_top_or_bottom && within_x),
+                "hit ({}, {}) not on rect boundary (center=({cx},{cy}), size=({w},{h}))", hit.x, hit.y
+            );
+        }
+
+        #[test]
+        fn ellipse_intersect_on_boundary(
+            cx in -100.0..100.0f64,
+            cy in -100.0..100.0f64,
+            rx in 5.0..100.0f64,
+            ry in 5.0..100.0f64,
+            angle in 0.0..std::f64::consts::TAU,
+            dist in 1.1..50.0f64,
+        ) {
+            let center = Point::new(cx, cy);
+            let target = Point::new(cx + rx * dist * angle.cos(), cy + ry * dist * angle.sin());
+            let hit = intersect_ellipse(center, rx, ry, target);
+            let eq = ((hit.x - cx) / rx).powi(2) + ((hit.y - cy) / ry).powi(2);
+            prop_assert!((eq - 1.0).abs() < 1e-4, "ellipse equation = {eq}, expected 1.0");
+        }
+
+        #[test]
+        fn polygon_diamond_intersect_between_center_and_target(
+            cx in -100.0..100.0f64,
+            cy in -100.0..100.0f64,
+            hw in 10.0..100.0f64,
+            hh in 10.0..100.0f64,
+            angle in 0.0..std::f64::consts::TAU,
+        ) {
+            let verts = vec![
+                Point::new(cx, cy - hh),
+                Point::new(cx + hw, cy),
+                Point::new(cx, cy + hh),
+                Point::new(cx - hw, cy),
+            ];
+            let center = Point::new(cx, cy);
+            let far = (hw + hh) * 3.0;
+            let target = Point::new(cx + far * angle.cos(), cy + far * angle.sin());
+            let hit = intersect_polygon(&verts, center, target);
+            let d_hit = ((hit.x - cx).powi(2) + (hit.y - cy).powi(2)).sqrt();
+            let d_target = ((target.x - cx).powi(2) + (target.y - cy).powi(2)).sqrt();
+            prop_assert!(d_hit <= d_target + 1e-6, "hit distance {d_hit} > target distance {d_target}");
+            prop_assert!(d_hit > 0.1, "hit too close to center: {d_hit}");
+        }
+    }
 }
