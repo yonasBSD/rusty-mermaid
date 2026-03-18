@@ -26,7 +26,7 @@ pub(crate) fn longest_path(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
 fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId, visited: &mut HashSet<NodeId>) -> i32 {
     if visited.contains(&v) {
-        return g.node(v).unwrap().rank;
+        return g.node(v).map_or(0, |n| n.rank);
     }
     visited.insert(v);
 
@@ -46,7 +46,9 @@ fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId, visited: &mut HashSet<Nod
         rank = 0;
     }
 
-    g.node_mut(v).unwrap().rank = rank;
+    if let Some(n) = g.node_mut(v) {
+        n.rank = rank;
+    }
     rank
 }
 

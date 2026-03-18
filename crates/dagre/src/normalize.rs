@@ -14,15 +14,19 @@ pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
         let Some((src, dst)) = g.edge_endpoints(eid) else {
             continue;
         };
-        let src_rank = g.node(src).unwrap().rank;
-        let dst_rank = g.node(dst).unwrap().rank;
+        let Some(src_node) = g.node(src) else { continue };
+        let Some(dst_node) = g.node(dst) else { continue };
+        let src_rank = src_node.rank;
+        let dst_rank = dst_node.rank;
 
         // Already unit length — nothing to do
         if dst_rank == src_rank + 1 {
             continue;
         }
 
-        let edge_label = g.remove_edge(eid).unwrap();
+        let Some(edge_label) = g.remove_edge(eid) else {
+            continue;
+        };
         let label_rank = edge_label.label_rank;
         let weight = edge_label.weight;
 

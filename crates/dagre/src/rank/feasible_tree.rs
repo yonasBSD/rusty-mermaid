@@ -126,7 +126,9 @@ fn canonical(u: NodeId, v: NodeId) -> (NodeId, NodeId) {
 /// Build a feasible spanning tree from a ranked graph.
 /// All tree edges are tight (slack == 0). Shifts ranks as needed.
 pub(crate) fn feasible_tree_mut(g: &mut Graph<NodeLabel, EdgeLabel>) -> NsTree {
-    let start = g.node_ids().next().unwrap();
+    let Some(start) = g.node_ids().next() else {
+        return NsTree::new(NodeId::from(0));
+    };
     let mut tree = NsTree::new(start);
     let total = g.node_count();
 
@@ -142,13 +144,18 @@ pub(crate) fn feasible_tree_mut(g: &mut Graph<NodeLabel, EdgeLabel>) -> NsTree {
 
             let tree_nodes: Vec<NodeId> = tree.nodes.iter().copied().collect();
             for nid in tree_nodes {
-                g.node_mut(nid).unwrap().rank += delta;
+                if let Some(n) = g.node_mut(nid) {
+                    n.rank += delta;
+                }
             }
         } else {
             // No edge crosses the boundary — disconnected component.
             // Add an arbitrary non-tree node directly.
-            let non_tree = g.node_ids().find(|nid| !tree.has_node(*nid)).unwrap();
-            tree.add_node(non_tree);
+            if let Some(non_tree) = g.node_ids().find(|nid| !tree.has_node(*nid)) {
+                tree.add_node(non_tree);
+            } else {
+                break;
+            }
         }
     }
 

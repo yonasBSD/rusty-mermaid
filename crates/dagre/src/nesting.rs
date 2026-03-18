@@ -84,15 +84,21 @@ fn dfs(
     let bottom = g.add_node(bottom_label);
 
     g.set_parent(top, v);
-    g.node_mut(v).unwrap().border_top = Some(top);
+    if let Some(n) = g.node_mut(v) {
+        n.border_top = Some(top);
+    }
 
     g.set_parent(bottom, v);
-    g.node_mut(v).unwrap().border_bottom = Some(bottom);
+    if let Some(n) = g.node_mut(v) {
+        n.border_bottom = Some(bottom);
+    }
 
     for child in children {
         dfs(g, root, node_sep, weight, height, depths, child);
 
-        let child_node = g.node(child).unwrap();
+        let Some(child_node) = g.node(child) else {
+            continue;
+        };
         let child_top = child_node.border_top.unwrap_or(child);
         let child_bottom = child_node.border_bottom.unwrap_or(child);
         let this_weight = if child_node.border_top.is_some() {

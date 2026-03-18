@@ -20,7 +20,7 @@ pub(crate) fn init_order(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>
         .node_ids()
         .filter(|&nid| g.children(nid).next().is_none())
         .collect();
-    simple_nodes.sort_by_key(|&nid| g.node(nid).unwrap().rank);
+    simple_nodes.sort_by_key(|&nid| g.node(nid).map_or(0, |n| n.rank));
 
     for v in simple_nodes {
         dfs(g, v, &mut visited, &mut layers);
@@ -29,7 +29,8 @@ pub(crate) fn init_order(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>
     // Assign order from layer positions
     for layer in &layers {
         for (i, &nid) in layer.iter().enumerate() {
-            g.node_mut(nid).unwrap().order = i;
+            let Some(node) = g.node_mut(nid) else { continue };
+            node.order = i;
         }
     }
 
@@ -45,7 +46,8 @@ fn dfs(
     if !visited.insert(v) {
         return;
     }
-    let rank = g.node(v).unwrap().rank;
+    let Some(node) = g.node(v) else { return };
+    let rank = node.rank;
     if rank >= 0 && (rank as usize) < layers.len() {
         layers[rank as usize].push(v);
     }

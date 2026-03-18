@@ -131,8 +131,8 @@ fn find_type1_conflicts(
                         .collect();
                     for u in predecessors {
                         let u_pos = *pos.get(&u).unwrap_or(&0);
-                        let u_is_dummy = g.node(u).unwrap().dummy.is_some();
-                        let scan_is_dummy = g.node(scan_node).unwrap().dummy.is_some();
+                        let u_is_dummy = g.node(u).is_some_and(|n| n.dummy.is_some());
+                        let scan_is_dummy = g.node(scan_node).is_some_and(|n| n.dummy.is_some());
                         if (u_pos < k0 || k1 < u_pos) && !(u_is_dummy && scan_is_dummy) {
                             add_conflict(&mut conflicts, u, scan_node);
                         }
@@ -169,7 +169,7 @@ fn find_type2_conflicts(
         let mut south_pos = 0usize;
 
         for (south_lookahead, &v) in south.iter().enumerate() {
-            if g.node(v).unwrap().dummy == Some(DummyKind::Border) {
+            if g.node(v).is_some_and(|n| n.dummy == Some(DummyKind::Border)) {
                 let preds: Vec<NodeId> = g
                     .in_edges(v)
                     .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
@@ -220,13 +220,13 @@ fn scan_type2(
     conflicts: &mut Conflicts,
 ) {
     for &v in &south[start..end] {
-        if g.node(v).unwrap().dummy.is_some() {
+        if g.node(v).is_some_and(|n| n.dummy.is_some()) {
             let preds: Vec<NodeId> = g
                 .in_edges(v)
                 .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
                 .collect();
             for u in preds {
-                if g.node(u).unwrap().dummy.is_some() {
+                if g.node(u).is_some_and(|n| n.dummy.is_some()) {
                     let u_order = *north_pos.get(&u).unwrap_or(&0) as i64;
                     if u_order < prev_north_border || u_order > next_north_border {
                         add_conflict(conflicts, u, v);
@@ -241,10 +241,10 @@ fn find_other_inner_segment_node(
     g: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
 ) -> Option<NodeId> {
-    if g.node(v).unwrap().dummy.is_some() {
+    if g.node(v).is_some_and(|n| n.dummy.is_some()) {
         g.in_edges(v)
             .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
-            .find(|&u| g.node(u).unwrap().dummy.is_some())
+            .find(|&u| g.node(u).is_some_and(|n| n.dummy.is_some()))
     } else {
         None
     }
@@ -325,8 +325,8 @@ fn sep(
     reverse_sep: bool,
     config: &DagreConfig,
 ) -> f64 {
-    let v_label = g.node(v).unwrap();
-    let w_label = g.node(w).unwrap();
+    let Some(v_label) = g.node(v) else { return 0.0 };
+    let Some(w_label) = g.node(w) else { return 0.0 };
     let node_sep = config.nodesep;
     let edge_sep = config.edgesep;
 
@@ -460,8 +460,7 @@ fn horizontal_compaction(
 
         if min != f64::INFINITY
             && g.node(elem)
-                .unwrap()
-                .border_type
+                .and_then(|n| n.border_type)
                 .is_none_or(|bt| bt != border_type)
         {
             let cur = xs[&elem];
@@ -524,7 +523,8 @@ fn find_smallest_width_alignment(
         let mut min = f64::INFINITY;
         let mut max = f64::NEG_INFINITY;
         for (&v, &x) in xs {
-            let hw = g.node(v).unwrap().width / 2.0;
+            let Some(node) = g.node(v) else { continue };
+            let hw = node.width / 2.0;
             min = min.min(x - hw);
             max = max.max(x + hw);
         }
@@ -590,7 +590,7 @@ fn balance(
             .iter()
             .filter_map(|m| m.get(&v).copied())
             .collect();
-        xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        xs.sort_by(|a, b| a.total_cmp(b));
         let x = if xs.len() >= 4 {
             (xs[1] + xs[2]) / 2.0
         } else if xs.len() >= 2 {

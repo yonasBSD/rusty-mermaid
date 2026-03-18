@@ -14,9 +14,11 @@ pub(crate) fn remove_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
         .collect();
 
     for eid in self_eids {
-        let (src, dst) = g.edge_endpoints(eid).unwrap();
-        let label = g.edge(eid).unwrap().clone();
-        g.node_mut(src).unwrap().self_edges.push(SelfEdge {
+        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+        let Some(label) = g.edge(eid) else { continue };
+        let label = label.clone();
+        let Some(node) = g.node_mut(src) else { continue };
+        node.self_edges.push(SelfEdge {
             src,
             dst,
             label,
@@ -34,16 +36,17 @@ pub(crate) fn insert_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
     for layer in &layers {
         let mut order_shift = 0usize;
         for (i, &v) in layer.iter().enumerate() {
-            g.node_mut(v).unwrap().order = i + order_shift;
+            let Some(node) = g.node_mut(v) else { continue };
+            node.order = i + order_shift;
 
-            let self_edges: Vec<SelfEdge> =
-                std::mem::take(&mut g.node_mut(v).unwrap().self_edges);
+            let self_edges: Vec<SelfEdge> = std::mem::take(&mut node.self_edges);
 
+            let rank = g.node(v).map_or(0, |n| n.rank);
             for se in self_edges {
                 order_shift += 1;
                 let mut dummy = NodeLabel::new(se.label.width, se.label.height);
                 dummy.dummy = Some(DummyKind::SelfEdge);
-                dummy.rank = g.node(v).unwrap().rank;
+                dummy.rank = rank;
                 dummy.order = i + order_shift;
                 dummy.self_edge_data = Some(SelfEdgeData {
                     src: se.src,
@@ -61,13 +64,14 @@ pub(crate) fn insert_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
 pub(crate) fn position_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
     let dummy_ids: Vec<_> = g
         .node_ids()
-        .filter(|&nid| g.node(nid).unwrap().dummy == Some(DummyKind::SelfEdge))
+        .filter(|&nid| g.node(nid).is_some_and(|n| n.dummy == Some(DummyKind::SelfEdge)))
         .collect();
 
     for nid in dummy_ids {
-        let node = g.node(nid).unwrap().clone();
-        let sed = node.self_edge_data.as_ref().unwrap();
-        let self_node = g.node(sed.src).unwrap();
+        let Some(node) = g.node(nid) else { continue };
+        let node = node.clone();
+        let Some(sed) = node.self_edge_data.as_ref() else { continue };
+        let Some(self_node) = g.node(sed.src) else { continue };
         let sx = self_node.x + self_node.width / 2.0;
         let sy = self_node.y;
         let dx = node.x - sx;

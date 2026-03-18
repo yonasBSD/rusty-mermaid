@@ -11,7 +11,9 @@ pub(crate) fn position(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig
     position_y(g, config);
     let xs = bk::position_x(g, config);
     for (nid, x) in xs {
-        g.node_mut(nid).unwrap().x = x;
+        if let Some(n) = g.node_mut(nid) {
+            n.x = x;
+        }
     }
 }
 
@@ -31,11 +33,11 @@ fn position_y(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
 
         let max_height = layer
             .iter()
-            .map(|&v| g.node(v).unwrap().height)
+            .filter_map(|&v| g.node(v).map(|n| n.height))
             .fold(0.0f64, f64::max);
 
         for &v in layer {
-            let node = g.node_mut(v).unwrap();
+            let Some(node) = g.node_mut(v) else { continue };
             node.y = match config.rankalign {
                 RankAlign::Top => prev_y + node.height / 2.0,
                 RankAlign::Bottom => prev_y + max_height - node.height / 2.0,

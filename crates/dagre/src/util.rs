@@ -5,17 +5,19 @@ use crate::labels::{EdgeLabel, NodeLabel};
 /// Slack of a directed edge: rank(dst) - rank(src) - minlen.
 /// A tight edge has slack == 0.
 pub(crate) fn slack(g: &Graph<NodeLabel, EdgeLabel>, eid: EdgeId) -> i32 {
-    let (src, dst) = g.edge_endpoints(eid).unwrap();
-    let src_rank = g.node(src).unwrap().rank;
-    let dst_rank = g.node(dst).unwrap().rank;
-    let minlen = g.edge(eid).unwrap().minlen;
+    let Some((src, dst)) = g.edge_endpoints(eid) else {
+        return 0;
+    };
+    let src_rank = g.node(src).map_or(0, |n| n.rank);
+    let dst_rank = g.node(dst).map_or(0, |n| n.rank);
+    let minlen = g.edge(eid).map_or(1, |e| e.minlen);
     dst_rank - src_rank - minlen
 }
 
 /// Slack between a pair of nodes using effective (max) minlen.
 pub(crate) fn slack_pair(g: &Graph<NodeLabel, EdgeLabel>, src: NodeId, dst: NodeId) -> i32 {
-    let src_rank = g.node(src).unwrap().rank;
-    let dst_rank = g.node(dst).unwrap().rank;
+    let src_rank = g.node(src).map_or(0, |n| n.rank);
+    let dst_rank = g.node(dst).map_or(0, |n| n.rank);
     let minlen = effective_minlen(g, src, dst);
     dst_rank - src_rank - minlen
 }
@@ -121,7 +123,7 @@ fn build_layer_matrix_filtered(
         if leaves_only && g.children(nid).next().is_some() {
             continue;
         }
-        let node = g.node(nid).unwrap();
+        let Some(node) = g.node(nid) else { continue };
         let rank = node.rank;
         if rank >= 0 && (rank as usize) < layers.len() {
             layers[rank as usize].push(nid);
@@ -129,7 +131,7 @@ fn build_layer_matrix_filtered(
     }
     // Sort each layer by current order
     for layer in &mut layers {
-        layer.sort_by_key(|&nid| g.node(nid).unwrap().order);
+        layer.sort_by_key(|&nid| g.node(nid).map_or(0, |n| n.order));
     }
     layers
 }

@@ -32,11 +32,12 @@ pub(crate) fn sort_subgraph(
     let children: Vec<_> = g
         .children(v)
         .filter(|&c| {
-            let cn = g.node(c).unwrap();
-            // Include if at this rank, or if it's a compound node spanning this rank
-            cn.rank == rank
-                || (cn.min_rank.is_some_and(|min| min <= rank)
-                    && cn.max_rank.is_some_and(|max| max >= rank))
+            g.node(c).is_some_and(|cn| {
+                // Include if at this rank, or if it's a compound node spanning this rank
+                cn.rank == rank
+                    || (cn.min_rank.is_some_and(|min| min <= rank)
+                        && cn.max_rank.is_some_and(|max| max >= rank))
+            })
         })
         .collect();
     let node = g.node(v);
@@ -116,8 +117,8 @@ pub(crate) fn sort_subgraph(
             )
         };
         if let (Some(bl_node), Some(br_node)) = (bl_ref, br_ref) {
-            let bl_order = g.node(bl_node).unwrap().order as f64;
-            let br_order = g.node(br_node).unwrap().order as f64;
+            let bl_order = g.node(bl_node).map_or(0, |n| n.order) as f64;
+            let br_order = g.node(br_node).map_or(0, |n| n.order) as f64;
             bc = Some(
                 (bc.unwrap_or(0.0) * wt + bl_order + br_order) / (wt + 2.0),
             );
@@ -157,17 +158,15 @@ fn sort_entries(entries: Vec<ResolvedEntry>, bias_right: bool) -> SortedResult {
 
     // Sort sortable by barycenter (tie-break by index, respecting bias)
     sortable.sort_by(|a, b| {
-        let a_bc = a.barycenter.unwrap();
-        let b_bc = b.barycenter.unwrap();
-        a_bc.partial_cmp(&b_bc)
-            .unwrap_or(std::cmp::Ordering::Equal)
-            .then_with(|| {
-                if bias_right {
-                    b.idx.cmp(&a.idx)
-                } else {
-                    a.idx.cmp(&b.idx)
-                }
-            })
+        let a_bc = a.barycenter.unwrap_or(0.0);
+        let b_bc = b.barycenter.unwrap_or(0.0);
+        a_bc.total_cmp(&b_bc).then_with(|| {
+            if bias_right {
+                b.idx.cmp(&a.idx)
+            } else {
+                a.idx.cmp(&b.idx)
+            }
+        })
     });
 
     // Sort unsortable by index descending (will be consumed from the end)
@@ -184,7 +183,7 @@ fn sort_entries(entries: Vec<ResolvedEntry>, bias_right: bool) -> SortedResult {
     for entry in &sortable {
         vs_index += entry.vs.len();
         vs.extend(&entry.vs);
-        sum += entry.barycenter.unwrap() * entry.weight;
+        sum += entry.barycenter.unwrap_or(0.0) * entry.weight;
         weight += entry.weight;
         consume_unsortable(&mut vs, &mut unsortable, &mut vs_index);
     }

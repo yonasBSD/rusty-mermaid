@@ -24,21 +24,23 @@ pub(crate) fn undo(g: &mut Graph<NodeLabel, EdgeLabel>, rankdir: Direction) {
 
 fn swap_width_height(g: &mut Graph<NodeLabel, EdgeLabel>) {
     for nid in g.node_ids().collect::<Vec<_>>() {
-        let n = g.node_mut(nid).unwrap();
+        let Some(n) = g.node_mut(nid) else { continue };
         std::mem::swap(&mut n.width, &mut n.height);
     }
     for eid in g.edge_ids().collect::<Vec<_>>() {
-        let e = g.edge_mut(eid).unwrap();
+        let Some(e) = g.edge_mut(eid) else { continue };
         std::mem::swap(&mut e.width, &mut e.height);
     }
 }
 
 fn reverse_y(g: &mut Graph<NodeLabel, EdgeLabel>) {
     for nid in g.node_ids().collect::<Vec<_>>() {
-        g.node_mut(nid).unwrap().y = -g.node(nid).unwrap().y;
+        if let Some(n) = g.node_mut(nid) {
+            n.y = -n.y;
+        }
     }
     for eid in g.edge_ids().collect::<Vec<_>>() {
-        let e = g.edge_mut(eid).unwrap();
+        let Some(e) = g.edge_mut(eid) else { continue };
         e.y = -e.y;
         for p in &mut e.points {
             p.y = -p.y;
@@ -48,11 +50,11 @@ fn reverse_y(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
 fn swap_xy(g: &mut Graph<NodeLabel, EdgeLabel>) {
     for nid in g.node_ids().collect::<Vec<_>>() {
-        let n = g.node_mut(nid).unwrap();
+        let Some(n) = g.node_mut(nid) else { continue };
         std::mem::swap(&mut n.x, &mut n.y);
     }
     for eid in g.edge_ids().collect::<Vec<_>>() {
-        let e = g.edge_mut(eid).unwrap();
+        let Some(e) = g.edge_mut(eid) else { continue };
         std::mem::swap(&mut e.x, &mut e.y);
         for p in &mut e.points {
             std::mem::swap(&mut p.x, &mut p.y);

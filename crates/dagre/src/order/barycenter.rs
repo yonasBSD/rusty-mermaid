@@ -33,9 +33,9 @@ pub(crate) fn barycenter(
             let mut sum = 0.0;
             let mut weight = 0.0;
             for eid in in_edges {
-                let (src, _) = g.edge_endpoints(eid).unwrap();
+                let Some((src, _)) = g.edge_endpoints(eid) else { continue };
                 let edge_weight = g.edge(eid).map_or(1.0, |l| l.weight);
-                let src_order = g.node(src).unwrap().order as f64;
+                let src_order = g.node(src).map_or(0, |n| n.order) as f64;
                 sum += edge_weight * src_order;
                 weight += edge_weight;
             }
@@ -69,9 +69,9 @@ pub(crate) fn barycenter_out(
             let mut sum = 0.0;
             let mut weight = 0.0;
             for eid in out_edges {
-                let (_, dst) = g.edge_endpoints(eid).unwrap();
+                let Some((_, dst)) = g.edge_endpoints(eid) else { continue };
                 let edge_weight = g.edge(eid).map_or(1.0, |l| l.weight);
-                let dst_order = g.node(dst).unwrap().order as f64;
+                let dst_order = g.node(dst).map_or(0, |n| n.order) as f64;
                 sum += edge_weight * dst_order;
                 weight += edge_weight;
             }

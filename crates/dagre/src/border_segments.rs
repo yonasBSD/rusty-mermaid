@@ -22,7 +22,7 @@ fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId) {
     }
 
     let (min_rank, max_rank) = {
-        let node = g.node(v).unwrap();
+        let Some(node) = g.node(v) else { return };
         match (node.min_rank, node.max_rank) {
             (Some(min), Some(max)) => (min, max),
             _ => return, // not a compound node with rank bounds
@@ -51,7 +51,7 @@ fn add_border_node(
 
     // Get the previous border node at rank-1 and link them
     let prev = {
-        let sg_node = g.node(sg).unwrap();
+        let Some(sg_node) = g.node(sg) else { return };
         let borders = match border_type {
             BorderType::Left => &sg_node.border_left,
             BorderType::Right => &sg_node.border_right,
@@ -60,7 +60,7 @@ fn add_border_node(
     };
 
     // Store current node in the compound's border map
-    let sg_node = g.node_mut(sg).unwrap();
+    let Some(sg_node) = g.node_mut(sg) else { return };
     match border_type {
         BorderType::Left => sg_node.border_left.insert(rank, curr),
         BorderType::Right => sg_node.border_right.insert(rank, curr),
@@ -79,12 +79,12 @@ pub(crate) fn assign_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) -> i32 {
 
     let nids: Vec<_> = g.node_ids().collect();
     for nid in nids {
-        let node = g.node(nid).unwrap();
+        let Some(node) = g.node(nid) else { continue };
         if let (Some(top), Some(bottom)) = (node.border_top, node.border_bottom) {
-            let min = g.node(top).map(|n| n.rank).unwrap_or(0);
-            let max = g.node(bottom).map(|n| n.rank).unwrap_or(0);
+            let min = g.node(top).map_or(0, |n| n.rank);
+            let max = g.node(bottom).map_or(0, |n| n.rank);
 
-            let node = g.node_mut(nid).unwrap();
+            let Some(node) = g.node_mut(nid) else { continue };
             node.min_rank = Some(min);
             node.max_rank = Some(max);
 
@@ -110,7 +110,7 @@ pub(crate) fn extend_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) {
         .collect();
 
     for sg in compounds {
-        let node = g.node(sg).unwrap();
+        let Some(node) = g.node(sg) else { continue };
         let Some(mut min) = node.min_rank else {
             continue;
         };
@@ -119,12 +119,12 @@ pub(crate) fn extend_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) {
         };
 
         for child in g.children(sg) {
-            let cr = g.node(child).unwrap().rank;
-            min = min.min(cr);
-            max = max.max(cr);
+            let Some(cn) = g.node(child) else { continue };
+            min = min.min(cn.rank);
+            max = max.max(cn.rank);
         }
 
-        let node = g.node_mut(sg).unwrap();
+        let Some(node) = g.node_mut(sg) else { continue };
         node.min_rank = Some(min);
         node.max_rank = Some(max);
     }

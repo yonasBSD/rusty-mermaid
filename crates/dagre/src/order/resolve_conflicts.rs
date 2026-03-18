@@ -71,10 +71,14 @@ pub(crate) fn resolve_conflicts(
     // Wire up constraint edges
     for &(from, to) in &cg.edges {
         if mapped.contains_key(&from) && mapped.contains_key(&to) {
-            mapped.get_mut(&to).unwrap().indegree += 1;
+            if let Some(e) = mapped.get_mut(&to) {
+                e.indegree += 1;
+                e.incoming.push(from);
+            }
             // Store constraint connections by node id
-            mapped.get_mut(&from).unwrap().outgoing.push(to);
-            mapped.get_mut(&to).unwrap().incoming.push(from);
+            if let Some(e) = mapped.get_mut(&from) {
+                e.outgoing.push(to);
+            }
         }
     }
 
@@ -106,7 +110,7 @@ pub(crate) fn resolve_conflicts(
         // Handle outgoing: decrement indegree, add to source set if zero
         let outgoing: Vec<NodeId> = mapped[&v_id].outgoing.clone();
         for w_id in outgoing {
-            let w = mapped.get_mut(&w_id).unwrap();
+            let Some(w) = mapped.get_mut(&w_id) else { continue };
             w.indegree -= 1;
             if w.indegree == 0 {
                 source_set.push(w_id);
@@ -135,7 +139,7 @@ fn merge_entries(mapped: &mut HashMap<NodeId, MappedEntry>, target_id: NodeId, s
     let mut sum = 0.0;
     let mut weight = 0.0;
 
-    let target = mapped.get_mut(&target_id).unwrap();
+    let Some(target) = mapped.get_mut(&target_id) else { return };
     if target.weight > 0.0
         && let Some(bc) = target.barycenter
     {
@@ -160,7 +164,9 @@ fn merge_entries(mapped: &mut HashMap<NodeId, MappedEntry>, target_id: NodeId, s
     target.weight = weight;
     target.idx = target.idx.min(source.idx);
 
-    mapped.get_mut(&source_id).unwrap().merged = true;
+    if let Some(source_entry) = mapped.get_mut(&source_id) {
+        source_entry.merged = true;
+    }
 }
 
 #[derive(Debug, Clone)]

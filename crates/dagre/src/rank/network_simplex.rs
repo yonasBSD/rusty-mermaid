@@ -71,7 +71,9 @@ fn postorder_dfs(
 
 /// Compute the cut value for the tree edge connecting `child` to its parent.
 fn assign_cut_value(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>, child: NodeId) {
-    let parent = tree.parent.get(&child).copied().flatten().unwrap();
+    let Some(parent) = tree.parent.get(&child).copied().flatten() else {
+        return;
+    };
 
     // Determine which direction the graph edge goes
     let child_is_tail = util::has_directed_edge(g, child, parent);
@@ -163,7 +165,7 @@ fn find_enter_edge(
 
             if crosses {
                 let s = util::slack(g, eid);
-                if best.is_none() || s < best.unwrap().2 {
+                if best.is_none_or(|(_, _, bs)| s < bs) {
                     best = Some((src, dst, s));
                 }
             }
@@ -190,7 +192,9 @@ fn exchange(
     if enter_slack != 0 {
         let component = bfs_component(tree, enter_dst);
         for nid in component {
-            g.node_mut(nid).unwrap().rank -= enter_slack;
+            if let Some(n) = g.node_mut(nid) {
+                n.rank -= enter_slack;
+            }
         }
     }
 

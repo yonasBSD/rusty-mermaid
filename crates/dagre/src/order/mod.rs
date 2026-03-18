@@ -62,13 +62,13 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
             best_cc = cc;
             best_orders = g
                 .node_ids()
-                .map(|nid| (nid, g.node(nid).unwrap().order))
+                .filter_map(|nid| Some((nid, g.node(nid)?.order)))
                 .collect();
         } else if (cc - best_cc).abs() < f64::EPSILON {
             // Equal cost: accept new ordering (matches JS dagre)
             best_orders = g
                 .node_ids()
-                .map(|nid| (nid, g.node(nid).unwrap().order))
+                .filter_map(|nid| Some((nid, g.node(nid)?.order)))
                 .collect();
         }
 
@@ -103,10 +103,11 @@ fn sweep_layer(
     let layer_nodes: Vec<NodeId> = g
         .node_ids()
         .filter(|&nid| {
-            let n = g.node(nid).unwrap();
-            n.rank == rank
-                || (n.min_rank.is_some_and(|min| min <= rank)
-                    && n.max_rank.is_some_and(|max| max >= rank))
+            g.node(nid).is_some_and(|n| {
+                n.rank == rank
+                    || (n.min_rank.is_some_and(|min| min <= rank)
+                        && n.max_rank.is_some_and(|max| max >= rank))
+            })
         })
         .collect();
 
@@ -133,7 +134,8 @@ fn sweep_layer(
     let result =
         sort_subgraph::sort_subgraph(g, synth_root, cg, bias_right, use_in_edges, rank);
     for (i, &nid) in result.vs.iter().enumerate() {
-        g.node_mut(nid).unwrap().order = i;
+        let Some(node) = g.node_mut(nid) else { continue };
+        node.order = i;
     }
     add_subgraph_constraints(g, cg, &result.vs);
 
