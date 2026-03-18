@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use rusty_mermaid_core::{
     BBox, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
-    intersect_circle, intersect_polygon, intersect_rect,
+    intersect_circle, intersect_line_circle, intersect_polygon, intersect_rect,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
@@ -733,6 +733,26 @@ fn shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> {
             ];
             intersect_polygon(&verts, center, target)
         }
+        Shape::Stadium => {
+            let r = hh;
+            let left_cx = cx - hw + r;
+            let right_cx = cx + hw - r;
+
+            if left_cx >= right_cx {
+                // Degenerate: width ≤ height, treat as circle
+                intersect_circle(center, r, target)
+            } else {
+                let rect_hit = intersect_rect(&bbox, target);
+                if rect_hit.x <= left_cx {
+                    intersect_line_circle(center, target, Point::new(left_cx, cy), r)
+                } else if rect_hit.x >= right_cx {
+                    intersect_line_circle(center, target, Point::new(right_cx, cy), r)
+                } else {
+                    // Straight top/bottom edge — dagre's rect clipping is correct
+                    return None;
+                }
+            }
+        }
         // Rect-like shapes: dagre's intersect_rect is already correct
         _ => return None,
     };
@@ -1013,9 +1033,40 @@ mod tests {
     }
 
     #[test]
-    fn shape_intersect_stadium_returns_none() {
+    fn shape_intersect_stadium_right() {
+        // test_bbox: center (100,100), 80x60. r=hh=30.
+        // Right cap center: (100+40-30, 100) = (110, 100), r=30.
+        // Horizontal ray rightward hits circle at (140, 100).
         let b = test_bbox();
-        assert!(shape_intersect(Shape::Stadium, b, Point::new(200.0, 100.0)).is_none());
+        let p = shape_intersect(Shape::Stadium, b, Point::new(200.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(140.0, 100.0), "stadium right");
+    }
+
+    #[test]
+    fn shape_intersect_stadium_left() {
+        // Left cap center: (100-40+30, 100) = (90, 100), r=30.
+        // Horizontal ray leftward hits circle at (60, 100).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Stadium, b, Point::new(0.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(60.0, 100.0), "stadium left");
+    }
+
+    #[test]
+    fn shape_intersect_stadium_top_straight() {
+        // Ray straight up exits through straight top edge — returns None (dagre handles it).
+        let b = test_bbox();
+        assert!(shape_intersect(Shape::Stadium, b, Point::new(100.0, 0.0)).is_none());
+    }
+
+    #[test]
+    fn shape_intersect_stadium_diagonal_into_cap() {
+        // Ray at an angle into the right cap zone.
+        // Right cap center: (110, 100), r=30.
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Stadium, b, Point::new(200.0, 80.0)).unwrap();
+        // Point should lie on the right cap circle
+        let dist = Point::new(110.0, 100.0).distance_to(p);
+        assert_near(dist, 30.0, "stadium diagonal should land on cap circle");
     }
 
     #[test]
@@ -1344,6 +1395,7 @@ mod tests {
             Shape::TrapezoidAlt,
             Shape::Cylinder,
             Shape::Asymmetric,
+            Shape::Stadium,
         ];
         for shape in non_rect_shapes {
             assert!(

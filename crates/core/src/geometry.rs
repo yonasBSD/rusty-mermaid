@@ -96,6 +96,39 @@ pub fn intersect_polygon(vertices: &[Point], center: Point, target: Point) -> Po
     closest
 }
 
+/// Find where a ray from `origin` toward `target` exits a circle.
+/// Returns the farthest forward intersection (exit point), suitable for
+/// clipping edges that pass through a convex shape from center to exterior.
+pub fn intersect_line_circle(origin: Point, target: Point, center: Point, radius: f64) -> Point {
+    let dx = target.x - origin.x;
+    let dy = target.y - origin.y;
+    let a = dx * dx + dy * dy;
+
+    if a < f64::EPSILON {
+        return intersect_circle(center, radius, target);
+    }
+
+    let ocx = origin.x - center.x;
+    let ocy = origin.y - center.y;
+    let b = 2.0 * (ocx * dx + ocy * dy);
+    let c = ocx * ocx + ocy * ocy - radius * radius;
+    let disc = b * b - 4.0 * a * c;
+
+    if disc < 0.0 {
+        return intersect_circle(center, radius, target);
+    }
+
+    let sqrt_d = disc.sqrt();
+    // t2 is the farthest crossing — the exit point on the far side of the circle
+    let t2 = (-b + sqrt_d) / (2.0 * a);
+
+    if t2 > f64::EPSILON {
+        Point::new(origin.x + t2 * dx, origin.y + t2 * dy)
+    } else {
+        intersect_circle(center, radius, target)
+    }
+}
+
 /// Intersect line segment (p1→p2) with ray (origin→direction).
 /// Returns the intersection point if it lies on the segment and in the ray's forward direction.
 fn segment_ray_intersect(p1: Point, p2: Point, origin: Point, target: Point) -> Option<Point> {
