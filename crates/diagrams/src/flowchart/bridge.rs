@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use rusty_mermaid_core::{
-    BBox, Color, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
+    BBox, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
     intersect_circle, intersect_polygon, intersect_rect,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
@@ -10,6 +10,7 @@ use rusty_mermaid_graph::{Graph, NodeId};
 use rusty_mermaid_core::Shape;
 
 use super::ir::{ArrowEnd, FlowDiagram, StrokeType};
+use crate::common::rendering::apply_style_properties;
 use crate::common::styling::StyleProperty;
 use crate::common::tokens::strip_html_tags;
 
@@ -43,7 +44,7 @@ pub struct NodeLayout {
 pub struct EdgeLayout {
     pub src: String,
     pub dst: String,
-    pub points: Vec<(f64, f64)>,
+    pub points: Vec<Point>,
     pub label: Option<String>,
     /// Measured label dimensions (width, height) for background rect.
     pub label_size: Option<(f64, f64)>,
@@ -71,91 +72,8 @@ pub fn layout(diagram: &FlowDiagram) -> LayoutResult {
 
 /// Layout with a custom text measurer.
 pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) -> LayoutResult {
-    let mut g = Graph::new();
-    let style = TextStyle::default();
+    let (mut g, id_map) = build_flow_graph(diagram, measurer);
 
-    // Map vertex ID → NodeId
-    let mut id_map: HashMap<&str, NodeId> = HashMap::new();
-
-    for v in &diagram.vertices {
-        let text = strip_html_tags(&v.label);
-        let (tw, th) = measurer.measure(&text, &style);
-        let text_w = tw + PADDING_X * 2.0;
-        let text_h = th + PADDING_Y * 2.0;
-
-        // Size the dagre node to match the visual shape bounds so edge
-        // intersection clipping lands on the shape perimeter, not inside it.
-        let (width, height) = match v.shape {
-            Shape::Circle => {
-                let d = text_w.max(text_h);
-                (d, d)
-            }
-            Shape::DoubleCircle => {
-                let d = text_w.max(text_h) + 10.0; // 5px gap on each side
-                (d, d)
-            }
-            Shape::Diamond => {
-                // Mermaid: diamond side = w + h, bounding box is square
-                let s = text_w + text_h;
-                (s, s)
-            }
-            Shape::Cylinder => {
-                // Cylinder caps add ry above and below the body.
-                // Mermaid sizes the node tall enough so the body between
-                // the caps has room for the text, not a flat petri dish.
-                let rx = text_w / 2.0;
-                let ry = rx / (2.5 + text_w / 50.0);
-                (text_w, text_h + ry * 2.0)
-            }
-            _ => (text_w, text_h),
-        };
-
-        let nid = g.add_node(NodeLabel::new(width, height));
-        id_map.insert(&v.id, nid);
-    }
-
-    // Set up compound hierarchy for subgraphs (two passes: create all nodes
-    // first so that parent→child references resolve regardless of order)
-    for sg in &diagram.subgraphs {
-        let sg_nid = g.add_node(NodeLabel::new(0.0, 0.0));
-        id_map.insert(&sg.id, sg_nid);
-    }
-    for sg in &diagram.subgraphs {
-        let &sg_nid = id_map.get(sg.id.as_str()).unwrap();
-        for child_id in &sg.node_ids {
-            if let Some(&child_nid) = id_map.get(child_id.as_str()) {
-                // First-wins: don't reparent nodes already assigned to a subgraph.
-                // Nodes referenced in edges across subgraph boundaries appear in
-                // multiple subgraphs' node_ids; they belong to the first one.
-                if g.parent(child_nid).is_none() {
-                    g.set_parent(child_nid, sg_nid);
-                }
-            }
-        }
-        for child_sg_id in &sg.subgraph_ids {
-            if let Some(&child_nid) = id_map.get(child_sg_id.as_str()) {
-                if g.parent(child_nid).is_none() {
-                    g.set_parent(child_nid, sg_nid);
-                }
-            }
-        }
-    }
-
-    // Add edges
-    for e in &diagram.edges {
-        let Some(&src) = id_map.get(e.src.as_str()) else { continue };
-        let Some(&dst) = id_map.get(e.dst.as_str()) else { continue };
-        let mut label = EdgeLabel::default();
-        label.minlen = e.minlen.min(10);
-        if let Some(text) = &e.label {
-            let (tw, th) = measurer.measure(text, &style);
-            label.width = tw;
-            label.height = th;
-        }
-        g.add_edge(src, dst, label);
-    }
-
-    // Configure
     let mut config = DagreConfig::default();
     config.rankdir = diagram.direction;
 
@@ -171,12 +89,12 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     // inner-relative coordinates to final absolute coordinates.
     for ex in &extracted {
         let Some(&sg_nid) = id_map.get(ex.sg_id.as_str()) else { continue };
-        let sg = g.node(sg_nid).unwrap();
+        let Some(sg) = g.node(sg_nid) else { continue };
         let sg_cx = sg.x;
         let sg_cy = sg.y;
         for (nid, rel_x, rel_y, w, h) in &ex.inner_nodes {
             let Some(&node_nid) = id_map.get(nid.as_str()) else { continue };
-            let n = g.node_mut(node_nid).unwrap();
+            let Some(n) = g.node_mut(node_nid) else { continue };
             n.x = sg_cx + rel_x;
             n.y = sg_cy + rel_y;
             n.width = *w;
@@ -184,7 +102,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
         for (sg_id, rel_x, rel_y, w, h) in &ex.inner_subgraphs {
             let Some(&nid) = id_map.get(sg_id.as_str()) else { continue };
-            let n = g.node_mut(nid).unwrap();
+            let Some(n) = g.node_mut(nid) else { continue };
             n.x = sg_cx + rel_x;
             n.y = sg_cy + rel_y;
             n.width = *w;
@@ -218,14 +136,16 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         let mut min_x = f64::INFINITY;
         let mut max_x = f64::NEG_INFINITY;
         for child in g.children(nid).collect::<Vec<_>>() {
-            let c = g.node(child).unwrap();
+            let Some(c) = g.node(child) else { continue };
             if c.width > 0.0 || c.height > 0.0 {
                 min_x = min_x.min(c.x - c.width / 2.0);
                 max_x = max_x.max(c.x + c.width / 2.0);
             }
         }
         if min_x.is_finite() && max_x.is_finite() {
-            g.node_mut(nid).unwrap().x = (min_x + max_x) / 2.0;
+            if let Some(n) = g.node_mut(nid) {
+                n.x = (min_x + max_x) / 2.0;
+            }
         }
     }
 
@@ -248,7 +168,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             continue; // rendered as subgraph, not vertex
         }
         if let Some(&nid) = id_map.get(v.id.as_str()) {
-            let n = g.node(nid).unwrap();
+            let Some(n) = g.node(nid) else { continue };
             nodes.push(NodeLayout {
                 id: v.id.clone(),
                 label: strip_html_tags(&v.label),
@@ -264,89 +184,14 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
-    // Build lookup: vertex id → (shape, NodeId) for edge endpoint clipping
-    let vertex_shape: HashMap<&str, Shape> = diagram
-        .vertices
-        .iter()
-        .map(|v| (v.id.as_str(), v.shape))
-        .collect();
-
-    // Resolve per-edge styles from linkStyle statements.
-    let edge_styles = resolve_edge_styles(diagram);
-
-    // Track which declaration-order edges have been consumed (for parallel edges).
-    let mut used_edge_idx = vec![false; diagram.edges.len()];
-
-    let mut edges = Vec::new();
-    for eid in g.edge_ids() {
-        let (src, dst) = g.edge_endpoints(eid).unwrap();
-        if let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) {
-            let e = g.edge(eid).unwrap();
-            let mut points: Vec<(f64, f64)> = e.points.iter().map(|p| (p.x, p.y)).collect();
-
-            // Re-clip edge endpoints for non-rect shapes.
-            if points.len() >= 2 {
-                let src_node = g.node(src).unwrap();
-                let src_shape = vertex_shape.get(src_id).copied().unwrap_or(Shape::Rect);
-                let adj = points[1];
-                if let Some(p) = shape_intersect(
-                    src_shape, src_node.x, src_node.y, src_node.width, src_node.height, adj,
-                ) {
-                    points[0] = p;
-                }
-
-                let last = points.len() - 1;
-                let dst_node = g.node(dst).unwrap();
-                let dst_shape = vertex_shape.get(dst_id).copied().unwrap_or(Shape::Rect);
-                let adj = points[last - 1];
-                if let Some(p) = shape_intersect(
-                    dst_shape, dst_node.x, dst_node.y, dst_node.width, dst_node.height, adj,
-                ) {
-                    points[last] = p;
-                }
-            }
-
-            // Find the declaration-order index for this edge (handles parallel edges).
-            let edge_idx = diagram.edges.iter().enumerate().find_map(|(i, fe)| {
-                if !used_edge_idx[i] && fe.src == src_id && fe.dst == dst_id {
-                    Some(i)
-                } else {
-                    None
-                }
-            });
-            if let Some(idx) = edge_idx {
-                used_edge_idx[idx] = true;
-            }
-            let flow_edge = edge_idx.map(|i| &diagram.edges[i]);
-            let label = flow_edge.and_then(|fe| fe.label.clone());
-            let label_size = label.as_ref().map(|text| {
-                let edge_style = TextStyle { font_size: 12.0, ..Default::default() };
-                measurer.measure(text, &edge_style)
-            });
-            let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
-            let start_arrow = flow_edge.map_or(ArrowEnd::None, |fe| fe.start_arrow);
-            let end_arrow = flow_edge.map_or(ArrowEnd::Arrow, |fe| fe.end_arrow);
-            let custom_style = edge_idx.and_then(|i| edge_styles.get(&i).cloned());
-            edges.push(EdgeLayout {
-                src: src_id.to_string(),
-                dst: dst_id.to_string(),
-                points,
-                label,
-                label_size,
-                stroke,
-                start_arrow,
-                end_arrow,
-                custom_style,
-            });
-        }
-    }
+    let edges = extract_edge_layouts(diagram, &g, &nid_to_id, measurer);
 
     // Extract subgraph positions from dagre's compound node bounds
     // (padding and label space are already included by remove_border_nodes).
     let mut subgraphs = Vec::new();
     for sg in &diagram.subgraphs {
         if let Some(&nid) = id_map.get(sg.id.as_str()) {
-            let n = g.node(nid).unwrap();
+            let Some(n) = g.node(nid) else { continue };
             if n.width <= 0.0 || n.height <= 0.0 {
                 continue;
             }
@@ -370,6 +215,162 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         width: max_x,
         height: max_y,
     }
+}
+
+/// Build the dagre graph from the flowchart IR: vertices, subgraph hierarchy, edges.
+fn build_flow_graph<'a>(
+    diagram: &'a FlowDiagram,
+    measurer: &impl TextMeasure,
+) -> (Graph<NodeLabel, EdgeLabel>, HashMap<&'a str, NodeId>) {
+    let mut g = Graph::new();
+    let style = TextStyle::default();
+    let mut id_map: HashMap<&str, NodeId> = HashMap::new();
+
+    for v in &diagram.vertices {
+        let text = strip_html_tags(&v.label);
+        let (tw, th) = measurer.measure(&text, &style);
+        let text_w = tw + PADDING_X * 2.0;
+        let text_h = th + PADDING_Y * 2.0;
+
+        let (width, height) = match v.shape {
+            Shape::Circle => {
+                let d = text_w.max(text_h);
+                (d, d)
+            }
+            Shape::DoubleCircle => {
+                let d = text_w.max(text_h) + 10.0;
+                (d, d)
+            }
+            Shape::Diamond => {
+                let s = text_w + text_h;
+                (s, s)
+            }
+            Shape::Cylinder => {
+                let rx = text_w / 2.0;
+                let ry = rx / (2.5 + text_w / 50.0);
+                (text_w, text_h + ry * 2.0)
+            }
+            _ => (text_w, text_h),
+        };
+
+        let nid = g.add_node(NodeLabel::new(width, height));
+        id_map.insert(&v.id, nid);
+    }
+
+    // Two passes: create all subgraph nodes, then set parent-child.
+    for sg in &diagram.subgraphs {
+        let sg_nid = g.add_node(NodeLabel::new(0.0, 0.0));
+        id_map.insert(&sg.id, sg_nid);
+    }
+    for sg in &diagram.subgraphs {
+        let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
+        for child_id in &sg.node_ids {
+            if let Some(&child_nid) = id_map.get(child_id.as_str()) {
+                if g.parent(child_nid).is_none() {
+                    g.set_parent(child_nid, sg_nid);
+                }
+            }
+        }
+        for child_sg_id in &sg.subgraph_ids {
+            if let Some(&child_nid) = id_map.get(child_sg_id.as_str()) {
+                if g.parent(child_nid).is_none() {
+                    g.set_parent(child_nid, sg_nid);
+                }
+            }
+        }
+    }
+
+    for e in &diagram.edges {
+        let Some(&src) = id_map.get(e.src.as_str()) else { continue };
+        let Some(&dst) = id_map.get(e.dst.as_str()) else { continue };
+        let mut label = EdgeLabel::default();
+        label.minlen = e.minlen.min(10);
+        if let Some(text) = &e.label {
+            let (tw, th) = measurer.measure(text, &style);
+            label.width = tw;
+            label.height = th;
+        }
+        g.add_edge(src, dst, label);
+    }
+
+    (g, id_map)
+}
+
+/// Extract edge layouts from the graph, re-clipping endpoints for non-rect shapes.
+fn extract_edge_layouts(
+    diagram: &FlowDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    nid_to_id: &HashMap<NodeId, &str>,
+    measurer: &impl TextMeasure,
+) -> Vec<EdgeLayout> {
+    let vertex_shape: HashMap<&str, Shape> = diagram
+        .vertices
+        .iter()
+        .map(|v| (v.id.as_str(), v.shape))
+        .collect();
+    let edge_styles = resolve_edge_styles(diagram);
+    let mut used_edge_idx = vec![false; diagram.edges.len()];
+    let mut edges = Vec::new();
+
+    for eid in g.edge_ids() {
+        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+        let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) else {
+            continue;
+        };
+        let Some(e) = g.edge(eid) else { continue };
+        let mut points: Vec<Point> = e.points.clone();
+
+        if points.len() >= 2 {
+            let Some(src_node) = g.node(src) else { continue };
+            let src_shape = vertex_shape.get(src_id).copied().unwrap_or(Shape::Rect);
+            let src_bbox = BBox::new(src_node.x, src_node.y, src_node.width, src_node.height);
+            if let Some(p) = shape_intersect(src_shape, src_bbox, points[1]) {
+                points[0] = p;
+            }
+
+            let last = points.len() - 1;
+            let Some(dst_node) = g.node(dst) else { continue };
+            let dst_shape = vertex_shape.get(dst_id).copied().unwrap_or(Shape::Rect);
+            let dst_bbox = BBox::new(dst_node.x, dst_node.y, dst_node.width, dst_node.height);
+            if let Some(p) = shape_intersect(dst_shape, dst_bbox, points[last - 1]) {
+                points[last] = p;
+            }
+        }
+
+        let edge_idx = diagram.edges.iter().enumerate().find_map(|(i, fe)| {
+            if !used_edge_idx[i] && fe.src == src_id && fe.dst == dst_id {
+                Some(i)
+            } else {
+                None
+            }
+        });
+        if let Some(idx) = edge_idx {
+            used_edge_idx[idx] = true;
+        }
+        let flow_edge = edge_idx.map(|i| &diagram.edges[i]);
+        let label = flow_edge.and_then(|fe| fe.label.clone());
+        let label_size = label.as_ref().map(|text| {
+            let edge_style = TextStyle { font_size: 12.0, ..Default::default() };
+            measurer.measure(text, &edge_style)
+        });
+        let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
+        let start_arrow = flow_edge.map_or(ArrowEnd::None, |fe| fe.start_arrow);
+        let end_arrow = flow_edge.map_or(ArrowEnd::Arrow, |fe| fe.end_arrow);
+        let custom_style = edge_idx.and_then(|i| edge_styles.get(&i).cloned());
+        edges.push(EdgeLayout {
+            src: src_id.to_string(),
+            dst: dst_id.to_string(),
+            points,
+            label,
+            label_size,
+            stroke,
+            start_arrow,
+            end_arrow,
+            custom_style,
+        });
+    }
+
+    edges
 }
 
 /// Inner edge data from an extracted subgraph layout.
@@ -444,7 +445,7 @@ fn extract_directed_subgraphs(
 
         // Add descendant nodes.
         for &nid in &descendants {
-            let n = g.node(nid).unwrap();
+            let Some(n) = g.node(nid) else { continue };
             let inner_nid = inner_g.add_node(NodeLabel::new(n.width, n.height));
             inner_map.insert(nid, inner_nid);
         }
@@ -469,7 +470,7 @@ fn extract_directed_subgraphs(
                 if let (Some(&inner_src), Some(&inner_dst)) =
                     (inner_map.get(&src), inner_map.get(&dst))
                 {
-                    let label = g.edge(eid).unwrap().clone();
+                    let Some(label) = g.edge(eid).cloned() else { continue };
                     inner_g.add_edge(inner_src, inner_dst, label);
                 }
             }
@@ -494,7 +495,7 @@ fn extract_directed_subgraphs(
         let mut max_y = f64::NEG_INFINITY;
 
         for &inner_nid in inner_map.values() {
-            let n = inner_g.node(inner_nid).unwrap();
+            let Some(n) = inner_g.node(inner_nid) else { continue };
             if n.width <= 0.0 && n.height <= 0.0 { continue; }
             min_x = min_x.min(n.x - n.width / 2.0);
             min_y = min_y.min(n.y - n.height / 2.0);
@@ -525,7 +526,7 @@ fn extract_directed_subgraphs(
         let mut inner_subgraphs = Vec::new();
 
         for (&outer_nid, &inner_nid) in &inner_map {
-            let n = inner_g.node(inner_nid).unwrap();
+            let Some(n) = inner_g.node(inner_nid) else { continue };
             let Some(&str_id) = nid_to_id.get(&outer_nid) else { continue };
             let rel_x = n.x - center_x;
             let rel_y = n.y - adj_center_y;
@@ -548,7 +549,7 @@ fn extract_directed_subgraphs(
             let Some(&outer_dst) = reverse_map.get(&dst) else { continue };
             let Some(&src_id) = nid_to_id.get(&outer_src) else { continue };
             let Some(&dst_id) = nid_to_id.get(&outer_dst) else { continue };
-            let e = inner_g.edge(eid).unwrap();
+            let Some(e) = inner_g.edge(eid) else { continue };
             let points: Vec<(f64, f64)> = e.points.iter()
                 .map(|p| (p.x - center_x, p.y - adj_center_y))
                 .collect();
@@ -573,9 +574,10 @@ fn extract_directed_subgraphs(
             g.remove_edge(eid);
         }
         // Set the subgraph node to a fixed-size leaf.
-        let sg_node = g.node_mut(sg_nid).unwrap();
-        sg_node.width = total_w;
-        sg_node.height = total_h;
+        if let Some(sg_node) = g.node_mut(sg_nid) {
+            sg_node.width = total_w;
+            sg_node.height = total_h;
+        }
 
         extracted.push(ExtractedLayout {
             sg_id: sg.id.clone(),
@@ -633,43 +635,6 @@ fn resolve_node_styles(diagram: &FlowDiagram) -> HashMap<&str, Style> {
     result
 }
 
-/// Apply CSS-like style properties onto a Style struct.
-fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
-    for prop in props {
-        match prop.key.as_str() {
-            "fill" => {
-                style.fill = Color::from_css(&prop.value);
-            }
-            "stroke" => {
-                style.stroke = Color::from_css(&prop.value);
-            }
-            "stroke-width" => {
-                let v = prop.value.trim_end_matches("px");
-                if let Ok(w) = v.parse::<f64>() {
-                    style.stroke_width = Some(w);
-                }
-            }
-            "stroke-dasharray" => {
-                let vals: Vec<f64> = prop
-                    .value
-                    .split_whitespace()
-                    .flat_map(|s| s.split(','))
-                    .filter_map(|s| s.trim().parse().ok())
-                    .collect();
-                if !vals.is_empty() {
-                    style.stroke_dasharray = Some(vals);
-                }
-            }
-            "opacity" => {
-                if let Ok(o) = prop.value.parse::<f64>() {
-                    style.opacity = Some(o);
-                }
-            }
-            _ => {}
-        }
-    }
-}
-
 /// Resolve linkStyle statements into a per-edge-index Style map.
 /// Priority: linkStyle default → linkStyle by index (last wins).
 fn resolve_edge_styles(diagram: &FlowDiagram) -> HashMap<usize, Style> {
@@ -700,16 +665,10 @@ fn resolve_edge_styles(diagram: &FlowDiagram) -> HashMap<usize, Style> {
 /// Returns `None` for rect-like shapes (dagre's default clipping is correct).
 /// For inscribed shapes (diamond, circle, hexagon, etc.), returns the point
 /// where the ray from node center toward `adj` crosses the shape perimeter.
-fn shape_intersect(
-    shape: Shape,
-    cx: f64,
-    cy: f64,
-    w: f64,
-    h: f64,
-    adj: (f64, f64),
-) -> Option<(f64, f64)> {
+fn shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> {
+    let (cx, cy, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
     let center = Point::new(cx, cy);
-    let target = Point::new(adj.0, adj.1);
+    let target = adj;
     let hw = w / 2.0;
     let hh = h / 2.0;
 
@@ -803,7 +762,7 @@ fn shape_intersect(
         _ => return None,
     };
 
-    Some((p.x, p.y))
+    Some(p)
 }
 
 #[cfg(test)]
@@ -1031,5 +990,502 @@ mod tests {
         // With external connections, direction LR is ignored → defaults to TD.
         // A should be above B (or at least not horizontally arranged).
         assert!(a.y < b.y, "A should be above B (TD): {} < {}", a.y, b.y);
+    }
+
+    // ── shape_intersect tests ──────────────────────────────────────────
+
+    const TOL: f64 = 1e-6;
+
+    fn assert_near(actual: f64, expected: f64, msg: &str) {
+        assert!(
+            (actual - expected).abs() < TOL,
+            "{msg}: expected {expected}, got {actual}",
+        );
+    }
+
+    fn assert_point_near(actual: Point, expected: Point, msg: &str) {
+        assert!(
+            (actual.x - expected.x).abs() < TOL && (actual.y - expected.y).abs() < TOL,
+            "{msg}: expected ({}, {}), got ({}, {})",
+            expected.x, expected.y, actual.x, actual.y,
+        );
+    }
+
+    /// Standard test bbox: center (100, 100), size 80x60.
+    fn test_bbox() -> BBox {
+        BBox::new(100.0, 100.0, 80.0, 60.0)
+    }
+
+    /// Square test bbox: center (100, 100), size 80x80.
+    fn square_bbox() -> BBox {
+        BBox::new(100.0, 100.0, 80.0, 80.0)
+    }
+
+    // ── Shapes that return None ──
+
+    #[test]
+    fn shape_intersect_rect_returns_none() {
+        let b = test_bbox();
+        assert!(shape_intersect(Shape::Rect, b, Point::new(200.0, 100.0)).is_none());
+        assert!(shape_intersect(Shape::Rect, b, Point::new(100.0, 0.0)).is_none());
+        assert!(shape_intersect(Shape::Rect, b, Point::new(200.0, 200.0)).is_none());
+    }
+
+    #[test]
+    fn shape_intersect_rounded_rect_returns_none() {
+        let b = test_bbox();
+        assert!(shape_intersect(Shape::RoundedRect, b, Point::new(200.0, 100.0)).is_none());
+    }
+
+    #[test]
+    fn shape_intersect_stadium_returns_none() {
+        let b = test_bbox();
+        assert!(shape_intersect(Shape::Stadium, b, Point::new(200.0, 100.0)).is_none());
+    }
+
+    #[test]
+    fn shape_intersect_wildcard_shapes_return_none() {
+        let b = test_bbox();
+        // Subroutine, StateStart, etc. all hit the _ arm
+        assert!(shape_intersect(Shape::Subroutine, b, Point::new(200.0, 100.0)).is_none());
+        assert!(shape_intersect(Shape::StateStart, b, Point::new(200.0, 100.0)).is_none());
+        assert!(shape_intersect(Shape::Note, b, Point::new(200.0, 100.0)).is_none());
+        assert!(shape_intersect(Shape::ClassBox, b, Point::new(200.0, 100.0)).is_none());
+    }
+
+    // ── Diamond ──
+
+    #[test]
+    fn shape_intersect_diamond_right() {
+        // Diamond vertices: top (cx, cy-hh), right (cx+hw, cy), bottom (cx, cy+hh), left (cx-hw, cy)
+        // Ray rightward from center hits right vertex exactly.
+        let b = square_bbox(); // 80x80, hw=hh=40
+        let p = shape_intersect(Shape::Diamond, b, Point::new(200.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(140.0, 100.0), "diamond right");
+    }
+
+    #[test]
+    fn shape_intersect_diamond_top() {
+        let b = square_bbox();
+        let p = shape_intersect(Shape::Diamond, b, Point::new(100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(100.0, 60.0), "diamond top");
+    }
+
+    #[test]
+    fn shape_intersect_diamond_bottom() {
+        let b = square_bbox();
+        let p = shape_intersect(Shape::Diamond, b, Point::new(100.0, 200.0)).unwrap();
+        assert_point_near(p, Point::new(100.0, 140.0), "diamond bottom");
+    }
+
+    #[test]
+    fn shape_intersect_diamond_left() {
+        let b = square_bbox();
+        let p = shape_intersect(Shape::Diamond, b, Point::new(0.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(60.0, 100.0), "diamond left");
+    }
+
+    #[test]
+    fn shape_intersect_diamond_diagonal() {
+        // For a square diamond (hw=hh=40), a 45-degree ray hits the midpoint
+        // of the top-right edge: from (100,60) to (140,100).
+        // Midpoint = (120, 80). Ray from center (100,100) at 45° up-right:
+        // parametric: (100+t, 100-t). Edge: from (100,60) to (140,100),
+        // parametric: (100+40s, 60+40s). Solve: 100+t=100+40s → t=40s;
+        // 100-t=60+40s → 100-40s=60+40s → 40=80s → s=0.5, t=20.
+        // Hit: (120, 80).
+        let b = square_bbox();
+        let p = shape_intersect(Shape::Diamond, b, Point::new(200.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(120.0, 80.0), "diamond diagonal up-right");
+    }
+
+    // ── Circle ──
+
+    #[test]
+    fn shape_intersect_circle_right() {
+        let b = BBox::new(100.0, 100.0, 60.0, 60.0); // r = 30
+        let p = shape_intersect(Shape::Circle, b, Point::new(200.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(130.0, 100.0), "circle right");
+    }
+
+    #[test]
+    fn shape_intersect_circle_top() {
+        let b = BBox::new(100.0, 100.0, 60.0, 60.0);
+        let p = shape_intersect(Shape::Circle, b, Point::new(100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(100.0, 70.0), "circle top");
+    }
+
+    #[test]
+    fn shape_intersect_circle_diagonal() {
+        let b = BBox::new(100.0, 100.0, 60.0, 60.0); // r = 30
+        let p = shape_intersect(Shape::Circle, b, Point::new(200.0, 200.0)).unwrap();
+        let offset = 30.0 / 2.0_f64.sqrt();
+        assert_point_near(
+            p,
+            Point::new(100.0 + offset, 100.0 + offset),
+            "circle diagonal",
+        );
+    }
+
+    // ── DoubleCircle ──
+
+    #[test]
+    fn shape_intersect_double_circle_right() {
+        // DoubleCircle uses the same circle intersect, r = max(w,h)/2
+        let b = BBox::new(100.0, 100.0, 70.0, 70.0); // r = 35
+        let p = shape_intersect(Shape::DoubleCircle, b, Point::new(200.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(135.0, 100.0), "double circle right");
+    }
+
+    #[test]
+    fn shape_intersect_double_circle_left() {
+        let b = BBox::new(100.0, 100.0, 70.0, 70.0);
+        let p = shape_intersect(Shape::DoubleCircle, b, Point::new(0.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(65.0, 100.0), "double circle left");
+    }
+
+    // ── Hexagon ──
+
+    #[test]
+    fn shape_intersect_hexagon_right() {
+        // Hexagon vertices with bbox 80x60: m = h/4 = 15
+        // Right vertex: (cx+hw, cy) = (140, 100)
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Hexagon, b, Point::new(200.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(140.0, 100.0), "hexagon right");
+    }
+
+    #[test]
+    fn shape_intersect_hexagon_left() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Hexagon, b, Point::new(0.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(60.0, 100.0), "hexagon left");
+    }
+
+    #[test]
+    fn shape_intersect_hexagon_top() {
+        // Top edge goes from (cx-hw+m, cy-hh) to (cx+hw-m, cy-hh) = (75, 70) to (125, 70).
+        // Ray straight up from center hits this horizontal segment at (100, 70).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Hexagon, b, Point::new(100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(100.0, 70.0), "hexagon top");
+    }
+
+    // ── Parallelogram ──
+
+    #[test]
+    fn shape_intersect_parallelogram_right() {
+        // skew = h/2 = 30. Vertices:
+        //   top-left:  (100-40+30, 70)  = (90, 70)
+        //   top-right: (100+40+30, 70)  = (170, 70)
+        //   bot-right: (100+40-30, 130) = (110, 130)
+        //   bot-left:  (100-40-30, 130) = (30, 130)
+        // Ray rightward from (100,100): hits right edge between top-right (170,70) and bot-right (110,130).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Parallelogram, b, Point::new(300.0, 100.0)).unwrap();
+        // Right edge: (170,70)→(110,130). Parametric: (170-60t, 70+60t).
+        // Ray: (100+s, 100). Solve: 100=70+60t → t=0.5. x=170-30=140. Hit: (140, 100).
+        assert_point_near(p, Point::new(140.0, 100.0), "parallelogram right");
+    }
+
+    #[test]
+    fn shape_intersect_parallelogram_top() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Parallelogram, b, Point::new(100.0, 0.0)).unwrap();
+        // Top edge: (90,70)→(170,70). Ray upward: (100, 100-s). Hits at y=70, x=100.
+        assert_point_near(p, Point::new(100.0, 70.0), "parallelogram top");
+    }
+
+    // ── ParallelogramAlt ──
+
+    #[test]
+    fn shape_intersect_parallelogram_alt_left() {
+        // skew = h/2 = 30. Vertices:
+        //   top-left:  (100-40-30, 70) = (30, 70)
+        //   top-right: (100+40-30, 70) = (110, 70)
+        //   bot-right: (100+40+30, 130) = (170, 130)
+        //   bot-left:  (100-40+30, 130) = (90, 130)
+        // Ray leftward: hits left edge (30,70)→(90,130).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::ParallelogramAlt, b, Point::new(0.0, 100.0)).unwrap();
+        // Left edge: (30,70)→(90,130). Parametric: (30+60t, 70+60t).
+        // Ray: (100-s, 100). y=100: 70+60t=100 → t=0.5. x=30+30=60. Hit: (60, 100).
+        assert_point_near(p, Point::new(60.0, 100.0), "parallelogram alt left");
+    }
+
+    #[test]
+    fn shape_intersect_parallelogram_alt_top() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::ParallelogramAlt, b, Point::new(100.0, 0.0)).unwrap();
+        // Top edge: (30,70)→(110,70). Straight up hits at (100, 70).
+        assert_point_near(p, Point::new(100.0, 70.0), "parallelogram alt top");
+    }
+
+    // ── Trapezoid ──
+
+    #[test]
+    fn shape_intersect_trapezoid_top() {
+        // offset = h/2 = 30. Vertices:
+        //   top-left:  (60, 70)
+        //   top-right: (140, 70)
+        //   bot-right: (170, 130)
+        //   bot-left:  (30, 130)
+        // Ray straight up hits top edge at (100, 70).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Trapezoid, b, Point::new(100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(100.0, 70.0), "trapezoid top");
+    }
+
+    #[test]
+    fn shape_intersect_trapezoid_bottom() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Trapezoid, b, Point::new(100.0, 200.0)).unwrap();
+        // Bottom edge: (170,130)→(30,130). Straight down hits at (100, 130).
+        assert_point_near(p, Point::new(100.0, 130.0), "trapezoid bottom");
+    }
+
+    #[test]
+    fn shape_intersect_trapezoid_right() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Trapezoid, b, Point::new(300.0, 100.0)).unwrap();
+        // Right edge: (140,70)→(170,130). Parametric: (140+30t, 70+60t).
+        // Ray: (100+s, 100). y=100: 70+60t=100 → t=0.5. x=140+15=155. Hit: (155, 100).
+        assert_point_near(p, Point::new(155.0, 100.0), "trapezoid right");
+    }
+
+    // ── TrapezoidAlt ──
+
+    #[test]
+    fn shape_intersect_trapezoid_alt_top() {
+        // offset = h/2 = 30. Vertices:
+        //   top-left:  (30, 70)
+        //   top-right: (170, 70)
+        //   bot-right: (140, 130)
+        //   bot-left:  (60, 130)
+        // Ray straight up hits top edge at (100, 70).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::TrapezoidAlt, b, Point::new(100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(100.0, 70.0), "trapezoid alt top");
+    }
+
+    #[test]
+    fn shape_intersect_trapezoid_alt_bottom() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::TrapezoidAlt, b, Point::new(100.0, 200.0)).unwrap();
+        // Bottom edge: (140,130)→(60,130). Straight down hits at (100, 130).
+        assert_point_near(p, Point::new(100.0, 130.0), "trapezoid alt bottom");
+    }
+
+    #[test]
+    fn shape_intersect_trapezoid_alt_left() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::TrapezoidAlt, b, Point::new(0.0, 100.0)).unwrap();
+        // Left edge: (60,130)→(30,70). Parametric: (60-30t, 130-60t).
+        // Ray: (100-s, 100). y=100: 130-60t=100 → t=0.5. x=60-15=45. Hit: (45, 100).
+        assert_point_near(p, Point::new(45.0, 100.0), "trapezoid alt left");
+    }
+
+    // ── Cylinder ──
+
+    #[test]
+    fn shape_intersect_cylinder_right() {
+        // Cylinder uses intersect_rect with expanded height.
+        // bbox 80x60, rx = hw = 40, ry = 40 / (2.5 + 80/50) = 40/4.1 ≈ 9.756
+        // full_h = 60 + ry ≈ 69.756. Rect intersect with this taller bbox.
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Cylinder, b, Point::new(200.0, 100.0)).unwrap();
+        // Ray rightward: hits right edge at x = cx + w/2 = 140.
+        assert_point_near(p, Point::new(140.0, 100.0), "cylinder right");
+    }
+
+    #[test]
+    fn shape_intersect_cylinder_top() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Cylinder, b, Point::new(100.0, 0.0)).unwrap();
+        // full_h = 60 + 40/4.1 ≈ 69.756. half = ≈34.878.
+        // Hit at y = 100 - 34.878 ≈ 65.122.
+        let rx = 40.0;
+        let ry = rx / (2.5 + 80.0 / 50.0);
+        let full_hh = (60.0 + ry) / 2.0;
+        assert_near(p.x, 100.0, "cylinder top x");
+        assert_near(p.y, 100.0 - full_hh, "cylinder top y");
+    }
+
+    #[test]
+    fn shape_intersect_cylinder_bottom() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Cylinder, b, Point::new(100.0, 200.0)).unwrap();
+        let rx = 40.0;
+        let ry = rx / (2.5 + 80.0 / 50.0);
+        let full_hh = (60.0 + ry) / 2.0;
+        assert_near(p.x, 100.0, "cylinder bottom x");
+        assert_near(p.y, 100.0 + full_hh, "cylinder bottom y");
+    }
+
+    // ── Asymmetric ──
+
+    #[test]
+    fn shape_intersect_asymmetric_right() {
+        // notch = h/4 = 15. Vertices:
+        //   (60, 70), (140, 70), (140, 130), (60, 130), (75, 100)
+        // Ray rightward from center (100,100) hits right edge (140,70)→(140,130) at (140,100).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Asymmetric, b, Point::new(200.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(140.0, 100.0), "asymmetric right");
+    }
+
+    #[test]
+    fn shape_intersect_asymmetric_left() {
+        // Ray leftward: hits the notch edges. The left side has two edges:
+        //   bottom-left (60,130) → notch (75,100) and notch (75,100) → top-left (60,70).
+        // Ray from center (100,100) going left: (100-s, 100). Hits notch vertex at (75, 100).
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Asymmetric, b, Point::new(0.0, 100.0)).unwrap();
+        assert_point_near(p, Point::new(75.0, 100.0), "asymmetric left notch");
+    }
+
+    #[test]
+    fn shape_intersect_asymmetric_top() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Asymmetric, b, Point::new(100.0, 0.0)).unwrap();
+        // Top edge: (60,70)→(140,70). Straight up hits at (100, 70).
+        assert_point_near(p, Point::new(100.0, 70.0), "asymmetric top");
+    }
+
+    // ── Edge case: point on boundary returns Some for non-rect shapes ──
+
+    #[test]
+    fn shape_intersect_all_non_rect_return_some() {
+        let b = test_bbox();
+        let adj = Point::new(200.0, 100.0); // ray to the right
+        let non_rect_shapes = [
+            Shape::Diamond,
+            Shape::Circle,
+            Shape::DoubleCircle,
+            Shape::Hexagon,
+            Shape::Parallelogram,
+            Shape::ParallelogramAlt,
+            Shape::Trapezoid,
+            Shape::TrapezoidAlt,
+            Shape::Cylinder,
+            Shape::Asymmetric,
+        ];
+        for shape in non_rect_shapes {
+            assert!(
+                shape_intersect(shape, b, adj).is_some(),
+                "{shape:?} should return Some",
+            );
+        }
+    }
+
+    // ── Intersection points lie on or near the shape boundary ──
+
+    #[test]
+    fn shape_intersect_diamond_boundary_distance() {
+        // For a square diamond (hw=hh=40), the boundary is the set of points
+        // where |x - cx|/hw + |y - cy|/hh = 1.
+        let b = square_bbox();
+        let (cx, cy, hw, hh) = (100.0, 100.0, 40.0, 40.0);
+        let targets = [
+            Point::new(200.0, 100.0),
+            Point::new(100.0, 0.0),
+            Point::new(0.0, 100.0),
+            Point::new(100.0, 200.0),
+            Point::new(200.0, 0.0),
+            Point::new(0.0, 200.0),
+            Point::new(200.0, 200.0),
+            Point::new(0.0, 0.0),
+        ];
+        for t in targets {
+            let p = shape_intersect(Shape::Diamond, b, t).unwrap();
+            let diamond_eq = (p.x - cx).abs() / hw + (p.y - cy).abs() / hh;
+            assert!(
+                (diamond_eq - 1.0).abs() < TOL,
+                "diamond boundary: target ({}, {}), hit ({}, {}), eq={diamond_eq}",
+                t.x, t.y, p.x, p.y,
+            );
+        }
+    }
+
+    #[test]
+    fn shape_intersect_circle_boundary_distance() {
+        let b = BBox::new(100.0, 100.0, 60.0, 60.0); // r = 30
+        let r = 30.0;
+        let targets = [
+            Point::new(200.0, 100.0),
+            Point::new(100.0, 0.0),
+            Point::new(0.0, 100.0),
+            Point::new(100.0, 200.0),
+            Point::new(200.0, 200.0),
+            Point::new(0.0, 0.0),
+        ];
+        for t in targets {
+            let p = shape_intersect(Shape::Circle, b, t).unwrap();
+            let dist = Point::new(100.0, 100.0).distance_to(p);
+            assert!(
+                (dist - r).abs() < TOL,
+                "circle boundary: target ({}, {}), hit ({}, {}), dist={dist}",
+                t.x, t.y, p.x, p.y,
+            );
+        }
+    }
+
+    #[test]
+    fn shape_intersect_hexagon_boundary_on_polygon() {
+        // Verify hit points lie on the hexagon polygon edges.
+        let b = test_bbox();
+        let (cx, cy) = (100.0, 100.0);
+        let (hw, hh) = (40.0, 30.0);
+        let m = 60.0 / 4.0; // 15
+        let verts = [
+            Point::new(cx - hw + m, cy - hh),
+            Point::new(cx + hw - m, cy - hh),
+            Point::new(cx + hw, cy),
+            Point::new(cx + hw - m, cy + hh),
+            Point::new(cx - hw + m, cy + hh),
+            Point::new(cx - hw, cy),
+        ];
+
+        let targets = [
+            Point::new(200.0, 100.0),
+            Point::new(0.0, 100.0),
+            Point::new(100.0, 0.0),
+            Point::new(100.0, 200.0),
+        ];
+
+        for t in targets {
+            let p = shape_intersect(Shape::Hexagon, b, t).unwrap();
+            // Point should be on one of the polygon edges.
+            let on_edge = is_on_polygon_edge(&verts, p);
+            assert!(
+                on_edge,
+                "hexagon: target ({}, {}), hit ({}, {}) not on edge",
+                t.x, t.y, p.x, p.y,
+            );
+        }
+    }
+
+    /// Check whether a point lies on any edge of a polygon (within tolerance).
+    fn is_on_polygon_edge(verts: &[Point], p: Point) -> bool {
+        let n = verts.len();
+        for i in 0..n {
+            let a = verts[i];
+            let b = verts[(i + 1) % n];
+            if point_on_segment(a, b, p) {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Check whether point p lies on segment a→b (within tolerance).
+    fn point_on_segment(a: Point, b: Point, p: Point) -> bool {
+        let ab = ((b.x - a.x).powi(2) + (b.y - a.y).powi(2)).sqrt();
+        if ab < f64::EPSILON {
+            return a.distance_to(p) < TOL;
+        }
+        let ap = a.distance_to(p);
+        let pb = p.distance_to(b);
+        (ap + pb - ab).abs() < TOL
     }
 }

@@ -116,11 +116,6 @@ fn postorder_visit<N, E>(
     order.push(node);
 }
 
-/// Pre-order DFS (same as dfs, included for symmetry with postorder).
-pub fn preorder<N, E>(graph: &Graph<N, E>, start: NodeId) -> Vec<NodeId> {
-    dfs(graph, start)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -201,12 +196,6 @@ mod tests {
         let pos = |n: NodeId| order.iter().position(|&x| x == n).unwrap();
         assert!(pos(d) < pos(b) || pos(d) < pos(c));
         assert!(pos(a) == order.len() - 1); // root is last
-    }
-
-    #[test]
-    fn preorder_is_dfs() {
-        let (g, a, _, _, _) = diamond_graph();
-        assert_eq!(preorder(&g, a), dfs(&g, a));
     }
 
     #[test]

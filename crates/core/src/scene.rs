@@ -5,7 +5,7 @@ use crate::{BBox, Color, Point, Style, TextStyle};
 pub struct Scene {
     pub width: f64,
     pub height: f64,
-    pub primitives: Vec<Primitive>,
+    primitives: Vec<Primitive>,
     pub marker_color: Option<Color>,
 }
 
@@ -21,6 +21,10 @@ impl Scene {
 
     pub fn push(&mut self, primitive: Primitive) {
         self.primitives.push(primitive);
+    }
+
+    pub fn primitives(&self) -> &[Primitive] {
+        &self.primitives
     }
 }
 
@@ -144,14 +148,14 @@ mod tests {
     #[test]
     fn scene_new_and_push() {
         let mut scene = Scene::new(800.0, 600.0);
-        assert!(scene.primitives.is_empty());
+        assert!(scene.primitives().is_empty());
 
         scene.push(Primitive::Circle {
             center: Point::new(100.0, 100.0),
             radius: 50.0,
             style: Style::default(),
         });
-        assert_eq!(scene.primitives.len(), 1);
+        assert_eq!(scene.primitives().len(), 1);
     }
 
     #[test]

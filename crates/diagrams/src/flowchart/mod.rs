@@ -3,21 +3,16 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, Color, CurveType, MarkerType, PathSegment, Point, Primitive, Scene, Shape, Style,
-    TextAnchor, TextStyle, Theme, interpolate,
+    BBox, CurveType, MarkerType, PathSegment, Point, Primitive, Scene, Shape, Style, TextAnchor,
+    TextStyle, Theme, interpolate,
 };
 
 use bridge::{LayoutResult, NodeLayout};
 use ir::{ArrowEnd, StrokeType};
 
-fn node_style(theme: &Theme) -> Style {
-    Style {
-        fill: Some(theme.node_fill),
-        stroke: Some(theme.node_stroke),
-        stroke_width: Some(1.5),
-        ..Default::default()
-    }
-}
+use crate::common::rendering::{
+    contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
+};
 
 fn edge_style(stroke: StrokeType, theme: &Theme) -> Style {
     Style {
@@ -30,30 +25,6 @@ fn edge_style(stroke: StrokeType, theme: &Theme) -> Style {
             StrokeType::Dotted => Some(vec![3.0, 3.0]),
             _ => None,
         },
-        ..Default::default()
-    }
-}
-
-fn label_style(theme: &Theme) -> TextStyle {
-    TextStyle {
-        fill: Some(theme.node_text),
-        ..Default::default()
-    }
-}
-
-fn edge_label_style(theme: &Theme) -> TextStyle {
-    TextStyle {
-        font_size: 12.0,
-        fill: Some(theme.edge_label_text),
-        ..Default::default()
-    }
-}
-
-fn edge_label_bg_style(theme: &Theme) -> Style {
-    Style {
-        fill: Some(theme.edge_label_bg),
-        stroke: Some(theme.edge_label_bg),
-        stroke_width: Some(0.5),
         ..Default::default()
     }
 }
@@ -113,9 +84,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
-            let points: Vec<Point> =
-                edge.points.iter().map(|&(x, y)| Point::new(x, y)).collect();
-            let segments = interpolate(&points, CurveType::Basis);
+            let segments = interpolate(&edge.points, CurveType::Basis);
 
             let marker_end = match edge.end_arrow {
                 ArrowEnd::Arrow => Some(MarkerType::ArrowPoint),
@@ -132,12 +101,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 
             let mut estyle = edge_style(edge.stroke, theme);
             if let Some(custom) = &edge.custom_style {
-                if custom.stroke.is_some() { estyle.stroke = custom.stroke; }
-                if custom.stroke_width.is_some() { estyle.stroke_width = custom.stroke_width; }
-                if custom.stroke_dasharray.is_some() {
-                    estyle.stroke_dasharray = custom.stroke_dasharray.clone();
-                }
-                if custom.opacity.is_some() { estyle.opacity = custom.opacity; }
+                overlay_style(&mut estyle, custom);
             }
 
             scene.push(Primitive::Path {
@@ -147,23 +111,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                 marker_end,
             });
             if let Some(label) = &edge.label {
-                let mid = &points[points.len() / 2];
-                // Background rect behind label (matches mermaid's label-on-edge look)
-                if let Some((lw, lh)) = edge.label_size {
-                    let pad = 4.0;
-                    scene.push(Primitive::Rect {
-                        bbox: BBox::new(mid.x, mid.y, lw + pad * 2.0, lh + pad * 2.0),
-                        rx: 2.0,
-                        ry: 2.0,
-                        style: edge_label_bg_style(theme),
-                    });
-                }
-                scene.push(Primitive::Text {
-                    position: *mid,
-                    content: label.clone(),
-                    anchor: TextAnchor::Middle,
-                    style: edge_label_style(theme),
-                });
+                let mid = edge.points[edge.points.len() / 2];
+                render_edge_label(scene, mid, label, edge.label_size, theme);
             }
         }
     }
@@ -177,67 +126,28 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 // Shape rendering — formulas match mermaid.js
 // ---------------------------------------------------------------------------
 
-/// Merge a node's custom style (from classDef/style/:::class) onto the defaults.
-fn merge_node_style(node: &NodeLayout, theme: &Theme) -> Style {
-    let mut style = node_style(theme);
-    if let Some(custom) = &node.custom_style {
-        if custom.fill.is_some() {
-            style.fill = custom.fill;
-        }
-        if custom.stroke.is_some() {
-            style.stroke = custom.stroke;
-        }
-        if custom.stroke_width.is_some() {
-            style.stroke_width = custom.stroke_width;
-        }
-        if custom.stroke_dasharray.is_some() {
-            style.stroke_dasharray = custom.stroke_dasharray.clone();
-        }
-        if custom.opacity.is_some() {
-            style.opacity = custom.opacity;
-        }
-    }
-    style
-}
-
 fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
-    let style = merge_node_style(node, theme);
+    let style = merge_custom_style(node.custom_style.as_ref(), theme);
     let node_fill = style.fill;
     let cx = node.x;
     let cy = node.y;
     let w = node.width;
     let h = node.height;
 
+    let bbox = BBox::new(cx, cy, w, h);
+
     match node.shape {
         Shape::Rect => {
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(cx, cy, w, h),
-                rx: 0.0,
-                ry: 0.0,
-                style,
-            });
+            scene.push(Primitive::Rect { bbox, rx: 0.0, ry: 0.0, style });
         }
         Shape::RoundedRect => {
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(cx, cy, w, h),
-                rx: 5.0,
-                ry: 5.0,
-                style,
-            });
+            scene.push(Primitive::Rect { bbox, rx: 5.0, ry: 5.0, style });
         }
         Shape::Stadium => {
-            // Pill shape: rx = half height so ends are semicircles
             let r = h / 2.0;
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(cx, cy, w, h),
-                rx: r,
-                ry: r,
-                style,
-            });
+            scene.push(Primitive::Rect { bbox, rx: r, ry: r, style });
         }
-        Shape::Diamond => {
-            render_diamond(cx, cy, w, h, style, scene);
-        }
+        Shape::Diamond => render_diamond(bbox, style, scene),
         Shape::Circle => {
             let r = w.max(h) / 2.0;
             scene.push(Primitive::Circle {
@@ -248,8 +158,6 @@ fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
         }
         Shape::DoubleCircle => {
             let gap = 5.0;
-            // Dagre box already includes gap (sized in bridge), so
-            // outer_r matches the dagre clip boundary.
             let outer_r = w.max(h) / 2.0;
             let inner_r = outer_r - gap;
             scene.push(Primitive::Circle {
@@ -263,38 +171,16 @@ fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
                 style,
             });
         }
-        Shape::Hexagon => {
-            render_hexagon(cx, cy, w, h, style, scene);
-        }
-        Shape::Parallelogram => {
-            render_parallelogram(cx, cy, w, h, style, scene);
-        }
-        Shape::ParallelogramAlt => {
-            render_parallelogram_alt(cx, cy, w, h, style, scene);
-        }
-        Shape::Trapezoid => {
-            render_trapezoid(cx, cy, w, h, style, scene);
-        }
-        Shape::TrapezoidAlt => {
-            render_trapezoid_alt(cx, cy, w, h, style, scene);
-        }
-        Shape::Cylinder => {
-            render_cylinder(cx, cy, w, h, style, scene);
-        }
-        Shape::Subroutine => {
-            render_subroutine(cx, cy, w, h, style, scene);
-        }
-        Shape::Asymmetric => {
-            render_asymmetric(cx, cy, w, h, style, scene);
-        }
-        // Fallback: rounded rect for unhandled shapes
+        Shape::Hexagon => render_hexagon(bbox, style, scene),
+        Shape::Parallelogram => render_parallelogram(bbox, style, scene),
+        Shape::ParallelogramAlt => render_parallelogram_alt(bbox, style, scene),
+        Shape::Trapezoid => render_trapezoid(bbox, style, scene),
+        Shape::TrapezoidAlt => render_trapezoid_alt(bbox, style, scene),
+        Shape::Cylinder => render_cylinder(bbox, style, scene),
+        Shape::Subroutine => render_subroutine(bbox, style, scene),
+        Shape::Asymmetric => render_asymmetric(bbox, style, scene),
         _ => {
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(cx, cy, w, h),
-                rx: 3.0,
-                ry: 3.0,
-                style,
-            });
+            scene.push(Primitive::Rect { bbox, rx: 3.0, ry: 3.0, style });
         }
     }
 
@@ -308,46 +194,35 @@ fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
         cy
     };
 
-    // Pick text color that contrasts with the node fill.
-    let mut lstyle = label_style(theme);
-    if let Some(fill) = node_fill {
-        let lum = fill.luminance();
-        if lum < 0.4 {
-            lstyle.fill = Some(Color::WHITE);
-        } else if lum > 0.9 {
-            lstyle.fill = Some(Color::BLACK);
-        }
-    }
-
     scene.push(Primitive::Text {
         position: Point::new(cx, label_y),
         content: node.label.clone(),
         anchor: TextAnchor::Middle,
-        style: lstyle,
+        style: contrasting_label_style(node_fill, theme),
     });
 }
 
 /// Diamond: 4-point rhombus. Mermaid computes s = w + h, then draws a
 /// diamond of that size. We use w and h directly to fit dagre's box.
-fn render_diamond(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
+fn render_diamond(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
     scene.push(Primitive::Polygon {
         points: vec![
-            Point::new(cx, cy - hh),     // top
-            Point::new(cx + hw, cy),     // right
-            Point::new(cx, cy + hh),     // bottom
-            Point::new(cx - hw, cy),     // left
+            Point::new(cx, cy - hh),
+            Point::new(cx + hw, cy),
+            Point::new(cx, cy + hh),
+            Point::new(cx - hw, cy),
         ],
         style,
     });
 }
 
 /// Hexagon: 6 points. Cut amount m = h/4 on each side (matches mermaid f=4).
-fn render_hexagon(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    let m = h / 4.0;
+fn render_hexagon(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
+    let m = bbox.height / 4.0;
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw + m, cy - hh), // top-left
@@ -362,10 +237,10 @@ fn render_hexagon(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Sc
 }
 
 /// Parallelogram (lean right): skew = h/2 (mermaid uses 3*h/6 = h/2).
-fn render_parallelogram(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    let skew = h / 2.0;
+fn render_parallelogram(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
+    let skew = bbox.height / 2.0;
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw + skew, cy - hh), // top-left
@@ -378,10 +253,10 @@ fn render_parallelogram(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &
 }
 
 /// Parallelogram alt (lean left): opposite skew direction.
-fn render_parallelogram_alt(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    let skew = h / 2.0;
+fn render_parallelogram_alt(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
+    let skew = bbox.height / 2.0;
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw - skew, cy - hh), // top-left
@@ -394,10 +269,10 @@ fn render_parallelogram_alt(cx: f64, cy: f64, w: f64, h: f64, style: Style, scen
 }
 
 /// Trapezoid: top narrower than bottom. Offset = h/2 on each side.
-fn render_trapezoid(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    let offset = h / 2.0;
+fn render_trapezoid(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
+    let offset = bbox.height / 2.0;
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw, cy - hh),            // top-left
@@ -410,10 +285,10 @@ fn render_trapezoid(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut 
 }
 
 /// Trapezoid alt (inverted): bottom narrower than top.
-fn render_trapezoid_alt(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    let offset = h / 2.0;
+fn render_trapezoid_alt(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
+    let offset = bbox.height / 2.0;
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw - offset, cy - hh),   // top-left (wider)
@@ -431,7 +306,8 @@ fn render_trapezoid_alt(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &
 /// Drawn as two paths: (1) body with bottom arc, (2) top ellipse on top.
 /// A single combined path causes fill artifacts where the top cap's
 /// interior remains unfilled due to winding/even-odd fill rules.
-fn render_cylinder(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
+fn render_cylinder(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
     let hw = w / 2.0;
     let rx = hw;
     let ry = rx / (2.5 + w / 50.0);
@@ -499,10 +375,10 @@ fn render_cylinder(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut S
 
 /// Asymmetric (flag/pennant): rectangle with a V-notch on the left.
 /// Mermaid `>text]` shape. Notch indentation = h/4.
-fn render_asymmetric(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    let notch = h / 4.0;
+fn render_asymmetric(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy) = (bbox.x, bbox.y);
+    let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
+    let notch = bbox.height / 4.0;
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw, cy - hh),         // top-left
@@ -516,9 +392,9 @@ fn render_asymmetric(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut
 }
 
 /// Subroutine: rect with double vertical bars (8px offset each side).
-fn render_subroutine(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut Scene) {
+fn render_subroutine(bbox: BBox, style: Style, scene: &mut Scene) {
+    let (cx, cy, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
     let bar_offset = 8.0;
-    // Outer rect (wider by bar_offset on each side)
     scene.push(Primitive::Rect {
         bbox: BBox::new(cx, cy, w + bar_offset * 2.0, h),
         rx: 0.0,
@@ -559,4 +435,160 @@ fn render_subroutine(cx: f64, cy: f64, w: f64, h: f64, style: Style, scene: &mut
         marker_start: None,
         marker_end: None,
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple_flowchart_to_scene() {
+        let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        assert!(scene.width > 0.0);
+        assert!(scene.height > 0.0);
+
+        let prims = scene.primitives();
+        // At minimum: 2 nodes (Rect + Text each) + 1 edge (Path)
+        assert!(prims.len() >= 5, "expected at least 5 primitives, got {}", prims.len());
+
+        let has_rect = prims.iter().any(|p| matches!(p, Primitive::Rect { .. }));
+        let has_path = prims.iter().any(|p| matches!(p, Primitive::Path { .. }));
+        let has_text = prims.iter().any(|p| matches!(p, Primitive::Text { .. }));
+        assert!(has_rect, "scene should contain Rect primitives for nodes");
+        assert!(has_path, "scene should contain Path primitives for edges");
+        assert!(has_text, "scene should contain Text primitives for labels");
+    }
+
+    #[test]
+    fn diamond_node_produces_polygon() {
+        let d = crate::flowchart::parser::parse("flowchart TD\n    A{Decision}").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let polygons: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Polygon { .. }))
+            .collect();
+        assert!(
+            !polygons.is_empty(),
+            "diamond shape should produce at least one Polygon primitive"
+        );
+        // Diamond has exactly 4 points
+        if let Primitive::Polygon { points, .. } = &polygons[0] {
+            assert_eq!(points.len(), 4, "diamond polygon should have 4 vertices");
+        }
+    }
+
+    #[test]
+    fn circle_node_produces_circle() {
+        let d = crate::flowchart::parser::parse("flowchart TD\n    A((Round))").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let circles: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .collect();
+        assert!(
+            !circles.is_empty(),
+            "circle shape should produce Circle primitive"
+        );
+        if let Primitive::Circle { radius, .. } = &circles[0] {
+            assert!(*radius > 0.0);
+        }
+    }
+
+    #[test]
+    fn edges_produce_paths_with_markers() {
+        let d = crate::flowchart::parser::parse("flowchart TD\n    A --> B").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let edge_paths: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| {
+                matches!(
+                    p,
+                    Primitive::Path {
+                        marker_end: Some(MarkerType::ArrowPoint),
+                        ..
+                    }
+                )
+            })
+            .collect();
+        assert_eq!(
+            edge_paths.len(),
+            1,
+            "one edge should produce one Path with ArrowPoint marker"
+        );
+    }
+
+    #[test]
+    fn subgraph_produces_background_rect() {
+        let mmd = "flowchart TD\n    subgraph sg[My Group]\n        A --> B\n    end";
+        let d = crate::flowchart::parser::parse(mmd).unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Subgraph rect is rendered first, before node rects.
+        // Count all rects: should be at least 3 (1 subgraph + 2 nodes).
+        let rects: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Rect { .. }))
+            .collect();
+        assert!(
+            rects.len() >= 3,
+            "expected at least 3 Rects (1 subgraph bg + 2 nodes), got {}",
+            rects.len()
+        );
+
+        // First rect should be the subgraph background (rendered before nodes)
+        if let Primitive::Rect { rx, ry, .. } = &rects[0] {
+            assert!((*rx - 5.0).abs() < f64::EPSILON, "subgraph rect should have rx=5");
+            assert!((*ry - 5.0).abs() < f64::EPSILON, "subgraph rect should have ry=5");
+        }
+
+        // Subgraph label text should appear
+        let has_sg_label = scene
+            .primitives()
+            .iter()
+            .any(|p| matches!(p, Primitive::Text { content, .. } if content == "My Group"));
+        assert!(has_sg_label, "subgraph label text should be in scene");
+    }
+
+    #[test]
+    fn empty_layout_produces_empty_scene() {
+        let layout = crate::flowchart::bridge::LayoutResult {
+            nodes: vec![],
+            edges: vec![],
+            subgraphs: vec![],
+            width: 0.0,
+            height: 0.0,
+        };
+        let scene = to_scene(&layout);
+        assert!(scene.primitives().is_empty());
+        assert!((scene.width - 0.0).abs() < f64::EPSILON);
+        assert!((scene.height - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn themed_scene_has_marker_color() {
+        let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let theme = Theme::default();
+        let scene = to_scene_themed(&layout, &theme);
+
+        assert_eq!(
+            scene.marker_color,
+            Some(theme.edge_stroke),
+            "themed scene marker_color should match theme.edge_stroke"
+        );
+    }
 }

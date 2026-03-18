@@ -12,63 +12,61 @@ impl SvgDocument {
             buf: String::with_capacity(4096),
             indent: 0,
         };
-        writeln!(
+        let _ = writeln!(
             doc.buf,
             r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">"#,
             w = fmt_f64(width),
             h = fmt_f64(height),
-        )
-        .unwrap();
+        );
         doc.indent = 1;
         doc
     }
 
     pub fn open_tag(&mut self, tag: &str, attrs: &[(&str, &str)]) {
         self.write_indent();
-        write!(self.buf, "<{tag}").unwrap();
+        let _ = write!(self.buf, "<{tag}");
         for (k, v) in attrs {
-            write!(self.buf, r#" {k}="{v}""#).unwrap();
+            let _ = write!(self.buf, r#" {k}="{v}""#);
         }
-        writeln!(self.buf, ">").unwrap();
+        let _ = writeln!(self.buf, ">");
         self.indent += 1;
     }
 
     pub fn close_tag(&mut self, tag: &str) {
         self.indent = self.indent.saturating_sub(1);
         self.write_indent();
-        writeln!(self.buf, "</{tag}>").unwrap();
+        let _ = writeln!(self.buf, "</{tag}>");
     }
 
     pub fn empty_tag(&mut self, tag: &str, attrs: &[(&str, &str)]) {
         self.write_indent();
-        write!(self.buf, "<{tag}").unwrap();
+        let _ = write!(self.buf, "<{tag}");
         for (k, v) in attrs {
-            write!(self.buf, r#" {k}="{v}""#).unwrap();
+            let _ = write!(self.buf, r#" {k}="{v}""#);
         }
-        writeln!(self.buf, " />").unwrap();
+        let _ = writeln!(self.buf, " />");
     }
 
     pub fn text_element(&mut self, tag: &str, attrs: &[(&str, &str)], content: &str) {
         self.write_indent();
-        write!(self.buf, "<{tag}").unwrap();
+        let _ = write!(self.buf, "<{tag}");
         for (k, v) in attrs {
-            write!(self.buf, r#" {k}="{v}""#).unwrap();
+            let _ = write!(self.buf, r#" {k}="{v}""#);
         }
-        write!(self.buf, ">{content}</{tag}>").unwrap();
-        writeln!(self.buf).unwrap();
+        let _ = writeln!(self.buf, ">{content}</{tag}>");
     }
 
     /// Write raw content (e.g. a <defs> block).
     pub fn raw(&mut self, content: &str) {
         for line in content.lines() {
             self.write_indent();
-            writeln!(self.buf, "{line}").unwrap();
+            let _ = writeln!(self.buf, "{line}");
         }
     }
 
     pub fn finish(mut self) -> String {
         self.indent = 0;
-        writeln!(self.buf, "</svg>").unwrap();
+        let _ = writeln!(self.buf, "</svg>");
         self.buf
     }
 

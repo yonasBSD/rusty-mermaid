@@ -496,7 +496,7 @@ fn parse_inline_edge_label(input: &mut &str, stop_chars: &str) -> ModalResult<Op
     if input.is_empty() {
         return Ok(None);
     }
-    let next = input.chars().next().unwrap();
+    let Some(next) = input.chars().next() else { return Ok(None) };
     // If next char is a stop char or arrow endpoint, no label
     if stop_chars.contains(next) || next == '>' || next == 'x' || next == 'o' {
         return Ok(None);
@@ -506,7 +506,7 @@ fn parse_inline_edge_label(input: &mut &str, stop_chars: &str) -> ModalResult<Op
     ws.parse_next(input)?;
     let mut label = String::new();
     while !input.is_empty() {
-        let c = input.chars().next().unwrap();
+        let Some(c) = input.chars().next() else { break };
         if stop_chars.contains(c) {
             break;
         }
@@ -772,5 +772,177 @@ graph TD
         )
         .unwrap();
         assert_eq!(d.subgraphs[0].direction, None);
+    }
+
+    // ── Negative / error-path tests ──────────────────────────────────
+
+    #[test]
+    fn reject_empty_input() {
+        assert!(parse("").is_err(), "empty input must fail (no header)");
+    }
+
+    #[test]
+    fn reject_whitespace_only() {
+        assert!(parse("   \n\n  ").is_err(), "whitespace-only input must fail");
+    }
+
+    #[test]
+    fn reject_no_diagram_header() {
+        assert!(
+            parse("A --> B").is_err(),
+            "input without graph/flowchart header must fail"
+        );
+    }
+
+    #[test]
+    fn reject_unknown_keyword_header() {
+        assert!(
+            parse("diagram TD\n    A --> B").is_err(),
+            "unknown header keyword must fail"
+        );
+    }
+
+    #[test]
+    fn reject_missing_direction_after_graph() {
+        // `graph` followed by a newline — no valid direction token.
+        // The parser requires a direction after the keyword.
+        assert!(
+            parse("graph\n    A --> B").is_err(),
+            "missing direction after 'graph' must fail"
+        );
+    }
+
+    #[test]
+    fn unclosed_bracket_in_node_shape_is_lenient() {
+        // `A[text` has no closing `]`. text_until fails and backtracks, so
+        // parse_node_shape returns Err. parse_node_ref then creates `A` as a
+        // bare node (default Rect with ID as label). The remaining `[text` is
+        // consumed character-by-character by subsequent parse_node_edge_statement
+        // attempts which also backtrack. The parser is lenient — it does NOT
+        // return an error.
+        let d = parse("graph TD\n    A[text").unwrap();
+        let a = d.vertex("A").unwrap();
+        assert_eq!(a.shape, Shape::Rect, "unclosed bracket falls back to bare node");
+        assert_eq!(a.label, "A", "label defaults to node ID when shape parse fails");
+    }
+
+    #[test]
+    fn incomplete_arrow_no_head() {
+        // `A -- B` is not a valid edge — `--` is the start of normal stroke but
+        // the next token is ` B` (space + identifier), which the parser treats
+        // as an inline label. Then it expects more dashes to close the label
+        // section. This should either error or produce unexpected results.
+        let result = parse("graph TD\n    A -- B");
+        // The parser interprets `B` as an inline edge label text (between
+        // dashes). With no closing dashes, it consumes to EOF. Since there is
+        // no destination node, this produces an error.
+        assert!(
+            result.is_err(),
+            "incomplete arrow 'A -- B' (no >) must fail"
+        );
+    }
+
+    #[test]
+    fn invalid_chars_in_node_id() {
+        // node_id requires first char to be alphanumeric or underscore.
+        // `@node` starts with `@` which fails the node_id parser.
+        let result = parse("graph TD\n    @node --> B");
+        assert!(
+            result.is_err(),
+            "node ID starting with '@' must fail"
+        );
+    }
+
+    #[test]
+    fn invalid_special_chars_in_node_id() {
+        // `$A` starts with `$` which is not alphanumeric/underscore.
+        let result = parse("graph TD\n    $A --> B");
+        assert!(
+            result.is_err(),
+            "node ID starting with '$' must fail"
+        );
+    }
+
+    #[test]
+    fn unclosed_subgraph_at_eof() {
+        // Subgraph without `end` — parse_statements runs until EOF and returns
+        // Ok. The parser is lenient: it treats EOF as closing the scope.
+        let result = parse("graph TD\n    subgraph cluster[Group]\n        A --> B");
+        assert!(
+            result.is_ok(),
+            "unclosed subgraph is tolerated (EOF closes scope)"
+        );
+        let d = result.unwrap();
+        assert_eq!(d.subgraphs.len(), 1);
+        assert_eq!(d.subgraphs[0].id, "cluster");
+    }
+
+    #[test]
+    fn duplicate_node_declarations_last_shape_wins() {
+        // Defining the same node with different shapes: second definition updates.
+        let d = parse("graph TD\n    A((Circle))\n    A{Diamond}").unwrap();
+        let a = d.vertex("A").unwrap();
+        // parse_node_ref updates existing vertex in-place with new shape/label.
+        assert_eq!(a.shape, Shape::Diamond, "last shape declaration wins");
+        assert_eq!(a.label, "Diamond", "last label declaration wins");
+    }
+
+    #[test]
+    fn duplicate_node_keeps_single_vertex() {
+        let d = parse("graph TD\n    A[First]\n    A[Second]\n    A --> B").unwrap();
+        // Should have exactly 2 vertices (A and B), not 3.
+        assert_eq!(d.vertices.len(), 2);
+        assert_eq!(d.vertex("A").unwrap().label, "Second");
+    }
+
+    #[test]
+    fn edge_with_no_destination() {
+        // `A -->` followed by EOF — no destination node.
+        let result = parse("graph TD\n    A -->");
+        assert!(result.is_err(), "edge with no destination must fail");
+    }
+
+    #[test]
+    fn edge_with_no_source() {
+        // `--> B` — the `-->` is not a valid node ID, so it fails.
+        let result = parse("graph TD\n    --> B");
+        assert!(result.is_err(), "edge with no source must fail");
+    }
+
+    #[test]
+    fn unclosed_parenthesis_in_node_is_lenient() {
+        // Same lenient behavior as unclosed bracket: parse_node_shape fails,
+        // `A` becomes a bare node, remaining `(text` is skipped.
+        let d = parse("graph TD\n    A(text").unwrap();
+        let a = d.vertex("A").unwrap();
+        assert_eq!(a.shape, Shape::Rect, "unclosed paren falls back to bare node");
+        assert_eq!(a.label, "A");
+    }
+
+    #[test]
+    fn unclosed_curly_in_node_is_lenient() {
+        // Same lenient behavior: parse_node_shape fails on unclosed `{`,
+        // `A` becomes a bare node.
+        let d = parse("graph TD\n    A{text").unwrap();
+        let a = d.vertex("A").unwrap();
+        assert_eq!(a.shape, Shape::Rect, "unclosed curly falls back to bare node");
+        assert_eq!(a.label, "A");
+    }
+
+    #[test]
+    fn only_header_no_statements() {
+        // Just the header with no nodes/edges — should parse to an empty diagram.
+        let d = parse("graph TD").unwrap();
+        assert!(d.vertices.is_empty());
+        assert!(d.edges.is_empty());
+    }
+
+    #[test]
+    fn invalid_direction_keyword() {
+        let result = parse("graph XY\n    A --> B");
+        assert!(
+            result.is_err(),
+            "invalid direction 'XY' must fail"
+        );
     }
 }

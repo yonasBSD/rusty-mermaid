@@ -50,28 +50,6 @@ pub fn text_style_attrs(style: &TextStyle) -> Vec<(String, String)> {
     attrs
 }
 
-/// Build a `style` attribute string from a Style (inline CSS).
-pub fn style_to_inline_css(style: &Style) -> String {
-    let mut parts = Vec::new();
-    if let Some(fill) = &style.fill {
-        parts.push(format!("fill:{fill}"));
-    }
-    if let Some(stroke) = &style.stroke {
-        parts.push(format!("stroke:{stroke}"));
-    }
-    if let Some(sw) = style.stroke_width {
-        parts.push(format!("stroke-width:{}", fmt_f64(sw)));
-    }
-    if let Some(da) = &style.stroke_dasharray {
-        let s: Vec<String> = da.iter().map(|v| fmt_f64(*v)).collect();
-        parts.push(format!("stroke-dasharray:{}", s.join(" ")));
-    }
-    if let Some(op) = style.opacity {
-        parts.push(format!("opacity:{}", fmt_f64(op)));
-    }
-    parts.join(";")
-}
-
 #[cfg(test)]
 mod tests {
     use rusty_mermaid_core::Color;
@@ -135,15 +113,4 @@ mod tests {
         assert!(attrs.iter().any(|(k, v)| k == "font-weight" && v == "bold"));
     }
 
-    #[test]
-    fn inline_css() {
-        let s = Style {
-            fill: Some(Color::WHITE),
-            stroke: Some(Color::BLACK),
-            ..Default::default()
-        };
-        let css = style_to_inline_css(&s);
-        assert!(css.contains("fill:#ffffff"));
-        assert!(css.contains("stroke:#000000"));
-    }
 }

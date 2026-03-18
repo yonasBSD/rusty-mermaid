@@ -100,7 +100,11 @@ pub fn text_until<'i>(close_delim: char, input: &mut &'i str) -> ModalResult<&'i
                 winnow::error::ContextError::new(),
             ));
         }
-        let c = input.chars().next().unwrap();
+        let Some(c) = input.chars().next() else {
+            return Err(winnow::error::ErrMode::Backtrack(
+                winnow::error::ContextError::new(),
+            ));
+        };
         if c == '"' {
             in_quotes = !in_quotes;
             *input = &input[1..];

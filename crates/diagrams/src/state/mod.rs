@@ -9,33 +9,9 @@ use rusty_mermaid_core::{
 
 use bridge::{LayoutResult, NodeLayout, NodeShape};
 
-fn node_style(theme: &Theme) -> Style {
-    Style {
-        fill: Some(theme.node_fill),
-        stroke: Some(theme.node_stroke),
-        stroke_width: Some(1.5),
-        ..Default::default()
-    }
-}
-
-fn merge_node_style(node: &NodeLayout, theme: &Theme) -> Style {
-    let mut style = node_style(theme);
-    if let Some(custom) = &node.custom_style {
-        if custom.fill.is_some() { style.fill = custom.fill; }
-        if custom.stroke.is_some() { style.stroke = custom.stroke; }
-        if custom.stroke_width.is_some() { style.stroke_width = custom.stroke_width; }
-        if custom.stroke_dasharray.is_some() { style.stroke_dasharray = custom.stroke_dasharray.clone(); }
-        if custom.opacity.is_some() { style.opacity = custom.opacity; }
-    }
-    style
-}
-
-fn label_style(theme: &Theme) -> TextStyle {
-    TextStyle {
-        fill: Some(theme.node_text),
-        ..Default::default()
-    }
-}
+use crate::common::rendering::{
+    contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
+};
 
 /// Convert a state diagram layout result into a Scene of drawing primitives.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
@@ -48,14 +24,6 @@ pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
     scene.marker_color = Some(theme.edge_stroke);
     layout_to_scene(layout, &mut scene, theme);
     scene
-}
-
-fn edge_label_style(theme: &Theme) -> TextStyle {
-    TextStyle {
-        font_size: 12.0,
-        fill: Some(theme.edge_label_text),
-        ..Default::default()
-    }
 }
 
 fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
@@ -75,11 +43,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             ..Default::default()
         };
         if let Some(custom) = &node.custom_style {
-            if custom.fill.is_some() { cstyle.fill = custom.fill; }
-            if custom.stroke.is_some() { cstyle.stroke = custom.stroke; }
-            if custom.stroke_width.is_some() { cstyle.stroke_width = custom.stroke_width; }
-            if custom.stroke_dasharray.is_some() { cstyle.stroke_dasharray = custom.stroke_dasharray.clone(); }
-            if custom.opacity.is_some() { cstyle.opacity = custom.opacity; }
+            overlay_style(&mut cstyle, custom);
         }
         scene.push(Primitive::Rect {
             bbox,
@@ -140,10 +104,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     // Edges behind nodes
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
-            let points: Vec<Point> =
-                edge.points.iter().map(|&(x, y)| Point::new(x, y)).collect();
-
-            let segments = interpolate(&points, CurveType::Basis);
+            let segments = interpolate(&edge.points, CurveType::Basis);
 
             // Clip interpolated path at compound boundaries
             let segments = clip_segments_at_compounds(&segments, &compounds);
@@ -159,29 +120,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                 marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
             });
             if let Some(label) = &edge.label {
-                let mid = label_pos
-                    .unwrap_or(points[points.len() / 2]);
-                // Background rect behind label for readability
-                if let Some((lw, lh)) = edge.label_size {
-                    let pad = 4.0;
-                    scene.push(Primitive::Rect {
-                        bbox: BBox::new(mid.x, mid.y, lw + pad * 2.0, lh + pad * 2.0),
-                        rx: 2.0,
-                        ry: 2.0,
-                        style: Style {
-                            fill: Some(theme.edge_label_bg),
-                            stroke: Some(theme.edge_label_bg),
-                            stroke_width: Some(0.5),
-                            ..Default::default()
-                        },
-                    });
-                }
-                scene.push(Primitive::Text {
-                    position: mid,
-                    content: label.clone(),
-                    anchor: TextAnchor::Middle,
-                    style: edge_label_style(theme),
-                });
+                let mid = label_pos.unwrap_or(edge.points[edge.points.len() / 2]);
+                render_edge_label(scene, mid, label, edge.label_size, theme);
             }
         }
     }
@@ -243,7 +183,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                         Point::new(node.x, node.y + hh),
                         Point::new(node.x - hw, node.y),
                     ],
-                    style: merge_node_style(node, theme),
+                    style: merge_custom_style(node.custom_style.as_ref(), theme),
                 });
             }
             NodeShape::NoteRect => {
@@ -293,7 +233,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                 });
             }
             NodeShape::RoundedRect => {
-                let style = merge_node_style(node, theme);
+                let style = merge_custom_style(node.custom_style.as_ref(), theme);
                 let node_fill = style.fill;
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(node.x, node.y, node.width, node.height),
@@ -301,20 +241,11 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     ry: 5.0,
                     style,
                 });
-                let mut lstyle = label_style(theme);
-                if let Some(fill) = node_fill {
-                    let lum = fill.luminance();
-                    if lum < 0.4 {
-                        lstyle.fill = Some(Color::WHITE);
-                    } else if lum > 0.9 {
-                        lstyle.fill = Some(Color::BLACK);
-                    }
-                }
                 scene.push(Primitive::Text {
                     position: Point::new(node.x, node.y),
                     content: node.label.clone(),
                     anchor: TextAnchor::Middle,
-                    style: lstyle,
+                    style: contrasting_label_style(node_fill, theme),
                 });
             }
         }
@@ -324,8 +255,8 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for div in &layout.dividers {
         scene.push(Primitive::Path {
             segments: vec![
-                PathSegment::MoveTo(Point::new(div.x1, div.y1)),
-                PathSegment::LineTo(Point::new(div.x2, div.y2)),
+                PathSegment::MoveTo(div.start),
+                PathSegment::LineTo(div.end),
             ],
             style: Style {
                 stroke: Some(theme.divider_stroke),
@@ -647,7 +578,7 @@ fn line_rect_intersect(
     let mut best: Option<(f64, Point)> = None;
     for (c, d) in &edges {
         if let Some((t, pt)) = segment_intersect(a, b, c, d) {
-            if best.is_none() || t < best.unwrap().0 {
+            if best.map_or(true, |(best_t, _)| t < best_t) {
                 best = Some((t, pt));
             }
         }
@@ -674,5 +605,163 @@ fn segment_intersect(a: &Point, b: &Point, c: &Point, d: &Point) -> Option<(f64,
         Some((t, Point::new(a.x + t * dx1, a.y + t * dy1)))
     } else {
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rusty_mermaid_core::MarkerType;
+
+    #[test]
+    fn simple_state_diagram_to_scene() {
+        let d =
+            crate::state::parser::parse("stateDiagram-v2\n    [*] --> Still\n    Still --> Moving")
+                .unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        assert!(scene.width > 0.0);
+        assert!(scene.height > 0.0);
+
+        let prims = scene.primitives();
+        // At least: start circle + 2 state rects + 2 state labels + 2 edge paths
+        assert!(
+            prims.len() >= 7,
+            "expected at least 7 primitives, got {}",
+            prims.len()
+        );
+    }
+
+    #[test]
+    fn start_end_circles() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Active\n    Active --> [*]",
+        )
+        .unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let circles: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .collect();
+        // Start circle (filled) + end bullseye (outer + inner = 2 circles)
+        assert!(
+            circles.len() >= 3,
+            "expected at least 3 Circle primitives (start + end bullseye), got {}",
+            circles.len()
+        );
+    }
+
+    #[test]
+    fn rounded_rect_states() {
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Idle\n    Idle --> Active",
+        )
+        .unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let rects: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Rect { rx, ry, .. } if *rx == 5.0 && *ry == 5.0))
+            .collect();
+        assert!(
+            rects.len() >= 2,
+            "expected at least 2 rounded Rect primitives for states, got {}",
+            rects.len()
+        );
+    }
+
+    #[test]
+    fn edges_produce_paths_with_arrow_markers() {
+        let d =
+            crate::state::parser::parse("stateDiagram-v2\n    [*] --> Still\n    Still --> Moving")
+                .unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let arrow_paths: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| {
+                matches!(
+                    p,
+                    Primitive::Path {
+                        marker_end: Some(MarkerType::ArrowPoint),
+                        ..
+                    }
+                )
+            })
+            .collect();
+        assert_eq!(
+            arrow_paths.len(),
+            2,
+            "two transitions should produce 2 Paths with ArrowPoint markers"
+        );
+    }
+
+    #[test]
+    fn compound_state_produces_background_rect_and_separator() {
+        let mmd = "stateDiagram-v2\n    state Outer {\n        Inner1\n        Inner2\n    }";
+        let d = crate::state::parser::parse(mmd).unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Compound state produces: background Rect + label Text + separator Path
+        let rects: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Rect { .. }))
+            .collect();
+        assert!(
+            !rects.is_empty(),
+            "compound state should produce background Rect"
+        );
+
+        // Separator line: a Path with exactly 2 segments (MoveTo + LineTo)
+        let separator_paths: Vec<_> = scene
+            .primitives()
+            .iter()
+            .filter(|p| {
+                matches!(
+                    p,
+                    Primitive::Path {
+                        segments,
+                        marker_start: None,
+                        marker_end: None,
+                        ..
+                    } if segments.len() == 2
+                        && matches!(segments[0], PathSegment::MoveTo(_))
+                        && matches!(segments[1], PathSegment::LineTo(_))
+                )
+            })
+            .collect();
+        assert!(
+            !separator_paths.is_empty(),
+            "compound state should produce a header separator line"
+        );
+
+        // Compound label text
+        let has_label = scene
+            .primitives()
+            .iter()
+            .any(|p| matches!(p, Primitive::Text { content, .. } if content == "Outer"));
+        assert!(has_label, "compound state label should appear in scene");
+    }
+
+    #[test]
+    fn empty_state_diagram() {
+        let d = crate::state::parser::parse("stateDiagram-v2").unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        assert!(
+            scene.primitives().is_empty(),
+            "empty diagram should produce empty scene"
+        );
     }
 }

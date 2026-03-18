@@ -24,7 +24,7 @@ impl Renderer for SvgRenderer {
         let mut doc = SvgDocument::new(w, h);
 
         // Emit marker defs if any paths use markers
-        let markers = collect_markers(&scene.primitives);
+        let markers = collect_markers(scene.primitives());
         if !markers.is_empty() {
             let color = scene
                 .marker_color
@@ -42,7 +42,7 @@ impl Renderer for SvgRenderer {
         let transform = format!("translate({tx}, {ty})");
         doc.open_tag("g", &[("transform", &transform)]);
 
-        for prim in &scene.primitives {
+        for prim in scene.primitives() {
             render_primitive(&mut doc, prim);
         }
 

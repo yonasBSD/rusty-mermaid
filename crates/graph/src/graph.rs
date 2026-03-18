@@ -198,36 +198,6 @@ impl<N, E> Graph<N, E> {
         self.nodes.get(&id).map_or(0, |d| d.out_edges.len())
     }
 
-    /// All edges between two nodes (in either direction).
-    pub fn edges_between(&self, a: NodeId, b: NodeId) -> Vec<EdgeId> {
-        let mut result = Vec::new();
-        for &eid in self
-            .nodes
-            .get(&a)
-            .into_iter()
-            .flat_map(|d| d.out_edges.iter())
-        {
-            if let Some(ed) = self.edges.get(&eid)
-                && ed.dst == b
-            {
-                result.push(eid);
-            }
-        }
-        for &eid in self
-            .nodes
-            .get(&b)
-            .into_iter()
-            .flat_map(|d| d.out_edges.iter())
-        {
-            if let Some(ed) = self.edges.get(&eid)
-                && ed.dst == a
-            {
-                result.push(eid);
-            }
-        }
-        result
-    }
-
     // ── Compound (hierarchy) ──
 
     pub fn set_parent(&mut self, child: NodeId, parent: NodeId) {
@@ -505,18 +475,6 @@ mod tests {
         assert!(sinks.contains(&b));
         assert!(sinks.contains(&c));
         assert!(!sinks.contains(&a));
-    }
-
-    #[test]
-    fn edges_between() {
-        let mut g = Graph::new();
-        let a = g.add_node("A");
-        let b = g.add_node("B");
-        g.add_edge(a, b, "fwd");
-        g.add_edge(b, a, "bwd");
-
-        let between = g.edges_between(a, b);
-        assert_eq!(between.len(), 2);
     }
 
     #[test]

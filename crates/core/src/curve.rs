@@ -77,62 +77,46 @@ fn interpolate_basis(points: &[Point]) -> Vec<PathSegment> {
     segs.push(PathSegment::MoveTo(points[0]));
 
     if n == 3 {
-        // With exactly 3 points: one basis curve from first→last via middle
-        let (x0, y0) = (points[0].x, points[0].y);
-        let (x1, y1) = (points[1].x, points[1].y);
-        let (x2, y2) = (points[2].x, points[2].y);
-
-        // d3 outputs: lineTo((5*x0+x1)/6, ...) then bezierCurveTo for point 2
+        let (p0, p1, p2) = (points[0], points[1], points[2]);
         segs.push(PathSegment::LineTo(Point::new(
-            (5.0 * x0 + x1) / 6.0,
-            (5.0 * y0 + y1) / 6.0,
+            (5.0 * p0.x + p1.x) / 6.0,
+            (5.0 * p0.y + p1.y) / 6.0,
         )));
-        basis_point(&mut segs, x0, y0, x1, y1, x2, y2);
-        // lineEnd: final basis_point with x2,y2 repeated, then lineTo last
-        basis_point(&mut segs, x1, y1, x2, y2, x2, y2);
-        segs.push(PathSegment::LineTo(points[2]));
+        basis_point(&mut segs, p0, p1, p2);
+        basis_point(&mut segs, p1, p2, p2);
+        segs.push(PathSegment::LineTo(p2));
     } else {
-        // 4+ points
-        let (mut x0, mut y0) = (points[0].x, points[0].y);
-        let (mut x1, mut y1) = (points[1].x, points[1].y);
-
-        // point 2: first curve output
-        let (x2, y2) = (points[2].x, points[2].y);
+        let (mut p0, mut p1) = (points[0], points[1]);
+        let p2 = points[2];
         segs.push(PathSegment::LineTo(Point::new(
-            (5.0 * x0 + x1) / 6.0,
-            (5.0 * y0 + y1) / 6.0,
+            (5.0 * p0.x + p1.x) / 6.0,
+            (5.0 * p0.y + p1.y) / 6.0,
         )));
-        basis_point(&mut segs, x0, y0, x1, y1, x2, y2);
-        x0 = x1;
-        y0 = y1;
-        x1 = x2;
-        y1 = y2;
+        basis_point(&mut segs, p0, p1, p2);
+        p0 = p1;
+        p1 = p2;
 
-        // points 3..n-1
-        for p in &points[3..] {
-            basis_point(&mut segs, x0, y0, x1, y1, p.x, p.y);
-            x0 = x1;
-            y0 = y1;
-            x1 = p.x;
-            y1 = p.y;
+        for &p in &points[3..] {
+            basis_point(&mut segs, p0, p1, p);
+            p0 = p1;
+            p1 = p;
         }
 
-        // lineEnd: final segment + lineTo last
-        basis_point(&mut segs, x0, y0, x1, y1, x1, y1);
-        segs.push(PathSegment::LineTo(*points.last().unwrap()));
+        basis_point(&mut segs, p0, p1, p1);
+        segs.push(PathSegment::LineTo(points[n - 1]));
     }
 
     segs
 }
 
 /// Emit one cubic bezier segment for basis interpolation (matches d3's `point` helper).
-fn basis_point(segs: &mut Vec<PathSegment>, x0: f64, y0: f64, x1: f64, y1: f64, x: f64, y: f64) {
+fn basis_point(segs: &mut Vec<PathSegment>, p0: Point, p1: Point, p2: Point) {
     segs.push(PathSegment::CubicTo {
-        cp1: Point::new((2.0 * x0 + x1) / 3.0, (2.0 * y0 + y1) / 3.0),
-        cp2: Point::new((x0 + 2.0 * x1) / 3.0, (y0 + 2.0 * y1) / 3.0),
+        cp1: Point::new((2.0 * p0.x + p1.x) / 3.0, (2.0 * p0.y + p1.y) / 3.0),
+        cp2: Point::new((p0.x + 2.0 * p1.x) / 3.0, (p0.y + 2.0 * p1.y) / 3.0),
         to: Point::new(
-            (x0 + 4.0 * x1 + x) / 6.0,
-            (y0 + 4.0 * y1 + y) / 6.0,
+            (p0.x + 4.0 * p1.x + p2.x) / 6.0,
+            (p0.y + 4.0 * p1.y + p2.y) / 6.0,
         ),
     });
 }
