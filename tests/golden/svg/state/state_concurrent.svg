@@ -10,20 +10,20 @@
     <path d="M0 90 L849.5 90" fill="none" stroke="#9370db" stroke-width="1" />
     <rect x="0" y="90" width="424.75" height="406.4" fill="none" stroke="#808080" stroke-width="0.5" stroke-dasharray="10 10" />
     <rect x="424.75" y="90" width="424.75" height="406.4" fill="none" stroke="#808080" stroke-width="0.5" stroke-dasharray="10 10" />
-    <path d="M212.38 198 L212.38 202.17 C212.38 206.33 212.38 214.67 212.38 223 C212.38 231.33 212.38 239.67 212.38 243.83 L212.38 248" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M185.31 280.8 L176.12 286.37 C166.93 291.93 148.55 303.07 148.55 314.2 C148.55 325.33 166.93 336.47 176.12 342.03 L185.31 347.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M212.38 198 L212.38 202.17 C212.38 206.33 212.38 214.67 212.38 223 C212.38 231.33 212.38 239.67 212.38 243.83 L212.38 245.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M185.31 280.8 L176.12 286.37 C166.93 291.93 148.55 303.07 148.55 314.2 C148.55 325.33 166.93 336.47 176.12 342.03 L183.25 346.36" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="86.95" y="303" width="123.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="148.55" y="314.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">EvNumLockPressed</text>
-    <path d="M637.12 198 L637.12 202.17 C637.12 206.33 637.12 214.67 637.12 223 C637.12 231.33 637.12 239.67 637.12 243.83 L637.12 248" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M608.67 280.8 L599.01 286.37 C589.36 291.93 570.04 303.07 570.04 314.2 C570.04 325.33 589.36 336.47 599.01 342.03 L608.67 347.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M637.12 198 L637.12 202.17 C637.12 206.33 637.12 214.67 637.12 223 C637.12 231.33 637.12 239.67 637.12 243.83 L637.12 245.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M608.67 280.8 L599.01 286.37 C589.36 291.93 570.04 303.07 570.04 314.2 C570.04 325.33 589.36 336.47 599.01 342.03 L606.59 346.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="504.84" y="303" width="130.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="570.04" y="314.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">EvCapsLockPressed</text>
-    <path d="M424.75 16 L424.75 20.17 C424.75 24.33 424.75 32.67 424.75 41 C424.75 49.1 424.75 57.19 424.75 66" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M424.75 496.4 C424.75 505.21 424.75 513.3 424.75 521.4 C424.75 529.73 424.75 538.07 424.75 542.23 L424.75 546.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M239.44 347.6 L248.63 342.03 C257.82 336.47 276.2 325.33 276.2 314.2 C276.2 303.07 257.82 291.93 248.63 286.37 L239.44 280.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M424.75 16 L424.75 20.17 C424.75 24.33 424.75 32.67 424.75 41 C424.75 49.1 424.75 57.19 424.75 63.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M424.75 496.4 C424.75 505.21 424.75 513.3 424.75 521.4 C424.75 529.73 424.75 538.07 424.75 542.23 L424.75 544" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M239.44 347.6 L248.63 342.03 C257.82 336.47 276.2 325.33 276.2 314.2 C276.2 303.07 257.82 291.93 248.63 286.37 L241.5 282.04" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="214.6" y="303" width="123.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="276.2" y="314.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">EvNumLockPressed</text>
-    <path d="M665.58 347.6 L675.24 342.03 C684.89 336.47 704.21 325.33 704.21 314.2 C704.21 303.07 684.89 291.93 675.24 286.37 L665.58 280.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M665.58 347.6 L675.24 342.03 C684.89 336.47 704.21 325.33 704.21 314.2 C704.21 303.07 684.89 291.93 675.24 286.37 L667.66 282" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="639.01" y="303" width="130.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="704.21" y="314.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">EvCapsLockPressed</text>
     <circle cx="212.38" cy="190" r="8" fill="#333333" stroke="#333333" />

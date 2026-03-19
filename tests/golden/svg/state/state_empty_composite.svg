@@ -8,8 +8,8 @@
     <rect x="37.8" y="0" width="112.4" height="66" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
     <text x="94" y="12" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Placeholder</text>
     <path d="M37.8 24 L150.2 24" fill="none" stroke="#9370db" stroke-width="1" />
-    <path d="M94 41 L94 45.17 C94 49.33 94 57.67 94 66 C94 74.33 94 82.67 94 82 C94 81.33 94 71.67 94 66.83 L94 66" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M94 66 C94 74.33 94 82.67 94 91 C94 99.33 94 107.67 94 111.83 L94 116" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M94 41 L94 45.17 C94 49.33 94 57.67 94 66 C94 74.33 94 82.67 94 82 C94 81.33 94 71.67 94 68.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M94 66 C94 74.33 94 82.67 94 91 C94 99.33 94 107.67 94 111.83 L94 113.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <circle cx="94" cy="124" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
     <circle cx="94" cy="124" r="4" fill="#9370db" />
     <circle cx="94" cy="33" r="8" fill="#333333" stroke="#333333" />

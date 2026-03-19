@@ -11,17 +11,17 @@
     <rect x="382.8" y="206.8" width="10" height="40" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
     <rect x="221.6" y="166.8" width="10" height="150" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
     <rect x="221.6" y="96.8" width="10" height="260" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
-    <path d="M57 96.8 L221.6 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M57 96.8 L219.2 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="139.3" y="88.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outer call</text>
-    <path d="M231.6 136.8 C271.6 126.9 271.6 176.7 231.6 166.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M231.6 136.8 C271.6 126.9 271.6 176.7 233.93 167.38" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="277.6" y="151.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inner self-call</text>
-    <path d="M231.6 206.8 L382.8 206.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M231.6 206.8 L380.4 206.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="307.2" y="198.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Delegate</text>
-    <path d="M382.8 246.8 L231.6 246.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
+    <path d="M382.8 246.8 L234 246.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
     <text x="307.2" y="238.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
-    <path d="M231.6 286.8 C271.6 276.9 271.6 326.7 231.6 316.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
+    <path d="M231.6 286.8 C271.6 276.9 271.6 326.7 233.93 317.38" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
     <text x="277.6" y="301.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inner done</text>
-    <path d="M221.6 356.8 L57 356.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
+    <path d="M221.6 356.8 L59.4 356.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
     <text x="139.3" y="348.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outer done</text>
     <rect x="20" y="20" width="74" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="57" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>

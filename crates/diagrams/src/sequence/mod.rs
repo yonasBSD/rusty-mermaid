@@ -7,6 +7,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
+use crate::common::rendering::shorten_path_for_markers;
 use ir::{ArrowHead, LineStyle, ParticipantKind};
 use layout::{
     ActorLayout, MessageLayout, SequenceLayout, activation_width, self_msg_height, self_msg_width,
@@ -213,14 +214,18 @@ fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme)
     if msg.arrow.line == LineStyle::Dotted {
         style.stroke_dasharray = Some(vec![6.0, 4.0]);
     }
+    let marker_end = arrow_marker(msg.arrow.head);
+    let mut segments = vec![
+        PathSegment::MoveTo(Point::new(msg.from_x, msg.y)),
+        PathSegment::LineTo(Point::new(msg.to_x, msg.y)),
+    ];
+    let sw = style.stroke_width.unwrap_or(1.5);
+    shorten_path_for_markers(&mut segments, None, marker_end, sw);
     scene.push(Primitive::Path {
-        segments: vec![
-            PathSegment::MoveTo(Point::new(msg.from_x, msg.y)),
-            PathSegment::LineTo(Point::new(msg.to_x, msg.y)),
-        ],
+        segments,
         style,
         marker_start: None,
-        marker_end: arrow_marker(msg.arrow.head),
+        marker_end,
     });
 
     if let Some(label) = &msg.label {
@@ -253,18 +258,22 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
     }
 
     // Cubic bezier loop-back, matching mermaid.js self-message curve.
+    let marker_end = arrow_marker(msg.arrow.head);
+    let mut segments = vec![
+        PathSegment::MoveTo(Point::new(x, msg.y)),
+        PathSegment::CubicTo {
+            cp1: Point::new(x + w, msg.y - h * 0.33),
+            cp2: Point::new(x + w, msg.y + h * 1.33),
+            to: Point::new(x, msg.y + h),
+        },
+    ];
+    let sw = style.stroke_width.unwrap_or(1.5);
+    shorten_path_for_markers(&mut segments, None, marker_end, sw);
     scene.push(Primitive::Path {
-        segments: vec![
-            PathSegment::MoveTo(Point::new(x, msg.y)),
-            PathSegment::CubicTo {
-                cp1: Point::new(x + w, msg.y - h * 0.33),
-                cp2: Point::new(x + w, msg.y + h * 1.33),
-                to: Point::new(x, msg.y + h),
-            },
-        ],
+        segments,
         style,
         marker_start: None,
-        marker_end: arrow_marker(msg.arrow.head),
+        marker_end,
     });
 
     if let Some(label) = &msg.label {
@@ -744,5 +753,41 @@ mod tests {
         // Fragment renders: kind tag text, condition text, divider label.
         assert!(has_text(&scene, "alt"));
         assert!(has_text(&scene, "[else]"));
+    }
+
+    #[test]
+    fn edge_path_shortened_for_arrow_marker() {
+        use crate::common::rendering::{marker_inset_px, prev_endpoint};
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Message(Message {
+            from: "Alice".into(),
+            to: "Bob".into(),
+            label: Some("test".into()),
+            arrow: ArrowStyle { head: ArrowHead::Filled, line: LineStyle::Solid },
+            activate: false,
+            deactivate: false,
+        }));
+        let l = layout::layout(&d, &SimpleTextMeasure::default());
+        let scene = to_scene(&l);
+
+        let bob_x = l.lifelines.iter().find(|ll| ll.actor_id == "Bob").unwrap().x;
+
+        for p in scene.primitives() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
+                let endpoint = prev_endpoint(segments).unwrap();
+                let sw = style.stroke_width.unwrap_or(1.5);
+                let expected = marker_inset_px(MarkerType::ArrowPoint, sw);
+                let gap = bob_x - endpoint.x;
+                assert!(
+                    gap > 0.0,
+                    "seq edge endpoint ({:.1}) should be left of lifeline ({:.1})",
+                    endpoint.x, bob_x
+                );
+                assert!(
+                    (gap - expected).abs() < 0.5,
+                    "seq edge gap ({gap:.1}) should be ~{expected:.1}px"
+                );
+            }
+        }
     }
 }

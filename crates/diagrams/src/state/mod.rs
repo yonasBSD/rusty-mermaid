@@ -12,6 +12,7 @@ use crate::common::layout::NodeLayout;
 
 use crate::common::rendering::{
     contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
+    shorten_path_for_markers,
 };
 
 /// Convert a state diagram layout result into a Scene of drawing primitives.
@@ -107,8 +108,10 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             let segments = interpolate(&edge.points, CurveType::Basis);
 
             // Clip interpolated path at compound boundaries
-            let segments = clip_segments_at_compounds(&segments, &compounds);
+            let mut segments = clip_segments_at_compounds(&segments, &compounds);
             let label_pos = path_midpoint(&segments);
+            let marker_end = Some(rusty_mermaid_core::MarkerType::ArrowPoint);
+            shorten_path_for_markers(&mut segments, None, marker_end, 1.5);
             scene.push(Primitive::Path {
                 segments,
                 style: Style {
@@ -117,7 +120,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     ..Default::default()
                 },
                 marker_start: None,
-                marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+                marker_end,
             });
             if let Some(label) = &edge.label {
                 let mid = label_pos.unwrap_or(edge.points[edge.points.len() / 2]);
@@ -747,6 +750,38 @@ mod tests {
 
         // Compound label text
         assert!(has_text(&scene, "Outer"), "compound state label should appear in scene");
+    }
+
+    #[test]
+    fn edge_path_shortened_for_arrow_marker() {
+        use crate::common::rendering::{marker_inset_px, prev_endpoint};
+        let d =
+            crate::state::parser::parse("stateDiagram-v2\n    Still --> Moving")
+                .unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Find target node boundary
+        let target = layout.nodes.iter().find(|n| n.label == "Moving").unwrap();
+        let node_top = target.y - target.height / 2.0;
+
+        for p in scene.primitives() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
+                let endpoint = prev_endpoint(segments).unwrap();
+                let sw = style.stroke_width.unwrap_or(1.5);
+                let expected = marker_inset_px(MarkerType::ArrowPoint, sw);
+                let gap = node_top - endpoint.y;
+                assert!(
+                    gap > 0.0,
+                    "state edge endpoint ({:.1}) should be above node boundary ({:.1})",
+                    endpoint.y, node_top
+                );
+                assert!(
+                    (gap - expected).abs() < 1.5,
+                    "state edge gap ({gap:.1}) should be ~{expected:.1}px"
+                );
+            }
+        }
     }
 
     #[test]

@@ -1,4 +1,7 @@
-use rusty_mermaid_core::{BBox, Color, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme};
+use rusty_mermaid_core::{
+    BBox, Color, MarkerType, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle,
+    Theme,
+};
 
 use super::styling::StyleProperty;
 
@@ -138,6 +141,121 @@ pub fn render_edge_label(
     });
 }
 
+// ---------------------------------------------------------------------------
+// Marker-aware path shortening
+// ---------------------------------------------------------------------------
+
+/// Viewbox-unit inset applied uniformly to all markers.
+/// Every marker body is wide enough at d=2 from its leading edge
+/// to hide the 1.25-viewBox-unit stroke (half-width 0.625).
+pub const MARKER_INSET_VB: f64 = 2.0;
+
+/// Convert marker inset from viewBox units to user-space pixels.
+/// scale = markerWidth × stroke_width / viewBoxWidth
+pub fn marker_inset_px(marker: MarkerType, stroke_width: f64) -> f64 {
+    let (marker_w, vb_w) = match marker {
+        MarkerType::Aggregation | MarkerType::Composition => (8.0, 12.0),
+        MarkerType::Dependency => (6.0, 10.0),
+        _ => (8.0, 10.0),
+    };
+    MARKER_INSET_VB * marker_w / vb_w * stroke_width
+}
+
+/// Shorten path endpoints so the stroke butt-cap hides behind marker bodies.
+pub fn shorten_path_for_markers(
+    segments: &mut Vec<PathSegment>,
+    marker_start: Option<MarkerType>,
+    marker_end: Option<MarkerType>,
+    stroke_width: f64,
+) {
+    if let Some(m) = marker_end {
+        let inset = marker_inset_px(m, stroke_width);
+        if inset > 0.0 {
+            shorten_path_end(segments, inset);
+        }
+    }
+    if let Some(m) = marker_start {
+        let inset = marker_inset_px(m, stroke_width);
+        if inset > 0.0 {
+            shorten_path_start(segments, inset);
+        }
+    }
+}
+
+/// Pull the last point of a path back along its incoming tangent by `dist` pixels.
+/// If the terminal segment is shorter than `dist`, removes it and continues into
+/// the preceding segment (handles short final LineTo from Bézier interpolation).
+fn shorten_path_end(segments: &mut Vec<PathSegment>, mut remaining: f64) {
+    while remaining > 0.0 && segments.len() > 1 {
+        let n = segments.len();
+        if let PathSegment::LineTo(to) = segments[n - 1] {
+            if let Some(prev) = prev_endpoint(&segments[..n - 1]) {
+                let seg_len = to.distance_to(prev);
+                if seg_len <= remaining {
+                    segments.pop();
+                    remaining -= seg_len;
+                    continue;
+                }
+            }
+        }
+        let n = segments.len();
+        let prev = if n >= 2 { prev_endpoint(&segments[..n - 1]) } else { None };
+        match &mut segments[n - 1] {
+            PathSegment::LineTo(to) => {
+                if let Some(p) = prev {
+                    pull_toward(to, p, remaining);
+                }
+            }
+            PathSegment::CubicTo { cp2, to, .. } => {
+                let dir = *cp2;
+                pull_toward(to, dir, remaining);
+            }
+            PathSegment::QuadTo { cp, to, .. } => {
+                let dir = *cp;
+                pull_toward(to, dir, remaining);
+            }
+            _ => {}
+        }
+        break;
+    }
+}
+
+/// Pull the first point of a path inward along its outgoing tangent by `dist` pixels.
+fn shorten_path_start(segments: &mut [PathSegment], dist: f64) {
+    if segments.len() < 2 { return; }
+    let toward = match &segments[1] {
+        PathSegment::LineTo(to) => *to,
+        PathSegment::CubicTo { cp1, .. } => *cp1,
+        PathSegment::QuadTo { cp, .. } => *cp,
+        _ => return,
+    };
+    if let PathSegment::MoveTo(start) = &mut segments[0] {
+        pull_toward(start, toward, dist);
+    }
+}
+
+pub fn prev_endpoint(segments: &[PathSegment]) -> Option<Point> {
+    segments.iter().rev().find_map(|seg| match seg {
+        PathSegment::MoveTo(p)
+        | PathSegment::LineTo(p)
+        | PathSegment::QuadTo { to: p, .. }
+        | PathSegment::CubicTo { to: p, .. }
+        | PathSegment::ArcTo { to: p, .. } => Some(*p),
+        PathSegment::Close => None,
+    })
+}
+
+/// Move `pt` toward `toward` by `dist` pixels.
+fn pull_toward(pt: &mut Point, toward: Point, dist: f64) {
+    let dx = toward.x - pt.x;
+    let dy = toward.y - pt.y;
+    let len = (dx * dx + dy * dy).sqrt();
+    if len > dist.abs() && len > 0.0 {
+        pt.x += dx / len * dist;
+        pt.y += dy / len * dist;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -221,5 +339,217 @@ mod tests {
         // rgb(180, 180, 180) has luminance ~0.46 — in the mid range, no override
         let lstyle = contrasting_label_style(Some(Color::rgb(180, 180, 180)), &theme);
         assert_eq!(lstyle.fill, Some(theme.node_text)); // unchanged
+    }
+
+    // -- Marker inset & path shortening tests --
+
+    #[test]
+    fn marker_inset_all_markers_have_positive_inset() {
+        for m in [
+            MarkerType::ArrowPoint,
+            MarkerType::ArrowBarb,
+            MarkerType::ArrowOpen,
+            MarkerType::Cross,
+            MarkerType::Circle,
+            MarkerType::Aggregation,
+            MarkerType::Composition,
+            MarkerType::Dependency,
+        ] {
+            assert!(MARKER_INSET_VB > 0.0);
+            assert!(marker_inset_px(m, 1.5) > 0.0, "{m:?} normal");
+            assert!(marker_inset_px(m, 3.5) > 0.0, "{m:?} thick");
+        }
+    }
+
+    #[test]
+    fn marker_inset_px_scales_with_stroke_width() {
+        let normal = marker_inset_px(MarkerType::ArrowPoint, 1.5);
+        let thick = marker_inset_px(MarkerType::ArrowPoint, 3.5);
+        assert!(thick > normal);
+        let ratio = thick / normal;
+        assert!((ratio - 3.5 / 1.5).abs() < 0.01);
+    }
+
+    #[test]
+    fn shorten_path_end_pulls_back_line() {
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(0.0, 100.0)),
+        ];
+        shorten_path_end(&mut segs, 10.0);
+        if let PathSegment::LineTo(p) = segs[1] {
+            assert!((p.y - 90.0).abs() < 0.01);
+        } else {
+            panic!("expected LineTo");
+        }
+    }
+
+    #[test]
+    fn shorten_path_end_cascades_through_short_segment() {
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 20.0),
+                cp2: Point::new(0.0, 70.0),
+                to: Point::new(0.0, 96.0),
+            },
+            PathSegment::LineTo(Point::new(0.0, 100.0)),
+        ];
+        shorten_path_end(&mut segs, 6.0);
+        assert_eq!(segs.len(), 2);
+        if let PathSegment::CubicTo { to, .. } = segs[1] {
+            assert!((to.y - 94.0).abs() < 0.1);
+        }
+    }
+
+    #[test]
+    fn shorten_path_start_pulls_forward() {
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(0.0, 100.0)),
+        ];
+        shorten_path_start(&mut segs, 10.0);
+        if let PathSegment::MoveTo(p) = segs[0] {
+            assert!((p.y - 10.0).abs() < 0.01);
+        }
+    }
+
+    mod prop_tests {
+        use super::*;
+        use proptest::prelude::*;
+
+        fn arb_point() -> impl Strategy<Value = Point> {
+            (-500.0..500.0_f64, -500.0..500.0_f64)
+                .prop_map(|(x, y)| Point::new(x, y))
+        }
+
+        fn arb_straight_path(min_len: f64) -> impl Strategy<Value = Vec<PathSegment>> {
+            (arb_point(), min_len..500.0_f64).prop_map(|(start, len)| {
+                vec![
+                    PathSegment::MoveTo(start),
+                    PathSegment::LineTo(Point::new(start.x, start.y + len)),
+                ]
+            })
+        }
+
+        fn arb_cascade_path() -> impl Strategy<Value = (Vec<PathSegment>, f64, f64)> {
+            (
+                arb_point(),
+                50.0..200.0_f64,
+                1.0..10.0_f64,
+                0.01..0.9_f64,
+            )
+                .prop_map(|(start, span, short_len, extra_frac)| {
+                    let cubic_tangent = span * 0.1;
+                    let cubic_end_y = start.y + span;
+                    let final_y = cubic_end_y + short_len;
+                    let dist = short_len + extra_frac * cubic_tangent;
+                    let segs = vec![
+                        PathSegment::MoveTo(start),
+                        PathSegment::CubicTo {
+                            cp1: Point::new(start.x, start.y + span * 0.3),
+                            cp2: Point::new(start.x, cubic_end_y - cubic_tangent),
+                            to: Point::new(start.x, cubic_end_y),
+                        },
+                        PathSegment::LineTo(Point::new(start.x, final_y)),
+                    ];
+                    (segs, dist, final_y)
+                })
+        }
+
+        proptest! {
+            #[test]
+            fn shorten_end_distance_exact(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let orig_end = prev_endpoint(&segs).unwrap();
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+                let actual = orig_end.distance_to(new_end);
+                prop_assert!((actual - dist).abs() < 0.01);
+            }
+
+            #[test]
+            fn shorten_end_stays_collinear(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                let orig_end = prev_endpoint(&segs).unwrap();
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+                let cross = ((orig_end.x - start.x) * (new_end.y - start.y)
+                           - (orig_end.y - start.y) * (new_end.x - start.x)).abs();
+                prop_assert!(cross < 0.01);
+            }
+
+            #[test]
+            fn shorten_end_never_overshoots(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                let orig_end = prev_endpoint(&segs).unwrap();
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+                prop_assert!(start.distance_to(new_end) < start.distance_to(orig_end));
+                prop_assert!(start.distance_to(new_end) > 0.0);
+            }
+
+            #[test]
+            fn shorten_start_distance_exact(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let orig = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                shorten_path_start(&mut segs, dist);
+                let new = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                prop_assert!((orig.distance_to(new) - dist).abs() < 0.01);
+            }
+
+            #[test]
+            fn cascade_retraction_correct(
+                (mut segs, dist, orig_final_y) in arb_cascade_path(),
+            ) {
+                let orig_end = Point::new(
+                    match segs[0] { PathSegment::MoveTo(p) => p.x, _ => unreachable!() },
+                    orig_final_y,
+                );
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+                let actual = orig_end.distance_to(new_end);
+                prop_assert!((actual - dist).abs() < 1.5);
+            }
+
+            #[test]
+            fn inset_scales_linearly(
+                sw1 in 0.5..5.0_f64,
+                sw2 in 0.5..5.0_f64,
+            ) {
+                let r1 = marker_inset_px(MarkerType::ArrowPoint, sw1) / sw1;
+                let r2 = marker_inset_px(MarkerType::ArrowPoint, sw2) / sw2;
+                prop_assert!((r1 - r2).abs() < 0.001);
+            }
+
+            #[test]
+            fn bidir_shortening_independent(
+                dist in 1.0..20.0_f64,
+            ) {
+                let mut segs = vec![
+                    PathSegment::MoveTo(Point::new(0.0, 0.0)),
+                    PathSegment::LineTo(Point::new(0.0, 100.0)),
+                ];
+                shorten_path_start(&mut segs, dist);
+                shorten_path_end(&mut segs, dist);
+                let s = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                let e = prev_endpoint(&segs).unwrap();
+                prop_assert!((s.distance_to(e) - (100.0 - 2.0 * dist)).abs() < 0.01);
+            }
+        }
     }
 }
