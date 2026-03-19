@@ -6,6 +6,9 @@ pub mod flowchart;
 #[cfg(feature = "state")]
 pub mod state;
 
+#[cfg(feature = "sequence")]
+pub mod sequence;
+
 use common::error::ParseError;
 
 /// Supported diagram types.

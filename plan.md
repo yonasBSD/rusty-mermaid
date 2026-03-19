@@ -814,9 +814,173 @@ Known limitations (acceptable, not blocking):
   [-] `<br/>` in node labels not converted to newline in SVG renderer
       (HTML tags stripped for measurement but not rendered as line breaks)
 
-Phase 9: remaining diagrams + gpui                    (discuss plan separately)
-  [ ] 9.x  class, ER, sequence, gantt, pie, mindmap, etc.
-  [ ] 9.y  gpui crate: impl Renderer for GpuiRenderer
+Phase 10: sequence diagram
+  First non-graph diagram. Coordinate-based layout (no dagre).
+  Aesthetic: swimlanes.io-inspired — bold participant names, thin lifelines,
+  generous spacing, visual hierarchy through weight not color. Coherent with
+  existing lavender/purple palette and monospace font stack.
+
+  Module structure:
+    crates/diagrams/src/sequence/
+    ├── ir.rs        SequenceDiagram IR types
+    ├── parser.rs    winnow parser: mermaid syntax → IR
+    ├── layout.rs    coordinate layout → SequenceLayout (no dagre)
+    └── mod.rs       SequenceLayout → Scene
+
+  10a — IR types
+  [x] 10.1  sequence/ir.rs: core data model
+            - SequenceDiagram { title, participants, items, autonumber }
+            - Participant { id, label, kind: ParticipantKind }
+            - ParticipantKind { Box, Actor }
+            - SequenceItem enum:
+              Message { from, to, label, arrow: ArrowStyle, activate/deactivate }
+              Note { position: NotePosition, text }
+              Activation { actor, active: bool }
+              Fragment { kind: FragmentKind, label, sections, items }
+            - ArrowStyle { line: Solid|Dotted, head: Filled|Open|Cross|None }
+            - NotePosition { LeftOf(id), RightOf(id), Over(Vec<id>) }
+            - FragmentKind { Loop, Alt, Opt, Par, Critical, Break }
+            + unit tests: construct each type, Default impls
+  [ ] 10.1r ── diff review ──
+
+  10b — Parser
+  [x] 10.2  sequence/parser.rs: mermaid sequenceDiagram syntax
+            Winnow combinators, reuses common/tokens.rs
+            Core syntax:
+              sequenceDiagram header
+              participant/actor declarations (with optional alias)
+              message arrows: ->>, -->, ->, -->>, -x, --x, -), --)
+              activate/deactivate (explicit + arrow suffixes +/-)
+              Note left of/right of/over: text
+              loop/alt/else/opt/par/and/critical/option/break/end
+              autonumber [start] [step] / autonumber off
+              title: text
+              %% comments
+            + unit tests per construct
+            + proptest: parse_never_panics on arbitrary input
+  [ ] 10.2r ── diff review ──
+
+  10c — Layout engine
+  [ ] 10.3  sequence/layout.rs: coordinate-based positioning
+            SequenceLayout struct with positioned elements:
+              ActorLayout { id, x, y, width, height, kind }
+              LifelineLayout { actor_id, x, top_y, bottom_y }
+              MessageLayout { from_x, to_x, y, label, arrow, is_self }
+              ActivationLayout { actor_id, x, top_y, bottom_y }
+              NoteLayout { x, y, width, height, text }
+              FragmentLayout { x, y, width, height, kind, label, sections }
+
+            Algorithm:
+              1. Measure all participant labels → compute widths
+              2. Position participants L→R with actor_margin spacing
+              3. Walk items top→down, accumulating y:
+                 - Messages: y += message_margin, compute from_x/to_x
+                 - Self-messages: extra height for loop-back
+                 - Notes: widen to text, advance y
+                 - Fragments: recursive layout of nested items
+                 - Activations: track start/end y per participant
+              4. Compute total width/height
+              5. Mirror actors at bottom (optional, matches mermaid)
+
+            Layout constants (swimlanes-inspired):
+              ACTOR_MARGIN = 60      (generous horizontal spacing)
+              MESSAGE_MARGIN = 40    (vertical gap between messages)
+              ACTOR_PADDING_X = 16   (horizontal text padding in box)
+              ACTOR_PADDING_Y = 10   (vertical text padding in box)
+              NOTE_PADDING = 10
+              NOTE_MARGIN = 10
+              ACTIVATION_WIDTH = 10
+              FRAGMENT_PADDING = 12
+              SELF_MSG_WIDTH = 40    (width of self-message loop-back)
+              DIAGRAM_MARGIN = 20    (canvas padding, matches existing)
+              ACTOR_BOTTOM_MARGIN = 10
+
+            + unit tests: 2-actor layout, self-message, note placement,
+              fragment bounds, activation tracking
+  [ ] 10.3r ── diff review ──
+
+  10d — Scene rendering
+  [ ] 10.4  sequence/mod.rs: SequenceLayout → Scene
+            Z-order (back to front):
+              1. Fragment backgrounds (rect, dashed border)
+              2. Lifelines (thin dashed vertical lines)
+              3. Activation boxes (thin border, light fill)
+              4. Messages (arrows with labels)
+              5. Notes (filled rects with text)
+              6. Participant boxes (top and mirrored bottom)
+              7. Text labels (always on top)
+
+            Styling (coherent with existing theme):
+              Participant box: node_fill, node_stroke, rx=5, stroke_width=1.5
+              Participant text: 14px bold monospace (visual hierarchy)
+              Lifeline: #cccccc, 0.5px, stroke_dasharray=[6, 4]
+              Message arrow: edge_stroke (#333), 1.5px, ArrowPoint marker
+              Message text: 13px normal, centered above arrow line
+              Self-message: curved path (quadratic bezier loop-back)
+              Activation: composite_fill (white@80%), stroke=#999, 0.5px
+              Note: note_fill, note_stroke, no rounding (sticky-note feel)
+              Note text: 12px
+              Fragment: subgraph_fill, subgraph_stroke, dashed border
+              Fragment label: 12px bold, small tag box in top-left
+              Autonumber: small circle on arrow with number text
+
+            to_scene() and to_scene_themed() (matches flowchart/state API)
+            + unit tests using common/test_helpers
+  [ ] 10.4r ── diff review ──
+
+  10e — Integration
+  [ ] 10.5  Wire into lib.rs: DiagramKind::Sequence, detect(), render_to_scene()
+            Feature flag: sequence = [] (no dagre dep)
+            Add "sequence" to default features
+            + unit tests: detect("sequenceDiagram\n...")
+            + integration test: mermaid text → Scene → SVG roundtrip
+  [ ] 10.5r ── diff review ──
+
+  10f — Golden tests
+  [ ] 10.6  Golden .mmd files for sequence diagrams:
+            tests/golden/mmd/seq_basic.mmd         (2 actors, 3 messages)
+            tests/golden/mmd/seq_arrows.mmd        (all arrow types)
+            tests/golden/mmd/seq_notes.mmd         (notes left/right/over)
+            tests/golden/mmd/seq_activation.mmd    (activate/deactivate)
+            tests/golden/mmd/seq_loop.mmd          (loop fragment)
+            tests/golden/mmd/seq_alt.mmd           (alt/else branches)
+            tests/golden/mmd/seq_nested.mmd        (nested fragments)
+            tests/golden/mmd/seq_self_msg.mmd      (self-messages)
+            tests/golden/mmd/seq_autonumber.mmd    (numbered messages)
+            tests/golden/mmd/seq_actor.mmd         (actor stick figures)
+            + SVG golden regression tests
+            + layout invariant tests:
+              - participants don't overlap horizontally
+              - messages have positive height progression
+              - activations contained within lifeline bounds
+              - fragments enclose their child messages
+              - note positions don't overlap messages
+  [ ] 10.6r ── visual review: gallery renders all seq golden files ──
+
+  10g — Polish
+  [ ] 10.7  Actor stick figure rendering:
+            Simple SVG: circle (head) + line (body) + angled lines (arms/legs)
+            Uses edge_stroke color, 1.5px stroke
+            Replaces box for ParticipantKind::Actor
+  [ ] 10.8  Self-message rendering: quadratic bezier right-side loop
+  [ ] 10.9  Fragment section dividers: dashed line between alt/else sections
+  [ ] 10.10 Autonumber rendering: numbered circle at arrow midpoint
+  [ ] 10.10r ── visual review ──
+
+  Deferred (not in initial scope):
+  [-] create/destroy participant lifecycle (rarely used)
+  [-] box grouping (participant boxing)
+  [-] rect highlight fragment
+  [-] critical/option fragment (uncommon)
+  [-] bidirectional arrows <<->> (uncommon)
+  [-] par_over (uncommon)
+  [-] links/properties metadata (interactive-only, no SVG relevance)
+  [-] wrap/nowrap text control (manual wrapping)
+  [-] participant types beyond box/actor (boundary, control, entity, etc.)
+
+Phase 11: remaining diagrams + gpui                   (discuss plan separately)
+  [ ] 11.x  class, ER, gantt, pie, mindmap, etc.
+  [ ] 11.y  gpui crate: impl Renderer for GpuiRenderer
 ```
 
 ---
