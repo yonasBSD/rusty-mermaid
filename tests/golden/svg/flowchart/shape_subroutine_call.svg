@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 376.9 545.2" width="376.9" height="545.2">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
@@ -27,16 +27,16 @@
     <text x="291.5" y="406" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cleanup</text>
     <rect x="258.7" y="472.4" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="291.5" y="488.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Exit</text>
-    <path d="M129.7 32.8 L129.7 36.97 C129.7 41.13 129.7 49.47 129.7 57.8 C129.7 66.13 129.7 74.47 129.7 78.63 L129.7 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M129.7 115.6 L129.7 119.77 C129.7 123.93 129.7 132.27 129.7 140.6 C129.7 148.93 129.7 157.27 129.7 161.43 L129.7 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M129.7 322.8 L129.7 328.37 C129.7 333.93 129.7 345.07 129.7 356.2 C129.7 367.33 129.7 378.47 129.7 384.03 L129.7 389.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M129.7 32.8 L129.7 36.97 C129.7 41.13 129.7 49.47 129.7 57.8 C129.7 66.13 129.7 74.47 129.7 78.63 L129.7 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M129.7 115.6 L129.7 119.77 C129.7 123.93 129.7 132.27 129.7 140.6 C129.7 148.93 129.7 157.27 129.7 161.43 L129.7 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M129.7 322.8 L129.7 328.37 C129.7 333.93 129.7 345.07 129.7 356.2 C129.7 367.33 129.7 378.47 129.7 384.03 L129.7 387.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="114.9" y="345" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="129.7" y="356.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Yes</text>
-    <path d="M129.7 422.4 L129.7 426.57 C129.7 430.73 129.7 439.07 124.6 447.4 C119.49 455.73 109.29 464.07 104.19 468.23 L99.08 472.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M176.15 276.35 L195.37 289.66 C214.6 302.97 253.05 329.58 272.27 348.46 C291.5 367.33 291.5 378.47 291.5 384.03 L291.5 389.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M129.7 422.4 L129.7 426.57 C129.7 430.73 129.7 439.07 124.6 447.4 C119.49 455.73 109.29 464.07 104.19 468.23 L100.94 470.88" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M176.15 276.35 L195.37 289.66 C214.6 302.97 253.05 329.58 272.27 348.46 C291.5 367.33 291.5 378.47 291.5 384.03 L291.5 387.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="280.3" y="345" width="22.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="291.5" y="356.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
-    <path d="M291.5 422.4 L291.5 426.57 C291.5 430.73 291.5 439.07 291.5 447.4 C291.5 455.73 291.5 464.07 291.5 468.23 L291.5 472.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M58.92 472.4 L53.81 468.23 C48.71 464.07 38.51 455.73 33.4 444.67 C28.3 433.6 28.3 419.8 28.3 404.6 C28.3 389.4 28.3 372.8 38.98 352.71 C49.65 332.62 71 309.03 81.68 297.24 L92.35 285.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M291.5 422.4 L291.5 426.57 C291.5 430.73 291.5 439.07 291.5 447.4 C291.5 455.73 291.5 464.07 291.5 468.23 L291.5 470" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M58.92 472.4 L53.81 468.23 C48.71 464.07 38.51 455.73 33.4 444.67 C28.3 433.6 28.3 419.8 28.3 404.6 C28.3 389.4 28.3 372.8 38.98 352.71 C49.65 332.62 71 309.03 81.68 297.24 L90.74 287.23" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

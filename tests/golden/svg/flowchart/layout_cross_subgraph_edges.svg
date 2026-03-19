@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 433.4 471.2" width="433.4" height="471.2">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
@@ -23,12 +23,12 @@
     <text x="140.6" y="282" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Gamma 1</text>
     <rect x="75" y="373.4" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="120.4" y="389.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Gamma 2</text>
-    <path d="M116.32 57.8 L120.37 61.97 C124.42 66.13 132.51 74.47 136.55 82.8 C140.6 91.13 140.6 99.47 140.6 107.8 C140.6 116.13 140.6 124.47 140.6 128.63 L140.6 132.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M317.2 165.6 L317.2 169.77 C317.2 173.93 317.2 182.27 317.2 190.6 C317.2 198.93 317.2 207.27 317.2 215.6 C317.2 223.93 317.2 232.27 317.2 240.6 C317.2 248.93 317.2 257.27 317.2 261.43 L317.2 265.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M140.6 298.4 L140.6 302.57 C140.6 306.73 140.6 315.07 140.6 323.4 C140.6 331.73 140.6 340.07 138.57 348.4 C136.53 356.73 132.47 365.07 130.43 369.23 L128.4 373.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M100.48 57.8 L100.5 61.97 C100.52 66.13 100.56 74.47 100.58 82.8 C100.6 91.13 100.6 99.47 129.83 109.22 C159.07 118.98 217.53 130.15 246.77 135.74 L276 141.33" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M140.6 165.6 L140.6 169.77 C140.6 173.93 140.6 182.27 140.6 190.6 C140.6 198.93 140.6 207.27 140.6 215.6 C140.6 223.93 140.6 232.27 140.6 240.6 C140.6 248.93 140.6 257.27 140.6 261.43 L140.6 265.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M317.2 298.4 L317.2 302.57 C317.2 306.73 317.2 315.07 294.47 323.4 C271.73 331.73 226.27 340.07 197.45 348.4 C168.64 356.73 156.48 365.07 150.41 369.23 L144.33 373.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M96.55 373.4 L90.49 369.23 C84.44 365.07 72.32 356.73 66.26 348.4 C60.2 340.07 60.2 331.73 60.2 320.67 C60.2 309.6 60.2 295.8 60.2 282 C60.2 268.2 60.2 254.4 60.2 243.33 C60.2 232.27 60.2 223.93 60.2 215.6 C60.2 207.27 60.2 198.93 60.2 187.87 C60.2 176.8 60.2 163 60.2 149.2 C60.2 135.4 60.2 121.6 60.2 110.53 C60.2 99.47 60.2 91.13 64.25 82.8 C68.29 74.47 76.38 66.13 80.43 61.97 L84.48 57.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M116.32 57.8 L120.37 61.97 C124.42 66.13 132.51 74.47 136.55 82.8 C140.6 91.13 140.6 99.47 140.6 107.8 C140.6 116.13 140.6 124.47 140.6 128.63 L140.6 130.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M317.2 165.6 L317.2 169.77 C317.2 173.93 317.2 182.27 317.2 190.6 C317.2 198.93 317.2 207.27 317.2 215.6 C317.2 223.93 317.2 232.27 317.2 240.6 C317.2 248.93 317.2 257.27 317.2 261.43 L317.2 263.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M140.6 298.4 L140.6 302.57 C140.6 306.73 140.6 315.07 140.6 323.4 C140.6 331.73 140.6 340.07 138.57 348.4 C136.53 356.73 132.47 365.07 130.43 369.23 L129.45 371.24" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M100.48 57.8 L100.5 61.97 C100.52 66.13 100.56 74.47 100.58 82.8 C100.6 91.13 100.6 99.47 129.83 109.22 C159.07 118.98 217.53 130.15 246.77 135.74 L273.64 140.87" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M140.6 165.6 L140.6 169.77 C140.6 173.93 140.6 182.27 140.6 190.6 C140.6 198.93 140.6 207.27 140.6 215.6 C140.6 223.93 140.6 232.27 140.6 240.6 C140.6 248.93 140.6 257.27 140.6 261.43 L140.6 263.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M317.2 298.4 L317.2 302.57 C317.2 306.73 317.2 315.07 294.47 323.4 C271.73 331.73 226.27 340.07 197.45 348.4 C168.64 356.73 156.48 365.07 150.41 369.23 L146.31 372.04" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M96.55 373.4 L90.49 369.23 C84.44 365.07 72.32 356.73 66.26 348.4 C60.2 340.07 60.2 331.73 60.2 320.67 C60.2 309.6 60.2 295.8 60.2 282 C60.2 268.2 60.2 254.4 60.2 243.33 C60.2 232.27 60.2 223.93 60.2 215.6 C60.2 207.27 60.2 198.93 60.2 187.87 C60.2 176.8 60.2 163 60.2 149.2 C60.2 135.4 60.2 121.6 60.2 110.53 C60.2 99.47 60.2 91.13 64.25 82.8 C68.29 74.47 76.38 66.13 80.43 61.97 L82.8 59.52" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

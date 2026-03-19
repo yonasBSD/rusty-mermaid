@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.4 238.4" width="122.4" height="238.4">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
@@ -11,7 +11,7 @@
     <text x="41.2" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Middle</text>
     <rect x="12.6" y="165.6" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="41.2" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">End</text>
-    <path d="M41.2 32.8 L41.2 36.97 C41.2 41.13 41.2 49.47 41.2 57.8 C41.2 66.13 41.2 74.47 41.2 78.63 L41.2 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M41.2 115.6 L41.2 119.77 C41.2 123.93 41.2 132.27 41.2 140.6 C41.2 148.93 41.2 157.27 41.2 161.43 L41.2 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M41.2 32.8 L41.2 36.97 C41.2 41.13 41.2 49.47 41.2 57.8 C41.2 66.13 41.2 74.47 41.2 78.63 L41.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M41.2 115.6 L41.2 119.77 C41.2 123.93 41.2 132.27 41.2 140.6 C41.2 148.93 41.2 157.27 41.2 161.43 L41.2 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

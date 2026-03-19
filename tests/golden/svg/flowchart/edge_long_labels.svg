@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2242 272" width="2242" height="272">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
@@ -19,19 +19,19 @@
     <text x="1210" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Source</text>
     <rect x="1177.2" y="99.6" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="1210" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sink</text>
-    <path d="M356.8 32.8 L356.8 38.37 C356.8 43.93 356.8 55.07 356.8 66.2 C356.8 77.33 356.8 88.47 356.8 94.03 L356.8 99.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M356.8 32.8 L356.8 38.37 C356.8 43.93 356.8 55.07 356.8 66.2 C356.8 77.33 356.8 88.47 356.8 94.03 L356.8 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="55" width="713.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="356.8" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">This is a very long edge label that should test how the renderer handles text positioning on edges</text>
-    <path d="M1822 24.56 L1853.47 31.5 C1884.93 38.44 1947.87 52.32 1979.33 64.83 C2010.8 77.33 2010.8 88.47 2010.8 94.03 L2010.8 99.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M1822 24.56 L1853.47 31.5 C1884.93 38.44 1947.87 52.32 1979.33 64.83 C2010.8 77.33 2010.8 88.47 2010.8 94.03 L2010.8 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="1819.6" y="55" width="382.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="2010.8" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validates schema, checks auth, applies rate limiting</text>
-    <path d="M2010.8 132.4 L2010.8 137.97 C2010.8 143.53 2010.8 154.67 1980.03 167.02 C1949.27 179.37 1887.73 192.94 1856.97 199.73 L1826.2 206.51" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M2010.8 132.4 L2010.8 137.97 C2010.8 143.53 2010.8 154.67 1980.03 167.02 C1949.27 179.37 1887.73 192.94 1856.97 199.73 L1828.54 206" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="1844.8" y="154.6" width="332" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="2010.8" y="165.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Transforms payload and enriches with metadata</text>
-    <path d="M1210 32.8 L1210 38.37 C1210 43.93 1210 55.07 1210 66.2 C1210 77.33 1210 88.47 1210 94.03 L1210 99.6" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point)" />
+    <path d="M1210 32.8 L1210 38.37 C1210 43.93 1210 55.07 1210 66.2 C1210 77.33 1210 88.47 1210 94" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point)" />
     <rect x="1069.2" y="55" width="281.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="1210" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High-throughput critical data pipeline</text>
-    <path d="M1743.8 206.51 L1713.03 199.73 C1682.27 192.94 1620.73 179.37 1589.97 164.29 C1559.2 149.2 1559.2 132.6 1559.2 116 C1559.2 99.4 1559.2 82.8 1590.67 67.56 C1622.13 52.32 1685.07 38.44 1716.53 31.5 L1748 24.56" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M1743.8 206.51 L1713.03 199.73 C1682.27 192.94 1620.73 179.37 1589.97 164.29 C1559.2 149.2 1559.2 132.6 1559.2 116 C1559.2 99.4 1559.2 82.8 1590.67 67.56 C1622.13 52.32 1685.07 38.44 1716.53 31.5 L1745.66 25.08" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
     <rect x="1400.4" y="104.8" width="317.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="1559.2" y="116" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Asynchronous callback with retry on failure</text>
   </g>

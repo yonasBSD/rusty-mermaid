@@ -15,6 +15,102 @@ use crate::common::rendering::{
     contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
 };
 
+/// Viewbox-unit inset for each marker type.
+/// The path endpoint is pulled back by `inset × 0.8 × stroke_width` pixels
+/// so the marker body hides the stroke butt-cap.
+fn marker_inset_vb(marker: MarkerType) -> f64 {
+    match marker {
+        // Arrow tip tapers to zero width; d=2 gives half-width=1 > stroke half-width 0.625
+        MarkerType::ArrowPoint | MarkerType::ArrowBarb | MarkerType::ArrowOpen => 2.0,
+        // Cross strokes overlap within 0.06 vb units at x=6; edge invisible
+        MarkerType::Cross => 2.0,
+        // Solid fill — stroke fully hidden behind circle body
+        _ => 0.0,
+    }
+}
+
+/// Convert marker inset from viewBox units to user-space pixels.
+/// scale = markerWidth(8) × stroke_width / viewBoxWidth(10) = 0.8 × stroke_width
+fn marker_inset_px(marker: MarkerType, stroke_width: f64) -> f64 {
+    marker_inset_vb(marker) * 0.8 * stroke_width
+}
+
+/// Pull the last point of a path back along its incoming tangent by `dist` pixels.
+/// If the terminal segment is shorter than `dist`, removes it and continues into
+/// the preceding segment (handles short final LineTo from Bézier interpolation).
+fn shorten_path_end(segments: &mut Vec<PathSegment>, mut remaining: f64) {
+    while remaining > 0.0 && segments.len() > 1 {
+        let n = segments.len();
+        // For LineTo: check if the segment is shorter than remaining — if so, pop it.
+        if let PathSegment::LineTo(to) = segments[n - 1] {
+            if let Some(prev) = prev_endpoint(&segments[..n - 1]) {
+                let seg_len = to.distance_to(prev);
+                if seg_len <= remaining {
+                    segments.pop();
+                    remaining -= seg_len;
+                    continue;
+                }
+            }
+        }
+        // Shorten the last segment's endpoint.
+        let n = segments.len();
+        let prev = if n >= 2 { prev_endpoint(&segments[..n - 1]) } else { None };
+        match &mut segments[n - 1] {
+            PathSegment::LineTo(to) => {
+                if let Some(p) = prev {
+                    pull_toward(to, p, remaining);
+                }
+            }
+            PathSegment::CubicTo { cp2, to, .. } => {
+                let dir = *cp2;
+                pull_toward(to, dir, remaining);
+            }
+            PathSegment::QuadTo { cp, to, .. } => {
+                let dir = *cp;
+                pull_toward(to, dir, remaining);
+            }
+            _ => {}
+        }
+        break;
+    }
+}
+
+/// Pull the first point of a path inward along its outgoing tangent by `dist` pixels.
+fn shorten_path_start(segments: &mut [PathSegment], dist: f64) {
+    if segments.len() < 2 { return; }
+    let toward = match &segments[1] {
+        PathSegment::LineTo(to) => *to,
+        PathSegment::CubicTo { cp1, .. } => *cp1,
+        PathSegment::QuadTo { cp, .. } => *cp,
+        _ => return,
+    };
+    if let PathSegment::MoveTo(start) = &mut segments[0] {
+        pull_toward(start, toward, dist);
+    }
+}
+
+fn prev_endpoint(segments: &[PathSegment]) -> Option<Point> {
+    segments.iter().rev().find_map(|seg| match seg {
+        PathSegment::MoveTo(p)
+        | PathSegment::LineTo(p)
+        | PathSegment::QuadTo { to: p, .. }
+        | PathSegment::CubicTo { to: p, .. }
+        | PathSegment::ArcTo { to: p, .. } => Some(*p),
+        PathSegment::Close => None,
+    })
+}
+
+/// Move `pt` toward `toward` by `dist` pixels.
+fn pull_toward(pt: &mut Point, toward: Point, dist: f64) {
+    let dx = toward.x - pt.x;
+    let dy = toward.y - pt.y;
+    let len = (dx * dx + dy * dy).sqrt();
+    if len > dist.abs() && len > 0.0 {
+        pt.x += dx / len * dist;
+        pt.y += dy / len * dist;
+    }
+}
+
 fn edge_style(stroke: StrokeType, theme: &Theme) -> Style {
     Style {
         stroke: Some(theme.edge_stroke),
@@ -89,7 +185,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     // Z-order: subgraphs (background) → nodes → edges + markers (foreground).
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
-            let segments = interpolate(&edge.points, CurveType::Basis);
+            let mut segments = interpolate(&edge.points, CurveType::Basis);
 
             let marker_end = match edge.end_arrow {
                 ArrowEnd::Arrow => Some(MarkerType::ArrowPoint),
@@ -107,6 +203,21 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             let mut estyle = edge_style(edge.stroke, theme);
             if let Some(custom) = &edge.custom_style {
                 overlay_style(&mut estyle, custom);
+            }
+
+            // Shorten path endpoints so the stroke butt-cap hides behind the marker body.
+            let sw = estyle.stroke_width.unwrap_or(1.5);
+            if let Some(m) = marker_end {
+                let inset = marker_inset_px(m, sw);
+                if inset > 0.0 {
+                    shorten_path_end(&mut segments, inset);
+                }
+            }
+            if let Some(m) = marker_start {
+                let inset = marker_inset_px(m, sw);
+                if inset > 0.0 {
+                    shorten_path_start(&mut segments, inset);
+                }
             }
 
             scene.push(Primitive::Path {

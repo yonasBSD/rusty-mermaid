@@ -35,13 +35,13 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
     let id = marker_id(marker);
     match marker {
         MarkerType::ArrowPoint => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="{color}" />
 </marker>
 "##
         ),
         MarkerType::ArrowBarb | MarkerType::ArrowOpen => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="{color}" stroke-width="1" stroke-linejoin="round" />
 </marker>
 "##
@@ -53,7 +53,7 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
 "##
         ),
         MarkerType::Cross => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <path d="M2 2 Q5 4.5 8 8 M8 2 Q5 5.5 2 8" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" />
 </marker>
 "##
