@@ -697,6 +697,140 @@ mod tests {
     }
 
     #[test]
+    fn marker_inset_all_pointed_markers_have_positive_inset() {
+        // Every marker with a tapered or gapped leading edge needs a positive inset
+        // so the stroke butt-cap hides behind the marker body.
+        for m in [
+            MarkerType::ArrowPoint,
+            MarkerType::ArrowBarb,
+            MarkerType::ArrowOpen,
+            MarkerType::Cross,
+        ] {
+            assert!(
+                marker_inset_vb(m) > 0.0,
+                "{m:?} must have positive viewBox inset to hide stroke"
+            );
+            assert!(
+                marker_inset_px(m, 1.5) > 0.0,
+                "{m:?} must produce positive pixel inset at normal stroke"
+            );
+            assert!(
+                marker_inset_px(m, 3.5) > 0.0,
+                "{m:?} must produce positive pixel inset at thick stroke"
+            );
+        }
+    }
+
+    #[test]
+    fn marker_inset_px_scales_with_stroke_width() {
+        let normal = marker_inset_px(MarkerType::ArrowPoint, 1.5);
+        let thick = marker_inset_px(MarkerType::ArrowPoint, 3.5);
+        assert!(thick > normal, "thick stroke should produce larger inset");
+        // inset = vb * 0.8 * sw → thick/normal = 3.5/1.5
+        let ratio = thick / normal;
+        assert!((ratio - 3.5 / 1.5).abs() < 0.01, "inset ratio should match stroke ratio");
+    }
+
+    #[test]
+    fn shorten_path_end_pulls_back_line() {
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(0.0, 100.0)),
+        ];
+        shorten_path_end(&mut segs, 10.0);
+        if let PathSegment::LineTo(p) = segs[1] {
+            assert!((p.y - 90.0).abs() < 0.01, "endpoint should pull back 10px: got {}", p.y);
+        } else {
+            panic!("expected LineTo");
+        }
+    }
+
+    #[test]
+    fn shorten_path_end_cascades_through_short_segment() {
+        // Simulates interpolated path with short final LineTo (< shorten dist)
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 20.0),
+                cp2: Point::new(0.0, 70.0),
+                to: Point::new(0.0, 96.0),
+            },
+            PathSegment::LineTo(Point::new(0.0, 100.0)), // 4px segment
+        ];
+        shorten_path_end(&mut segs, 6.0); // 6 > 4, must cascade
+        // LineTo should be popped, cubic endpoint shortened by remaining 2px
+        assert_eq!(segs.len(), 2, "short LineTo should be removed");
+        if let PathSegment::CubicTo { to, .. } = segs[1] {
+            assert!((to.y - 94.0).abs() < 0.1, "cubic endpoint should be ~94: got {}", to.y);
+        }
+    }
+
+    #[test]
+    fn shorten_path_start_pulls_forward() {
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(0.0, 100.0)),
+        ];
+        shorten_path_start(&mut segs, 10.0);
+        if let PathSegment::MoveTo(p) = segs[0] {
+            assert!((p.y - 10.0).abs() < 0.01, "start should advance 10px: got {}", p.y);
+        }
+    }
+
+    #[test]
+    fn edge_path_shortened_for_arrow_marker() {
+        // An edge with ArrowPoint marker should have its endpoint pulled back.
+        let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Find the target node's top boundary and the edge endpoint
+        let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
+        let node_top = target_node.y - target_node.height / 2.0;
+
+        // The edge path endpoint should be ABOVE the node boundary (shortened)
+        for p in scene.primitives() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
+                let endpoint = prev_endpoint(segments).unwrap();
+                let sw = style.stroke_width.unwrap_or(1.5);
+                let expected_inset = marker_inset_px(MarkerType::ArrowPoint, sw);
+                let gap = node_top - endpoint.y;
+                assert!(
+                    gap > 0.0,
+                    "edge endpoint ({:.1}) should be above node boundary ({:.1})",
+                    endpoint.y, node_top
+                );
+                assert!(
+                    (gap - expected_inset).abs() < 1.0,
+                    "gap ({gap:.1}) should be ~{expected_inset:.1}px"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn edge_path_not_shortened_for_circle_marker() {
+        // Circle markers have solid fill — no shortening needed.
+        let d = crate::flowchart::parser::parse("graph TD\n    A --o B").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
+        let node_top = target_node.y - target_node.height / 2.0;
+
+        for p in scene.primitives() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::Circle), .. } = p {
+                let endpoint = prev_endpoint(segments).unwrap();
+                let gap = (node_top - endpoint.y).abs();
+                assert!(
+                    gap < 0.5,
+                    "circle marker edge should NOT be shortened: gap={gap:.1}px"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn edges_render_after_nodes_for_marker_visibility() {
         // Markers (circle, cross) must render ON TOP of nodes. This means
         // edge Paths must appear after node Rects in the primitive list.
