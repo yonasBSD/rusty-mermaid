@@ -516,6 +516,9 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
         let frag_start_y = self.cursor_y;
         self.cursor_y += FRAGMENT_LABEL_HEIGHT;
 
+        // Reserve slot so outer fragment renders before (behind) nested children.
+        let slot = self.fragments.len();
+
         let mut section_layouts = Vec::new();
         for (i, section) in frag.sections.iter().enumerate() {
             if i > 0 {
@@ -530,7 +533,7 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
         self.cursor_y += FRAGMENT_PADDING;
 
         let (frag_left, frag_right) = self.fragment_bounds();
-        self.fragments.push(FragmentLayout {
+        self.fragments.insert(slot, FragmentLayout {
             x: frag_left,
             y: frag_start_y,
             width: frag_right - frag_left,
@@ -1093,6 +1096,42 @@ mod tests {
         let l = layout(&d, &tm());
         assert_eq!(l.fragments.len(), 1);
         assert!(l.fragments[0].sections.is_empty()); // single section = no dividers
+    }
+
+    #[test]
+    fn nested_fragments_outer_before_inner() {
+        let mut d = two_actor_diagram();
+        let inner = Fragment {
+            kind: FragmentKind::Alt,
+            label: Some("available".into()),
+            sections: vec![FragmentSection {
+                label: None,
+                items: vec![SequenceItem::Message(
+                    Message::new("Bob", "Alice", ArrowStyle::SOLID_FILLED).with_label("data"),
+                )],
+            }],
+        };
+        let outer = Fragment {
+            kind: FragmentKind::Loop,
+            label: Some("retry".into()),
+            sections: vec![FragmentSection {
+                label: None,
+                items: vec![SequenceItem::Fragment(inner)],
+            }],
+        };
+        d.items.push(SequenceItem::Fragment(outer));
+        let l = layout(&d, &tm());
+
+        assert_eq!(l.fragments.len(), 2);
+        // Outer fragment must come first (renders behind).
+        assert_eq!(l.fragments[0].kind, FragmentKind::Loop);
+        assert_eq!(l.fragments[1].kind, FragmentKind::Alt);
+        // Outer must fully enclose inner.
+        let outer_f = &l.fragments[0];
+        let inner_f = &l.fragments[1];
+        assert!(outer_f.y <= inner_f.y);
+        assert!(outer_f.x <= inner_f.x);
+        assert!(outer_f.y + outer_f.height >= inner_f.y + inner_f.height);
     }
 
     #[test]

@@ -5,16 +5,16 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="217.2" height="184" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="44" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="30" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">loop</text>
+    <text x="58" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Retry</text>
     <rect x="8" y="160.8" width="217.2" height="128" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
     <rect x="8" y="160.8" width="36" height="20" rx="2" ry="2" fill="#a8ae8e" />
     <text x="26" y="170.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">alt</text>
     <text x="50" y="170.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Available</text>
     <path d="M8 224.8 L225.2 224.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
     <text x="16" y="238.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Unavailable]</text>
-    <rect x="8" y="116.8" width="217.2" height="184" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
-    <rect x="8" y="116.8" width="44" height="20" rx="2" ry="2" fill="#a8ae8e" />
-    <text x="30" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">loop</text>
-    <text x="58" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Retry</text>
     <path d="M57 56.8 L57 360.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M184.6 56.8 L184.6 360.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M57 96.8 L184.6 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />

@@ -664,6 +664,56 @@ mod tests {
     }
 
     #[test]
+    fn nested_fragment_renders_inner_on_top() {
+        let mut d = two_actor_diagram();
+        let inner_section = FragmentSection {
+            label: None,
+            items: vec![SequenceItem::Message(
+                Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("data"),
+            )],
+        };
+        let inner = Fragment {
+            kind: FragmentKind::Alt,
+            label: Some("available".into()),
+            sections: vec![inner_section],
+        };
+        let outer_section = FragmentSection {
+            label: None,
+            items: vec![SequenceItem::Fragment(inner)],
+        };
+        let outer = Fragment {
+            kind: FragmentKind::Loop,
+            label: Some("retry".into()),
+            sections: vec![outer_section],
+        };
+        d.items.push(SequenceItem::Fragment(outer));
+        let scene = make_scene(&d);
+
+        // Collect fragment background rects (dashed stroke = fragment).
+        let frag_rects: Vec<&BBox> = scene
+            .primitives()
+            .iter()
+            .filter_map(|p| match p {
+                Primitive::Rect {
+                    bbox,
+                    style: Style { stroke_dasharray: Some(_), .. },
+                    ..
+                } => Some(bbox),
+                _ => None,
+            })
+            .collect();
+
+        assert!(frag_rects.len() >= 2, "need at least 2 fragment rects");
+        let outer_bbox = frag_rects[0];
+        let inner_bbox = frag_rects[1];
+        // Outer must be larger and appear first (renders behind).
+        assert!(
+            outer_bbox.width >= inner_bbox.width && outer_bbox.height >= inner_bbox.height,
+            "first fragment rect should be the outer (larger) one"
+        );
+    }
+
+    #[test]
     fn fragment_section_divider_renders() {
         let mut d = two_actor_diagram();
         d.items.push(SequenceItem::Fragment(Fragment {
