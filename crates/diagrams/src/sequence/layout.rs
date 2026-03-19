@@ -16,10 +16,18 @@ const FRAGMENT_PADDING: f64 = 12.0;
 const SELF_MSG_WIDTH: f64 = 40.0;
 const SELF_MSG_HEIGHT: f64 = 30.0;
 const DIAGRAM_MARGIN: f64 = 20.0;
-const ACTOR_BOTTOM_MARGIN: f64 = 10.0;
+const ACTOR_BOTTOM_MARGIN: f64 = 20.0;
 const MIN_ACTOR_WIDTH: f64 = 50.0;
 const NOTE_MAX_WIDTH: f64 = 200.0;
 const FRAGMENT_LABEL_HEIGHT: f64 = 24.0;
+
+// Stick figure dimensions for ParticipantKind::Actor.
+const STICK_HEAD_R: f64 = 8.0;
+const STICK_BODY_H: f64 = 16.0;
+const STICK_LEG_H: f64 = 12.0;
+const STICK_ARM_SPAN: f64 = 24.0;
+const STICK_FIGURE_H: f64 = STICK_HEAD_R * 2.0 + STICK_BODY_H + STICK_LEG_H;
+const STICK_TEXT_GAP: f64 = 6.0;
 
 /// Positioned actor box.
 #[derive(Debug, Clone)]
@@ -118,6 +126,8 @@ struct LayoutPass<'a, T: TextMeasure> {
     fragments: Vec<FragmentLayout>,
     activation_stack: BTreeMap<String, Vec<f64>>,
     activations: Vec<ActivationLayout>,
+    /// Tracks the rightmost edge of any self-message label for bounds expansion.
+    max_self_label_right: f64,
 }
 
 // ---------------------------------------------------------------------------
@@ -153,7 +163,7 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
     let actor_top_y = DIAGRAM_MARGIN + title_height;
 
     // 5. Build actor layouts.
-    let actors: Vec<ActorLayout> = diagram
+    let mut actors: Vec<ActorLayout> = diagram
         .participants
         .iter()
         .enumerate()
@@ -179,18 +189,54 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         fragments: Vec::new(),
         activation_stack: BTreeMap::new(),
         activations: Vec::new(),
+        max_self_label_right: 0.0,
     };
     pass.layout_items(&diagram.items);
     pass.close_remaining_activations();
 
     // Extract results from pass, releasing the borrow on actors.
     let cursor_y = pass.cursor_y + ACTOR_BOTTOM_MARGIN;
-    let messages = pass.messages;
-    let activations = pass.activations;
-    let notes = pass.notes;
-    let fragments = pass.fragments;
+    let mut messages = pass.messages;
+    let mut activations = pass.activations;
+    let mut notes = pass.notes;
+    let mut fragments = pass.fragments;
+    let max_self_label_right = pass.max_self_label_right;
 
-    // 7. Bottom actors (mirrored).
+    // 7. Expand bounds to include notes and self-message labels beyond actor edges.
+    let actor_right = if n > 0 {
+        actors[n - 1].x + actors[n - 1].width / 2.0
+    } else {
+        0.0
+    };
+    let mut min_x = 0.0_f64;
+    let mut max_right = actor_right;
+    for note in &notes {
+        min_x = min_x.min(note.x);
+        max_right = max_right.max(note.x + note.width);
+    }
+    max_right = max_right.max(max_self_label_right);
+    let shift = if min_x < 0.0 { -min_x } else { 0.0 };
+    if shift > 0.0 {
+        for a in &mut actors {
+            a.x += shift;
+        }
+        for m in &mut messages {
+            m.from_x += shift;
+            m.to_x += shift;
+        }
+        for act in &mut activations {
+            act.x += shift;
+        }
+        for note in &mut notes {
+            note.x += shift;
+        }
+        for frag in &mut fragments {
+            frag.x += shift;
+        }
+        max_right += shift;
+    }
+
+    // 8. Bottom actors (mirrored).
     let bottom_y = cursor_y;
     let bottom_actors: Vec<ActorLayout> = actors
         .iter()
@@ -200,7 +246,7 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         })
         .collect();
 
-    // 8. Lifelines.
+    // 9. Lifelines.
     let lifeline_top = actor_top_y + actor_height;
     let lifeline_bottom = bottom_y;
     let lifelines = actors
@@ -213,9 +259,9 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         })
         .collect();
 
-    // 9. Total dimensions.
+    // 10. Total dimensions.
     let total_width = if n > 0 {
-        actor_centers[n - 1] + actor_dims[n - 1].0 / 2.0 + DIAGRAM_MARGIN
+        max_right + DIAGRAM_MARGIN
     } else {
         2.0 * DIAGRAM_MARGIN
     };
@@ -242,9 +288,19 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
 
 fn measure_actor(p: &Participant, text: &impl TextMeasure, style: &TextStyle) -> (f64, f64) {
     let (tw, th) = text.measure(&p.label, style);
-    let w = (tw + 2.0 * ACTOR_PADDING_X).max(MIN_ACTOR_WIDTH);
-    let h = th + 2.0 * ACTOR_PADDING_Y;
-    (w, h)
+    let w = (tw + 2.0 * ACTOR_PADDING_X)
+        .max(MIN_ACTOR_WIDTH)
+        .max(STICK_ARM_SPAN + 2.0 * ACTOR_PADDING_X);
+    match p.kind {
+        ParticipantKind::Box => {
+            let h = th + 2.0 * ACTOR_PADDING_Y;
+            (w, h)
+        }
+        ParticipantKind::Actor => {
+            let h = STICK_FIGURE_H + STICK_TEXT_GAP + th;
+            (w, h)
+        }
+    }
 }
 
 fn place_actors_x(dims: &[(f64, f64)], gaps: &[f64]) -> Vec<f64> {
@@ -329,9 +385,41 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
 
     fn layout_message(&mut self, msg: &Message) {
         self.cursor_y += MESSAGE_MARGIN;
-        let from_x = actor_center_x(&msg.from, self.actors);
-        let to_x = actor_center_x(&msg.to, self.actors);
+        let mut from_x = actor_center_x(&msg.from, self.actors);
+        let mut to_x = actor_center_x(&msg.to, self.actors);
         let is_self = msg.from == msg.to;
+
+        // Adjust endpoints to activation box edges when activations are active.
+        let half_aw = ACTIVATION_WIDTH / 2.0;
+        if is_self {
+            let active = self
+                .activation_stack
+                .get(&msg.from)
+                .is_some_and(|s| !s.is_empty());
+            if active {
+                from_x += half_aw;
+                to_x += half_aw;
+            }
+        } else {
+            let going_right = from_x < to_x;
+
+            let from_active = self
+                .activation_stack
+                .get(&msg.from)
+                .is_some_and(|s| !s.is_empty());
+            if from_active {
+                from_x += if going_right { half_aw } else { -half_aw };
+            }
+
+            let to_active = self
+                .activation_stack
+                .get(&msg.to)
+                .is_some_and(|s| !s.is_empty())
+                || msg.activate;
+            if to_active {
+                to_x += if going_right { -half_aw } else { half_aw };
+            }
+        }
 
         self.messages.push(MessageLayout {
             from_x,
@@ -344,6 +432,11 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
 
         if is_self {
             self.cursor_y += SELF_MSG_HEIGHT;
+            if let Some(label) = &msg.label {
+                let (lw, _) = self.text.measure(label, &self.style);
+                let right = from_x + SELF_MSG_WIDTH + 6.0 + lw;
+                self.max_self_label_right = self.max_self_label_right.max(right);
+            }
         }
 
         if msg.activate {
@@ -499,6 +592,24 @@ pub const fn self_msg_width() -> f64 {
 }
 pub const fn self_msg_height() -> f64 {
     SELF_MSG_HEIGHT
+}
+pub const fn stick_head_r() -> f64 {
+    STICK_HEAD_R
+}
+pub const fn stick_body_h() -> f64 {
+    STICK_BODY_H
+}
+pub const fn stick_leg_h() -> f64 {
+    STICK_LEG_H
+}
+pub const fn stick_arm_span() -> f64 {
+    STICK_ARM_SPAN
+}
+pub const fn stick_figure_h() -> f64 {
+    STICK_FIGURE_H
+}
+pub const fn stick_text_gap() -> f64 {
+    STICK_TEXT_GAP
 }
 
 // ---------------------------------------------------------------------------

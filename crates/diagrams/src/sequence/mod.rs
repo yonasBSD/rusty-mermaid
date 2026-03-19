@@ -7,15 +7,18 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
-use ir::{ArrowHead, LineStyle};
+use ir::{ArrowHead, LineStyle, ParticipantKind};
 use layout::{
     ActorLayout, MessageLayout, SequenceLayout, activation_width, self_msg_height, self_msg_width,
+    stick_arm_span, stick_body_h, stick_figure_h, stick_head_r, stick_leg_h, stick_text_gap,
 };
 
-/// Lifeline color — intentionally subtle.
-const LIFELINE_STROKE: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgb(204, 204, 204);
+/// Lifeline color — gray-lavender blend.
+const LIFELINE_STROKE: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgb(175, 165, 200);
 /// Activation box border.
 const ACTIVATION_STROKE: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgb(153, 153, 153);
+/// Activation box fill — light lavender for a glassy look.
+const ACTIVATION_FILL: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgba(200, 190, 230, 180);
 
 /// Convert a sequence layout into a Scene with default theme.
 pub fn to_scene(seq_layout: &SequenceLayout) -> Scene {
@@ -153,8 +156,7 @@ fn render_lifelines(l: &SequenceLayout, scene: &mut Scene) {
             ],
             style: Style {
                 stroke: Some(LIFELINE_STROKE),
-                stroke_width: Some(0.5),
-                stroke_dasharray: Some(vec![6.0, 4.0]),
+                stroke_width: Some(1.0),
                 ..Default::default()
             },
             marker_start: None,
@@ -177,7 +179,7 @@ fn render_activations(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
             rx: 0.0,
             ry: 0.0,
             style: Style {
-                fill: Some(theme.composite_fill),
+                fill: Some(ACTIVATION_FILL),
                 stroke: Some(ACTIVATION_STROKE),
                 stroke_width: Some(0.5),
                 ..Default::default()
@@ -322,29 +324,86 @@ fn render_notes(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
 
 fn render_actors(actors: &[ActorLayout], scene: &mut Scene, theme: &Theme) {
     for actor in actors {
-        let cy = actor.y + actor.height / 2.0;
-        scene.push(Primitive::Rect {
-            bbox: BBox::new(actor.x, cy, actor.width, actor.height),
-            rx: 5.0,
-            ry: 5.0,
-            style: Style {
-                fill: Some(theme.node_fill),
-                stroke: Some(theme.node_stroke),
-                stroke_width: Some(1.5),
-                ..Default::default()
-            },
-        });
-        scene.push(Primitive::Text {
-            position: Point::new(actor.x, cy),
-            content: actor.label.clone(),
-            anchor: TextAnchor::Middle,
-            style: TextStyle {
-                font_weight: FontWeight::Bold,
-                fill: Some(theme.node_text),
-                ..Default::default()
-            },
-        });
+        match actor.kind {
+            ParticipantKind::Box => render_actor_box(actor, scene, theme),
+            ParticipantKind::Actor => render_actor_stick(actor, scene, theme),
+        }
     }
+}
+
+fn render_actor_box(actor: &ActorLayout, scene: &mut Scene, theme: &Theme) {
+    let cy = actor.y + actor.height / 2.0;
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(actor.x, cy, actor.width, actor.height),
+        rx: 5.0,
+        ry: 5.0,
+        style: Style {
+            fill: Some(theme.node_fill),
+            stroke: Some(theme.node_stroke),
+            stroke_width: Some(1.5),
+            ..Default::default()
+        },
+    });
+    scene.push(Primitive::Text {
+        position: Point::new(actor.x, cy),
+        content: actor.label.clone(),
+        anchor: TextAnchor::Middle,
+        style: TextStyle {
+            font_weight: FontWeight::Bold,
+            fill: Some(theme.node_text),
+            ..Default::default()
+        },
+    });
+}
+
+fn render_actor_stick(actor: &ActorLayout, scene: &mut Scene, theme: &Theme) {
+    let x = actor.x;
+    let figure_h = stick_figure_h();
+
+    // Person icon: filled circle head + rounded-rect torso.
+    let head_r = 9.0;
+    let head_cy = actor.y + head_r;
+    let gap = 3.0;
+    let body_top = actor.y + head_r * 2.0 + gap;
+    let body_h = figure_h - (head_r * 2.0 + gap);
+    let body_w = 26.0;
+    let body_rx = 7.0;
+
+    let icon_style = Style {
+        fill: Some(theme.node_fill),
+        stroke: Some(theme.node_stroke),
+        stroke_width: Some(1.5),
+        ..Default::default()
+    };
+
+    // Head.
+    scene.push(Primitive::Circle {
+        center: Point::new(x, head_cy),
+        radius: head_r,
+        style: icon_style.clone(),
+    });
+
+    // Torso.
+    let body_cy = body_top + body_h / 2.0;
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(x, body_cy, body_w, body_h),
+        rx: body_rx,
+        ry: body_rx,
+        style: icon_style,
+    });
+
+    // Label below the figure.
+    let text_y = actor.y + figure_h + stick_text_gap();
+    scene.push(Primitive::Text {
+        position: Point::new(x, text_y),
+        content: actor.label.clone(),
+        anchor: TextAnchor::Middle,
+        style: TextStyle {
+            font_weight: FontWeight::Bold,
+            fill: Some(theme.node_text),
+            ..Default::default()
+        },
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -493,5 +552,20 @@ mod tests {
         let scene = make_scene(&d);
         // Activation produces a rect (beyond the actor box rects).
         assert!(count_rects(&scene) >= 5);
+    }
+
+    #[test]
+    fn actor_stick_figure_produces_circle_and_paths() {
+        let mut d = SequenceDiagram::new();
+        d.participants.push(Participant::actor("U", "User"));
+        d.participants.push(Participant::new("S", "Server"));
+        d.items.push(SequenceItem::Message(
+            Message::new("U", "S", ArrowStyle::SOLID_FILLED).with_label("request"),
+        ));
+        let scene = make_scene(&d);
+        // Stick figure: circle (head) + 3 paths (body, arms, legs) × 2 (top + bottom).
+        assert!(has_circle(&scene));
+        assert!(has_text(&scene, "User"));
+        assert!(has_text(&scene, "Server"));
     }
 }
