@@ -339,10 +339,10 @@ fn parse_composite_state(
             continue;
         }
 
-        if !try_parse_statement(input, &mut region_children, &mut region_trans, &mut notes, class_defs, style_stmts, None)? {
-            if !input.is_empty() {
-                *input = &input[1..];
-            }
+        if !try_parse_statement(input, &mut region_children, &mut region_trans, &mut notes, class_defs, style_stmts, None)?
+            && !input.is_empty()
+        {
+            *input = &input[1..];
         }
     }
 
@@ -362,14 +362,16 @@ fn parse_composite_state(
         trans = region_trans;
     }
 
-    let mut node = StateNode::new(id, StateKind::Composite {
-        direction,
-        children,
-        transitions: trans,
-        notes,
-        regions,
-    });
-    node.label = label;
+    let node = StateNode {
+        label,
+        ..StateNode::new(id, StateKind::Composite {
+            direction,
+            children,
+            transitions: trans,
+            notes,
+            regions,
+        })
+    };
     Ok(node)
 }
 
@@ -403,8 +405,10 @@ fn parse_state_decl(input: &mut &str) -> ModalResult<StateNode> {
     ))
     .parse_next(input)?;
 
-    let mut node = StateNode::new(id, kind);
-    node.label = label;
+    let node = StateNode {
+        label,
+        ..StateNode::new(id, kind)
+    };
     Ok(node)
 }
 
@@ -415,7 +419,7 @@ fn parse_state_label(input: &mut &str) -> ModalResult<StateNode> {
     ':'.parse_next(input)?;
     ws.parse_next(input)?;
     let label = take_while(1.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
-    Ok(StateNode::new(id, StateKind::Normal).with_label(&unescape_unicode(label.trim())))
+    Ok(StateNode::new(id, StateKind::Normal).with_label(unescape_unicode(label.trim())))
 }
 
 /// Parse `A --> B` or `A --> B : label`.
@@ -431,7 +435,7 @@ fn parse_transition(input: &mut &str) -> ModalResult<StateTransition> {
     Ok(StateTransition {
         src: src.to_string(),
         dst: dst.to_string(),
-        label: label.map(|s| unescape_unicode(s)),
+        label: label.map(unescape_unicode),
     })
 }
 

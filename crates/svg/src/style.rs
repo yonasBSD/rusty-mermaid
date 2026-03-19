@@ -1,11 +1,9 @@
 use rusty_mermaid_core::{FontWeight, Style, TextStyle};
 
-use crate::document::fmt_f64;
+use crate::document::{fmt_f64, write_f64};
 
-/// Convert a Style to a list of SVG attribute key-value pairs.
-pub fn style_attrs(style: &Style) -> Vec<(String, String)> {
-    let mut attrs = Vec::new();
-
+/// Append style attributes to an existing attribute list.
+pub fn push_style_attrs(attrs: &mut Vec<(String, String)>, style: &Style) {
     if let Some(fill) = &style.fill {
         if fill.a == 0 {
             attrs.push(("fill".into(), "none".into()));
@@ -20,8 +18,12 @@ pub fn style_attrs(style: &Style) -> Vec<(String, String)> {
         attrs.push(("stroke-width".into(), fmt_f64(sw)));
     }
     if let Some(da) = &style.stroke_dasharray {
-        let s: Vec<String> = da.iter().map(|v| fmt_f64(*v)).collect();
-        attrs.push(("stroke-dasharray".into(), s.join(" ")));
+        let mut dash = String::with_capacity(da.len() * 6);
+        for (i, v) in da.iter().enumerate() {
+            if i > 0 { dash.push(' '); }
+            write_f64(&mut dash, *v);
+        }
+        attrs.push(("stroke-dasharray".into(), dash));
     }
     if let Some(op) = style.opacity {
         attrs.push(("opacity".into(), fmt_f64(op)));
@@ -29,15 +31,14 @@ pub fn style_attrs(style: &Style) -> Vec<(String, String)> {
     if !style.css_classes.is_empty() {
         attrs.push(("class".into(), style.css_classes.join(" ")));
     }
-
-    attrs
 }
 
-/// Convert a TextStyle to a list of SVG attribute key-value pairs.
-pub fn text_style_attrs(style: &TextStyle) -> Vec<(String, String)> {
-    let mut attrs = Vec::new();
-
-    attrs.push(("font-size".into(), format!("{}px", fmt_f64(style.font_size))));
+/// Append text style attributes to an existing attribute list.
+pub fn push_text_style_attrs(attrs: &mut Vec<(String, String)>, style: &TextStyle) {
+    let mut font_size = String::with_capacity(8);
+    write_f64(&mut font_size, style.font_size);
+    font_size.push_str("px");
+    attrs.push(("font-size".into(), font_size));
     attrs.push(("font-family".into(), style.font_family.clone()));
 
     if let Some(fill) = &style.fill {
@@ -46,8 +47,6 @@ pub fn text_style_attrs(style: &TextStyle) -> Vec<(String, String)> {
     if style.font_weight == FontWeight::Bold {
         attrs.push(("font-weight".into(), "bold".into()));
     }
-
-    attrs
 }
 
 #[cfg(test)]
@@ -55,6 +54,18 @@ mod tests {
     use rusty_mermaid_core::Color;
 
     use super::*;
+
+    fn style_attrs(style: &Style) -> Vec<(String, String)> {
+        let mut attrs = Vec::new();
+        push_style_attrs(&mut attrs, style);
+        attrs
+    }
+
+    fn text_style_attrs(style: &TextStyle) -> Vec<(String, String)> {
+        let mut attrs = Vec::new();
+        push_text_style_attrs(&mut attrs, style);
+        attrs
+    }
 
     #[test]
     fn empty_style() {
@@ -112,5 +123,4 @@ mod tests {
         let attrs = text_style_attrs(&ts);
         assert!(attrs.iter().any(|(k, v)| k == "font-weight" && v == "bold"));
     }
-
 }

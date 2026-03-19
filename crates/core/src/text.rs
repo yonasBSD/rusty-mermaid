@@ -49,18 +49,19 @@ impl TextMeasure for SimpleTextMeasure {
     fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64) {
         let scale = style.font_size / 14.0;
         let stripped = strip_markup(text);
-        let lines: Vec<&str> = stripped.split('\n').collect();
-        let max_width = lines
-            .iter()
-            .map(|l| {
-                l.chars()
-                    .map(|c| if is_wide_char(c) { CJK_WIDTH_RATIO } else { 1.0 })
-                    .sum::<f64>()
-            })
-            .fold(0.0f64, f64::max);
+        let mut max_width: f64 = 0.0;
+        let mut line_count: usize = 0;
+        for line in stripped.split('\n') {
+            line_count += 1;
+            let w: f64 = line
+                .chars()
+                .map(|c| if is_wide_char(c) { CJK_WIDTH_RATIO } else { 1.0 })
+                .sum();
+            max_width = max_width.max(w);
+        }
 
         let width = max_width * self.avg_char_width * scale;
-        let height = lines.len() as f64 * self.line_height * scale;
+        let height = line_count as f64 * self.line_height * scale;
         (width, height)
     }
 }
@@ -109,18 +110,49 @@ fn is_wide_char(c: char) -> bool {
     )
 }
 
-/// Strip HTML tags and markdown markers from text for measurement.
-/// Replaces <br/> variants with newlines; removes `**` and `*` markers.
+/// Strip HTML tags and markdown markers from text in a single pass.
+/// Replaces <br/> variants with newlines; removes `**` and `*` markers;
+/// strips other HTML tags entirely.
 fn strip_markup(text: &str) -> String {
-    let html_stripped = strip_html_tags(text);
-    strip_markdown_markers(&html_stripped)
+    let mut result = String::with_capacity(text.len());
+    let mut in_tag = false;
+    let mut tag_buf = String::with_capacity(8);
+    let mut chars = text.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if in_tag {
+            if ch == '>' {
+                in_tag = false;
+                if tag_buf.eq_ignore_ascii_case("br")
+                    || tag_buf.eq_ignore_ascii_case("br/")
+                    || tag_buf.eq_ignore_ascii_case("br /")
+                {
+                    result.push('\n');
+                }
+            } else {
+                tag_buf.push(ch);
+            }
+        } else if ch == '<' {
+            in_tag = true;
+            tag_buf.clear();
+        } else if ch == '*' {
+            // Skip markdown markers (* and **)
+            if chars.peek() == Some(&'*') {
+                chars.next();
+            }
+        } else {
+            result.push(ch);
+        }
+    }
+    result
 }
 
 /// Strip HTML tags from text, replacing <br/> variants with newlines.
+#[cfg(test)]
 fn strip_html_tags(text: &str) -> String {
     let mut result = String::with_capacity(text.len());
     let mut in_tag = false;
-    let mut tag_buf = String::new();
+    let mut tag_buf = String::with_capacity(8);
 
     for ch in text.chars() {
         match ch {
@@ -130,32 +162,15 @@ fn strip_html_tags(text: &str) -> String {
             }
             '>' if in_tag => {
                 in_tag = false;
-                let tag = tag_buf.to_lowercase();
-                if tag == "br/" || tag == "br" || tag == "br /" {
+                if tag_buf.eq_ignore_ascii_case("br")
+                    || tag_buf.eq_ignore_ascii_case("br/")
+                    || tag_buf.eq_ignore_ascii_case("br /")
+                {
                     result.push('\n');
                 }
-                // Other tags (b, i, code, etc.) are simply stripped
             }
             _ if in_tag => tag_buf.push(ch),
             _ => result.push(ch),
-        }
-    }
-    result
-}
-
-/// Strip markdown bold/italic markers (`**`, `*`) from text.
-fn strip_markdown_markers(text: &str) -> String {
-    let mut result = String::with_capacity(text.len());
-    let chars: Vec<char> = text.chars().collect();
-    let mut i = 0;
-    while i < chars.len() {
-        if i + 1 < chars.len() && chars[i] == '*' && chars[i + 1] == '*' {
-            i += 2;
-        } else if chars[i] == '*' {
-            i += 1;
-        } else {
-            result.push(chars[i]);
-            i += 1;
         }
     }
     result

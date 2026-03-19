@@ -161,8 +161,8 @@ fn interpolate_cardinal(points: &[Point]) -> Vec<PathSegment> {
     let (mut x1, mut y1) = (points[0].x, points[0].y);
     let (mut x2, mut y2) = (points[1].x, points[1].y);
 
-    for i in 2..n {
-        let (x, y) = (points[i].x, points[i].y);
+    for p in &points[2..n] {
+        let (x, y) = (p.x, p.y);
         segs.push(PathSegment::CubicTo {
             cp1: Point::new(x1 + k * (x2 - x0), y1 + k * (y2 - y0)),
             cp2: Point::new(x2 + k * (x1 - x), y2 + k * (y1 - y)),

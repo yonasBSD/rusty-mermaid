@@ -191,12 +191,11 @@ fn add_subgraph_constraints(
                 pc
             };
 
-            if let Some(pc) = prev_child {
-                if pc != child {
+            if let Some(pc) = prev_child
+                && pc != child {
                     cg.add_edge(pc, child);
                     break; // stop after first constraint per node (matches JS `return`)
                 }
-            }
 
             match parent {
                 Some(p) => child = p,

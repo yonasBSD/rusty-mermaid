@@ -47,8 +47,7 @@ pub fn layout(diagram: &FlowDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let (mut g, id_map) = build_flow_graph(diagram, measurer);
 
-    let mut config = DagreConfig::default();
-    config.rankdir = diagram.direction;
+    let config = DagreConfig { rankdir: diagram.direction, ..Default::default() };
 
     // Extract subgraphs with per-subgraph direction override.
     // Matching mermaid's dagre backend: subgraphs without external
@@ -115,10 +114,8 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
                 max_x = max_x.max(c.x + c.width / 2.0);
             }
         }
-        if min_x.is_finite() && max_x.is_finite() {
-            if let Some(n) = g.node_mut(nid) {
-                n.x = (min_x + max_x) / 2.0;
-            }
+        if min_x.is_finite() && max_x.is_finite() && let Some(n) = g.node_mut(nid) {
+            n.x = (min_x + max_x) / 2.0;
         }
     }
 
@@ -286,17 +283,17 @@ fn build_flow_graph<'a>(
     for sg in &diagram.subgraphs {
         let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
         for child_id in &sg.node_ids {
-            if let Some(&child_nid) = id_map.get(child_id.as_str()) {
-                if g.parent(child_nid).is_none() {
-                    g.set_parent(child_nid, sg_nid);
-                }
+            if let Some(&child_nid) = id_map.get(child_id.as_str())
+                && g.parent(child_nid).is_none()
+            {
+                g.set_parent(child_nid, sg_nid);
             }
         }
         for child_sg_id in &sg.subgraph_ids {
-            if let Some(&child_nid) = id_map.get(child_sg_id.as_str()) {
-                if g.parent(child_nid).is_none() {
-                    g.set_parent(child_nid, sg_nid);
-                }
+            if let Some(&child_nid) = id_map.get(child_sg_id.as_str())
+                && g.parent(child_nid).is_none()
+            {
+                g.set_parent(child_nid, sg_nid);
             }
         }
     }
@@ -473,33 +470,30 @@ fn extract_directed_subgraphs(
 
         // Recreate compound hierarchy within the inner graph.
         for &nid in &descendants {
-            if let Some(parent) = g.parent(nid) {
-                if parent != sg_nid {
-                    if let (Some(&inner_child), Some(&inner_parent)) =
-                        (inner_map.get(&nid), inner_map.get(&parent))
-                    {
-                        inner_g.set_parent(inner_child, inner_parent);
-                    }
-                }
+            if let Some(parent) = g.parent(nid)
+                && parent != sg_nid
+                && let (Some(&inner_child), Some(&inner_parent)) =
+                    (inner_map.get(&nid), inner_map.get(&parent))
+            {
+                inner_g.set_parent(inner_child, inner_parent);
             }
         }
 
         // Add internal edges.
         for eid in g.edge_ids().collect::<Vec<_>>() {
             let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
-            if descendants.contains(&src) && descendants.contains(&dst) {
-                if let (Some(&inner_src), Some(&inner_dst)) =
+            if descendants.contains(&src)
+                && descendants.contains(&dst)
+                && let (Some(&inner_src), Some(&inner_dst)) =
                     (inner_map.get(&src), inner_map.get(&dst))
-                {
-                    let Some(label) = g.edge(eid).cloned() else { continue };
-                    inner_g.add_edge(inner_src, inner_dst, label);
-                }
+            {
+                let Some(label) = g.edge(eid).cloned() else { continue };
+                inner_g.add_edge(inner_src, inner_dst, label);
             }
         }
 
         // Run dagre with the subgraph's direction.
-        let mut inner_config = DagreConfig::default();
-        inner_config.rankdir = dir;
+        let inner_config = DagreConfig { rankdir: dir, ..Default::default() };
         rusty_mermaid_dagre::pipeline::layout(&mut inner_g, &inner_config);
 
         // Compute bounding box of inner layout.
@@ -666,13 +660,13 @@ fn resolve_edge_styles(diagram: &FlowDiagram) -> BTreeMap<usize, Style> {
         if ls.is_default {
             // Apply to all edges
             for i in 0..edge_count {
-                let style = result.entry(i).or_insert_with(Style::default);
+                let style = result.entry(i).or_default();
                 apply_style_properties(style, &ls.styles);
             }
         } else {
             for &idx in &ls.indices {
                 if idx < edge_count {
-                    let style = result.entry(idx).or_insert_with(Style::default);
+                    let style = result.entry(idx).or_default();
                     apply_style_properties(style, &ls.styles);
                 }
             }

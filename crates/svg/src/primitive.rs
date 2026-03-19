@@ -1,9 +1,9 @@
 use rusty_mermaid_core::{MarkerType, Primitive, TextAnchor, Transform};
 
-use crate::document::{fmt_f64, SvgDocument};
+use crate::document::{fmt_f64, write_f64, SvgDocument};
 use crate::markers::marker_id;
 use crate::path::segments_to_d;
-use crate::style::{style_attrs, text_style_attrs};
+use crate::style::{push_style_attrs, push_text_style_attrs};
 
 /// Render a single Primitive into the SVG document.
 pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
@@ -21,7 +21,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
             if *ry > 0.0 {
                 attrs.push(("ry".into(), fmt_f64(*ry)));
             }
-            attrs.extend(style_attrs(style));
+            push_style_attrs(&mut attrs, style);
             let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
             doc.empty_tag("rect", &refs);
         }
@@ -32,7 +32,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 ("cy".into(), fmt_f64(center.y)),
                 ("r".into(), fmt_f64(*radius)),
             ];
-            attrs.extend(style_attrs(style));
+            push_style_attrs(&mut attrs, style);
             let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
             doc.empty_tag("circle", &refs);
         }
@@ -44,7 +44,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 ("rx".into(), fmt_f64(*rx)),
                 ("ry".into(), fmt_f64(*ry)),
             ];
-            attrs.extend(style_attrs(style));
+            push_style_attrs(&mut attrs, style);
             let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
             doc.empty_tag("ellipse", &refs);
         }
@@ -60,7 +60,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                 attrs.push(("stroke".into(), "#333".into()));
                 attrs.push(("stroke-width".into(), "1.5".into()));
             }
-            attrs.extend(style_attrs(style));
+            push_style_attrs(&mut attrs, style);
             if let Some(m) = marker_start {
                 attrs.push(("marker-start".into(), format!("url(#{})", marker_id(*m))));
             }
@@ -88,7 +88,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                     ("text-anchor".into(), anchor_str.into()),
                     ("dominant-baseline".into(), "central".into()),
                 ];
-                attrs.extend(text_style_attrs(style));
+                push_text_style_attrs(&mut attrs, style);
                 let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
                 if let Some(spans) = parse_inline_markdown(content) {
                     doc.open_tag("text", &refs);
@@ -109,17 +109,18 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                     ("text-anchor".into(), anchor_str.into()),
                     ("dominant-baseline".into(), "central".into()),
                 ];
-                attrs.extend(text_style_attrs(style));
+                push_text_style_attrs(&mut attrs, style);
                 let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
                 doc.open_tag("text", &refs);
 
                 let x_str = fmt_f64(position.x);
+                let dy_str = fmt_f64(line_height);
                 for (i, line) in lines.iter().enumerate() {
-                    let dy = if i == 0 { "0".to_string() } else { fmt_f64(line_height) };
+                    let dy: &str = if i == 0 { "0" } else { &dy_str };
                     if let Some(spans) = parse_inline_markdown(line) {
                         let tspan_attrs: Vec<(&str, &str)> = vec![
                             ("x", &x_str),
-                            ("dy", &dy),
+                            ("dy", dy),
                         ];
                         doc.open_tag("tspan", &tspan_attrs);
                         render_md_spans(doc, &spans);
@@ -127,7 +128,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
                     } else {
                         let tspan_attrs: Vec<(&str, &str)> = vec![
                             ("x", &x_str),
-                            ("dy", &dy),
+                            ("dy", dy),
                         ];
                         doc.text_element("tspan", &tspan_attrs, &xml_escape(line));
                     }
@@ -138,12 +139,15 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
         }
 
         Primitive::Polygon { points, style } => {
-            let pts: Vec<String> = points
-                .iter()
-                .map(|p| format!("{},{}", fmt_f64(p.x), fmt_f64(p.y)))
-                .collect();
-            let mut attrs: Vec<(String, String)> = vec![("points".into(), pts.join(" "))];
-            attrs.extend(style_attrs(style));
+            let mut pts = String::with_capacity(points.len() * 16);
+            for (i, p) in points.iter().enumerate() {
+                if i > 0 { pts.push(' '); }
+                write_f64(&mut pts, p.x);
+                pts.push(',');
+                write_f64(&mut pts, p.y);
+            }
+            let mut attrs: Vec<(String, String)> = vec![("points".into(), pts)];
+            push_style_attrs(&mut attrs, style);
             let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
             doc.empty_tag("polygon", &refs);
         }
@@ -174,16 +178,14 @@ pub fn collect_markers(primitives: &[Primitive]) -> Vec<MarkerType> {
     for prim in primitives {
         match prim {
             Primitive::Path { marker_start, marker_end, .. } => {
-                if let Some(m) = marker_start {
-                    if !markers.contains(m) {
+                if let Some(m) = marker_start
+                    && !markers.contains(m) {
                         markers.push(*m);
                     }
-                }
-                if let Some(m) = marker_end {
-                    if !markers.contains(m) {
+                if let Some(m) = marker_end
+                    && !markers.contains(m) {
                         markers.push(*m);
                     }
-                }
             }
             Primitive::Group { children, .. } => {
                 for m in collect_markers(children) {
@@ -234,7 +236,7 @@ fn render_arc(
     );
 
     let mut attrs: Vec<(String, String)> = vec![("d".into(), d)];
-    attrs.extend(style_attrs(style));
+    push_style_attrs(&mut attrs, style);
     if style.fill.is_none() {
         attrs.push(("fill".into(), "none".into()));
     }
@@ -256,8 +258,8 @@ fn normalize_line_breaks(s: &str) -> std::borrow::Cow<'_, str> {
     let bytes = s.as_bytes();
     while i < bytes.len() {
         if i + 3 < bytes.len() && bytes[i] == b'<'
-            && bytes[i + 1].to_ascii_lowercase() == b'b'
-            && bytes[i + 2].to_ascii_lowercase() == b'r'
+            && bytes[i + 1].eq_ignore_ascii_case(&b'b')
+            && bytes[i + 2].eq_ignore_ascii_case(&b'r')
         {
             let mut j = i + 3;
             while j < bytes.len() && bytes[j] == b' ' { j += 1; }
@@ -275,10 +277,17 @@ fn normalize_line_breaks(s: &str) -> std::borrow::Cow<'_, str> {
 }
 
 fn xml_escape(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
+    let mut result = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '&' => result.push_str("&amp;"),
+            '<' => result.push_str("&lt;"),
+            '>' => result.push_str("&gt;"),
+            '"' => result.push_str("&quot;"),
+            _ => result.push(c),
+        }
+    }
+    result
 }
 
 /// Inline markdown span with bold/italic styling.
@@ -300,27 +309,24 @@ fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
     let mut bold = false;
     let mut italic = false;
     let mut buf = String::new();
-    let chars: Vec<char> = text.chars().collect();
-    let mut i = 0;
+    let mut chars = text.chars().peekable();
 
-    while i < chars.len() {
-        if i + 1 < chars.len() && chars[i] == '*' && chars[i + 1] == '*' {
+    while let Some(c) = chars.next() {
+        if c == '*' && chars.peek() == Some(&'*') {
             // Toggle bold
+            chars.next();
             if !buf.is_empty() {
                 spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
             }
             bold = !bold;
-            i += 2;
-        } else if chars[i] == '*' {
+        } else if c == '*' {
             // Toggle italic
             if !buf.is_empty() {
                 spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
             }
             italic = !italic;
-            i += 1;
         } else {
-            buf.push(chars[i]);
-            i += 1;
+            buf.push(c);
         }
     }
     if !buf.is_empty() {

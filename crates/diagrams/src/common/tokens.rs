@@ -85,19 +85,19 @@ pub fn unescape_unicode(s: &str) -> String {
             let mut peek = chars.clone();
             if peek.next() == Some('u') {
                 let hex: String = peek.clone().take(4).collect();
-                if hex.len() == 4 && hex.chars().all(|h| h.is_ascii_hexdigit()) {
-                    if let Some(decoded) = u32::from_str_radix(&hex, 16)
+                if hex.len() == 4
+                    && hex.chars().all(|h| h.is_ascii_hexdigit())
+                    && let Some(decoded) = u32::from_str_radix(&hex, 16)
                         .ok()
                         .and_then(char::from_u32)
-                    {
-                        result.push(decoded);
-                        // Advance past 'u' + 4 hex digits
-                        chars.next(); // 'u'
-                        for _ in 0..4 {
-                            chars.next();
-                        }
-                        continue;
+                {
+                    result.push(decoded);
+                    // Advance past 'u' + 4 hex digits
+                    chars.next(); // 'u'
+                    for _ in 0..4 {
+                        chars.next();
                     }
+                    continue;
                 }
             }
             result.push(c);

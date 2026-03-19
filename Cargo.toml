@@ -20,3 +20,21 @@ rusty-mermaid-dagre = { path = "crates/dagre" }
 rusty-mermaid-diagrams = { path = "crates/diagrams" }
 rusty-mermaid-svg = { path = "crates/svg" }
 thiserror = "2"
+
+# Fast debug builds - optimize for compile speed
+[profile.dev]
+opt-level = 0                # No optimization (fastest compile)
+debug = "line-tables-only"   # Minimal debug info (line numbers in backtraces)
+incremental = true           # Incremental compilation
+
+# Optimize dependencies even in debug (faster test execution)
+[profile.dev.package."*"]
+opt-level = 1                # Light optimization for deps only
+
+# Maximum optimization release builds
+[profile.release]
+opt-level = 3                # Maximum optimization
+lto = "fat"                  # Full LTO for best runtime performance
+codegen-units = 1            # Single codegen unit for best optimization
+panic = "abort"              # No unwinding overhead
+strip = true                 # Remove debug symbols

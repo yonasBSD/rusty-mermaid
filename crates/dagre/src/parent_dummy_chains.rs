@@ -76,12 +76,11 @@ pub(crate) fn parent_dummy_chains(
 
             // Parent the dummy: Some(id) → parent to that compound,
             // None → leave unparented (at graph root level)
-            if path_idx < path.len() {
-                if let Some(parent_id) = path[path_idx] {
+            if path_idx < path.len()
+                && let Some(parent_id) = path[path_idx] {
                     g.set_parent(v, parent_id);
                 }
                 // None means graph root — dummy stays unparented
-            }
 
             // Move to next dummy in chain
             let next: Vec<_> = g.successors(v).collect();

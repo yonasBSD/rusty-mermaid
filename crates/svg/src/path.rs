@@ -1,6 +1,8 @@
+use std::fmt::Write;
+
 use rusty_mermaid_core::PathSegment;
 
-use crate::document::fmt_f64;
+use crate::document::write_f64;
 
 /// Convert a slice of PathSegments to an SVG `d` attribute string.
 pub fn segments_to_d(segments: &[PathSegment]) -> String {
@@ -11,36 +13,54 @@ pub fn segments_to_d(segments: &[PathSegment]) -> String {
         }
         match seg {
             PathSegment::MoveTo(p) => {
-                d.push_str(&format!("M{} {}", fmt_f64(p.x), fmt_f64(p.y)));
+                d.push('M');
+                write_f64(&mut d, p.x);
+                d.push(' ');
+                write_f64(&mut d, p.y);
             }
             PathSegment::LineTo(p) => {
-                d.push_str(&format!("L{} {}", fmt_f64(p.x), fmt_f64(p.y)));
+                d.push('L');
+                write_f64(&mut d, p.x);
+                d.push(' ');
+                write_f64(&mut d, p.y);
             }
             PathSegment::CubicTo { cp1, cp2, to } => {
-                d.push_str(&format!(
-                    "C{} {} {} {} {} {}",
-                    fmt_f64(cp1.x), fmt_f64(cp1.y),
-                    fmt_f64(cp2.x), fmt_f64(cp2.y),
-                    fmt_f64(to.x), fmt_f64(to.y),
-                ));
+                d.push('C');
+                write_f64(&mut d, cp1.x);
+                d.push(' ');
+                write_f64(&mut d, cp1.y);
+                d.push(' ');
+                write_f64(&mut d, cp2.x);
+                d.push(' ');
+                write_f64(&mut d, cp2.y);
+                d.push(' ');
+                write_f64(&mut d, to.x);
+                d.push(' ');
+                write_f64(&mut d, to.y);
             }
             PathSegment::QuadTo { cp, to } => {
-                d.push_str(&format!(
-                    "Q{} {} {} {}",
-                    fmt_f64(cp.x), fmt_f64(cp.y),
-                    fmt_f64(to.x), fmt_f64(to.y),
-                ));
+                d.push('Q');
+                write_f64(&mut d, cp.x);
+                d.push(' ');
+                write_f64(&mut d, cp.y);
+                d.push(' ');
+                write_f64(&mut d, to.x);
+                d.push(' ');
+                write_f64(&mut d, to.y);
             }
             PathSegment::ArcTo {
                 rx, ry, rotation, large_arc, sweep, to,
             } => {
-                d.push_str(&format!(
-                    "A{} {} {} {} {} {} {}",
-                    fmt_f64(*rx), fmt_f64(*ry), fmt_f64(*rotation),
-                    if *large_arc { 1 } else { 0 },
-                    if *sweep { 1 } else { 0 },
-                    fmt_f64(to.x), fmt_f64(to.y),
-                ));
+                d.push('A');
+                write_f64(&mut d, *rx);
+                d.push(' ');
+                write_f64(&mut d, *ry);
+                d.push(' ');
+                write_f64(&mut d, *rotation);
+                let _ = write!(d, " {} {} ", if *large_arc { 1 } else { 0 }, if *sweep { 1 } else { 0 });
+                write_f64(&mut d, to.x);
+                d.push(' ');
+                write_f64(&mut d, to.y);
             }
             PathSegment::Close => {
                 d.push('Z');

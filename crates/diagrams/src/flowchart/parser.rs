@@ -53,17 +53,15 @@ fn parse_statements(
         }
 
         // Check for `end` keyword (closes subgraph)
-        if let Some(_sg_id) = subgraph_id {
-            if input.starts_with("end") {
-                let after = &input[3..];
-                // `end` must be followed by whitespace, newline, EOF, or comment
-                if after.is_empty()
-                    || after.starts_with(|c: char| c.is_ascii_whitespace())
-                    || after.starts_with("%%")
-                {
-                    *input = after;
-                    return Ok(());
-                }
+        if subgraph_id.is_some() && input.starts_with("end") {
+            let after = &input[3..];
+            // `end` must be followed by whitespace, newline, EOF, or comment
+            if after.is_empty()
+                || after.starts_with(|c: char| c.is_ascii_whitespace())
+                || after.starts_with("%%")
+            {
+                *input = after;
+                return Ok(());
             }
         }
 
@@ -99,10 +97,10 @@ fn parse_statements(
             *input = &input[9..];
             ws.parse_next(input)?;
             let dir = direction(input)?;
-            if let Some(sg_id) = subgraph_id {
-                if let Some(sg) = diagram.subgraphs.iter_mut().find(|s| s.id == sg_id) {
-                    sg.direction = Some(dir);
-                }
+            if let Some(sg_id) = subgraph_id
+                && let Some(sg) = diagram.subgraphs.iter_mut().find(|s| s.id == sg_id)
+            {
+                sg.direction = Some(dir);
             }
         } else {
             // Must be a node/edge statement
@@ -134,10 +132,10 @@ fn parse_subgraph(
     diagram.subgraphs.push(sg);
 
     // Register this subgraph as a child of parent
-    if let Some(parent) = parent_sg {
-        if let Some(p) = diagram.subgraphs.iter_mut().find(|s| s.id == parent) {
-            p.subgraph_ids.push(sg_id.clone());
-        }
+    if let Some(parent) = parent_sg
+        && let Some(p) = diagram.subgraphs.iter_mut().find(|s| s.id == parent)
+    {
+        p.subgraph_ids.push(sg_id.clone());
     }
 
     // Parse inner statements
@@ -147,7 +145,7 @@ fn parse_subgraph(
 }
 
 /// Parse subgraph header: `id[Label]`, `id["Label"]`, or just `Title Text`.
-fn parse_subgraph_header<'i>(input: &mut &'i str) -> ModalResult<(String, Option<String>)> {
+fn parse_subgraph_header(input: &mut &str) -> ModalResult<(String, Option<String>)> {
     // Try: identifier followed by [label]
     let checkpoint = *input;
     if let Ok(id) = node_id.parse_next(input) {
@@ -267,12 +265,11 @@ fn parse_node_ref(
     }
 
     // Register in subgraph
-    if let Some(sg_id) = subgraph_id {
-        if let Some(sg) = diagram.subgraphs.iter_mut().find(|s| s.id == sg_id) {
-            if !sg.node_ids.contains(&id_str) {
-                sg.node_ids.push(id_str.clone());
-            }
-        }
+    if let Some(sg_id) = subgraph_id
+        && let Some(sg) = diagram.subgraphs.iter_mut().find(|s| s.id == sg_id)
+        && !sg.node_ids.contains(&id_str)
+    {
+        sg.node_ids.push(id_str.clone());
     }
 
     Ok(id_str)

@@ -404,28 +404,29 @@ fn clip_path_exiting(
                 cursor = *p;
             }
             PathSegment::LineTo(p) => {
-                if inside(&cursor) && !inside(p) {
-                    if let Some(hit) = line_rect_intersect(&cursor, p, left, right, top, bottom) {
-                        let mut result = vec![PathSegment::MoveTo(hit), PathSegment::LineTo(*p)];
-                        result.extend_from_slice(&segments[i + 1..]);
-                        return result;
-                    }
+                if inside(&cursor)
+                    && !inside(p)
+                    && let Some(hit) = line_rect_intersect(&cursor, p, left, right, top, bottom)
+                {
+                    let mut result = vec![PathSegment::MoveTo(hit), PathSegment::LineTo(*p)];
+                    result.extend_from_slice(&segments[i + 1..]);
+                    return result;
                 }
                 cursor = *p;
             }
             PathSegment::CubicTo { cp1, cp2, to } => {
-                if inside(&cursor) && !inside(to) {
-                    if let Some(t) =
+                if inside(&cursor)
+                    && !inside(to)
+                    && let Some(t) =
                         find_cubic_rect_crossing(&cursor, cp1, cp2, to, left, right, top, bottom)
-                    {
-                        let (_, _, f, e, c) = de_casteljau_split(&cursor, cp1, cp2, to, t);
-                        let mut result = vec![
-                            PathSegment::MoveTo(f),
-                            PathSegment::CubicTo { cp1: e, cp2: c, to: *to },
-                        ];
-                        result.extend_from_slice(&segments[i + 1..]);
-                        return result;
-                    }
+                {
+                    let (_, _, f, e, c) = de_casteljau_split(&cursor, cp1, cp2, to, t);
+                    let mut result = vec![
+                        PathSegment::MoveTo(f),
+                        PathSegment::CubicTo { cp1: e, cp2: c, to: *to },
+                    ];
+                    result.extend_from_slice(&segments[i + 1..]);
+                    return result;
                 }
                 cursor = *to;
             }
@@ -467,6 +468,7 @@ fn de_casteljau_split(
 
 /// Find parameter t where a cubic Bezier crosses a rectangle boundary.
 /// Sampling + binary search for robust intersection.
+#[allow(clippy::too_many_arguments)]
 fn find_cubic_rect_crossing(
     p0: &Point,
     p1: &Point,
@@ -584,10 +586,10 @@ fn line_rect_intersect(
 
     let mut best: Option<(f64, Point)> = None;
     for (c, d) in &edges {
-        if let Some((t, pt)) = segment_intersect(a, b, c, d) {
-            if best.map_or(true, |(best_t, _)| t < best_t) {
-                best = Some((t, pt));
-            }
+        if let Some((t, pt)) = segment_intersect(a, b, c, d)
+            && best.is_none_or(|(best_t, _)| t < best_t)
+        {
+            best = Some((t, pt));
         }
     }
     best.map(|(_, pt)| pt)

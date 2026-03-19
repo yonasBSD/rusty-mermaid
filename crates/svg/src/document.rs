@@ -79,12 +79,29 @@ impl SvgDocument {
 
 /// Format f64 without trailing zeros: `10.0` → `"10"`, `10.5` → `"10.5"`.
 pub fn fmt_f64(v: f64) -> String {
+    let mut s = String::with_capacity(12);
+    write_f64(&mut s, v);
+    s
+}
+
+/// Write a formatted f64 directly into a buffer (no intermediate allocation).
+pub fn write_f64(buf: &mut String, v: f64) {
     if v.fract() == 0.0 {
-        format!("{}", v as i64)
+        let _ = write!(buf, "{}", v as i64);
     } else {
-        // Up to 2 decimal places, strip trailing zeros
-        let s = format!("{:.2}", v);
-        s.trim_end_matches('0').trim_end_matches('.').to_string()
+        let start = buf.len();
+        let _ = write!(buf, "{:.2}", v);
+        // Trim trailing zeros in-place
+        while buf.ends_with('0') {
+            buf.pop();
+        }
+        if buf.ends_with('.') {
+            buf.pop();
+        }
+        // Safety: if everything was trimmed (shouldn't happen), restore
+        if buf.len() == start {
+            let _ = write!(buf, "{}", v as i64);
+        }
     }
 }
 

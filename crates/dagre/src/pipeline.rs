@@ -156,11 +156,10 @@ fn remove_edge_label_proxies(g: &mut Graph<NodeLabel, EdgeLabel>) {
         .collect();
 
     for (nid, rank, proxy_edge) in proxies {
-        if let Some(eid) = proxy_edge {
-            if let Some(edge) = g.edge_mut(eid) {
+        if let Some(eid) = proxy_edge
+            && let Some(edge) = g.edge_mut(eid) {
                 edge.label_rank = Some(rank);
             }
-        }
         g.remove_node(nid);
     }
 }
@@ -336,11 +335,10 @@ fn assign_node_intersects(g: &mut Graph<NodeLabel, EdgeLabel>) {
 /// Reverse edge points for edges that were reversed during cycle removal.
 fn reverse_points_for_reversed_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
     for eid in g.edge_ids().collect::<Vec<_>>() {
-        if g.edge(eid).is_some_and(|e| e.reversed) {
-            if let Some(e) = g.edge_mut(eid) {
+        if g.edge(eid).is_some_and(|e| e.reversed)
+            && let Some(e) = g.edge_mut(eid) {
                 e.points.reverse();
             }
-        }
     }
 }
 

@@ -81,8 +81,10 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     );
 
     // Configure and run layout
-    let mut config = DagreConfig::default();
-    config.rankdir = diagram.direction;
+    let config = DagreConfig {
+        rankdir: diagram.direction,
+        ..Default::default()
+    };
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
     // Post-layout adjustments (safe — doesn't affect dagre invariants)
@@ -383,10 +385,10 @@ fn fix_region_order_for_state(
     let mut region_xs: Vec<(usize, f64)> = Vec::new();
     for (i, _) in regions.iter().enumerate() {
         let rk = format!("{}._region_{}", state.id, i);
-        if let Some(&rnid) = id_map.get(&rk) {
-            if let Some(rn) = g.node(rnid) {
-                region_xs.push((i, rn.x));
-            }
+        if let Some(&rnid) = id_map.get(&rk)
+            && let Some(rn) = g.node(rnid)
+        {
+            region_xs.push((i, rn.x));
         }
     }
     if region_xs.len() < 2 {
@@ -419,11 +421,12 @@ fn fix_region_order_for_state(
     let desc_set: HashSet<NodeId> = descendants.iter().copied().collect();
     for eid in g.edge_ids().collect::<Vec<_>>() {
         let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
-        if desc_set.contains(&src) && desc_set.contains(&dst) {
-            if let Some(e) = g.edge_mut(eid) {
-                for pt in &mut e.points {
-                    pt.x = 2.0 * cx - pt.x;
-                }
+        if desc_set.contains(&src)
+            && desc_set.contains(&dst)
+            && let Some(e) = g.edge_mut(eid)
+        {
+            for pt in &mut e.points {
+                pt.x = 2.0 * cx - pt.x;
             }
         }
     }
@@ -511,10 +514,10 @@ fn center_content_for_state(
         }
 
         // Shift the partition root (region compound for concurrent, skip for non-concurrent)
-        if *root_nid != compound_nid {
-            if let Some(rn) = g.node_mut(*root_nid) {
-                rn.x += dx;
-            }
+        if *root_nid != compound_nid
+            && let Some(rn) = g.node_mut(*root_nid)
+        {
+            rn.x += dx;
         }
         // Shift all descendants
         for &nid in descendants {
@@ -528,11 +531,12 @@ fn center_content_for_state(
             .collect();
         for eid in g.edge_ids().collect::<Vec<_>>() {
             let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
-            if desc_set.contains(&src) && desc_set.contains(&dst) {
-                if let Some(e) = g.edge_mut(eid) {
-                    for pt in &mut e.points {
-                        pt.x += dx;
-                    }
+            if desc_set.contains(&src)
+                && desc_set.contains(&dst)
+                && let Some(e) = g.edge_mut(eid)
+            {
+                for pt in &mut e.points {
+                    pt.x += dx;
                 }
             }
         }
@@ -776,10 +780,10 @@ fn is_compound_state(states: &[super::ir::StateNode], id: &str) -> bool {
         if s.id == id {
             return s.is_composite();
         }
-        if let StateKind::Composite { children, .. } = &s.kind {
-            if is_compound_state(children, id) {
-                return true;
-            }
+        if let StateKind::Composite { children, .. } = &s.kind
+            && is_compound_state(children, id)
+        {
+            return true;
         }
     }
     false
@@ -791,10 +795,10 @@ fn find_state_label(states: &[super::ir::StateNode], id: &str) -> Option<String>
         if s.id == id {
             return s.label.clone().or_else(|| Some(s.id.clone()));
         }
-        if let StateKind::Composite { children, .. } = &s.kind {
-            if let Some(label) = find_state_label(children, id) {
-                return Some(label);
-            }
+        if let StateKind::Composite { children, .. } = &s.kind
+            && let Some(label) = find_state_label(children, id)
+        {
+            return Some(label);
         }
     }
     None
@@ -852,10 +856,10 @@ fn find_state_kind<'a>(states: &'a [super::ir::StateNode], id: &str) -> Option<&
         if s.id == id {
             return Some(&s.kind);
         }
-        if let StateKind::Composite { children, .. } = &s.kind {
-            if let Some(kind) = find_state_kind(children, id) {
-                return Some(kind);
-            }
+        if let StateKind::Composite { children, .. } = &s.kind
+            && let Some(kind) = find_state_kind(children, id)
+        {
+            return Some(kind);
         }
     }
     None
@@ -863,6 +867,7 @@ fn find_state_kind<'a>(states: &'a [super::ir::StateNode], id: &str) -> Option<&
 
 /// Process one scope (top-level or inside a composite): create nodes, pseudo-states,
 /// edges, and compound parent relationships.
+#[allow(clippy::too_many_arguments)]
 fn add_scope<'a>(
     states: &'a [super::ir::StateNode],
     transitions: &'a [StateTransition],
@@ -876,25 +881,26 @@ fn add_scope<'a>(
 ) {
     // Create [*] pseudo-states for this scope
     let scope_prefix = parent.map(|(_, id)| format!("{id}.")).unwrap_or_default();
+    // Pre-compute pseudo-state keys (reused in edge redirection below)
+    let start_key = format!("{scope_prefix}[*]_start");
+    let end_key = format!("{scope_prefix}[*]_end");
 
     let has_start = transitions.iter().any(|t| t.src == "[*]");
     let has_end = transitions.iter().any(|t| t.dst == "[*]");
 
     if has_start {
-        let key = format!("{scope_prefix}[*]_start");
         let nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
         if let Some((parent_nid, _)) = parent {
             g.set_parent(nid, parent_nid);
         }
-        id_map.insert(key, nid);
+        id_map.insert(start_key.clone(), nid);
     }
     if has_end {
-        let key = format!("{scope_prefix}[*]_end");
         let nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
         if let Some((parent_nid, _)) = parent {
             g.set_parent(nid, parent_nid);
         }
-        id_map.insert(key, nid);
+        id_map.insert(end_key.clone(), nid);
     }
 
     // Add state nodes
@@ -909,6 +915,10 @@ fn add_scope<'a>(
                 if let Some((parent_nid, _)) = parent {
                     g.set_parent(nid, parent_nid);
                 }
+
+                // Pre-compute pseudo-state keys for this composite (reused below)
+                let inner_start_key = format!("{}.[*]_start", s.id);
+                let inner_end_key = format!("{}.[*]_end", s.id);
 
                 if regions.is_empty() {
                     // Non-concurrent: single scope
@@ -925,10 +935,10 @@ fn add_scope<'a>(
                     );
 
                     for child in children {
-                        if let Some(&child_nid) = id_map.get(child.id.as_str()) {
-                            if g.parent(child_nid).is_none() {
-                                g.set_parent(child_nid, nid);
-                            }
+                        if let Some(&child_nid) = id_map.get(child.id.as_str())
+                            && g.parent(child_nid).is_none()
+                        {
+                            g.set_parent(child_nid, nid);
                         }
                     }
                 } else {
@@ -953,10 +963,10 @@ fn add_scope<'a>(
                         );
 
                         for child in &region.children {
-                            if let Some(&child_nid) = id_map.get(child.id.as_str()) {
-                                if g.parent(child_nid).is_none() {
-                                    g.set_parent(child_nid, region_nid);
-                                }
+                            if let Some(&child_nid) = id_map.get(child.id.as_str())
+                                && g.parent(child_nid).is_none()
+                            {
+                                g.set_parent(child_nid, region_nid);
                             }
                         }
                     }
@@ -971,37 +981,31 @@ fn add_scope<'a>(
                             region_starts.push(sn);
                         }
                     }
-                    if !region_starts.is_empty() {
-                        let entry_key = format!("{}.[*]_start", s.id);
-                        if !id_map.contains_key(&entry_key) {
-                            let entry_nid =
-                                g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-                            g.set_parent(entry_nid, nid);
-                            synthetic_ids.insert(entry_key.clone());
-                            id_map.insert(entry_key, entry_nid);
-                            for &rs in &region_starts {
-                                g.add_edge(entry_nid, rs, EdgeLabel::default());
-                            }
+                    if !region_starts.is_empty() && !id_map.contains_key(&inner_start_key) {
+                        let entry_nid =
+                            g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+                        g.set_parent(entry_nid, nid);
+                        synthetic_ids.insert(inner_start_key.clone());
+                        id_map.insert(inner_start_key.clone(), entry_nid);
+                        for &rs in &region_starts {
+                            g.add_edge(entry_nid, rs, EdgeLabel::default());
                         }
                     }
 
                     // Create compound-level exit connecting from all regions' last children.
                     // This centers the outer [*]_end bullseye below the compound.
                     let is_src = transitions.iter().any(|t| t.src == s.id);
-                    if is_src {
-                        let exit_key = format!("{}.[*]_end", s.id);
-                        if !id_map.contains_key(&exit_key) {
-                            let exit_nid =
-                                g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-                            g.set_parent(exit_nid, nid);
-                            synthetic_ids.insert(exit_key.clone());
-                            id_map.insert(exit_key, exit_nid);
-                            for region in regions.iter() {
-                                if let Some(last) = region.children.last() {
-                                    if let Some(&cn) = id_map.get(last.id.as_str()) {
-                                        g.add_edge(cn, exit_nid, EdgeLabel::default());
-                                    }
-                                }
+                    if is_src && !id_map.contains_key(&inner_end_key) {
+                        let exit_nid =
+                            g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+                        g.set_parent(exit_nid, nid);
+                        synthetic_ids.insert(inner_end_key.clone());
+                        id_map.insert(inner_end_key.clone(), exit_nid);
+                        for region in regions.iter() {
+                            if let Some(last) = region.children.last()
+                                && let Some(&cn) = id_map.get(last.id.as_str())
+                            {
+                                g.add_edge(cn, exit_nid, EdgeLabel::default());
                             }
                         }
                     }
@@ -1010,20 +1014,18 @@ fn add_scope<'a>(
                 // If this composite is an edge source in the outer scope but has
                 // no inner [*]_end, create a synthetic exit node so that dagre
                 // ranks the outgoing target below the compound's children.
-                let inner_end_key = format!("{}.[*]_end", s.id);
-                if !id_map.contains_key(&inner_end_key) {
-                    let is_source = transitions.iter().any(|t| t.src == s.id);
-                    if is_source {
-                        let end_nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-                        g.set_parent(end_nid, nid);
-                        synthetic_ids.insert(inner_end_key.clone());
-                        id_map.insert(inner_end_key, end_nid);
+                if !id_map.contains_key(&inner_end_key)
+                    && transitions.iter().any(|t| t.src == s.id)
+                {
+                    let end_nid = g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+                    g.set_parent(end_nid, nid);
+                    synthetic_ids.insert(inner_end_key.clone());
+                    id_map.insert(inner_end_key, end_nid);
 
-                        if let Some(last) = children.last() {
-                            if let Some(&child_nid) = id_map.get(last.id.as_str()) {
-                                g.add_edge(child_nid, end_nid, EdgeLabel::default());
-                            }
-                        }
+                    if let Some(last) = children.last()
+                        && let Some(&child_nid) = id_map.get(last.id.as_str())
+                    {
+                        g.add_edge(child_nid, end_nid, EdgeLabel::default());
                     }
                 }
 
@@ -1050,12 +1052,12 @@ fn add_scope<'a>(
     // so dagre assigns correct ranks (above/below the compound).
     for t in transitions {
         let mut src_key = if t.src == "[*]" {
-            format!("{scope_prefix}[*]_start")
+            start_key.clone()
         } else {
             t.src.clone()
         };
         let mut dst_key = if t.dst == "[*]" {
-            format!("{scope_prefix}[*]_end")
+            end_key.clone()
         } else {
             t.dst.clone()
         };

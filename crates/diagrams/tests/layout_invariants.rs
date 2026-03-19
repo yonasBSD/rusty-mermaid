@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
 
 use rusty_mermaid_core::Shape;
 use rusty_mermaid_diagrams::{detect, DiagramKind};
@@ -30,7 +31,7 @@ struct StateResult {
     layout: rusty_mermaid_diagrams::state::bridge::LayoutResult,
 }
 
-fn load_flowcharts() -> Vec<FlowResult> {
+static FLOWCHARTS: LazyLock<Vec<FlowResult>> = LazyLock::new(|| {
     let mmd_dir = golden_mmd_dir();
     let mut results = Vec::new();
     for entry in fs::read_dir(&mmd_dir).unwrap() {
@@ -52,9 +53,9 @@ fn load_flowcharts() -> Vec<FlowResult> {
     }
     results.sort_by(|a, b| a.stem.cmp(&b.stem));
     results
-}
+});
 
-fn load_state_diagrams() -> Vec<StateResult> {
+static STATES: LazyLock<Vec<StateResult>> = LazyLock::new(|| {
     let mmd_dir = golden_mmd_dir();
     let mut results = Vec::new();
     for entry in fs::read_dir(&mmd_dir).unwrap() {
@@ -76,7 +77,7 @@ fn load_state_diagrams() -> Vec<StateResult> {
     }
     results.sort_by(|a, b| a.stem.cmp(&b.stem));
     results
-}
+});
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -166,7 +167,7 @@ fn ir_region_count(
 #[test]
 fn flowchart_positive_dimensions() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         if fr.layout.width <= 0.0 || fr.layout.height <= 0.0 {
             failures.push(format!(
                 "{}: layout {}x{}", fr.stem, fr.layout.width, fr.layout.height
@@ -186,7 +187,7 @@ fn flowchart_positive_dimensions() {
 #[test]
 fn state_positive_dimensions() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         if sr.layout.width <= 0.0 || sr.layout.height <= 0.0 {
             failures.push(format!(
                 "{}: layout {}x{}", sr.stem, sr.layout.width, sr.layout.height
@@ -210,7 +211,7 @@ fn state_positive_dimensions() {
 #[test]
 fn flowchart_no_nan_inf() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         if !fr.layout.width.is_finite() || !fr.layout.height.is_finite() {
             failures.push(format!("{}: layout dimensions non-finite", fr.stem));
         }
@@ -237,7 +238,7 @@ fn flowchart_no_nan_inf() {
 #[test]
 fn state_no_nan_inf() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         if !sr.layout.width.is_finite() || !sr.layout.height.is_finite() {
             failures.push(format!("{}: layout dimensions non-finite", sr.stem));
         }
@@ -268,7 +269,7 @@ fn state_no_nan_inf() {
 #[test]
 fn flowchart_nodes_within_bounds() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let (lw, lh) = (fr.layout.width, fr.layout.height);
         for n in &fr.layout.nodes {
             let (left, top, right, bottom) = node_bbox(n);
@@ -286,7 +287,7 @@ fn flowchart_nodes_within_bounds() {
 #[test]
 fn state_nodes_within_bounds() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let (lw, lh) = (sr.layout.width, sr.layout.height);
         for n in &sr.layout.nodes {
             let (left, top, right, bottom) = node_bbox(n);
@@ -309,7 +310,7 @@ fn state_nodes_within_bounds() {
 fn flowchart_edge_points_within_bounds() {
     let tol = 1.0;
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let (lw, lh) = (fr.layout.width, fr.layout.height);
         for e in &fr.layout.edges {
             for pt in &e.points {
@@ -330,7 +331,7 @@ fn flowchart_edge_points_within_bounds() {
 fn state_edge_points_within_bounds() {
     let tol = 1.0;
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let (lw, lh) = (sr.layout.width, sr.layout.height);
         for e in &sr.layout.edges {
             for pt in &e.points {
@@ -354,7 +355,7 @@ fn state_edge_points_within_bounds() {
 #[test]
 fn flowchart_edge_labels_within_bounds() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let (lw, lh) = (fr.layout.width, fr.layout.height);
         for e in &fr.layout.edges {
             let Some((label_w, label_h)) = e.label_size else { continue };
@@ -380,7 +381,7 @@ fn flowchart_edge_labels_within_bounds() {
 #[test]
 fn state_edge_labels_within_bounds() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let (lw, lh) = (sr.layout.width, sr.layout.height);
         for e in &sr.layout.edges {
             let Some((label_w, label_h)) = e.label_size else { continue };
@@ -410,7 +411,7 @@ fn state_edge_labels_within_bounds() {
 #[test]
 fn flowchart_no_leaf_node_overlaps() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let leaves: Vec<_> = fr.layout.nodes.iter().filter(|n| !n.is_compound).collect();
         for i in 0..leaves.len() {
             for j in (i + 1)..leaves.len() {
@@ -430,7 +431,7 @@ fn flowchart_no_leaf_node_overlaps() {
 #[test]
 fn state_no_leaf_node_overlaps() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let leaves: Vec<_> = sr.layout.nodes.iter()
             .filter(|n| !n.is_compound)
             // Pseudo-states ([*]_start/end) are tiny circles that dagre may
@@ -460,7 +461,7 @@ fn state_no_leaf_node_overlaps() {
 fn flowchart_subgraphs_contain_children() {
     let tol = 2.0;
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let compounds: Vec<_> = fr.layout.nodes.iter().filter(|n| n.is_compound).collect();
         if compounds.is_empty() {
             continue;
@@ -499,7 +500,7 @@ fn flowchart_subgraphs_contain_children() {
 fn state_compounds_contain_children() {
     let tol = 2.0;
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let compounds: Vec<_> = sr.layout.nodes.iter().filter(|n| n.is_compound).collect();
         for compound in &compounds {
             let outer = node_bbox(compound);
@@ -533,7 +534,7 @@ fn state_compounds_contain_children() {
 #[test]
 fn flowchart_edges_have_points() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for (i, e) in fr.layout.edges.iter().enumerate() {
             if e.points.len() < 2 {
                 failures.push(format!(
@@ -549,7 +550,7 @@ fn flowchart_edges_have_points() {
 #[test]
 fn state_edges_have_points() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for (i, e) in sr.layout.edges.iter().enumerate() {
             if e.points.len() < 2 {
                 failures.push(format!(
@@ -570,7 +571,7 @@ fn state_edges_have_points() {
 fn flowchart_edge_endpoints_near_nodes() {
     let tol = 25.0;
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let nodes = &fr.layout.nodes;
         for e in &fr.layout.edges {
             if e.points.len() < 2 {
@@ -615,7 +616,7 @@ fn flowchart_edge_endpoints_near_nodes() {
 fn state_edge_endpoints_near_nodes() {
     let tol = 25.0;
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let nodes = &sr.layout.nodes;
         for e in &sr.layout.edges {
             if e.points.len() < 2 {
@@ -663,7 +664,7 @@ fn state_edge_endpoints_near_nodes() {
 #[test]
 fn flowchart_edge_connectivity() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let mut known_ids: HashSet<&str> = fr.layout.nodes.iter().map(|n| n.id.as_str()).collect();
         // Subgraphs are valid edge endpoints (compound nodes)
         for sg in &fr.layout.subgraphs {
@@ -688,7 +689,7 @@ fn flowchart_edge_connectivity() {
 #[test]
 fn state_edge_connectivity() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let node_ids: HashSet<&str> = sr.layout.nodes.iter().map(|n| n.id.as_str()).collect();
         for e in &sr.layout.edges {
             // Scoped pseudo-states (e.g. "Active.[*]_start") inside composites
@@ -718,7 +719,7 @@ fn state_edge_connectivity() {
 #[test]
 fn flowchart_unique_node_ids() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let mut seen = HashSet::new();
         for n in &fr.layout.nodes {
             if !seen.insert(&n.id) {
@@ -732,7 +733,7 @@ fn flowchart_unique_node_ids() {
 #[test]
 fn state_unique_node_ids() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let mut seen = HashSet::new();
         for n in &sr.layout.nodes {
             // Note nodes can have duplicates when a state has notes on both
@@ -753,7 +754,7 @@ fn state_unique_node_ids() {
 #[test]
 fn flowchart_label_dimensions_valid() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for e in &fr.layout.edges {
             if e.label.is_some() {
                 match e.label_size {
@@ -783,7 +784,7 @@ fn flowchart_label_dimensions_valid() {
 #[test]
 fn state_label_dimensions_valid() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for e in &sr.layout.edges {
             if e.label.is_some() {
                 match e.label_size {
@@ -817,7 +818,7 @@ fn state_label_dimensions_valid() {
 #[test]
 fn flowchart_circle_shapes_roughly_square() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for n in &fr.layout.nodes {
             match n.shape {
                 Shape::Circle | Shape::DoubleCircle => {
@@ -850,7 +851,7 @@ fn flowchart_circle_shapes_roughly_square() {
 #[test]
 fn state_special_shape_sizes() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for n in &sr.layout.nodes {
             match n.shape {
                 Shape::StateStart | Shape::StateEnd => {
@@ -896,7 +897,7 @@ fn state_special_shape_sizes() {
 #[test]
 fn flowchart_self_loop_routing() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for e in &fr.layout.edges {
             if e.src != e.dst { continue; }
             if e.points.len() < 3 { continue; }
@@ -924,7 +925,7 @@ fn flowchart_self_loop_routing() {
 #[test]
 fn state_self_loop_routing() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for e in &sr.layout.edges {
             if e.src != e.dst { continue; }
             if e.points.len() < 3 { continue; }
@@ -956,7 +957,7 @@ fn flowchart_direction_rank_progression() {
     use rusty_mermaid_core::Direction;
     let mut violations: std::collections::BTreeMap<String, (usize, usize)> =
         std::collections::BTreeMap::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let dir = fr.diagram.direction;
         let total = fr.layout.edges.len();
         let mut count = 0usize;
@@ -995,7 +996,7 @@ fn flowchart_direction_rank_progression() {
 #[test]
 fn flowchart_style_propagation() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         // Check nodes that should have styles via classDef + class assignments
         if fr.diagram.class_defs.is_empty() && fr.diagram.style_stmts.is_empty() {
             continue;
@@ -1039,7 +1040,7 @@ fn flowchart_style_propagation() {
 #[test]
 fn state_style_propagation() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         if sr.diagram.class_defs.is_empty() && sr.diagram.style_stmts.is_empty() {
             continue;
         }
@@ -1098,7 +1099,7 @@ fn state_style_propagation() {
 #[test]
 fn state_concurrent_dividers_valid() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         // Check compound nodes with region_count >= 2
         for node in &sr.layout.nodes {
             if node.region_count < 2 { continue; }
@@ -1163,7 +1164,7 @@ fn state_concurrent_dividers_valid() {
 #[test]
 fn state_notes_in_layout() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let note_state_ids = collect_note_state_ids(&sr.diagram);
         if note_state_ids.is_empty() { continue; }
 
@@ -1204,7 +1205,7 @@ fn state_notes_in_layout() {
 #[test]
 fn state_region_count_matches_ir() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for node in &sr.layout.nodes {
             if !node.is_compound { continue; }
             let ir_regions = ir_region_count(&sr.diagram.states, &node.id);
@@ -1226,7 +1227,7 @@ fn state_region_count_matches_ir() {
 #[test]
 fn state_pseudo_state_shapes() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for n in &sr.layout.nodes {
             if n.id.ends_with("_start") || n.id.contains("[*]_start") {
                 if n.shape != Shape::StateStart {
@@ -1256,7 +1257,7 @@ fn state_pseudo_state_shapes() {
 #[test]
 fn flowchart_edge_attributes_from_ir() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         // Edge order may differ between IR and layout (dagre iteration order).
         // Group by (src, dst) and compare as sorted sets per pair.
         let mut ir_by_pair: std::collections::BTreeMap<(&str, &str), Vec<_>> =
@@ -1320,7 +1321,7 @@ fn flowchart_edge_attributes_from_ir() {
 #[test]
 fn flowchart_multi_edge_spacing() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         // Group edges by (src, dst) pair
         let mut edge_groups: std::collections::BTreeMap<(&str, &str), Vec<usize>> =
             std::collections::BTreeMap::new();
@@ -1368,7 +1369,7 @@ fn flowchart_multi_edge_spacing() {
 fn flowchart_minlen_respected() {
     use rusty_mermaid_core::Direction;
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         let dir = fr.diagram.direction;
         for ir_edge in &fr.diagram.edges {
             if ir_edge.minlen <= 1 { continue; }
@@ -1430,7 +1431,7 @@ fn flowchart_minlen_respected() {
 #[test]
 fn flowchart_node_shapes_from_ir() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for v in &fr.diagram.vertices {
             if let Some(node) = fr.layout.nodes.iter().find(|n| n.id == v.id) {
                 if node.shape != v.shape {
@@ -1452,7 +1453,7 @@ fn flowchart_node_shapes_from_ir() {
 #[test]
 fn flowchart_linkstyle_propagation() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         if fr.diagram.link_styles.is_empty() { continue; }
 
         for ls in &fr.diagram.link_styles {
@@ -1480,7 +1481,7 @@ fn flowchart_linkstyle_propagation() {
 #[test]
 fn state_notes_dont_overlap_state() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         let note_state_ids = collect_note_state_ids(&sr.diagram);
         for state_id in &note_state_ids {
             let note_node_id = format!("{}-note", state_id);
@@ -1509,7 +1510,7 @@ fn state_notes_dont_overlap_state() {
 #[test]
 fn flowchart_subgraph_positive_dimensions() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for sg in &fr.layout.subgraphs {
             if sg.width <= 0.0 || sg.height <= 0.0 {
                 failures.push(format!(
@@ -1528,7 +1529,7 @@ fn flowchart_subgraph_positive_dimensions() {
 #[test]
 fn state_dividers_within_compound_bounds() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for node in &sr.layout.nodes {
             if node.region_count < 2 { continue; }
             let bbox = node_bbox(node);
@@ -1559,7 +1560,7 @@ fn state_dividers_within_compound_bounds() {
 #[test]
 fn flowchart_style_field_validity() {
     let mut failures = Vec::new();
-    for fr in load_flowcharts() {
+    for fr in FLOWCHARTS.iter() {
         for n in &fr.layout.nodes {
             let Some(style) = &n.custom_style else { continue };
             if let Some(opacity) = style.opacity {
@@ -1595,7 +1596,7 @@ fn flowchart_style_field_validity() {
 #[test]
 fn state_style_field_validity() {
     let mut failures = Vec::new();
-    for sr in load_state_diagrams() {
+    for sr in STATES.iter() {
         for n in &sr.layout.nodes {
             let Some(style) = &n.custom_style else { continue };
             if let Some(opacity) = style.opacity {
