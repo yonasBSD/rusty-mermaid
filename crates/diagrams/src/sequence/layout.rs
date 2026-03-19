@@ -27,7 +27,7 @@ const STICK_BODY_H: f64 = 16.0;
 const STICK_LEG_H: f64 = 12.0;
 const STICK_ARM_SPAN: f64 = 24.0;
 const STICK_FIGURE_H: f64 = STICK_HEAD_R * 2.0 + STICK_BODY_H + STICK_LEG_H;
-const STICK_TEXT_GAP: f64 = 6.0;
+const STICK_TEXT_GAP: f64 = 10.0;
 
 /// Positioned actor box.
 #[derive(Debug, Clone)]
