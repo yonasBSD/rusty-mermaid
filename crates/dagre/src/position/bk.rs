@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -7,7 +7,7 @@ use crate::labels::{DummyKind, EdgeLabel, LabelPos, NodeLabel};
 use crate::util;
 
 type NeighborFn = dyn Fn(&Graph<NodeLabel, EdgeLabel>, NodeId) -> Vec<NodeId>;
-type AdjList = HashMap<NodeId, Vec<(NodeId, f64)>>;
+type AdjList = BTreeMap<NodeId, Vec<(NodeId, f64)>>;
 
 /// Assign x coordinates using Brandes-Köpf algorithm.
 ///
@@ -69,8 +69,8 @@ pub(crate) fn position_x(
         xss[idx] = xs;
     }
 
-    // Convert to HashMaps for alignment/balancing
-    let mut maps: Vec<HashMap<NodeId, f64>> = xss
+    // Convert to BTreeMaps for alignment/balancing
+    let mut maps: Vec<BTreeMap<NodeId, f64>> = xss
         .into_iter()
         .map(|xs| xs.into_iter().collect())
         .collect();
@@ -82,7 +82,7 @@ pub(crate) fn position_x(
 
 // --- Conflict detection ---
 
-type Conflicts = HashSet<(NodeId, NodeId)>;
+type Conflicts = BTreeSet<(NodeId, NodeId)>;
 
 fn add_conflict(conflicts: &mut Conflicts, v: NodeId, w: NodeId) {
     let (a, b) = if v < w { (v, w) } else { (w, v) };
@@ -108,7 +108,7 @@ fn find_type1_conflicts(
         let prev_layer_len = prev_layer.len();
 
         // Build position cache for prev_layer
-        let pos: HashMap<NodeId, usize> = prev_layer
+        let pos: BTreeMap<NodeId, usize> = prev_layer
             .iter()
             .enumerate()
             .map(|(i, &v)| (v, i))
@@ -159,7 +159,7 @@ fn find_type2_conflicts(
         let south = &layering[layer_idx];
 
         // Build position cache for north
-        let north_pos: HashMap<NodeId, usize> = north
+        let north_pos: BTreeMap<NodeId, usize> = north
             .iter()
             .enumerate()
             .map(|(i, &v)| (v, i))
@@ -211,7 +211,7 @@ fn find_type2_conflicts(
 #[allow(clippy::too_many_arguments)]
 fn scan_type2(
     g: &Graph<NodeLabel, EdgeLabel>,
-    north_pos: &HashMap<NodeId, usize>,
+    north_pos: &BTreeMap<NodeId, usize>,
     south: &[NodeId],
     start: usize,
     end: usize,
@@ -267,12 +267,12 @@ fn vertical_alignment(
     layering: &[Vec<NodeId>],
     conflicts: &Conflicts,
     neighbor_fn: &NeighborFn,
-) -> (HashMap<NodeId, NodeId>, HashMap<NodeId, NodeId>) {
-    let mut root: HashMap<NodeId, NodeId> = HashMap::new();
-    let mut align: HashMap<NodeId, NodeId> = HashMap::new();
+) -> (BTreeMap<NodeId, NodeId>, BTreeMap<NodeId, NodeId>) {
+    let mut root: BTreeMap<NodeId, NodeId> = BTreeMap::new();
+    let mut align: BTreeMap<NodeId, NodeId> = BTreeMap::new();
 
     // Position cache based on the adjusted layering
-    let mut pos: HashMap<NodeId, usize> = HashMap::new();
+    let mut pos: BTreeMap<NodeId, usize> = BTreeMap::new();
     for layer in layering {
         for (order, &v) in layer.iter().enumerate() {
             root.insert(v, v);
@@ -372,14 +372,14 @@ fn sep(
 fn build_block_graph(
     g: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
-    root: &HashMap<NodeId, NodeId>,
+    root: &BTreeMap<NodeId, NodeId>,
     reverse_sep: bool,
     config: &DagreConfig,
 ) -> (Vec<NodeId>, AdjList, AdjList) {
     // Block graph as adjacency lists
-    let mut block_nodes: HashSet<NodeId> = HashSet::new();
-    let mut fwd_edges: HashMap<NodeId, Vec<(NodeId, f64)>> = HashMap::new();
-    let mut rev_edges: HashMap<NodeId, Vec<(NodeId, f64)>> = HashMap::new();
+    let mut block_nodes: BTreeSet<NodeId> = BTreeSet::new();
+    let mut fwd_edges: BTreeMap<NodeId, Vec<(NodeId, f64)>> = BTreeMap::new();
+    let mut rev_edges: BTreeMap<NodeId, Vec<(NodeId, f64)>> = BTreeMap::new();
 
     for layer in layering {
         let mut prev: Option<NodeId> = None;
@@ -418,8 +418,8 @@ fn build_block_graph(
 fn horizontal_compaction(
     g: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
-    root: &HashMap<NodeId, NodeId>,
-    _align: &HashMap<NodeId, NodeId>,
+    root: &BTreeMap<NodeId, NodeId>,
+    _align: &BTreeMap<NodeId, NodeId>,
     reverse_sep: bool,
     config: &DagreConfig,
 ) -> Vec<(NodeId, f64)> {
@@ -432,7 +432,7 @@ fn horizontal_compaction(
         crate::labels::BorderType::Right
     };
 
-    let mut xs: HashMap<NodeId, f64> = HashMap::new();
+    let mut xs: BTreeMap<NodeId, f64> = BTreeMap::new();
 
     // Pass 1: assign smallest coordinates (process in topo order via DFS post-order)
     dfs_iterate(&block_nodes, &rev_edges, |elem| {
@@ -483,10 +483,10 @@ fn horizontal_compaction(
 /// Processes each node after all its predecessors (per `pred_edges`).
 fn dfs_iterate(
     nodes: &[NodeId],
-    pred_edges: &HashMap<NodeId, Vec<(NodeId, f64)>>,
+    pred_edges: &BTreeMap<NodeId, Vec<(NodeId, f64)>>,
     mut process: impl FnMut(NodeId),
 ) {
-    let mut visited: HashSet<NodeId> = HashSet::new();
+    let mut visited: BTreeSet<NodeId> = BTreeSet::new();
     let mut stack: Vec<(NodeId, bool)> = Vec::new();
 
     for &n in nodes {
@@ -514,7 +514,7 @@ fn dfs_iterate(
 
 fn find_smallest_width_alignment(
     g: &Graph<NodeLabel, EdgeLabel>,
-    maps: &[HashMap<NodeId, f64>],
+    maps: &[BTreeMap<NodeId, f64>],
 ) -> usize {
     let mut best_idx = 0;
     let mut best_width = f64::INFINITY;
@@ -538,7 +538,7 @@ fn find_smallest_width_alignment(
     best_idx
 }
 
-fn align_coordinates(maps: &mut [HashMap<NodeId, f64>], align_to_idx: usize) {
+fn align_coordinates(maps: &mut [BTreeMap<NodeId, f64>], align_to_idx: usize) {
     let align_to = &maps[align_to_idx];
     let align_min = align_to.values().copied().fold(f64::INFINITY, f64::min);
     let align_max = align_to.values().copied().fold(f64::NEG_INFINITY, f64::max);
@@ -568,7 +568,7 @@ fn align_coordinates(maps: &mut [HashMap<NodeId, f64>], align_to_idx: usize) {
 }
 
 fn balance(
-    maps: &[HashMap<NodeId, f64>],
+    maps: &[BTreeMap<NodeId, f64>],
     config: &DagreConfig,
 ) -> Vec<(NodeId, f64)> {
     if let Some(align) = config.align {
@@ -582,7 +582,7 @@ fn balance(
     }
 
     // Median of 4 alignments (take middle two, average)
-    let all_nodes: HashSet<NodeId> = maps.iter().flat_map(|m| m.keys().copied()).collect();
+    let all_nodes: BTreeSet<NodeId> = maps.iter().flat_map(|m| m.keys().copied()).collect();
     let mut result = Vec::with_capacity(all_nodes.len());
 
     for v in all_nodes {
@@ -647,7 +647,7 @@ mod tests {
 
         let config = DagreConfig::default();
         let xs = position_x(&g, &config);
-        let xs_map: HashMap<NodeId, f64> = xs.into_iter().collect();
+        let xs_map: BTreeMap<NodeId, f64> = xs.into_iter().collect();
         // b should be to the right of a by at least nodesep
         let diff = xs_map[&b] - xs_map[&a];
         assert!(diff >= config.nodesep);
@@ -674,7 +674,7 @@ mod tests {
         };
         let (root, _align) = vertical_alignment(&g, &layering, &conflicts, &neighbor_fn);
         // In a simple chain, all nodes should share the same root
-        let roots: HashSet<NodeId> = root.values().copied().collect();
+        let roots: BTreeSet<NodeId> = root.values().copied().collect();
         assert_eq!(roots.len(), 1);
     }
 }

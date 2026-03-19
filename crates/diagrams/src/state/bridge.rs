@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 use rusty_mermaid_core::{
     BBox, Shape, intersect_circle, intersect_polygon, Point, SimpleTextMeasure, Style, TextMeasure,
@@ -63,7 +63,7 @@ pub fn layout(diagram: &StateDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let mut g = Graph::new();
     let style = TextStyle::default();
-    let mut id_map: HashMap<String, NodeId> = HashMap::new();
+    let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut all_transitions: Vec<&StateTransition> = Vec::new();
     let mut synthetic_ids: HashSet<String> = HashSet::new();
 
@@ -95,7 +95,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     let node_styles = resolve_state_styles(diagram);
 
     // Extract results
-    let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(id, &nid)| (nid, id.as_str())).collect();
+    let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(id, &nid)| (nid, id.as_str())).collect();
 
     let mut nodes = Vec::new();
     let mut max_x: f64 = 0.0;
@@ -313,7 +313,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 fn fix_region_order(
     diagram: &StateDiagram,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     for s in &diagram.states {
         fix_region_order_for_state(s, g, id_map);
@@ -323,7 +323,7 @@ fn fix_region_order(
 fn fix_region_order_for_state(
     state: &StateNode,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { regions, children, .. } = &state.kind else { return };
 
@@ -399,7 +399,7 @@ fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId, out: &mut V
 fn center_content(
     diagram: &StateDiagram,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     for s in &diagram.states {
         center_content_for_state(s, g, id_map);
@@ -409,7 +409,7 @@ fn center_content(
 fn center_content_for_state(
     state: &StateNode,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { regions, children, .. } = &state.kind else { return };
     // Recurse into children first (handles nested composites)
@@ -513,7 +513,7 @@ fn content_bbox_cx(g: &Graph<NodeLabel, EdgeLabel>, nodes: &[NodeId]) -> f64 {
 fn center_bullseyes(
     diagram: &StateDiagram,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     center_bullseyes_in_scope(
         &diagram.transitions,
@@ -531,7 +531,7 @@ fn center_bullseyes(
 fn center_bullseyes_in_state(
     state: &StateNode,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { transitions, children, .. } = &state.kind else { return };
     let prefix = format!("{}.", state.id);
@@ -546,7 +546,7 @@ fn center_bullseyes_in_scope(
     _states: &[StateNode],
     scope_prefix: &str,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     // Only center+straighten when exactly one transition connects to the
     // pseudo-state. With multiple sources/targets, dagre's layout is better
@@ -605,7 +605,7 @@ fn center_bullseyes_in_scope(
 fn center_external_connections(
     diagram: &StateDiagram,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     center_external_in_scope(&diagram.transitions, &diagram.states, g, id_map);
     for s in &diagram.states {
@@ -616,7 +616,7 @@ fn center_external_connections(
 fn center_external_in_state(
     state: &StateNode,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { transitions, children, .. } = &state.kind else { return };
     center_external_in_scope(transitions, children, g, id_map);
@@ -629,7 +629,7 @@ fn center_external_in_scope(
     transitions: &[StateTransition],
     states: &[StateNode],
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<String, NodeId>,
+    id_map: &BTreeMap<String, NodeId>,
 ) {
     // Collect which external nodes need centering and their target x
     let mut centered: HashSet<NodeId> = HashSet::new();
@@ -825,7 +825,7 @@ fn add_scope<'a>(
     transitions: &'a [StateTransition],
     parent: Option<(NodeId, &str)>, // (parent_nid, parent_id) for scoping [*] names
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &mut HashMap<String, NodeId>,
+    id_map: &mut BTreeMap<String, NodeId>,
     all_transitions: &mut Vec<&'a StateTransition>,
     synthetic_ids: &mut HashSet<String>,
     measurer: &impl TextMeasure,
@@ -1084,20 +1084,20 @@ fn collect_all_notes(diagram: &StateDiagram) -> Vec<&StateNote> {
 }
 
 /// Resolve classDef + class + style into a per-state Style map.
-fn resolve_state_styles(diagram: &StateDiagram) -> HashMap<&str, Style> {
-    let class_map: HashMap<&str, &[StyleProperty]> = diagram
+fn resolve_state_styles(diagram: &StateDiagram) -> BTreeMap<&str, Style> {
+    let class_map: BTreeMap<&str, &[StyleProperty]> = diagram
         .class_defs
         .iter()
         .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
         .collect();
 
-    let mut result: HashMap<&str, Style> = HashMap::new();
+    let mut result: BTreeMap<&str, Style> = BTreeMap::new();
 
     fn collect_states<'a>(
         states: &'a [StateNode],
-        class_map: &HashMap<&str, &[StyleProperty]>,
+        class_map: &BTreeMap<&str, &[StyleProperty]>,
         style_stmts: &'a [super::ir::StateStyleStmt],
-        result: &mut HashMap<&'a str, Style>,
+        result: &mut BTreeMap<&'a str, Style>,
     ) {
         for s in states {
             let mut style = Style::default();

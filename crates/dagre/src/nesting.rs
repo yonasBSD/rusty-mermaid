@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -54,7 +54,7 @@ fn dfs(
     node_sep: i32,
     weight: f64,
     height: i32,
-    depths: &HashMap<NodeId, i32>,
+    depths: &BTreeMap<NodeId, i32>,
     v: NodeId,
 ) {
     let children: Vec<_> = g.children(v).collect();
@@ -163,14 +163,14 @@ pub(crate) fn cleanup(g: &mut Graph<NodeLabel, EdgeLabel>, state: &NestingState)
 
 /// Compute depth of each node in the compound hierarchy.
 /// Root-level nodes get depth 1, their children get 2, etc.
-fn tree_depths(g: &Graph<NodeLabel, EdgeLabel>) -> HashMap<NodeId, i32> {
-    let mut depths = HashMap::new();
+fn tree_depths(g: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, i32> {
+    let mut depths = BTreeMap::new();
 
     fn dfs_depth(
         g: &Graph<NodeLabel, EdgeLabel>,
         v: NodeId,
         depth: i32,
-        depths: &mut HashMap<NodeId, i32>,
+        depths: &mut BTreeMap<NodeId, i32>,
     ) {
         let children: Vec<_> = g.children(v).collect();
         for child in children {

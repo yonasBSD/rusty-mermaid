@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -102,7 +102,7 @@ pub(crate) fn parent_dummy_chains(
 /// the source and destination compound hierarchies.
 fn find_path(
     g: &Graph<NodeLabel, EdgeLabel>,
-    postorder_nums: &HashMap<NodeId, PostorderNum>,
+    postorder_nums: &BTreeMap<NodeId, PostorderNum>,
     v: NodeId,
     w: NodeId,
 ) -> (Vec<Option<NodeId>>, Option<NodeId>) {
@@ -161,15 +161,15 @@ struct PostorderNum {
 }
 
 /// Compute postorder numbering over the compound hierarchy.
-fn postorder(g: &Graph<NodeLabel, EdgeLabel>) -> HashMap<NodeId, PostorderNum> {
-    let mut result = HashMap::new();
+fn postorder(g: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, PostorderNum> {
+    let mut result = BTreeMap::new();
     let mut counter = 0;
 
     fn dfs(
         g: &Graph<NodeLabel, EdgeLabel>,
         v: NodeId,
         counter: &mut usize,
-        result: &mut HashMap<NodeId, PostorderNum>,
+        result: &mut BTreeMap<NodeId, PostorderNum>,
     ) {
         let low = *counter;
         let children: Vec<_> = g.children(v).collect();

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use rusty_mermaid_core::Point;
 use rusty_mermaid_graph::NodeId;
@@ -68,8 +68,8 @@ pub struct NodeLabel {
     // --- compound node fields (nesting / border_segments) ---
     pub(crate) border_top: Option<NodeId>,
     pub(crate) border_bottom: Option<NodeId>,
-    pub(crate) border_left: HashMap<i32, NodeId>,
-    pub(crate) border_right: HashMap<i32, NodeId>,
+    pub(crate) border_left: BTreeMap<i32, NodeId>,
+    pub(crate) border_right: BTreeMap<i32, NodeId>,
     pub(crate) min_rank: Option<i32>,
     pub(crate) max_rank: Option<i32>,
 
@@ -102,8 +102,8 @@ impl NodeLabel {
             edge_data: None,
             border_top: None,
             border_bottom: None,
-            border_left: HashMap::new(),
-            border_right: HashMap::new(),
+            border_left: BTreeMap::new(),
+            border_right: BTreeMap::new(),
             min_rank: None,
             max_rank: None,
             border_type: None,

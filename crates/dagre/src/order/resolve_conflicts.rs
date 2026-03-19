@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use rusty_mermaid_graph::NodeId;
 
@@ -51,7 +51,7 @@ pub(crate) fn resolve_conflicts(
     cg: &ConstraintGraph,
 ) -> Vec<ResolvedEntry> {
     // Build per-node entries
-    let mut mapped: HashMap<NodeId, MappedEntry> = HashMap::new();
+    let mut mapped: BTreeMap<NodeId, MappedEntry> = BTreeMap::new();
     for (i, entry) in entries.iter().enumerate() {
         mapped.insert(
             entry.v,
@@ -133,7 +133,7 @@ pub(crate) fn resolve_conflicts(
         .collect()
 }
 
-fn merge_entries(mapped: &mut HashMap<NodeId, MappedEntry>, target_id: NodeId, source_id: NodeId) {
+fn merge_entries(mapped: &mut BTreeMap<NodeId, MappedEntry>, target_id: NodeId, source_id: NodeId) {
     let source = mapped[&source_id].clone();
 
     let mut sum = 0.0;

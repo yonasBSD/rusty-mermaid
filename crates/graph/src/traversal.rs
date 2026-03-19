@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 
 use crate::graph::Graph;
 use crate::id::NodeId;
@@ -61,7 +61,7 @@ pub fn bfs<N, E>(graph: &Graph<N, E>, start: NodeId) -> Vec<NodeId> {
 /// Topological sort using Kahn's algorithm.
 /// Returns None if the graph has a cycle.
 pub fn topo_sort<N, E>(graph: &Graph<N, E>) -> Option<Vec<NodeId>> {
-    let mut in_deg: HashMap<NodeId, usize> = HashMap::new();
+    let mut in_deg: BTreeMap<NodeId, usize> = BTreeMap::new();
     for node in graph.node_ids() {
         in_deg.insert(node, graph.in_degree(node));
     }

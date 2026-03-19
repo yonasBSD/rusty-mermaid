@@ -167,9 +167,9 @@ fn add_subgraph_constraints(
     cg: &mut ConstraintGraph,
     vs: &[NodeId],
 ) {
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
-    let mut prev: HashMap<NodeId, NodeId> = HashMap::new(); // parent → last child seen
+    let mut prev: BTreeMap<NodeId, NodeId> = BTreeMap::new(); // parent → last child seen
     let mut root_prev: Option<NodeId> = None; // last top-level child seen
 
     for &v in vs {

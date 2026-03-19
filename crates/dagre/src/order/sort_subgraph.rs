@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -64,7 +64,7 @@ pub(crate) fn sort_subgraph(
 
     // Recursively sort compound children and merge their barycenters.
     // Store sub-results to expand compound nodes in the final ordering.
-    let mut sub_results: HashMap<NodeId, Vec<NodeId>> = HashMap::new();
+    let mut sub_results: BTreeMap<NodeId, Vec<NodeId>> = BTreeMap::new();
     for entry in &mut barycenters {
         if g.children(entry.v).next().is_some() {
             let sub = sort_subgraph(g, entry.v, cg, bias_right, use_in_edges, rank);

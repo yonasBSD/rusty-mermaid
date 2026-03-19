@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 
 use rusty_mermaid_graph::{EdgeId, Graph, NodeId};
 
@@ -23,11 +23,11 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
     }
 
     // Build a simplified working graph: merge parallel edges by summing weights.
-    let mut in_weight: HashMap<NodeId, f64> = HashMap::new();
-    let mut out_weight: HashMap<NodeId, f64> = HashMap::new();
-    let mut adj_out: HashMap<NodeId, HashMap<NodeId, f64>> = HashMap::new();
-    let mut adj_in: HashMap<NodeId, HashMap<NodeId, f64>> = HashMap::new();
-    let mut alive: HashMap<NodeId, bool> = HashMap::new();
+    let mut in_weight: BTreeMap<NodeId, f64> = BTreeMap::new();
+    let mut out_weight: BTreeMap<NodeId, f64> = BTreeMap::new();
+    let mut adj_out: BTreeMap<NodeId, BTreeMap<NodeId, f64>> = BTreeMap::new();
+    let mut adj_in: BTreeMap<NodeId, BTreeMap<NodeId, f64>> = BTreeMap::new();
+    let mut alive: BTreeMap<NodeId, bool> = BTreeMap::new();
 
     for nid in g.node_ids() {
         in_weight.insert(nid, 0.0);
@@ -130,7 +130,7 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
 
     // Build final ordering: seq_left ++ seq_right
     seq_left.extend(seq_right);
-    let position: HashMap<NodeId, usize> = seq_left
+    let position: BTreeMap<NodeId, usize> = seq_left
         .iter()
         .enumerate()
         .map(|(i, &nid)| (nid, i))
@@ -154,11 +154,11 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
 
 fn remove_node(
     v: NodeId,
-    alive: &mut HashMap<NodeId, bool>,
-    in_weight: &mut HashMap<NodeId, f64>,
-    out_weight: &mut HashMap<NodeId, f64>,
-    adj_out: &mut HashMap<NodeId, HashMap<NodeId, f64>>,
-    adj_in: &mut HashMap<NodeId, HashMap<NodeId, f64>>,
+    alive: &mut BTreeMap<NodeId, bool>,
+    in_weight: &mut BTreeMap<NodeId, f64>,
+    out_weight: &mut BTreeMap<NodeId, f64>,
+    adj_out: &mut BTreeMap<NodeId, BTreeMap<NodeId, f64>>,
+    adj_in: &mut BTreeMap<NodeId, BTreeMap<NodeId, f64>>,
 ) {
     alive.insert(v, false);
 

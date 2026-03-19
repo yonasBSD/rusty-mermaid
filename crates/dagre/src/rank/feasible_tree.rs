@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -8,29 +8,29 @@ use crate::util;
 /// Spanning tree for network simplex. Undirected tree over the graph's nodes.
 #[derive(Debug)]
 pub(crate) struct NsTree {
-    adj: HashMap<NodeId, Vec<NodeId>>,
-    nodes: HashSet<NodeId>,
-    pub(crate) cut_values: HashMap<(NodeId, NodeId), f64>,
-    pub(crate) parent: HashMap<NodeId, Option<NodeId>>,
-    pub(crate) low: HashMap<NodeId, usize>,
-    pub(crate) lim: HashMap<NodeId, usize>,
+    adj: BTreeMap<NodeId, Vec<NodeId>>,
+    nodes: BTreeSet<NodeId>,
+    pub(crate) cut_values: BTreeMap<(NodeId, NodeId), f64>,
+    pub(crate) parent: BTreeMap<NodeId, Option<NodeId>>,
+    pub(crate) low: BTreeMap<NodeId, usize>,
+    pub(crate) lim: BTreeMap<NodeId, usize>,
     pub(crate) root: NodeId,
 }
 
 impl NsTree {
     fn new(root: NodeId) -> Self {
-        let mut nodes = HashSet::new();
+        let mut nodes = BTreeSet::new();
         nodes.insert(root);
-        let mut adj = HashMap::new();
+        let mut adj = BTreeMap::new();
         adj.insert(root, Vec::new());
 
         Self {
             adj,
             nodes,
-            cut_values: HashMap::new(),
-            parent: HashMap::new(),
-            low: HashMap::new(),
-            lim: HashMap::new(),
+            cut_values: BTreeMap::new(),
+            parent: BTreeMap::new(),
+            low: BTreeMap::new(),
+            lim: BTreeMap::new(),
             root,
         }
     }
@@ -96,11 +96,11 @@ impl NsTree {
         self.lim.clear();
         let root = self.root;
         self.parent.insert(root, None);
-        let mut visited = HashSet::new();
+        let mut visited = BTreeSet::new();
         self.dfs_assign(root, &mut visited, &mut 1);
     }
 
-    fn dfs_assign(&mut self, v: NodeId, visited: &mut HashSet<NodeId>, next_lim: &mut usize) {
+    fn dfs_assign(&mut self, v: NodeId, visited: &mut BTreeSet<NodeId>, next_lim: &mut usize) {
         let low = *next_lim;
         visited.insert(v);
 

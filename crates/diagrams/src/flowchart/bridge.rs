@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 use rusty_mermaid_core::{
     BBox, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
@@ -126,7 +126,7 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     let node_styles = resolve_node_styles(diagram);
 
     // Extract results
-    let nid_to_id: HashMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
+    let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
 
     let mut nodes = Vec::new();
     let mut max_x: f64 = 0.0;
@@ -236,10 +236,10 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
 fn build_flow_graph<'a>(
     diagram: &'a FlowDiagram,
     measurer: &impl TextMeasure,
-) -> (Graph<NodeLabel, EdgeLabel>, HashMap<&'a str, NodeId>) {
+) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<&'a str, NodeId>) {
     let mut g = Graph::new();
     let style = TextStyle::default();
-    let mut id_map: HashMap<&str, NodeId> = HashMap::new();
+    let mut id_map: BTreeMap<&str, NodeId> = BTreeMap::new();
 
     for v in &diagram.vertices {
         let text = strip_html_tags(&v.label);
@@ -315,10 +315,10 @@ fn build_flow_graph<'a>(
 fn extract_edge_layouts(
     diagram: &FlowDiagram,
     g: &Graph<NodeLabel, EdgeLabel>,
-    nid_to_id: &HashMap<NodeId, &str>,
+    nid_to_id: &BTreeMap<NodeId, &str>,
     measurer: &impl TextMeasure,
 ) -> Vec<EdgeLayout> {
-    let vertex_shape: HashMap<&str, Shape> = diagram
+    let vertex_shape: BTreeMap<&str, Shape> = diagram
         .vertices
         .iter()
         .map(|v| (v.id.as_str(), v.shape))
@@ -426,7 +426,7 @@ fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId) -> HashSet<
 fn extract_directed_subgraphs(
     diagram: &FlowDiagram,
     g: &mut Graph<NodeLabel, EdgeLabel>,
-    id_map: &HashMap<&str, NodeId>,
+    id_map: &BTreeMap<&str, NodeId>,
     measurer: &impl TextMeasure,
 ) -> Vec<ExtractedLayout> {
     let style = TextStyle::default();
@@ -456,7 +456,7 @@ fn extract_directed_subgraphs(
 
         // Build independent graph for this subgraph.
         let mut inner_g = Graph::new();
-        let mut inner_map: HashMap<NodeId, NodeId> = HashMap::new();
+        let mut inner_map: BTreeMap<NodeId, NodeId> = BTreeMap::new();
 
         // Add descendant nodes.
         for &nid in &descendants {
@@ -497,10 +497,10 @@ fn extract_directed_subgraphs(
         rusty_mermaid_dagre::pipeline::layout(&mut inner_g, &inner_config);
 
         // Compute bounding box of inner layout.
-        let reverse_map: HashMap<NodeId, NodeId> = inner_map.iter()
+        let reverse_map: BTreeMap<NodeId, NodeId> = inner_map.iter()
             .map(|(&outer, &inner)| (inner, outer))
             .collect();
-        let nid_to_id: HashMap<NodeId, &str> = id_map.iter()
+        let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter()
             .map(|(&id, &nid)| (nid, id))
             .collect();
 
@@ -607,14 +607,14 @@ fn extract_directed_subgraphs(
 
 /// Resolve all style sources into a single `Style` per node.
 /// Priority (last wins): classDef "default" → classDef via class/:::class → style statement.
-fn resolve_node_styles(diagram: &FlowDiagram) -> HashMap<&str, Style> {
-    let class_map: HashMap<&str, &[StyleProperty]> = diagram
+fn resolve_node_styles(diagram: &FlowDiagram) -> BTreeMap<&str, Style> {
+    let class_map: BTreeMap<&str, &[StyleProperty]> = diagram
         .class_defs
         .iter()
         .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
         .collect();
 
-    let mut result: HashMap<&str, Style> = HashMap::new();
+    let mut result: BTreeMap<&str, Style> = BTreeMap::new();
 
     for v in &diagram.vertices {
         let mut style = Style::default();
@@ -652,8 +652,8 @@ fn resolve_node_styles(diagram: &FlowDiagram) -> HashMap<&str, Style> {
 
 /// Resolve linkStyle statements into a per-edge-index Style map.
 /// Priority: linkStyle default → linkStyle by index (last wins).
-fn resolve_edge_styles(diagram: &FlowDiagram) -> HashMap<usize, Style> {
-    let mut result: HashMap<usize, Style> = HashMap::new();
+fn resolve_edge_styles(diagram: &FlowDiagram) -> BTreeMap<usize, Style> {
+    let mut result: BTreeMap<usize, Style> = BTreeMap::new();
     let edge_count = diagram.edges.len();
 
     for ls in &diagram.link_styles {

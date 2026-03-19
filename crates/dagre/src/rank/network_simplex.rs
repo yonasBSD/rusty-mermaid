@@ -49,7 +49,7 @@ fn init_cut_values(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>) {
 /// Post-order traversal of the tree.
 fn postorder_nodes(tree: &NsTree) -> Vec<NodeId> {
     let mut result = Vec::new();
-    let mut visited = std::collections::HashSet::new();
+    let mut visited = std::collections::BTreeSet::new();
     postorder_dfs(tree, tree.root, &mut visited, &mut result);
     result
 }
@@ -57,7 +57,7 @@ fn postorder_nodes(tree: &NsTree) -> Vec<NodeId> {
 fn postorder_dfs(
     tree: &NsTree,
     v: NodeId,
-    visited: &mut std::collections::HashSet<NodeId>,
+    visited: &mut std::collections::BTreeSet<NodeId>,
     result: &mut Vec<NodeId>,
 ) {
     visited.insert(v);
@@ -208,7 +208,7 @@ fn exchange(
 
 /// BFS in the tree from a start node.
 fn bfs_component(tree: &NsTree, start: NodeId) -> Vec<NodeId> {
-    let mut visited = std::collections::HashSet::new();
+    let mut visited = std::collections::BTreeSet::new();
     let mut queue = std::collections::VecDeque::new();
     visited.insert(start);
     queue.push_back(start);
