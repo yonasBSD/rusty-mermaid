@@ -1,0 +1,14 @@
+sequenceDiagram
+    Alice->>Bob: Start
+    Note right of Alice: Before loop
+    loop Retry
+        Alice->>Bob: Attempt
+        Note over Alice,Bob: Waiting for response
+        alt Success
+            Bob-->>Alice: OK
+        else Failure
+            Bob-->>Alice: Error
+            Note left of Bob: Log failure
+        end
+    end
+    Note over Alice: Done

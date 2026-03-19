@@ -1,0 +1,7 @@
+sequenceDiagram
+    Alice->>+Bob: Outer call
+    Bob->>+Bob: Inner self-call
+    Bob->>+Charlie: Delegate
+    Charlie-->>-Bob: Done
+    Bob-->>-Bob: Inner done
+    Bob-->>-Alice: Outer done

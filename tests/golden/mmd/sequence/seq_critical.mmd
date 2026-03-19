@@ -1,0 +1,9 @@
+sequenceDiagram
+    Alice->>Bob: Transaction
+    critical Commit
+        Bob->>DB: Write
+        DB-->>Bob: ACK
+    option Rollback
+        Bob->>DB: Revert
+    end
+    Bob-->>Alice: Result

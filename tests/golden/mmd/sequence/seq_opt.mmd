@@ -1,0 +1,7 @@
+sequenceDiagram
+    Alice->>Bob: Request
+    opt Cache available
+        Bob->>Cache: Lookup
+        Cache-->>Bob: Hit
+    end
+    Bob-->>Alice: Response

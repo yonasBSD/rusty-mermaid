@@ -1,0 +1,9 @@
+sequenceDiagram
+    Alice->>Bob: Request
+    Bob->>Charlie: Validate
+    break Invalid input
+        Charlie-->>Bob: Error
+        Bob-->>Alice: 400 Bad Request
+    end
+    Charlie-->>Bob: OK
+    Bob-->>Alice: 200 OK

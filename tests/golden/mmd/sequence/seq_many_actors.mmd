@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant Auth
+    participant API
+    participant Cache
+    participant DB
+    Client->>Gateway: HTTP Request
+    Gateway->>Auth: Validate token
+    Auth-->>Gateway: Valid
+    Gateway->>API: Forward
+    API->>Cache: Lookup
+    Cache-->>API: Miss
+    API->>DB: Query
+    DB-->>API: Results
+    API->>Cache: Store
+    API-->>Gateway: Response
+    Gateway-->>Client: HTTP Response

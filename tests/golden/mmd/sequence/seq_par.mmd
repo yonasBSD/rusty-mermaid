@@ -1,0 +1,8 @@
+sequenceDiagram
+    Alice->>Bob: Start
+    par Task A
+        Bob->>Charlie: Do A
+    and Task B
+        Bob->>Dave: Do B
+    end
+    Bob-->>Alice: All done

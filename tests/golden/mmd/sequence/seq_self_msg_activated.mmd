@@ -1,0 +1,7 @@
+sequenceDiagram
+    Alice->>+Bob: Request
+    Bob->>Bob: Validate
+    Bob->>+Charlie: Forward
+    Charlie->>Charlie: Process
+    Charlie-->>-Bob: Result
+    Bob-->>-Alice: Response

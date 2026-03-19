@@ -1883,3 +1883,209 @@ fn seq_all_within_canvas() {
     }
     assert!(failures.is_empty(), "canvas bounds:\n{}", failures.join("\n"));
 }
+
+#[test]
+fn seq_autonumber_sequential() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        let numbered: Vec<_> = sr.layout.messages.iter().filter_map(|m| m.number).collect();
+        if numbered.is_empty() {
+            continue;
+        }
+        // Numbers must be strictly increasing.
+        for w in numbered.windows(2) {
+            if w[1] <= w[0] {
+                failures.push(format!(
+                    "{}: autonumber not increasing: {} then {}",
+                    sr.stem, w[0], w[1]
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "autonumber ordering:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_autonumber_step_consistent() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        let numbered: Vec<_> = sr.layout.messages.iter().filter_map(|m| m.number).collect();
+        if numbered.len() < 2 {
+            continue;
+        }
+        // All consecutive differences should be equal (constant step).
+        let step = numbered[1] - numbered[0];
+        for w in numbered.windows(2) {
+            let diff = w[1] - w[0];
+            if diff != step {
+                failures.push(format!(
+                    "{}: autonumber step inconsistent: expected {} got {} (at {}→{})",
+                    sr.stem, step, diff, w[0], w[1]
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "autonumber step:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_self_messages_have_equal_from_to_x() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for msg in &sr.layout.messages {
+            if msg.is_self && (msg.from_x - msg.to_x).abs() > 0.01 {
+                failures.push(format!(
+                    "{}: self-message from_x={:.1} != to_x={:.1}",
+                    sr.stem, msg.from_x, msg.to_x
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "self-message endpoints:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_fragment_sections_ordered_by_y() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for frag in &sr.layout.fragments {
+            for w in frag.sections.windows(2) {
+                if w[1].y <= w[0].y {
+                    failures.push(format!(
+                        "{}: fragment {:?} sections not ordered: y {:.1} then {:.1}",
+                        sr.stem, frag.kind, w[0].y, w[1].y
+                    ));
+                }
+            }
+            // Sections must be within fragment bounds.
+            for sec in &frag.sections {
+                if sec.y < frag.y || sec.y > frag.y + frag.height {
+                    failures.push(format!(
+                        "{}: fragment {:?} section y={:.1} outside [{:.1}..{:.1}]",
+                        sr.stem, frag.kind, sec.y, frag.y, frag.y + frag.height
+                    ));
+                }
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "fragment sections:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_activations_on_valid_actors() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        let actor_ids: Vec<&str> = sr.layout.actors.iter().map(|a| a.id.as_str()).collect();
+        for act in &sr.layout.activations {
+            if !actor_ids.contains(&act.actor_id.as_str()) {
+                failures.push(format!(
+                    "{}: activation on unknown actor '{}'",
+                    sr.stem, act.actor_id
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "activation actors:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_activations_within_lifeline_bounds() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for act in &sr.layout.activations {
+            if let Some(ll) = sr
+                .layout
+                .lifelines
+                .iter()
+                .find(|l| l.actor_id == act.actor_id)
+            {
+                if act.top_y < ll.top_y - 1.0 || act.bottom_y > ll.bottom_y + 1.0 {
+                    failures.push(format!(
+                        "{}: activation on {} [{:.1}..{:.1}] outside lifeline [{:.1}..{:.1}]",
+                        sr.stem, act.actor_id, act.top_y, act.bottom_y, ll.top_y, ll.bottom_y
+                    ));
+                }
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "activation bounds:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_no_messages_without_autonumber_have_numbers() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        // If no messages have numbers, that's fine (autonumber not enabled).
+        // If some do, ALL must (autonumber applies to all messages).
+        let has_number: Vec<bool> = sr.layout.messages.iter().map(|m| m.number.is_some()).collect();
+        if has_number.is_empty() {
+            continue;
+        }
+        let all = has_number.iter().all(|&b| b);
+        let none = has_number.iter().all(|&b| !b);
+        if !all && !none {
+            failures.push(format!(
+                "{}: mixed autonumber state — some messages numbered, some not",
+                sr.stem
+            ));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "autonumber consistency:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn seq_messages_horizontal_span_within_actors() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        if sr.layout.actors.is_empty() {
+            continue;
+        }
+        let leftmost = sr.layout.actors.first().unwrap().x;
+        let rightmost = sr.layout.actors.last().unwrap().x;
+        for msg in &sr.layout.messages {
+            let left = msg.from_x.min(msg.to_x);
+            let right = msg.from_x.max(msg.to_x);
+            // Self-messages loop to the right, so allow some extra.
+            let tol = if msg.is_self { 50.0 } else { 10.0 };
+            if left < leftmost - tol || right > rightmost + tol {
+                failures.push(format!(
+                    "{}: message x [{:.1}..{:.1}] outside actors [{:.1}..{:.1}]",
+                    sr.stem, left, right, leftmost, rightmost
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "message span:\n{}",
+        failures.join("\n")
+    );
+}

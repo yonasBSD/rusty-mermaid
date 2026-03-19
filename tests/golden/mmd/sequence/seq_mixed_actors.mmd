@@ -1,0 +1,11 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant Backend
+    actor Admin
+    User->>Frontend: Click button
+    Frontend->>Backend: API call
+    Backend-->>Frontend: Response
+    Frontend-->>User: Show result
+    Admin->>Backend: Check logs
+    Backend-->>Admin: Log data
