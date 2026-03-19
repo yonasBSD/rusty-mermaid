@@ -258,6 +258,49 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         }
     }
 
+    // Expand bounds to include edge control points and label extents
+    // (dagre routes and labels can extend past the node bounding box).
+    let mut min_y: f64 = 0.0;
+    let label_pad = 4.0;
+    // Reset min_x since the prior x_shift may not have accounted for edges
+    min_x = 0.0;
+    for edge in &edges {
+        for pt in &edge.points {
+            min_x = min_x.min(pt.x);
+            min_y = min_y.min(pt.y);
+            max_x = max_x.max(pt.x);
+            max_y = max_y.max(pt.y);
+        }
+        if let Some(size) = edge.label_size {
+            if edge.points.len() < 2 { continue; }
+            let mid = edge.points[edge.points.len() / 2];
+            let lw = size.0 + label_pad * 2.0;
+            let lh = size.1 + label_pad * 2.0;
+            min_x = min_x.min(mid.x - lw / 2.0);
+            min_y = min_y.min(mid.y - lh / 2.0);
+            max_x = max_x.max(mid.x + lw / 2.0);
+            max_y = max_y.max(mid.y + lh / 2.0);
+        }
+    }
+
+    // Shift everything if edges/labels extend past the origin
+    if min_x < 0.0 || min_y < 0.0 {
+        let dx = if min_x < 0.0 { -min_x } else { 0.0 };
+        let dy = if min_y < 0.0 { -min_y } else { 0.0 };
+        for node in &mut nodes {
+            node.x += dx;
+            node.y += dy;
+        }
+        for edge in &mut edges {
+            for pt in &mut edge.points {
+                pt.x += dx;
+                pt.y += dy;
+            }
+        }
+        max_x += dx;
+        max_y += dy;
+    }
+
     // Compute dividers + region rects together for concurrent compounds
     let mut dividers = Vec::new();
     let mut region_rects = Vec::new();

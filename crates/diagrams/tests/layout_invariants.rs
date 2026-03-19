@@ -321,6 +321,55 @@ fn flowchart_edge_endpoints_near_nodes() {
 }
 
 // ---------------------------------------------------------------------------
+// Invariant: edge endpoints near their source/destination nodes (state)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn state_edge_endpoints_near_nodes() {
+    let tol = 25.0;
+    let mut failures = Vec::new();
+    for sr in load_state_diagrams() {
+        let nodes = &sr.layout.nodes;
+        for e in &sr.layout.edges {
+            if e.points.len() < 2 {
+                continue;
+            }
+            let start = e.points[0];
+            let end = e.points[e.points.len() - 1];
+
+            if let Some(src) = nodes.iter().find(|n| n.id == e.src) {
+                let (left, top, right, bottom) = node_bbox(src);
+                let near_src = start.x >= left - tol
+                    && start.x <= right + tol
+                    && start.y >= top - tol
+                    && start.y <= bottom + tol;
+                if !near_src {
+                    failures.push(format!(
+                        "{}: edge {}->{} start ({:.1},{:.1}) far from src bbox ({:.1},{:.1})-({:.1},{:.1})",
+                        sr.stem, e.src, e.dst, start.x, start.y, left, top, right, bottom
+                    ));
+                }
+            }
+
+            if let Some(dst) = nodes.iter().find(|n| n.id == e.dst) {
+                let (left, top, right, bottom) = node_bbox(dst);
+                let near_dst = end.x >= left - tol
+                    && end.x <= right + tol
+                    && end.y >= top - tol
+                    && end.y <= bottom + tol;
+                if !near_dst {
+                    failures.push(format!(
+                        "{}: edge {}->{} end ({:.1},{:.1}) far from dst bbox ({:.1},{:.1})-({:.1},{:.1})",
+                        sr.stem, e.src, e.dst, end.x, end.y, left, top, right, bottom
+                    ));
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "edge endpoints far from nodes:\n{}", failures.join("\n"));
+}
+
+// ---------------------------------------------------------------------------
 // Invariant: edge labels within layout bounds
 // ---------------------------------------------------------------------------
 
@@ -343,6 +392,32 @@ fn flowchart_edge_labels_within_bounds() {
                 failures.push(format!(
                     "{}: edge {}->{} label bbox ({:.1},{:.1})-({:.1},{:.1}) outside layout {}x{}",
                     fr.stem, e.src, e.dst, left, top, right, bottom, lw, lh
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "edge labels outside bounds:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn state_edge_labels_within_bounds() {
+    let mut failures = Vec::new();
+    for sr in load_state_diagrams() {
+        let (lw, lh) = (sr.layout.width, sr.layout.height);
+        for e in &sr.layout.edges {
+            let Some((label_w, label_h)) = e.label_size else { continue };
+            if e.points.len() < 2 {
+                continue;
+            }
+            let mid = e.points[e.points.len() / 2];
+            let left = mid.x - label_w / 2.0;
+            let top = mid.y - label_h / 2.0;
+            let right = mid.x + label_w / 2.0;
+            let bottom = mid.y + label_h / 2.0;
+            if left < -1.0 || top < -1.0 || right > lw + 1.0 || bottom > lh + 1.0 {
+                failures.push(format!(
+                    "{}: edge {}->{} label bbox ({:.1},{:.1})-({:.1},{:.1}) outside layout {}x{}",
+                    sr.stem, e.src, e.dst, left, top, right, bottom, lw, lh
                 ));
             }
         }
@@ -479,4 +554,57 @@ fn flowchart_edge_points_within_bounds() {
         }
     }
     assert!(failures.is_empty(), "edge points outside bounds:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn state_edge_points_within_bounds() {
+    let tol = 1.0;
+    let mut failures = Vec::new();
+    for sr in load_state_diagrams() {
+        let (lw, lh) = (sr.layout.width, sr.layout.height);
+        for e in &sr.layout.edges {
+            for pt in &e.points {
+                if pt.x < -tol || pt.y < -tol || pt.x > lw + tol || pt.y > lh + tol {
+                    failures.push(format!(
+                        "{}: edge {}->{} point ({:.1},{:.1}) outside layout {}x{}",
+                        sr.stem, e.src, e.dst, pt.x, pt.y, lw, lh
+                    ));
+                    break;
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "edge points outside bounds:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn state_compounds_contain_children() {
+    let tol = 2.0;
+    let mut failures = Vec::new();
+    for sr in load_state_diagrams() {
+        let compounds: Vec<_> = sr.layout.nodes.iter().filter(|n| n.is_compound).collect();
+        for compound in &compounds {
+            let outer = node_bbox(compound);
+            for n in &sr.layout.nodes {
+                if n.is_compound || n.id == compound.id {
+                    continue;
+                }
+                // If the node center is inside the compound, its bbox should be contained
+                if n.x >= outer.0 && n.x <= outer.2 && n.y >= outer.1 && n.y <= outer.3 {
+                    let inner = node_bbox(n);
+                    if !rect_contains(outer, inner, tol) {
+                        failures.push(format!(
+                            "{}: node {} center inside compound {} but bbox extends outside",
+                            sr.stem, n.id, compound.id
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "compound containment violations:\n{}",
+        failures.join("\n")
+    );
 }
