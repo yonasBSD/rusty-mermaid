@@ -54,7 +54,7 @@ fn generate_svg_gallery() {
                 Ok(s) => s,
                 Err(_) => continue,
             };
-            let svg = SvgRenderer.render(&scene);
+            let svg = SvgRenderer::new().render(&scene);
 
             let svg_path = type_outdir.join(format!("{stem}.svg"));
             fs::write(&svg_path, &svg).unwrap();

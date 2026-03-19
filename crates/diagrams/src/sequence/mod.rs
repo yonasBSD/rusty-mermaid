@@ -28,7 +28,6 @@ pub fn to_scene(seq_layout: &SequenceLayout) -> Scene {
 /// Convert a sequence layout into a themed Scene.
 pub fn to_scene_themed(seq_layout: &SequenceLayout, theme: &Theme) -> Scene {
     let mut scene = Scene::new(seq_layout.width, seq_layout.height);
-    scene.marker_color = Some(theme.edge_stroke);
     render_layout(seq_layout, &mut scene, theme);
     scene
 }
@@ -548,12 +547,19 @@ mod tests {
     }
 
     #[test]
-    fn themed_scene_marker_color() {
-        let d = two_actor_diagram();
+    fn themed_scene_uses_dark_edge_stroke() {
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("hi"),
+        ));
         let l = layout::layout(&d, &SimpleTextMeasure::default());
         let dark = Theme::dark();
         let scene = to_scene_themed(&l, &dark);
-        assert_eq!(scene.marker_color, Some(dark.edge_stroke));
+        let has_dark_stroke = scene.primitives().iter().any(|p| {
+            matches!(p, Primitive::Path { style, marker_end: Some(_), .. }
+                if style.stroke == Some(dark.edge_stroke))
+        });
+        assert!(has_dark_stroke, "dark theme should apply edge_stroke to message paths");
     }
 
     #[test]

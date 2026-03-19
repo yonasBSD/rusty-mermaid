@@ -38,7 +38,6 @@ pub fn to_scene(layout: &LayoutResult) -> Scene {
 /// Convert a flowchart layout result into a themed Scene.
 pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
-    scene.marker_color = Some(theme.edge_stroke);
     layout_to_scene(layout, &mut scene, theme);
     scene
 }
@@ -573,16 +572,15 @@ mod tests {
     }
 
     #[test]
-    fn themed_scene_has_marker_color() {
+    fn themed_scene_has_edge_paths() {
         let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
         let layout = crate::flowchart::bridge::layout(&d);
         let theme = Theme::default();
         let scene = to_scene_themed(&layout, &theme);
 
-        assert_eq!(
-            scene.marker_color,
-            Some(theme.edge_stroke),
-            "themed scene marker_color should match theme.edge_stroke"
-        );
+        let has_edge_path = scene.primitives().iter().any(|p| {
+            matches!(p, Primitive::Path { marker_end: Some(_), .. })
+        });
+        assert!(has_edge_path, "themed scene should have edge paths with markers");
     }
 }

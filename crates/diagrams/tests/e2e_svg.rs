@@ -6,7 +6,7 @@ use rusty_mermaid_svg::SvgRenderer;
 fn flowchart_to_svg() {
     let mmd = "graph TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[Fail]";
     let scene = render_to_scene(mmd).unwrap();
-    let svg = SvgRenderer.render(&scene);
+    let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.starts_with("<svg"));
     assert!(svg.contains("<rect"));
@@ -20,7 +20,7 @@ fn flowchart_to_svg() {
 fn state_diagram_to_svg() {
     let mmd = "stateDiagram-v2\n    [*] --> Still\n    Still --> Moving\n    Moving --> Crash\n    Crash --> [*]";
     let scene = render_to_scene(mmd).unwrap();
-    let svg = SvgRenderer.render(&scene);
+    let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.starts_with("<svg"));
     assert!(svg.contains("<rect"));
@@ -37,7 +37,7 @@ fn complex_flowchart_to_svg() {
     C -->|Fail| E[Error]
     E --> B"#;
     let scene = render_to_scene(mmd).unwrap();
-    let svg = SvgRenderer.render(&scene);
+    let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.contains("viewBox"));
     // Should have nodes and edges
@@ -51,7 +51,7 @@ fn complex_flowchart_to_svg() {
 fn sequence_diagram_to_svg() {
     let mmd = "sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi there\n    Note right of Bob: Thinking";
     let scene = render_to_scene(mmd).unwrap();
-    let svg = SvgRenderer.render(&scene);
+    let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.starts_with("<svg"));
     assert!(svg.contains("<rect"));
@@ -69,7 +69,7 @@ fn sequence_diagram_to_svg() {
 fn sequence_self_message_to_svg() {
     let mmd = "sequenceDiagram\n    Alice->>Alice: Think\n    Alice->>Bob: Done";
     let scene = render_to_scene(mmd).unwrap();
-    let svg = SvgRenderer.render(&scene);
+    let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.contains("Think"));
     assert!(svg.contains("Done"));
@@ -79,7 +79,7 @@ fn sequence_self_message_to_svg() {
 fn svg_output_is_valid_xml_structure() {
     let mmd = "graph TD\n    A --> B";
     let scene = render_to_scene(mmd).unwrap();
-    let svg = SvgRenderer.render(&scene);
+    let svg = SvgRenderer::new().render(&scene);
 
     // Basic well-formedness: matching open/close tags
     let open_svg = svg.matches("<svg").count();

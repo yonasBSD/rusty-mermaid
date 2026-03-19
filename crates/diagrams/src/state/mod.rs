@@ -22,7 +22,6 @@ pub fn to_scene(layout: &LayoutResult) -> Scene {
 /// Convert a state diagram layout result into a themed Scene.
 pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
-    scene.marker_color = Some(theme.edge_stroke);
     layout_to_scene(layout, &mut scene, theme);
     scene
 }

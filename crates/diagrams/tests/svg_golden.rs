@@ -69,7 +69,7 @@ fn svg_golden_regression() {
 
         let text = fs::read_to_string(path).unwrap();
         let scene = render_to_scene(&text).unwrap();
-        let actual_svg = SvgRenderer.render(&scene);
+        let actual_svg = SvgRenderer::new().render(&scene);
         let svg_path = type_svg_dir.join(format!("{stem}.svg"));
 
         if svg_path.exists() && !update_mode {
@@ -149,7 +149,7 @@ fn update_golden_svg() {
         fs::create_dir_all(&type_svg_dir).unwrap();
         let text = fs::read_to_string(path).unwrap();
         let scene = render_to_scene(&text).unwrap();
-        let svg = SvgRenderer.render(&scene);
+        let svg = SvgRenderer::new().render(&scene);
         fs::write(type_svg_dir.join(format!("{stem}.svg")), &svg).unwrap();
         count += 1;
     }
