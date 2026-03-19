@@ -43,6 +43,7 @@ thiserror.workspace = true
 winnow = "0.7.15"
 
 [dev-dependencies]
+proptest = "1.10.0"
 rusty-mermaid-svg.workspace = true
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

@@ -773,7 +773,7 @@ fn shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> {
             }
         }
         Shape::Asymmetric => {
-            let notch = h / 4.0;
+            let notch = (h / 4.0).min(hw);
             let verts = [
                 Point::new(cx - hw, cy - hh),
                 Point::new(cx + hw, cy - hh),
@@ -1598,5 +1598,209 @@ mod tests {
         let ap = a.distance_to(p);
         let pb = p.distance_to(b);
         (ap + pb - ab).abs() < TOL
+    }
+
+    /// Distance from point p to line segment a→b.
+    fn point_to_segment_dist(a: Point, b: Point, p: Point) -> f64 {
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let len_sq = dx * dx + dy * dy;
+        if len_sq < 1e-12 {
+            return a.distance_to(p);
+        }
+        let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len_sq;
+        let t = t.clamp(0.0, 1.0);
+        let proj = Point::new(a.x + t * dx, a.y + t * dy);
+        p.distance_to(proj)
+    }
+
+    /// Check if a point lies on any edge of a polygon (generous tolerance for proptest).
+    fn near_polygon_edge(verts: &[Point], p: Point, tol: f64) -> bool {
+        let n = verts.len();
+        (0..n).any(|i| point_to_segment_dist(verts[i], verts[(i + 1) % n], p) < tol)
+    }
+
+    /// Check if a point lies on the visual boundary of a shape.
+    fn on_shape_boundary(shape: Shape, bbox: BBox, p: Point) -> bool {
+        let tol = 0.5;
+        let (cx, cy, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
+        let hw = w / 2.0;
+        let hh = h / 2.0;
+
+        match shape {
+            Shape::Diamond => {
+                let verts = [
+                    Point::new(cx, cy - hh),
+                    Point::new(cx + hw, cy),
+                    Point::new(cx, cy + hh),
+                    Point::new(cx - hw, cy),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::Circle | Shape::DoubleCircle => {
+                let r = w.max(h) / 2.0;
+                (Point::new(cx, cy).distance_to(p) - r).abs() < tol
+            }
+            Shape::Hexagon => {
+                let m = h / 4.0;
+                let verts = [
+                    Point::new(cx - hw + m, cy - hh),
+                    Point::new(cx + hw - m, cy - hh),
+                    Point::new(cx + hw, cy),
+                    Point::new(cx + hw - m, cy + hh),
+                    Point::new(cx - hw + m, cy + hh),
+                    Point::new(cx - hw, cy),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::Parallelogram => {
+                let skew = h / 2.0;
+                let verts = [
+                    Point::new(cx - hw + skew, cy - hh),
+                    Point::new(cx + hw + skew, cy - hh),
+                    Point::new(cx + hw - skew, cy + hh),
+                    Point::new(cx - hw - skew, cy + hh),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::ParallelogramAlt => {
+                let skew = h / 2.0;
+                let verts = [
+                    Point::new(cx - hw - skew, cy - hh),
+                    Point::new(cx + hw - skew, cy - hh),
+                    Point::new(cx + hw + skew, cy + hh),
+                    Point::new(cx - hw + skew, cy + hh),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::Trapezoid => {
+                let offset = h / 2.0;
+                let verts = [
+                    Point::new(cx - hw, cy - hh),
+                    Point::new(cx + hw, cy - hh),
+                    Point::new(cx + hw + offset, cy + hh),
+                    Point::new(cx - hw - offset, cy + hh),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::TrapezoidAlt => {
+                let offset = h / 2.0;
+                let verts = [
+                    Point::new(cx - hw - offset, cy - hh),
+                    Point::new(cx + hw + offset, cy - hh),
+                    Point::new(cx + hw, cy + hh),
+                    Point::new(cx - hw, cy + hh),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::Cylinder => {
+                let rx = hw;
+                let ry = rx / (2.5 + w / 50.0);
+                let body_h = h - ry;
+                let top_cy = cy - body_h / 2.0;
+                let bot_cy = cy + body_h / 2.0;
+                // Straight sides
+                if p.y >= top_cy - tol && p.y <= bot_cy + tol {
+                    if (p.x - (cx - hw)).abs() < tol || (p.x - (cx + hw)).abs() < tol {
+                        return true;
+                    }
+                }
+                // Top cap ellipse
+                let eq_top = ((p.x - cx) / rx).powi(2) + ((p.y - top_cy) / ry).powi(2);
+                if (eq_top - 1.0).abs() < 0.1 && p.y <= top_cy + tol {
+                    return true;
+                }
+                // Bottom cap ellipse
+                let eq_bot = ((p.x - cx) / rx).powi(2) + ((p.y - bot_cy) / ry).powi(2);
+                if (eq_bot - 1.0).abs() < 0.1 && p.y >= bot_cy - tol {
+                    return true;
+                }
+                false
+            }
+            Shape::Asymmetric => {
+                let notch = (h / 4.0).min(hw);
+                let verts = [
+                    Point::new(cx - hw, cy - hh),
+                    Point::new(cx + hw, cy - hh),
+                    Point::new(cx + hw, cy + hh),
+                    Point::new(cx - hw, cy + hh),
+                    Point::new(cx - hw + notch, cy),
+                ];
+                near_polygon_edge(&verts, p, tol)
+            }
+            Shape::Stadium => {
+                let r = hh;
+                let left_cx = cx - hw + r;
+                let right_cx = cx + hw - r;
+                if left_cx >= right_cx {
+                    return (Point::new(cx, cy).distance_to(p) - r).abs() < tol;
+                }
+                // Straight top/bottom
+                if p.x >= left_cx - tol && p.x <= right_cx + tol {
+                    if (p.y - (cy - hh)).abs() < tol || (p.y - (cy + hh)).abs() < tol {
+                        return true;
+                    }
+                }
+                // Left cap
+                if (Point::new(left_cx, cy).distance_to(p) - r).abs() < tol
+                    && p.x <= left_cx + tol
+                {
+                    return true;
+                }
+                // Right cap
+                if (Point::new(right_cx, cy).distance_to(p) - r).abs() < tol
+                    && p.x >= right_cx - tol
+                {
+                    return true;
+                }
+                false
+            }
+            _ => false,
+        }
+    }
+
+    // ── Property-based tests ──
+
+    use proptest::prelude::*;
+
+    fn non_rect_shapes() -> impl Strategy<Value = Shape> {
+        prop_oneof![
+            Just(Shape::Diamond),
+            Just(Shape::Circle),
+            Just(Shape::DoubleCircle),
+            Just(Shape::Hexagon),
+            Just(Shape::Parallelogram),
+            Just(Shape::ParallelogramAlt),
+            Just(Shape::Trapezoid),
+            Just(Shape::TrapezoidAlt),
+            Just(Shape::Cylinder),
+            Just(Shape::Asymmetric),
+            Just(Shape::Stadium),
+        ]
+    }
+
+    proptest! {
+        #[test]
+        fn shape_intersect_on_boundary(
+            shape in non_rect_shapes(),
+            cx in 0.0..200.0f64,
+            cy in 0.0..200.0f64,
+            w in 40.0..200.0f64,
+            h in 40.0..200.0f64,
+            angle in 0.0..std::f64::consts::TAU,
+        ) {
+            let bbox = BBox::new(cx, cy, w, h);
+            let far = (w + h) * 3.0;
+            let target = Point::new(cx + far * angle.cos(), cy + far * angle.sin());
+
+            if let Some(p) = shape_intersect(shape, bbox, target) {
+                prop_assert!(
+                    on_shape_boundary(shape, bbox, p),
+                    "{shape:?}: hit ({}, {}) not on boundary \
+                     (center=({cx},{cy}), size=({w},{h}), angle={angle:.4})",
+                    p.x, p.y,
+                );
+            }
+        }
     }
 }
