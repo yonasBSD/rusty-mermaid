@@ -199,6 +199,9 @@ fn render_messages(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
         } else {
             render_regular_message(msg, scene, theme);
         }
+        if let Some(n) = msg.number {
+            render_msg_number(msg, n, scene, theme);
+        }
     }
 }
 
@@ -250,13 +253,15 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
         style.stroke_dasharray = Some(vec![6.0, 4.0]);
     }
 
-    // Right-angle loop-back (10.8 will refine to quadratic bezier).
+    // Cubic bezier loop-back, matching mermaid.js self-message curve.
     scene.push(Primitive::Path {
         segments: vec![
             PathSegment::MoveTo(Point::new(x, msg.y)),
-            PathSegment::LineTo(Point::new(x + w, msg.y)),
-            PathSegment::LineTo(Point::new(x + w, msg.y + h)),
-            PathSegment::LineTo(Point::new(x, msg.y + h)),
+            PathSegment::CubicTo {
+                cp1: Point::new(x + w, msg.y - h * 0.33),
+                cp2: Point::new(x + w, msg.y + h * 1.33),
+                to: Point::new(x, msg.y + h),
+            },
         ],
         style,
         marker_start: None,
@@ -275,6 +280,37 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
             },
         });
     }
+}
+
+/// Autonumber badge: small filled circle with white number text at arrow origin.
+fn render_msg_number(msg: &MessageLayout, n: u32, scene: &mut Scene, theme: &Theme) {
+    let r = 8.0;
+    let cx = if msg.is_self {
+        msg.from_x
+    } else {
+        msg.from_x + if msg.from_x < msg.to_x { 1.0 } else { -1.0 }
+    };
+    let cy = msg.y;
+
+    scene.push(Primitive::Circle {
+        center: Point::new(cx, cy),
+        radius: r,
+        style: Style {
+            fill: Some(theme.edge_stroke),
+            ..Default::default()
+        },
+    });
+    scene.push(Primitive::Text {
+        position: Point::new(cx, cy),
+        content: n.to_string(),
+        anchor: TextAnchor::Middle,
+        style: TextStyle {
+            font_size: 11.0,
+            fill: Some(rusty_mermaid_core::Color::rgb(255, 255, 255)),
+            font_weight: FontWeight::Bold,
+            ..Default::default()
+        },
+    });
 }
 
 fn arrow_marker(head: ArrowHead) -> Option<MarkerType> {
@@ -563,9 +599,94 @@ mod tests {
             Message::new("U", "S", ArrowStyle::SOLID_FILLED).with_label("request"),
         ));
         let scene = make_scene(&d);
-        // Stick figure: circle (head) + 3 paths (body, arms, legs) × 2 (top + bottom).
         assert!(has_circle(&scene));
         assert!(has_text(&scene, "User"));
         assert!(has_text(&scene, "Server"));
+    }
+
+    #[test]
+    fn autonumber_renders_circles_and_numbers() {
+        let mut d = two_actor_diagram();
+        d.autonumber = Some(AutoNumber { start: 1, step: 1 });
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("first"),
+        ));
+        d.items.push(SequenceItem::Message(
+            Message::new("Bob", "Alice", ArrowStyle::DOTTED_FILLED).with_label("second"),
+        ));
+        let scene = make_scene(&d);
+        // Each numbered message gets a circle badge + number text.
+        assert!(has_text(&scene, "1"));
+        assert!(has_text(&scene, "2"));
+        // At least 2 circles for numbers (plus any actor circles).
+        let circles = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .count();
+        assert!(circles >= 2, "expected ≥2 number circles, got {circles}");
+    }
+
+    #[test]
+    fn no_autonumber_no_number_circles() {
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("msg"),
+        ));
+        let scene = make_scene(&d);
+        // Without autonumber, no number badge circles.
+        let circles = scene
+            .primitives()
+            .iter()
+            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .count();
+        assert_eq!(circles, 0, "no circles expected without autonumber");
+    }
+
+    #[test]
+    fn self_message_uses_cubic_bezier() {
+        let mut d = SequenceDiagram::new();
+        d.participants.push(Participant::new("A", "Alice"));
+        d.items.push(SequenceItem::Message(
+            Message::new("A", "A", ArrowStyle::SOLID_FILLED).with_label("think"),
+        ));
+        let scene = make_scene(&d);
+        let has_cubic = scene.primitives().iter().any(|p| {
+            if let Primitive::Path { segments, .. } = p {
+                segments
+                    .iter()
+                    .any(|s| matches!(s, PathSegment::CubicTo { .. }))
+            } else {
+                false
+            }
+        });
+        assert!(has_cubic, "self-message should use cubic bezier");
+    }
+
+    #[test]
+    fn fragment_section_divider_renders() {
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Fragment(Fragment {
+            kind: FragmentKind::Alt,
+            label: Some("check".into()),
+            sections: vec![
+                FragmentSection {
+                    label: None,
+                    items: vec![SequenceItem::Message(
+                        Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("ok"),
+                    )],
+                },
+                FragmentSection {
+                    label: Some("else".into()),
+                    items: vec![SequenceItem::Message(
+                        Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("err"),
+                    )],
+                },
+            ],
+        }));
+        let scene = make_scene(&d);
+        // Fragment renders: kind tag text, condition text, divider label.
+        assert!(has_text(&scene, "alt"));
+        assert!(has_text(&scene, "[else]"));
     }
 }

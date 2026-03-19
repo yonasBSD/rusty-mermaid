@@ -7,11 +7,11 @@
   <g transform="translate(20, 20)">
     <path d="M57 56.8 L57 296.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M209.8 56.8 L209.8 296.8" fill="none" stroke="#afa5c8" stroke-width="1" />
-    <path d="M57 96.8 L97 96.8 L97 126.8 L57 126.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M57 96.8 C97 86.9 97 136.7 57 126.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="103" y="111.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Think</text>
     <path d="M57 166.8 L209.8 166.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="133.4" y="158.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Decision</text>
-    <path d="M209.8 206.8 L249.8 206.8 L249.8 236.8 L209.8 236.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M209.8 206.8 C249.8 196.9 249.8 246.7 209.8 236.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="255.8" y="221.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Process</text>
     <path d="M209.8 276.8 L57 276.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
     <text x="133.4" y="268.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Result</text>

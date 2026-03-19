@@ -59,6 +59,7 @@ pub struct MessageLayout {
     pub label: Option<String>,
     pub arrow: ArrowStyle,
     pub is_self: bool,
+    pub number: Option<u32>,
 }
 
 /// An activation box on a lifeline.
@@ -128,6 +129,8 @@ struct LayoutPass<'a, T: TextMeasure> {
     activations: Vec<ActivationLayout>,
     /// Tracks the rightmost edge of any self-message label for bounds expansion.
     max_self_label_right: f64,
+    /// Autonumber counter: (current_value, step). None if autonumber is off.
+    msg_counter: Option<(u32, u32)>,
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +193,7 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         activation_stack: BTreeMap::new(),
         activations: Vec::new(),
         max_self_label_right: 0.0,
+        msg_counter: diagram.autonumber.map(|a| (a.start, a.step)),
     };
     pass.layout_items(&diagram.items);
     pass.close_remaining_activations();
@@ -421,6 +425,11 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
             }
         }
 
+        let number = self.msg_counter.map(|(val, step)| {
+            self.msg_counter = Some((val + step, step));
+            val
+        });
+
         self.messages.push(MessageLayout {
             from_x,
             to_x,
@@ -428,6 +437,7 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
             label: msg.label.clone(),
             arrow: msg.arrow,
             is_self,
+            number,
         });
 
         if is_self {
@@ -941,5 +951,170 @@ mod tests {
                 w[1].y
             );
         }
+    }
+
+    // -- Autonumber tests --
+
+    #[test]
+    fn autonumber_default() {
+        let mut d = two_actor_diagram();
+        d.autonumber = Some(AutoNumber { start: 1, step: 1 });
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("a"),
+        ));
+        d.items.push(SequenceItem::Message(
+            Message::new("Bob", "Alice", ArrowStyle::DOTTED_FILLED).with_label("b"),
+        ));
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("c"),
+        ));
+        let l = layout(&d, &tm());
+        assert_eq!(l.messages[0].number, Some(1));
+        assert_eq!(l.messages[1].number, Some(2));
+        assert_eq!(l.messages[2].number, Some(3));
+    }
+
+    #[test]
+    fn autonumber_custom_start_step() {
+        let mut d = two_actor_diagram();
+        d.autonumber = Some(AutoNumber { start: 10, step: 5 });
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("a"),
+        ));
+        d.items.push(SequenceItem::Message(
+            Message::new("Bob", "Alice", ArrowStyle::DOTTED_FILLED).with_label("b"),
+        ));
+        let l = layout(&d, &tm());
+        assert_eq!(l.messages[0].number, Some(10));
+        assert_eq!(l.messages[1].number, Some(15));
+    }
+
+    #[test]
+    fn no_autonumber_means_no_numbers() {
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("a"),
+        ));
+        let l = layout(&d, &tm());
+        assert_eq!(l.messages[0].number, None);
+    }
+
+    #[test]
+    fn autonumber_counts_self_messages() {
+        let mut d = two_actor_diagram();
+        d.autonumber = Some(AutoNumber { start: 1, step: 1 });
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("a"),
+        ));
+        d.items.push(SequenceItem::Message(
+            Message::new("Bob", "Bob", ArrowStyle::SOLID_FILLED).with_label("self"),
+        ));
+        d.items.push(SequenceItem::Message(
+            Message::new("Bob", "Alice", ArrowStyle::DOTTED_FILLED).with_label("c"),
+        ));
+        let l = layout(&d, &tm());
+        assert_eq!(l.messages[0].number, Some(1));
+        assert_eq!(l.messages[1].number, Some(2));
+        assert_eq!(l.messages[2].number, Some(3));
+    }
+
+    #[test]
+    fn autonumber_inside_fragments() {
+        let mut d = two_actor_diagram();
+        d.autonumber = Some(AutoNumber { start: 1, step: 1 });
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("before"),
+        ));
+        d.items.push(SequenceItem::Fragment(Fragment {
+            kind: FragmentKind::Loop,
+            label: Some("retry".into()),
+            sections: vec![FragmentSection {
+                label: None,
+                items: vec![SequenceItem::Message(
+                    Message::new("Bob", "Alice", ArrowStyle::DOTTED_FILLED).with_label("inside"),
+                )],
+            }],
+        }));
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("after"),
+        ));
+        let l = layout(&d, &tm());
+        assert_eq!(l.messages[0].number, Some(1));
+        assert_eq!(l.messages[1].number, Some(2));
+        assert_eq!(l.messages[2].number, Some(3));
+    }
+
+    // -- Par/Critical/Break/Opt fragment tests --
+
+    #[test]
+    fn par_fragment_layout() {
+        let mut d = SequenceDiagram::new();
+        d.participants.push(Participant::new("A", "A"));
+        d.participants.push(Participant::new("B", "B"));
+        d.participants.push(Participant::new("C", "C"));
+        d.items.push(SequenceItem::Fragment(Fragment {
+            kind: FragmentKind::Par,
+            label: Some("parallel".into()),
+            sections: vec![
+                FragmentSection {
+                    label: None,
+                    items: vec![SequenceItem::Message(
+                        Message::new("A", "B", ArrowStyle::SOLID_FILLED).with_label("task1"),
+                    )],
+                },
+                FragmentSection {
+                    label: Some("and".into()),
+                    items: vec![SequenceItem::Message(
+                        Message::new("A", "C", ArrowStyle::SOLID_FILLED).with_label("task2"),
+                    )],
+                },
+            ],
+        }));
+        let l = layout(&d, &tm());
+        assert_eq!(l.fragments.len(), 1);
+        assert_eq!(l.fragments[0].sections.len(), 1); // first section has no divider
+        assert!(l.fragments[0].height > 0.0);
+        assert_eq!(l.messages.len(), 2);
+    }
+
+    #[test]
+    fn opt_fragment_layout() {
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Fragment(Fragment {
+            kind: FragmentKind::Opt,
+            label: Some("optional".into()),
+            sections: vec![FragmentSection {
+                label: None,
+                items: vec![SequenceItem::Message(
+                    Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("maybe"),
+                )],
+            }],
+        }));
+        let l = layout(&d, &tm());
+        assert_eq!(l.fragments.len(), 1);
+        assert!(l.fragments[0].sections.is_empty()); // single section = no dividers
+    }
+
+    #[test]
+    fn break_fragment_layout() {
+        let mut d = two_actor_diagram();
+        d.items.push(SequenceItem::Message(
+            Message::new("Alice", "Bob", ArrowStyle::SOLID_FILLED).with_label("request"),
+        ));
+        d.items.push(SequenceItem::Fragment(Fragment {
+            kind: FragmentKind::Break,
+            label: Some("on error".into()),
+            sections: vec![FragmentSection {
+                label: None,
+                items: vec![SequenceItem::Message(
+                    Message::new("Bob", "Alice", ArrowStyle::DOTTED_FILLED).with_label("error"),
+                )],
+            }],
+        }));
+        let l = layout(&d, &tm());
+        assert_eq!(l.fragments.len(), 1);
+        assert_eq!(l.messages.len(), 2);
+        // Fragment must be below the first message.
+        assert!(l.fragments[0].y > l.messages[0].y);
     }
 }
