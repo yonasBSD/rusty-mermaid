@@ -17,7 +17,7 @@ macro_rules! parse_flowchart {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir().join("flowchart").join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = flowchart_parser::parse(&text)
@@ -31,7 +31,7 @@ macro_rules! parse_state {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir().join("state").join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = state_parser::parse(&text)

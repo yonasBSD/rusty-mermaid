@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 use rusty_mermaid_core::Shape;
-use rusty_mermaid_diagrams::{detect, DiagramKind};
+use rusty_mermaid_diagrams;
 
 fn workspace_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -32,7 +32,7 @@ struct StateResult {
 }
 
 static FLOWCHARTS: LazyLock<Vec<FlowResult>> = LazyLock::new(|| {
-    let mmd_dir = golden_mmd_dir();
+    let mmd_dir = golden_mmd_dir().join("flowchart");
     let mut results = Vec::new();
     for entry in fs::read_dir(&mmd_dir).unwrap() {
         let path = entry.unwrap().path();
@@ -40,9 +40,6 @@ static FLOWCHARTS: LazyLock<Vec<FlowResult>> = LazyLock::new(|| {
             continue;
         }
         let text = fs::read_to_string(&path).unwrap();
-        if detect(&text) != Some(DiagramKind::Flowchart) {
-            continue;
-        }
         let diagram = match rusty_mermaid_diagrams::flowchart::parser::parse(&text) {
             Ok(d) => d,
             Err(_) => continue,
@@ -56,7 +53,7 @@ static FLOWCHARTS: LazyLock<Vec<FlowResult>> = LazyLock::new(|| {
 });
 
 static STATES: LazyLock<Vec<StateResult>> = LazyLock::new(|| {
-    let mmd_dir = golden_mmd_dir();
+    let mmd_dir = golden_mmd_dir().join("state");
     let mut results = Vec::new();
     for entry in fs::read_dir(&mmd_dir).unwrap() {
         let path = entry.unwrap().path();
@@ -64,9 +61,6 @@ static STATES: LazyLock<Vec<StateResult>> = LazyLock::new(|| {
             continue;
         }
         let text = fs::read_to_string(&path).unwrap();
-        if detect(&text) != Some(DiagramKind::State) {
-            continue;
-        }
         let diagram = match rusty_mermaid_diagrams::state::parser::parse(&text) {
             Ok(d) => d,
             Err(_) => continue,

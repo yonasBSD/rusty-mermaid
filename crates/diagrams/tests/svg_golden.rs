@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use rusty_mermaid_core::Renderer;
-use rusty_mermaid_diagrams::{detect, render_to_scene, DiagramKind};
+use rusty_mermaid_diagrams::{detect, render_to_scene};
 use rusty_mermaid_svg::SvgRenderer;
 
 fn workspace_root() -> PathBuf {
@@ -22,27 +22,29 @@ fn golden_svg_dir() -> PathBuf {
     workspace_root().join("tests/golden/svg")
 }
 
-fn renderable_entries() -> Vec<(String, PathBuf)> {
+fn renderable_entries() -> Vec<(String, String, PathBuf)> {
     let mmd_dir = golden_mmd_dir();
-    let mut entries: Vec<(String, PathBuf)> = Vec::new();
-    for entry in fs::read_dir(&mmd_dir).expect("read golden/mmd dir") {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+    let mut entries: Vec<(String, String, PathBuf)> = Vec::new();
+    for type_entry in fs::read_dir(&mmd_dir).expect("read golden/mmd dir") {
+        let type_path = type_entry.unwrap().path();
+        if !type_path.is_dir() {
             continue;
         }
-        let text = fs::read_to_string(&path).unwrap();
-        match detect(&text) {
-            Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
-            _ => continue,
+        let type_name = type_path.file_name().unwrap().to_str().unwrap().to_string();
+        for entry in fs::read_dir(&type_path).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+                continue;
+            }
+            let text = fs::read_to_string(&path).unwrap();
+            if detect(&text).is_none() || render_to_scene(&text).is_err() {
+                continue;
+            }
+            let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
+            entries.push((type_name.clone(), stem, path));
         }
-        if render_to_scene(&text).is_err() {
-            continue;
-        }
-        let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
-        entries.push((stem, path));
     }
-    entries.sort_by(|a, b| a.0.cmp(&b.0));
+    entries.sort_by(|a, b| (&a.0, &a.1).cmp(&(&b.0, &b.1)));
     entries
 }
 
@@ -61,11 +63,14 @@ fn svg_golden_regression() {
     let mut verified = 0usize;
     let mut failures: Vec<String> = Vec::new();
 
-    for (stem, path) in &entries {
+    for (type_name, stem, path) in &entries {
+        let type_svg_dir = svg_dir.join(type_name);
+        fs::create_dir_all(&type_svg_dir).unwrap();
+
         let text = fs::read_to_string(path).unwrap();
         let scene = render_to_scene(&text).unwrap();
         let actual_svg = SvgRenderer.render(&scene);
-        let svg_path = svg_dir.join(format!("{stem}.svg"));
+        let svg_path = type_svg_dir.join(format!("{stem}.svg"));
 
         if svg_path.exists() && !update_mode {
             let expected_svg = fs::read_to_string(&svg_path).unwrap();
@@ -92,7 +97,7 @@ fn svg_golden_regression() {
                     }
                     None => "  (unknown diff)".to_string(),
                 };
-                failures.push(format!("{stem}: SVG mismatch\n{detail}"));
+                failures.push(format!("{type_name}/{stem}: SVG mismatch\n{detail}"));
             } else {
                 verified += 1;
             }
@@ -139,11 +144,13 @@ fn update_golden_svg() {
 
     let entries = renderable_entries();
     let mut count = 0usize;
-    for (stem, path) in &entries {
+    for (type_name, stem, path) in &entries {
+        let type_svg_dir = svg_dir.join(type_name);
+        fs::create_dir_all(&type_svg_dir).unwrap();
         let text = fs::read_to_string(path).unwrap();
         let scene = render_to_scene(&text).unwrap();
         let svg = SvgRenderer.render(&scene);
-        fs::write(svg_dir.join(format!("{stem}.svg")), &svg).unwrap();
+        fs::write(type_svg_dir.join(format!("{stem}.svg")), &svg).unwrap();
         count += 1;
     }
     eprintln!("Regenerated {count} golden SVG file(s).");

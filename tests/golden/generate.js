@@ -257,7 +257,7 @@ function runLayout(parsed, mmdText) {
 
 // ── Generate ───────────────────────────────────────────────
 
-const mmdDir = path.join(__dirname, "mmd");
+const mmdDir = path.join(__dirname, "mmd", "flowchart");
 const outDir = path.join(__dirname, "expected");
 fs.mkdirSync(outDir, { recursive: true });
 

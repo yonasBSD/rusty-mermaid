@@ -18,7 +18,7 @@ macro_rules! flowchart_layout {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir().join("flowchart").join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = flowchart::parser::parse(&text)
@@ -174,7 +174,7 @@ macro_rules! state_layout {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir().join("state").join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = state::parser::parse(&text)
@@ -253,7 +253,7 @@ fn assert_subgraph_containment(
 
 #[test]
 fn mcp_server_subgraph_containment() {
-    let path = golden_dir().join("mcp_server.mmd");
+    let path = golden_dir().join("flowchart/mcp_server.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -262,7 +262,7 @@ fn mcp_server_subgraph_containment() {
 
 #[test]
 fn compiler_pipeline_subgraph_containment() {
-    let path = golden_dir().join("compiler_pipeline.mmd");
+    let path = golden_dir().join("flowchart/compiler_pipeline.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -271,7 +271,7 @@ fn compiler_pipeline_subgraph_containment() {
 
 #[test]
 fn nested_compound_subgraph_containment() {
-    let path = golden_dir().join("nested_compound.mmd");
+    let path = golden_dir().join("flowchart/nested_compound.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -280,7 +280,7 @@ fn nested_compound_subgraph_containment() {
 
 #[test]
 fn compound_simple_subgraph_containment() {
-    let path = golden_dir().join("compound_simple.mmd");
+    let path = golden_dir().join("flowchart/compound_simple.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -354,7 +354,7 @@ fn assert_peer_subgraphs_no_overlap(
 
 #[test]
 fn compiler_pipeline_peer_subgraphs_no_overlap() {
-    let path = golden_dir().join("compiler_pipeline.mmd");
+    let path = golden_dir().join("flowchart/compiler_pipeline.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -363,7 +363,7 @@ fn compiler_pipeline_peer_subgraphs_no_overlap() {
 
 #[test]
 fn mcp_server_peer_subgraphs_no_overlap() {
-    let path = golden_dir().join("mcp_server.mmd");
+    let path = golden_dir().join("flowchart/mcp_server.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -372,7 +372,7 @@ fn mcp_server_peer_subgraphs_no_overlap() {
 
 #[test]
 fn nested_compound_peer_subgraphs_no_overlap() {
-    let path = golden_dir().join("nested_compound.mmd");
+    let path = golden_dir().join("flowchart/nested_compound.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -381,7 +381,7 @@ fn nested_compound_peer_subgraphs_no_overlap() {
 
 #[test]
 fn arch_component_subgraph_containment() {
-    let path = golden_dir().join("arch_component.mmd");
+    let path = golden_dir().join("flowchart/arch_component.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);
@@ -390,7 +390,7 @@ fn arch_component_subgraph_containment() {
 
 #[test]
 fn arch_component_peer_subgraphs_no_overlap() {
-    let path = golden_dir().join("arch_component.mmd");
+    let path = golden_dir().join("flowchart/arch_component.mmd");
     let text = fs::read_to_string(&path).unwrap();
     let diagram = flowchart::parser::parse(&text).unwrap();
     let result = flowchart::bridge::layout(&diagram);

@@ -138,21 +138,26 @@ fn structural_fingerprint_regression() {
     let mmd_dir = golden_mmd_dir();
     let fp_dir = fingerprint_dir();
 
-    // Collect supported .mmd files
+    // Collect supported .mmd files from all type subdirectories
     let mut entries: Vec<(String, PathBuf)> = Vec::new();
-    for entry in fs::read_dir(&mmd_dir).expect("read golden/mmd dir") {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+    for type_entry in fs::read_dir(&mmd_dir).expect("read golden/mmd dir") {
+        let type_path = type_entry.unwrap().path();
+        if !type_path.is_dir() {
             continue;
         }
-        let text = fs::read_to_string(&path).unwrap();
-        match detect(&text) {
-            Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
-            _ => continue,
+        for entry in fs::read_dir(&type_path).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+                continue;
+            }
+            let text = fs::read_to_string(&path).unwrap();
+            match detect(&text) {
+                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
+                _ => continue,
+            }
+            let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
+            entries.push((stem, path));
         }
-        let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
-        entries.push((stem, path));
     }
     entries.sort_by(|a, b| a.0.cmp(&b.0));
     assert!(!entries.is_empty(), "no .mmd files found in golden/mmd");
@@ -278,26 +283,31 @@ fn update_fingerprints() {
     fs::create_dir_all(&fp_dir).expect("create fingerprints dir");
 
     let mut count = 0usize;
-    for entry in fs::read_dir(&mmd_dir).expect("read golden/mmd dir") {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+    for type_entry in fs::read_dir(&mmd_dir).expect("read golden/mmd dir") {
+        let type_path = type_entry.unwrap().path();
+        if !type_path.is_dir() {
             continue;
         }
-        let text = fs::read_to_string(&path).unwrap();
-        match detect(&text) {
-            Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
-            _ => continue,
+        for entry in fs::read_dir(&type_path).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+                continue;
+            }
+            let text = fs::read_to_string(&path).unwrap();
+            match detect(&text) {
+                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
+                _ => continue,
+            }
+            let scene = match render_to_scene(&text) {
+                Ok(s) => s,
+                Err(_) => continue,
+            };
+            let stem = path.file_stem().unwrap().to_str().unwrap();
+            let fp_path = fp_dir.join(format!("{}.json", stem));
+            let json = serde_json::to_string_pretty(&SvgFingerprint::from_scene(&scene)).unwrap();
+            fs::write(&fp_path, json).unwrap();
+            count += 1;
         }
-        let scene = match render_to_scene(&text) {
-            Ok(s) => s,
-            Err(_) => continue,
-        };
-        let stem = path.file_stem().unwrap().to_str().unwrap();
-        let fp_path = fp_dir.join(format!("{}.json", stem));
-        let json = serde_json::to_string_pretty(&SvgFingerprint::from_scene(&scene)).unwrap();
-        fs::write(&fp_path, json).unwrap();
-        count += 1;
     }
     eprintln!("Regenerated {} fingerprint file(s).", count);
 }
