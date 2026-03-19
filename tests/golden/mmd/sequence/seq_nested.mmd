@@ -1,0 +1,10 @@
+sequenceDiagram
+    Alice->>Bob: Start
+    loop Retry
+        alt Available
+            Bob->>Alice: Data
+        else Unavailable
+            Bob->>Alice: Wait
+        end
+    end
+    Alice->>Bob: Done

@@ -1611,3 +1611,275 @@ fn state_style_field_validity() {
     }
     assert!(failures.is_empty(), "invalid style fields:\n{}", failures.join("\n"));
 }
+
+// ===========================================================================
+// SEQUENCE DIAGRAM INVARIANTS
+// ===========================================================================
+
+struct SeqResult {
+    stem: String,
+    layout: rusty_mermaid_diagrams::sequence::layout::SequenceLayout,
+}
+
+static SEQUENCES: LazyLock<Vec<SeqResult>> = LazyLock::new(|| {
+    let mmd_dir = golden_mmd_dir().join("sequence");
+    let mut results = Vec::new();
+    for entry in fs::read_dir(&mmd_dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().and_then(|e| e.to_str()) != Some("mmd") {
+            continue;
+        }
+        let text = fs::read_to_string(&path).unwrap();
+        let diagram = match rusty_mermaid_diagrams::sequence::parser::parse(&text) {
+            Ok(d) => d,
+            Err(_) => continue,
+        };
+        let layout = rusty_mermaid_diagrams::sequence::layout::layout(
+            &diagram,
+            &rusty_mermaid_core::SimpleTextMeasure::default(),
+        );
+        let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
+        results.push(SeqResult { stem, layout });
+    }
+    results.sort_by(|a, b| a.stem.cmp(&b.stem));
+    results
+});
+
+#[test]
+fn seq_has_golden_files() {
+    assert!(
+        !SEQUENCES.is_empty(),
+        "no sequence golden .mmd files found"
+    );
+}
+
+#[test]
+fn seq_positive_dimensions() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        if sr.layout.width <= 0.0 || sr.layout.height <= 0.0 {
+            failures.push(format!(
+                "{}: invalid dimensions {}×{}", sr.stem, sr.layout.width, sr.layout.height
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "bad dimensions:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_actors_no_horizontal_overlap() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        let actors = &sr.layout.actors;
+        for i in 0..actors.len() {
+            let a = &actors[i];
+            let a_right = a.x + a.width / 2.0;
+            for j in (i + 1)..actors.len() {
+                let b = &actors[j];
+                let b_left = b.x - b.width / 2.0;
+                if a_right > b_left + 1.0 {
+                    failures.push(format!(
+                        "{}: actors {} and {} overlap horizontally ({:.1} > {:.1})",
+                        sr.stem, a.id, b.id, a_right, b_left
+                    ));
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "actor overlaps:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_actors_ordered_left_to_right() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for w in sr.layout.actors.windows(2) {
+            if w[0].x >= w[1].x {
+                failures.push(format!(
+                    "{}: actor {} (x={:.1}) not left of {} (x={:.1})",
+                    sr.stem, w[0].id, w[0].x, w[1].id, w[1].x
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "actor order:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_messages_advance_downward() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for w in sr.layout.messages.windows(2) {
+            if w[1].y <= w[0].y {
+                failures.push(format!(
+                    "{}: message y {:.1} not below {:.1}",
+                    sr.stem, w[1].y, w[0].y
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "message order:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_messages_below_actor_boxes() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        if sr.layout.actors.is_empty() { continue; }
+        let actor_bottom = sr.layout.actors[0].y + sr.layout.actors[0].height;
+        for msg in &sr.layout.messages {
+            if msg.y < actor_bottom - 1.0 {
+                failures.push(format!(
+                    "{}: message y={:.1} above actor bottom {:.1}",
+                    sr.stem, msg.y, actor_bottom
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "message position:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_lifelines_span_actor_to_bottom() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for ll in &sr.layout.lifelines {
+            if ll.top_y >= ll.bottom_y {
+                failures.push(format!(
+                    "{}: lifeline {} top {:.1} >= bottom {:.1}",
+                    sr.stem, ll.actor_id, ll.top_y, ll.bottom_y
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "lifeline spans:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_activations_positive_height() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for act in &sr.layout.activations {
+            if act.top_y >= act.bottom_y {
+                failures.push(format!(
+                    "{}: activation on {} has non-positive height ({:.1}..{:.1})",
+                    sr.stem, act.actor_id, act.top_y, act.bottom_y
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "activation heights:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_fragments_enclose_child_messages() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for frag in &sr.layout.fragments {
+            let frag_top = frag.y;
+            let frag_bottom = frag.y + frag.height;
+            // Check all messages that fall within fragment y range.
+            for msg in &sr.layout.messages {
+                if msg.y > frag_top && msg.y < frag_bottom {
+                    // Message x should be within fragment x bounds.
+                    let frag_left = frag.x;
+                    let frag_right = frag.x + frag.width;
+                    let msg_left = msg.from_x.min(msg.to_x);
+                    let msg_right = msg.from_x.max(msg.to_x);
+                    if msg_left < frag_left - 1.0 || msg_right > frag_right + 1.0 {
+                        failures.push(format!(
+                            "{}: message x [{:.1}..{:.1}] outside fragment [{:.1}..{:.1}]",
+                            sr.stem, msg_left, msg_right, frag_left, frag_right
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "fragment containment:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_bottom_actors_mirror_top() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        if sr.layout.actors.len() != sr.layout.bottom_actors.len() {
+            failures.push(format!(
+                "{}: top {} != bottom {} actor count",
+                sr.stem, sr.layout.actors.len(), sr.layout.bottom_actors.len()
+            ));
+            continue;
+        }
+        for (top, bot) in sr.layout.actors.iter().zip(sr.layout.bottom_actors.iter()) {
+            if top.id != bot.id {
+                failures.push(format!("{}: top {} != bottom {}", sr.stem, top.id, bot.id));
+            }
+            if (top.x - bot.x).abs() > 0.01 {
+                failures.push(format!(
+                    "{}: actor {} x mismatch top={:.1} bot={:.1}",
+                    sr.stem, top.id, top.x, bot.x
+                ));
+            }
+            if bot.y <= top.y {
+                failures.push(format!(
+                    "{}: bottom actor {} not below top ({:.1} vs {:.1})",
+                    sr.stem, top.id, bot.y, top.y
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "bottom actor mirror:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_notes_have_positive_dimensions() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for note in &sr.layout.notes {
+            if note.width <= 0.0 || note.height <= 0.0 {
+                failures.push(format!(
+                    "{}: note '{}' has invalid dimensions {}×{}",
+                    sr.stem, note.text, note.width, note.height
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "note dimensions:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_fragments_have_positive_dimensions() {
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        for frag in &sr.layout.fragments {
+            if frag.width <= 0.0 || frag.height <= 0.0 {
+                failures.push(format!(
+                    "{}: fragment {:?} has invalid dimensions {}×{}",
+                    sr.stem, frag.kind, frag.width, frag.height
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "fragment dimensions:\n{}", failures.join("\n"));
+}
+
+#[test]
+fn seq_all_within_canvas() {
+    let tol = 5.0;
+    let mut failures = Vec::new();
+    for sr in SEQUENCES.iter() {
+        let w = sr.layout.width;
+        let h = sr.layout.height;
+        for a in sr.layout.actors.iter().chain(sr.layout.bottom_actors.iter()) {
+            let right = a.x + a.width / 2.0;
+            let bottom = a.y + a.height;
+            if right > w + tol || bottom > h + tol {
+                failures.push(format!(
+                    "{}: actor {} extends beyond canvas ({:.0}×{:.0})",
+                    sr.stem, a.id, w, h
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "canvas bounds:\n{}", failures.join("\n"));
+}

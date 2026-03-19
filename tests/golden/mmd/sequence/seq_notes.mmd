@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant Alice
+    participant Bob
+    participant Charlie
+    Alice->>Bob: Request
+    Note left of Alice: Sender note
+    Note right of Bob: Receiver note
+    Bob->>Charlie: Forward
+    Note over Bob,Charlie: Spans both
+    Note over Alice: Single actor note

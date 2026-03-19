@@ -1,0 +1,9 @@
+sequenceDiagram
+    Alice->>Bob: Request
+    alt Success
+        Bob-->>Alice: 200 OK
+    else Failure
+        Bob-->>Alice: 500 Error
+    else Timeout
+        Bob-->>Alice: 408 Timeout
+    end

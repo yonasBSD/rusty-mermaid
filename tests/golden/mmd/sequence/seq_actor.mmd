@@ -1,0 +1,8 @@
+sequenceDiagram
+    actor User
+    participant Server
+    participant DB
+    User->>Server: GET /api/data
+    Server->>DB: SELECT * FROM data
+    DB-->>Server: Results
+    Server-->>User: JSON response

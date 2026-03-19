@@ -937,7 +937,7 @@ Phase 10: sequence diagram
   [ ] 10.5r ── diff review ──
 
   10f — Golden tests
-  [ ] 10.6  Golden .mmd files for sequence diagrams:
+  [x] 10.6  Golden .mmd files for sequence diagrams:
             tests/golden/mmd/seq_basic.mmd         (2 actors, 3 messages)
             tests/golden/mmd/seq_arrows.mmd        (all arrow types)
             tests/golden/mmd/seq_notes.mmd         (notes left/right/over)
