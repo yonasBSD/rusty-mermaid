@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 206.4 569.6" width="206.4" height="569.6">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M83.2 32.8 L83.2 36.97 C83.2 41.13 83.2 49.47 83.2 57.8 C83.2 66.13 83.2 74.47 83.2 78.63 L83.2 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M83.2 115.6 L83.2 119.77 C83.2 123.93 83.2 132.27 83.2 140.6 C83.2 148.93 83.2 157.27 83.2 161.43 L83.2 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M83.2 198.4 L83.2 202.57 C83.2 206.73 83.2 215.07 83.2 223.4 C83.2 231.73 83.2 240.07 83.2 244.23 L83.2 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M83.2 281.2 L83.2 285.37 C83.2 289.53 83.2 297.87 83.2 306.2 C83.2 314.53 83.2 322.87 83.2 327.03 L83.2 331.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M83.2 364 L83.2 368.17 C83.2 372.33 83.2 380.67 83.2 389 C83.2 397.33 83.2 405.67 83.2 409.83 L83.2 414" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M83.2 446.8 L83.2 450.97 C83.2 455.13 83.2 463.47 83.2 471.8 C83.2 480.13 83.2 488.47 83.2 492.63 L83.2 496.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="21" y="0" width="124.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hello World</text>
+    <rect x="0" y="82.8" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bonjour le monde</text>
+    <rect x="25.2" y="165.6" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hallo Welt</text>
+    <rect x="25.2" y="248.4" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Привет мир</text>
+    <rect x="38.64" y="331.2" width="89.12" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">你好世界</text>
+    <rect x="17.22" y="414" width="131.96" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="430.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">こんにちは世界</text>
+    <rect x="12.6" y="496.8" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="513.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">مرحبا بالعالم</text>
+  </g>
+</svg>

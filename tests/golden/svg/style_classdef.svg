@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 263.2 238.4" width="263.2" height="238.4">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M45.4 32.8 L45.4 36.97 C45.4 41.13 45.4 49.47 45.4 57.8 C45.4 66.13 45.4 74.47 45.4 78.63 L45.4 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M45.4 115.6 L45.4 119.77 C45.4 123.93 45.4 132.27 45.4 140.6 C45.4 148.93 45.4 157.27 45.4 161.43 L45.4 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 32.8 L182 36.97 C182 41.13 182 49.47 182 57.8 C182 66.13 182 74.47 182 78.63 L182 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="8.4" y="0" width="74" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
+    <text x="45.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <rect x="0" y="82.8" width="90.8" height="32.8" fill="#eeeeee" stroke="#999999" stroke-width="1.5" />
+    <text x="45.4" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Process</text>
+    <rect x="16.8" y="165.6" width="57.2" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
+    <text x="45.4" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">End</text>
+    <rect x="140.8" y="0" width="82.4" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
+    <text x="182" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inline</text>
+    <rect x="140.8" y="82.8" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="182" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Normal</text>
+  </g>
+</svg>

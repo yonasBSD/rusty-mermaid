@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 1015.6" width="304" height="1015.6">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="60" y="339" width="144" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="351" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Component</text>
+    <path d="M60 363 L204 363" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="40" y="248" width="184" height="479.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="260" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Module</text>
+    <path d="M40 272 L224 272" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="20" y="157" width="224" height="661.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="169" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Subsystem</text>
+    <path d="M20 181 L244 181" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="0" y="66" width="264" height="843.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">System</text>
+    <path d="M0 90 L264 90" fill="none" stroke="#9370db" stroke-width="1" />
+    <path d="M132 380 L132 384.17 C132 388.33 132 396.67 132 405 C132 413.33 132 421.67 132 425.83 L132 430" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M142.3 462.8 L144.92 466.97 C147.53 471.13 152.77 479.47 152.77 487.8 C152.77 496.13 147.53 504.47 144.92 508.63 L142.3 512.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 545.6 L132 549.77 C132 553.93 132 562.27 132 570.6 C132 578.93 132 587.27 132 591.43 L132 595.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 289 L132 293.17 C132 297.33 132 305.67 132 314 C132 322.33 132 330.67 132 339" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 636.6 C132 644.93 132 653.27 132 661.6 C132 669.93 132 678.27 132 682.43 L132 686.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 198 L132 202.17 C132 206.33 132 214.67 132 223 C132 231.33 132 239.67 132 248" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 727.6 C132 735.93 132 744.27 132 752.6 C132 760.93 132 769.27 132 773.43 L132 777.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 107 L132 111.17 C132 115.33 132 123.67 132 132 C132 140.33 132 148.67 132 157" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 818.6 C132 826.93 132 835.27 132 843.6 C132 851.93 132 860.27 132 864.43 L132 868.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 16 L132 20.17 C132 24.33 132 32.67 132 41 C132 49.33 132 57.67 132 66" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M132 909.6 C132 909.6 132 909.6 132 909.6 C132 917.93 132 926.27 132 934.6 C132 942.93 132 951.27 132 955.43 L132 959.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M121.7 512.8 L119.08 508.63 C116.47 504.47 111.23 496.13 111.23 487.8 C111.23 479.47 116.47 471.13 119.08 466.97 L121.7 462.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="99.2" y="512.8" width="65.6" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="529.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Busy</text>
+    <circle cx="132" cy="603.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="132" cy="603.6" r="4" fill="#9370db" />
+    <circle cx="132" cy="372" r="8" fill="#333333" stroke="#333333" />
+    <circle cx="132" cy="694.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="132" cy="694.6" r="4" fill="#9370db" />
+    <circle cx="132" cy="281" r="8" fill="#333333" stroke="#333333" />
+    <rect x="95" y="430" width="74" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="446.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ready</text>
+    <circle cx="132" cy="785.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="132" cy="785.6" r="4" fill="#9370db" />
+    <circle cx="132" cy="190" r="8" fill="#333333" stroke="#333333" />
+    <circle cx="132" cy="876.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="132" cy="876.6" r="4" fill="#9370db" />
+    <circle cx="132" cy="99" r="8" fill="#333333" stroke="#333333" />
+    <circle cx="132" cy="967.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="132" cy="967.6" r="4" fill="#9370db" />
+    <circle cx="132" cy="8" r="8" fill="#333333" stroke="#333333" />
+  </g>
+</svg>

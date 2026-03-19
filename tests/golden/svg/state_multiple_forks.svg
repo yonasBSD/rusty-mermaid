@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420.8 598.4" width="420.8" height="598.4">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M182 16 L182 20.17 C182 24.33 182 32.67 182 41 C182 49.33 182 57.67 182 61.83 L182 66" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M200.32 73 L222.14 77.17 C243.95 81.33 287.57 89.67 309.39 98 C331.2 106.33 331.2 114.67 331.2 118.83 L331.2 123" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 73 L182 77.17 C182 81.33 182 89.67 182 98 C182 106.33 182 114.67 182 118.83 L182 123" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M164.71 73 L144.12 77.17 C123.54 81.33 82.37 89.67 61.78 98 C41.2 106.33 41.2 114.67 41.2 118.83 L41.2 123" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M331.2 155.8 L331.2 159.97 C331.2 164.13 331.2 172.47 309.39 180.8 C287.57 189.13 243.95 197.47 222.14 201.63 L200.32 205.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 155.8 L182 159.97 C182 164.13 182 172.47 182 180.8 C182 189.13 182 197.47 182 201.63 L182 205.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M41.2 155.8 L41.2 159.97 C41.2 164.13 41.2 172.47 61.78 180.8 C82.37 189.13 123.54 197.47 144.12 201.63 L164.71 205.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 212.8 L182 216.97 C182 221.13 182 229.47 182 237.8 C182 246.13 182 254.47 182 258.63 L182 262.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 295.6 L182 299.77 C182 303.93 182 312.27 182 320.6 C182 328.93 182 337.27 182 341.43 L182 345.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M191.16 352.6 L202.07 356.77 C212.97 360.93 234.79 369.27 245.69 377.6 C256.6 385.93 256.6 394.27 256.6 398.43 L256.6 402.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M173.35 352.6 L163.06 356.77 C152.77 360.93 132.18 369.27 121.89 377.6 C111.6 385.93 111.6 394.27 111.6 398.43 L111.6 402.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M256.6 435.4 L256.6 439.57 C256.6 443.73 256.6 452.07 245.69 460.4 C234.79 468.73 212.97 477.07 202.07 481.23 L191.16 485.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M111.6 435.4 L111.6 439.57 C111.6 443.73 111.6 452.07 121.89 460.4 C132.18 468.73 152.77 477.07 163.06 481.23 L173.35 485.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 492.4 L182 496.57 C182 500.73 182 509.07 182 517.4 C182 525.73 182 534.07 182 538.23 L182 542.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="207" y="402.6" width="99.2" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="256.6" y="419" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Compress</text>
+    <rect x="281.6" y="123" width="99.2" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="331.2" y="139.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Download</text>
+    <rect x="66.2" y="402.6" width="90.8" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="111.6" y="419" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Encrypt</text>
+    <rect x="0" y="123" width="82.4" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="41.2" y="139.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Notify</text>
+    <rect x="128.2" y="262.8" width="107.6" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="182" y="279.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Transform</text>
+    <rect x="132.4" y="123" width="99.2" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="182" y="139.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validate</text>
+    <circle cx="182" cy="550.4" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="182" cy="550.4" r="4" fill="#9370db" />
+    <circle cx="182" cy="8" r="8" fill="#333333" stroke="#333333" />
+    <rect x="147" y="66" width="70" height="7" fill="#333333" stroke="#333333" />
+    <rect x="147" y="345.6" width="70" height="7" fill="#333333" stroke="#333333" />
+    <rect x="147" y="205.8" width="70" height="7" fill="#333333" stroke="#333333" />
+    <rect x="147" y="485.4" width="70" height="7" fill="#333333" stroke="#333333" />
+  </g>
+</svg>

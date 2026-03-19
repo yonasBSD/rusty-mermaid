@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1941.5 1828.12" width="1941.5" height="1828.12">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="0" y="332" width="1492.1" height="82.8" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <text x="8" y="344" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Invalidation</text>
+    <path d="M1720.6 32.8 L1720.6 36.97 C1720.6 41.13 1720.6 49.47 1720.6 57.8 C1720.6 66.13 1720.6 74.47 1720.6 78.63 L1720.6 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M1762.54 223.26 L1773.24 235.81 C1783.93 248.37 1805.31 273.49 1816.01 291.61 C1826.7 309.73 1826.7 320.87 1826.7 330.6 C1826.7 340.33 1826.7 348.67 1826.7 352.83 L1826.7 357" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="1811.9" y="320.8" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1826.7" y="332" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hit</text>
+    <path d="M1678.66 223.26 L1667.96 235.81 C1657.27 248.37 1635.89 273.49 1625.19 291.61 C1614.5 309.73 1614.5 320.87 1614.5 330.6 C1614.5 340.33 1614.5 348.67 1614.5 352.83 L1614.5 357" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="1596.1" y="320.8" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1614.5" y="332" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Miss</text>
+    <path d="M1614.5 389.8 L1614.5 393.97 C1614.5 398.13 1614.5 406.47 1614.5 414.8 C1614.5 423.13 1614.5 431.47 1586.22 449.52 C1557.95 467.58 1501.39 495.36 1473.12 509.25 L1444.84 523.14" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M1416.57 608.73 L1422.16 619.31 C1427.75 629.89 1438.92 651.04 1444.51 676.15 C1450.1 701.27 1450.1 730.33 1450.1 744.87 L1450.1 759.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="1435.3" y="661" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1450.1" y="672.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hit</text>
+    <path d="M1350.35 602.65 L1342.11 614.24 C1333.87 625.83 1317.38 649.02 1259.8 675.2 C1202.22 701.39 1103.55 730.58 1054.21 745.18 L1004.87 759.77" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="1282.5" y="661" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1300.9" y="672.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Miss</text>
+    <path d="M993.41 803.29 L1013.13 815.97 C1032.84 828.66 1072.27 854.03 1091.99 884.75 C1111.7 915.47 1111.7 951.53 1111.7 969.57 L1111.7 987.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="1096.9" y="868.2" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1111.7" y="879.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hit</text>
+    <path d="M914.2 809.5 L901.58 821.15 C888.97 832.8 863.73 856.1 851.12 873.32 C838.5 890.53 838.5 901.67 838.5 907.23 L838.5 912.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="820.1" y="868.2" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="838.5" y="879.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Miss</text>
+    <path d="M890.77 1042.93 L909.94 1057.21 C929.11 1071.49 967.46 1100.04 986.63 1130.95 C1005.8 1161.87 1005.8 1195.13 1005.8 1211.77 L1005.8 1228.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="991" y="1117.4" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1005.8" y="1128.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hit</text>
+    <path d="M797.51 1054.21 L787.4 1066.61 C777.28 1079.01 757.04 1103.8 746.92 1121.77 C736.8 1139.73 736.8 1150.87 736.8 1156.43 L736.8 1162" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="718.4" y="1117.4" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="736.8" y="1128.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Miss</text>
+    <path d="M784.36 1280.04 L802.56 1293.54 C820.77 1307.03 857.19 1334.01 875.39 1353.07 C893.6 1372.13 893.6 1383.27 893.6 1388.83 L893.6 1394.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="878.8" y="1349.8" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="893.6" y="1361" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hit</text>
+    <path d="M696.88 1287.68 L685.5 1299.9 C674.12 1312.12 651.36 1336.56 639.98 1354.35 C628.6 1372.13 628.6 1383.27 628.6 1388.83 L628.6 1394.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="610.2" y="1349.8" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="628.6" y="1361" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Miss</text>
+    <path d="M670.63 1427.2 L681.31 1431.37 C691.99 1435.53 713.34 1443.87 724.02 1452.2 C734.7 1460.53 734.7 1468.87 734.7 1473.03 L734.7 1477.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M775.9 1510 L786.37 1514.17 C796.83 1518.33 817.77 1526.67 876.5 1537.96 C935.23 1549.25 1031.77 1563.49 1080.03 1570.62 L1128.3 1577.74" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M730.54 1510 L729.48 1514.17 C728.43 1518.33 726.31 1526.67 725.26 1534.26 C724.2 1541.85 724.2 1548.7 724.2 1552.12 L724.2 1555.54" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M586.57 1427.2 L575.89 1431.37 C565.21 1435.53 543.86 1443.87 533.18 1452.2 C522.5 1460.53 522.5 1468.87 522.5 1473.03 L522.5 1477.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M522.5 1510 L522.5 1514.17 C522.5 1518.33 522.5 1526.67 515.05 1537.48 C507.6 1548.29 492.7 1561.57 485.24 1568.22 L477.79 1574.86" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M459.4 1607.66 L459.4 1614.3 C459.4 1620.95 459.4 1634.23 459.4 1645.04 C459.4 1655.85 459.4 1664.19 459.4 1668.35 L459.4 1672.52" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M459.4 1705.32 L459.4 1709.49 C459.4 1713.65 459.4 1721.99 459.4 1730.32 C459.4 1738.65 459.4 1746.99 459.4 1751.15 L459.4 1755.32" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M114 389.8 L114 393.97 C114 398.13 114 406.47 114 414.8 C114 423.13 114 431.47 114 451.57 C114 471.67 114 503.53 114 519.47 L114 535.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M332.41 389.8 L340.39 393.97 C348.38 398.13 364.34 406.47 372.32 414.8 C380.3 423.13 380.3 431.47 534.95 452.85 C689.6 474.23 998.91 508.66 1153.56 525.87 L1308.21 543.09" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M281.55 389.8 L276.61 393.97 C271.67 398.13 261.78 406.47 256.84 414.8 C251.9 423.13 251.9 431.47 251.9 454.3 C251.9 477.13 251.9 514.47 251.9 553.2 C251.9 591.93 251.9 632.07 358.18 667.89 C464.45 703.71 677.01 735.22 783.29 750.98 L889.56 766.74" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M1017.3 383.72 L1052.73 388.9 C1088.17 394.08 1159.03 404.44 1194.47 413.79 C1229.9 423.13 1229.9 431.47 1229.9 454.3 C1229.9 477.13 1229.9 514.47 1229.9 553.2 C1229.9 591.93 1229.9 632.07 1229.9 669.4 C1229.9 706.73 1229.9 741.27 1229.9 775.8 C1229.9 810.33 1229.9 844.87 1229.9 882.9 C1229.9 920.93 1229.9 962.47 1229.9 1004 C1229.9 1045.53 1229.9 1087.07 1229.9 1127.2 C1229.9 1167.33 1229.9 1206.07 1229.9 1244.8 C1229.9 1283.53 1229.9 1322.27 1229.9 1349.93 C1229.9 1377.6 1229.9 1394.2 1229.9 1409.4 C1229.9 1424.6 1229.9 1438.4 1229.9 1452.2 C1229.9 1466 1229.9 1479.8 1229.9 1493.6 C1229.9 1507.4 1229.9 1521.2 1229.38 1531.03 C1228.86 1540.86 1227.82 1546.71 1227.3 1549.64 L1226.78 1552.57" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M876.1 378.75 L796.8 384.76 C717.5 390.77 558.9 402.78 479.6 412.96 C400.3 423.13 400.3 431.47 400.3 454.3 C400.3 477.13 400.3 514.47 400.3 553.2 C400.3 591.93 400.3 632.07 400.3 669.4 C400.3 706.73 400.3 741.27 400.3 775.8 C400.3 810.33 400.3 844.87 400.3 882.9 C400.3 920.93 400.3 962.47 400.3 1004 C400.3 1045.53 400.3 1087.07 400.3 1127.2 C400.3 1167.33 400.3 1206.07 400.3 1244.8 C400.3 1283.53 400.3 1322.27 400.3 1349.93 C400.3 1377.6 400.3 1394.2 400.3 1409.4 C400.3 1424.6 400.3 1438.4 400.3 1452.2 C400.3 1466 400.3 1479.8 400.3 1493.6 C400.3 1507.4 400.3 1521.2 407.28 1534.74 C414.26 1548.29 428.21 1561.57 435.19 1568.22 L442.17 1574.86" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <path d="M1386.5 389.8 L1386.5 393.97 C1386.5 398.13 1386.5 406.47 1386.5 414.8 C1386.5 423.13 1386.5 431.47 1386.5 439.8 C1386.5 448.13 1386.5 456.47 1386.5 460.63 L1386.5 464.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
+    <rect x="1645.8" y="0" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1720.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Client Browser</text>
+    <polygon points="1720.6,82.8 1811.8,174 1720.6,265.2 1629.4,174" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1720.6" y="174" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">CDN Cache Hit?</text>
+    <rect x="1751.9" y="357" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1826.7" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Serve from CDN</text>
+    <rect x="1527.1" y="357" width="174.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1614.5" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">App Load Balancer</text>
+    <polygon points="1386.5,464.8 1473.5,551.8 1386.5,638.8 1299.5,551.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1386.5" y="551.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">L1 In-Memory?</text>
+    <rect x="1362.7" y="759.4" width="174.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1450.1" y="775.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Serve from Memory</text>
+    <polygon points="950.7,705.6 1020.9,775.8 950.7,846 880.5,775.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="950.7" y="775.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">L2 Redis?</text>
+    <rect x="1028.5" y="987.6" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1111.7" y="1004" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Serve from Redis</text>
+    <polygon points="838.5,912.8 929.7,1004 838.5,1095.2 747.3,1004" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="838.5" y="1004" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Session Cache?</text>
+    <rect x="935.2" y="1228.4" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1005.8" y="1244.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Serve Session</text>
+    <polygon points="736.8,1162 819.6,1244.8 736.8,1327.6 654,1244.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="736.8" y="1244.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Query Cache?</text>
+    <rect x="802" y="1394.4" width="183.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="893.6" y="1410.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Serve Cached Query</text>
+    <rect x="553.8" y="1394.4" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="628.6" y="1410.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Database Query</text>
+    <rect x="655.7" y="1477.2" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="734.7" y="1493.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Connection Pool</text>
+    <path d="M1128.3 1567.43 L1128.3 1615.09 A91.6 14.86 0 0 0 1311.5 1615.09 L1311.5 1567.43 A91.6 14.86 0 0 1 1128.3 1567.43" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <path d="M1128.3 1567.43 A91.6 14.86 0 0 1 1311.5 1567.43 A91.6 14.86 0 0 1 1128.3 1567.43" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1219.9" y="1598.69" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">PostgreSQL Primary</text>
+    <path d="M657.8 1568.42 L657.8 1614.1 A66.4 12.88 0 0 0 790.6 1614.1 L790.6 1568.42 A66.4 12.88 0 0 1 657.8 1568.42" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <path d="M657.8 1568.42 A66.4 12.88 0 0 1 790.6 1568.42 A66.4 12.88 0 0 1 657.8 1568.42" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="724.2" y="1597.7" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Read Replica</text>
+    <rect x="439.3" y="1477.2" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="522.5" y="1493.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hydrate Response</text>
+    <rect x="384.6" y="1574.86" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="459.4" y="1591.26" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write to Redis</text>
+    <rect x="380.4" y="1672.52" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="459.4" y="1688.92" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write to Memory</text>
+    <rect x="380.4" y="1755.32" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="459.4" y="1771.72" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Return Response</text>
+    <rect x="35" y="357" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="114" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Webhook Trigger</text>
+    <rect x="243" y="357" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="301" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">TTL Expiry</text>
+    <rect x="876.1" y="357" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="946.7" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write-Through</text>
+    <rect x="1315.9" y="357" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1386.5" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Redis Pub/Sub</text>
+    <rect x="60.2" y="535.4" width="107.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="114" y="551.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">CDN Purge</text>
+  </g>
+</svg>

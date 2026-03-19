@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618.4 72.8" width="618.4" height="72.8">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M74 16.4 L78.17 16.4 C82.33 16.4 90.67 16.4 99 16.4 C107.33 16.4 115.67 16.4 119.83 16.4 L124 16.4" fill="none" stroke="#ff0000" stroke-width="3" marker-end="url(#arrow-point)" />
+    <path d="M206.4 16.4 L210.57 16.4 C214.73 16.4 223.07 16.4 231.4 16.4 C239.73 16.4 248.07 16.4 252.23 16.4 L256.4 16.4" fill="none" stroke="#00aa00" stroke-width="2" marker-end="url(#arrow-point)" />
+    <path d="M338.8 16.4 L342.97 16.4 C347.13 16.4 355.47 16.4 363.8 16.4 C372.13 16.4 380.47 16.4 384.63 16.4 L388.8 16.4" fill="none" stroke="#0000ff" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-point)" />
+    <path d="M471.2 16.4 L475.37 16.4 C479.53 16.4 487.87 16.4 496.2 16.4 C504.53 16.4 512.87 16.4 517.03 16.4 L521.2 16.4" fill="none" stroke="#ff9900" stroke-width="4" marker-end="url(#arrow-point)" />
+    <rect x="0" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="37" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <rect x="124" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="165.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 1</text>
+    <rect x="256.4" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="297.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 2</text>
+    <rect x="388.8" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="430" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 3</text>
+    <rect x="521.2" y="0" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="549.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">End</text>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 321.2" width="108" height="321.2">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M31.13 32.8 L33.91 36.97 C36.69 41.13 42.24 49.47 45.02 57.8 C47.8 66.13 47.8 74.47 47.8 78.63 L47.8 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M47.8 115.6 L47.8 119.77 C47.8 123.93 47.8 132.27 47.8 140.6 C47.8 148.93 47.8 157.27 47.8 161.43 L47.8 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M47.8 198.4 L47.8 202.57 C47.8 206.73 47.8 215.07 45.02 223.4 C42.24 231.73 36.69 240.07 33.91 244.23 L31.13 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M9.27 248.4 L6.49 244.23 C3.71 240.07 -1.84 231.73 -4.62 220.67 C-7.4 209.6 -7.4 195.8 -7.4 182 C-7.4 168.2 -7.4 154.4 -7.4 140.6 C-7.4 126.8 -7.4 113 -7.4 99.2 C-7.4 85.4 -7.4 71.6 -4.62 60.53 C-1.84 49.47 3.71 41.13 6.49 36.97 L9.27 32.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="-0" y="0" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="20.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <rect x="27.6" y="82.8" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="47.8" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <rect x="27.6" y="165.6" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="47.8" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <rect x="-0" y="248.4" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="20.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1349.2 98.5" width="1349.2" height="98.5">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M44.87 27.05 L49.69 29.56 C54.51 32.07 64.16 37.08 73.15 39.59 C82.13 42.1 90.47 42.1 94.63 42.1 L98.8 42.1" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M349.2 42.1 L353.37 42.1 C357.53 42.1 365.87 42.1 374.2 42.1 C382.53 42.1 390.87 42.1 395.03 42.1 L399.2 42.1" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M1052.8 42.1 L1056.97 42.1 C1061.13 42.1 1069.47 42.1 1077.8 42.1 C1086.13 42.1 1094.47 42.1 1098.63 42.1 L1102.8 42.1" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M1143.2 42.1 L1147.37 42.1 C1151.53 42.1 1159.87 42.1 1169.81 40.31 C1179.76 38.52 1191.32 34.94 1197.1 33.15 L1202.88 31.36" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M44.87 5.75 L49.69 3.24 C54.51 0.73 64.16 -4.28 94.01 -6.79 C123.87 -9.3 173.93 -9.3 224 -9.3 C274.07 -9.3 324.13 -9.3 407.8 -9.3 C491.47 -9.3 608.73 -9.3 726 -9.3 C843.27 -9.3 960.53 -9.3 1026.7 -9.3 C1092.87 -9.3 1107.93 -9.3 1123 -9.3 C1138.07 -9.3 1153.13 -9.3 1166.45 -7.51 C1179.76 -5.72 1191.32 -2.14 1197.1 -0.35 L1202.88 1.44" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="0" y="-0" width="48.8" height="32.8" rx="16.4" ry="16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="24.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OK</text>
+    <rect x="98.8" y="25.7" width="250.4" height="32.8" rx="16.4" ry="16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="224" y="42.1" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A medium-length label here</text>
+    <rect x="399.2" y="25.7" width="653.6" height="32.8" rx="16.4" ry="16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="726" y="42.1" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">This is a very long stadium label that tests text wrapping and node sizing</text>
+    <rect x="1102.8" y="25.7" width="40.4" height="32.8" rx="16.4" ry="16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1123" y="42.1" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">X</text>
+    <rect x="1193.2" y="-0" width="116" height="32.8" rx="16.4" ry="16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1251.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Multi Word</text>
+  </g>
+</svg>

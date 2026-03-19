@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 271.6 627.2" width="271.6" height="627.2">
+  <defs>
+    <marker id="arrow-point" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M111.6 32.8 L111.6 36.97 C111.6 41.13 111.6 49.47 111.6 57.8 C111.6 66.13 111.6 74.47 111.6 78.63 L111.6 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M139.28 178.72 L146.4 187.5 C153.52 196.28 167.76 213.84 174.88 228.16 C182 242.47 182 253.54 182 259.07 L182 264.61" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M83.92 178.72 L76.8 187.5 C69.68 196.28 55.44 213.84 48.32 226.79 C41.2 239.73 41.2 248.07 41.2 252.23 L41.2 256.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 330.59 L182 336.13 C182 341.66 182 352.73 174.91 362.43 C167.83 372.13 153.66 380.47 146.57 384.63 L139.49 388.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M41.2 338.8 L41.2 342.97 C41.2 347.13 41.2 355.47 48.29 363.8 C55.37 372.13 69.54 380.47 76.63 384.63 L83.71 388.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M111.6 421.6 L111.6 425.77 C111.6 429.93 111.6 438.27 111.6 446.6 C111.6 454.93 111.6 463.27 111.6 467.43 L111.6 471.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M111.6 504.4 L111.6 508.57 C111.6 512.73 111.6 521.07 111.6 529.4 C111.6 537.73 111.6 546.07 111.6 550.23 L111.6 554.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <rect x="66.2" y="0" width="90.8" height="32.8" rx="16.4" ry="16.4" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2" />
+    <text x="111.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Stadium</text>
+    <polygon points="111.6,82.8 173.4,144.6 111.6,206.4 49.8,144.6" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+    <text x="111.6" y="144.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Diamond</text>
+    <path d="M132.4 275.67 L132.4 319.53 A49.6 11.06 0 0 0 231.6 319.53 L231.6 275.67 A49.6 11.06 0 0 1 132.4 275.67" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+    <path d="M132.4 275.67 A49.6 11.06 0 0 1 231.6 275.67 A49.6 11.06 0 0 1 132.4 275.67" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+    <text x="182" y="303.13" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cylinder</text>
+    <circle cx="41.2" cy="297.6" r="41.2" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2" />
+    <text x="41.2" y="297.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Circle</text>
+    <rect x="45.6" y="388.8" width="132" height="32.8" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+    <path d="M53.6 388.8 L53.6 421.6" fill="none" stroke="#b71c1c" stroke-width="2" />
+    <path d="M169.6 388.8 L169.6 421.6" fill="none" stroke="#b71c1c" stroke-width="2" />
+    <text x="111.6" y="405.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Subroutine</text>
+    <polygon points="74.4,471.6 148.8,471.6 157,488 148.8,504.4 74.4,504.4 66.2,488" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+    <text x="111.6" y="488" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hexagon</text>
+    <polygon points="41,554.4 182.2,554.4 198.6,587.2 24.6,587.2" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2" />
+    <text x="111.6" y="570.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Parallelogram</text>
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 316.6 587.6" width="316.6" height="587.6">
+  <g transform="translate(20, 20)">
+    <path d="M190.18 32.8 L199.11 36.97 C208.05 41.13 225.93 49.47 234.86 57.8 C243.8 66.13 243.8 74.47 243.8 82.8 C243.8 91.13 243.8 99.47 243.8 107.8 C243.8 116.13 243.8 124.47 243.8 128.63 L243.8 132.8" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M211 157.15 L188 162.73 C165 168.3 119 179.45 96 190.59 C73 201.73 73 212.87 73 225.4 C73 237.93 73 251.87 73 264.4 C73 276.93 73 288.07 73 293.63 L73 299.2" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M73 332 L73 336.17 C73 340.33 73 348.67 73 357 C73 365.33 73 373.67 73 382 C73 390.33 73 398.67 69.38 407 C65.75 415.33 58.51 423.67 54.88 427.83 L51.26 432" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M243.8 332 L243.8 336.17 C243.8 340.33 243.8 348.67 243.8 357 C243.8 365.33 243.8 373.67 243.8 382 C243.8 390.33 243.8 398.67 243.8 407 C243.8 415.33 243.8 423.67 243.8 427.83 L243.8 432" fill="none" stroke="#333333" stroke-width="3.5" />
+    <path d="M243.8 464.8 L243.8 468.97 C243.8 473.13 243.8 481.47 234.86 489.8 C225.93 498.13 208.05 506.47 199.11 510.63 L190.18 514.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" />
+    <path d="M155 32.8 L155 36.97 C155 41.13 155 49.47 155 57.8 C155 66.13 155 74.47 155 82.8 C155 91.13 155 99.47 155 110.53 C155 121.6 155 135.4 155 149.2 C155 163 155 176.8 155 189.27 C155 201.73 155 212.87 155 225.4 C155 237.93 155 251.87 155 267.13 C155 282.4 155 299 155 314.2 C155 329.4 155 343.2 155 354.27 C155 365.33 155 373.67 155 382 C155 390.33 155 398.67 155 409.73 C155 420.8 155 434.6 155 448.4 C155 462.2 155 476 155 487.07 C155 498.13 155 506.47 155 510.63 L155 514.8" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="125.8" y="254.6" width="58.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="155" y="265.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">sibling</text>
+    <path d="M243.8 165.6 L243.8 169.77 C243.8 173.93 243.8 182.27 243.8 192 C243.8 201.73 243.8 212.87 243.8 225.4 C243.8 237.93 243.8 251.87 243.8 264.4 C243.8 276.93 243.8 288.07 243.8 293.63 L243.8 299.2" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="214.6" y="212.8" width="58.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="243.8" y="224" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">related</text>
+    <path d="M22.74 432 L19.12 427.83 C15.49 423.67 8.25 415.33 4.62 407 C1 398.67 1 390.33 1 382 C1 373.67 1 365.33 1 354.27 C1 343.2 1 329.4 1 314.2 C1 299 1 282.4 1 267.13 C1 251.87 1 237.93 1 225.4 C1 212.87 1 201.73 1 189.27 C1 176.8 1 163 1 149.2 C1 135.4 1 121.6 1 110.53 C1 99.47 1 91.13 1 82.8 C1 74.47 1 66.13 20.5 56.72 C40 47.32 79 36.83 98.5 31.59 L118 26.35" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M147.08 514.8 L145.06 510.63 C143.05 506.47 139.03 498.13 137.01 487.07 C135 476 135 462.2 135 448.4 C135 434.6 135 420.8 135 409.73 C135 398.67 135 390.33 135 382 C135 373.67 135 365.33 147.67 356.35 C160.33 347.36 185.67 337.72 198.33 332.9 L211 328.08" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" />
+    <rect x="118" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="155" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Alpha</text>
+    <rect x="211" y="132.8" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="243.8" y="149.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Beta</text>
+    <rect x="36" y="299.2" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="73" y="315.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Gamma</text>
+    <rect x="0" y="432" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="37" y="448.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Delta</text>
+    <rect x="109.6" y="514.8" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="155" y="531.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Epsilon</text>
+    <rect x="211" y="299.2" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="243.8" y="315.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Zeta</text>
+    <rect x="215.2" y="432" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="243.8" y="448.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Eta</text>
+  </g>
+</svg>
