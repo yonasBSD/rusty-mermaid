@@ -773,7 +773,7 @@ fn shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> {
             }
         }
         Shape::Asymmetric => {
-            let notch = (h / 4.0).min(hw);
+            let notch = (h / 4.0).min(hw * 0.8);
             let verts = [
                 Point::new(cx - hw, cy - hh),
                 Point::new(cx + hw, cy - hh),
@@ -1718,7 +1718,7 @@ mod tests {
                 false
             }
             Shape::Asymmetric => {
-                let notch = (h / 4.0).min(hw);
+                let notch = (h / 4.0).min(hw * 0.8);
                 let verts = [
                     Point::new(cx - hw, cy - hh),
                     Point::new(cx + hw, cy - hh),

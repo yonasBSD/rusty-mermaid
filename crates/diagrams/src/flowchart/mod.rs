@@ -379,7 +379,7 @@ fn render_cylinder(bbox: BBox, style: Style, scene: &mut Scene) {
 fn render_asymmetric(bbox: BBox, style: Style, scene: &mut Scene) {
     let (cx, cy) = (bbox.x, bbox.y);
     let (hw, hh) = (bbox.width / 2.0, bbox.height / 2.0);
-    let notch = (bbox.height / 4.0).min(hw);
+    let notch = (bbox.height / 4.0).min(hw * 0.8);
     scene.push(Primitive::Polygon {
         points: vec![
             Point::new(cx - hw, cy - hh),         // top-left

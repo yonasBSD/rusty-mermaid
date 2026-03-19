@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc 4972fbac05e86c795df136879448e680e75bf4ccae11c214108d41b6376bf59c # shrinks to shape = Asymmetric, cx = 0.0, cy = 0.0, w = 40.0, h = 184.24129191654197, angle = 4.025338551618354
+cc 660d2cf1494d7541c53b9fd8a222b8a03ca1073562bdb4cc540db2ddcd3c03f0 # shrinks to shape = Asymmetric, cx = 0.0, cy = 0.0, w = 40.0, h = 162.45971637473025, angle = 4.248730253131287
