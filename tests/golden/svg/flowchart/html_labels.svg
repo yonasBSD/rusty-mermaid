@@ -5,10 +5,6 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78.63 L79 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 149.2 L79 153.37 C79 157.53 79 165.87 79 174.2 C79 182.53 79 190.87 79 195.03 L79 199.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 232 L79 236.17 C79 240.33 79 248.67 79 257 C79 265.33 79 273.67 79 277.83 L79 282" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 314.8 L79 318.97 C79 323.13 79 331.47 79 339.8 C79 348.13 79 356.47 79 360.63 L79 364.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="21" y="0" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="79" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bold Title</text>
     <rect x="37.8" y="82.8" width="82.4" height="66.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
@@ -27,5 +23,9 @@
       <tspan x="79" dy="16.8">italic line</tspan>
       <tspan x="79" dy="16.8">bold line</tspan>
     </text>
+    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78.63 L79 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 149.2 L79 153.37 C79 157.53 79 165.87 79 174.2 C79 182.53 79 190.87 79 195.03 L79 199.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 232 L79 236.17 C79 240.33 79 248.67 79 257 C79 265.33 79 273.67 79 277.83 L79 282" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 314.8 L79 318.97 C79 323.13 79 331.47 79 339.8 C79 348.13 79 356.47 79 360.63 L79 364.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

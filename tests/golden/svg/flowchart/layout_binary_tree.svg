@@ -5,20 +5,6 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M403 23.27 L430.47 29.03 C457.93 34.78 512.87 46.29 540.33 56.21 C567.8 66.13 567.8 74.47 567.8 78.63 L567.8 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M337.4 23.27 L309.93 29.03 C282.47 34.78 227.53 46.29 200.07 56.21 C172.6 66.13 172.6 74.47 172.6 78.63 L172.6 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M592.2 109.42 L604.6 114.62 C617 119.82 641.8 130.21 654.2 139.57 C666.6 148.93 666.6 157.27 666.6 161.43 L666.6 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M543.4 109.42 L531 114.62 C518.6 119.82 493.8 130.21 481.4 139.57 C469 148.93 469 157.27 469 161.43 L469 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M197 109.42 L209.4 114.62 C221.8 119.82 246.6 130.21 259 139.57 C271.4 148.93 271.4 157.27 271.4 161.43 L271.4 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M148.2 109.42 L135.8 114.62 C123.4 119.82 98.6 130.21 86.2 139.57 C73.8 148.93 73.8 157.27 73.8 161.43 L73.8 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M686.17 198.4 L691.14 202.57 C696.11 206.73 706.06 215.07 711.03 223.4 C716 231.73 716 240.07 716 244.23 L716 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M647.03 198.4 L642.06 202.57 C637.09 206.73 627.14 215.07 622.17 223.4 C617.2 231.73 617.2 240.07 617.2 244.23 L617.2 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M488.57 198.4 L493.54 202.57 C498.51 206.73 508.46 215.07 513.43 223.4 C518.4 231.73 518.4 240.07 518.4 244.23 L518.4 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M449.43 198.4 L444.46 202.57 C439.49 206.73 429.54 215.07 424.57 223.4 C419.6 231.73 419.6 240.07 419.6 244.23 L419.6 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M290.97 198.4 L295.94 202.57 C300.91 206.73 310.86 215.07 315.83 223.4 C320.8 231.73 320.8 240.07 320.8 244.23 L320.8 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M251.83 198.4 L246.86 202.57 C241.89 206.73 231.94 215.07 226.97 223.4 C222 231.73 222 240.07 222 244.23 L222 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M93.37 198.4 L98.34 202.57 C103.31 206.73 113.26 215.07 118.23 223.4 C123.2 231.73 123.2 240.07 123.2 244.23 L123.2 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M54.23 198.4 L49.26 202.57 C44.29 206.73 34.34 215.07 29.37 223.4 C24.4 231.73 24.4 240.07 24.4 244.23 L24.4 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="337.4" y="0" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="370.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Root</text>
     <rect x="543.4" y="82.8" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
@@ -49,5 +35,19 @@
     <text x="123.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">L7</text>
     <rect x="0" y="248.4" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="24.4" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">R7</text>
+    <path d="M403 23.27 L430.47 29.03 C457.93 34.78 512.87 46.29 540.33 56.21 C567.8 66.13 567.8 74.47 567.8 78.63 L567.8 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M337.4 23.27 L309.93 29.03 C282.47 34.78 227.53 46.29 200.07 56.21 C172.6 66.13 172.6 74.47 172.6 78.63 L172.6 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M592.2 109.42 L604.6 114.62 C617 119.82 641.8 130.21 654.2 139.57 C666.6 148.93 666.6 157.27 666.6 161.43 L666.6 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M543.4 109.42 L531 114.62 C518.6 119.82 493.8 130.21 481.4 139.57 C469 148.93 469 157.27 469 161.43 L469 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M197 109.42 L209.4 114.62 C221.8 119.82 246.6 130.21 259 139.57 C271.4 148.93 271.4 157.27 271.4 161.43 L271.4 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M148.2 109.42 L135.8 114.62 C123.4 119.82 98.6 130.21 86.2 139.57 C73.8 148.93 73.8 157.27 73.8 161.43 L73.8 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M686.17 198.4 L691.14 202.57 C696.11 206.73 706.06 215.07 711.03 223.4 C716 231.73 716 240.07 716 244.23 L716 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M647.03 198.4 L642.06 202.57 C637.09 206.73 627.14 215.07 622.17 223.4 C617.2 231.73 617.2 240.07 617.2 244.23 L617.2 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M488.57 198.4 L493.54 202.57 C498.51 206.73 508.46 215.07 513.43 223.4 C518.4 231.73 518.4 240.07 518.4 244.23 L518.4 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M449.43 198.4 L444.46 202.57 C439.49 206.73 429.54 215.07 424.57 223.4 C419.6 231.73 419.6 240.07 419.6 244.23 L419.6 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M290.97 198.4 L295.94 202.57 C300.91 206.73 310.86 215.07 315.83 223.4 C320.8 231.73 320.8 240.07 320.8 244.23 L320.8 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M251.83 198.4 L246.86 202.57 C241.89 206.73 231.94 215.07 226.97 223.4 C222 231.73 222 240.07 222 244.23 L222 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M93.37 198.4 L98.34 202.57 C103.31 206.73 113.26 215.07 118.23 223.4 C123.2 231.73 123.2 240.07 123.2 244.23 L123.2 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M54.23 198.4 L49.26 202.57 C44.29 206.73 34.34 215.07 29.37 223.4 C24.4 231.73 24.4 240.07 24.4 244.23 L24.4 248.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

@@ -5,6 +5,56 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <rect x="434" y="0" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="500.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">User Request</text>
+    <polygon points="500.4,82.8 566.4,148.8 500.4,214.8 434.4,148.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="500.4" y="148.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has JWT?</text>
+    <rect x="489.2" y="780" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="547.2" y="796.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Login Page</text>
+    <polygon points="323,281.6 397.4,356 323,430.4 248.6,356" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="323" y="356" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">JWT Valid?</text>
+    <polygon points="1195.8,879.6 1274.4,958.2 1195.8,1036.8 1117.2,958.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1195.8" y="958.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth Method</text>
+    <rect x="1274.4" y="1120.4" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1357.6" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Email + Password</text>
+    <rect x="1074.8" y="1120.4" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1149.6" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OAuth Provider</text>
+    <rect x="925.6" y="1120.4" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="975.2" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SAML IdP</text>
+    <rect x="680" y="1120.4" width="183.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="771.6" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">WebAuthn Challenge</text>
+    <polygon points="1144.1,1203.2 1239.5,1298.6 1144.1,1394 1048.7,1298.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1144.1" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Credentials OK?</text>
+    <polygon points="1091.8,1792.8 1174.6,1875.6 1091.8,1958.4 1009,1875.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1091.8" y="1875.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">MFA Enabled?</text>
+    <rect x="1425.5" y="1282.2" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1500.3" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OAuth Callback</text>
+    <polygon points="1500.3,1448.2 1595.7,1543.6 1500.3,1639 1404.9,1543.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1500.3" y="1543.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Account Linked?</text>
+    <rect x="1498" y="1710" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1572.8" y="1726.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Create Account</text>
+    <rect x="768" y="1282.2" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="842.8" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SAML Assertion</text>
+    <polygon points="842.8,1444 942.4,1543.6 842.8,1643.2 743.2,1543.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="842.8" y="1543.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Valid Assertion?</text>
+    <polygon points="626.8,1207.4 718,1298.6 626.8,1389.8 535.6,1298.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="626.8" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Passkey Valid?</text>
+    <rect x="888" y="2348.8" width="191.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="983.8" y="2365.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Issue JWT + Refresh</text>
+    <rect x="712.8" y="2025.2" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="791.8" y="2041.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">TOTP / SMS Code</text>
+    <polygon points="791.8,2124.8 870.4,2203.4 791.8,2282 713.2,2203.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="791.8" y="2203.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code Valid?</text>
+    <polygon points="534.8,497.2 642.8,605.2 534.8,713.2 426.8,605.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="534.8" y="605.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has Refresh Token?</text>
+    <polygon points="95.8,862.8 191.2,958.2 95.8,1053.6 0.4,958.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="95.8" y="958.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has Permission?</text>
+    <rect x="228.5" y="780" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="299.1" y="796.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rotate Tokens</text>
+    <rect x="241.6" y="1120.4" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="312.2" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">403 Forbidden</text>
+    <rect x="-0" y="1120.4" width="191.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="95.8" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Proceed to Resource</text>
     <path d="M500.4 32.8 L500.4 36.97 C500.4 41.13 500.4 49.47 500.4 57.8 C500.4 66.13 500.4 74.47 500.4 78.63 L500.4 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M545.32 169.88 L573.13 182.93 C600.95 195.99 656.57 222.09 684.39 253.11 C712.2 284.13 712.2 320.07 712.2 356 C712.2 391.93 712.2 427.87 712.2 469.4 C712.2 510.93 712.2 558.07 712.2 605.2 C712.2 652.33 712.2 699.47 693.76 728.6 C675.31 757.73 638.42 768.87 619.98 774.43 L601.54 780" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="701" y="452.6" width="22.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
@@ -91,55 +141,5 @@
     <path d="M570.24 1263.96 L546.9 1249.67 C523.56 1235.37 476.88 1206.79 453.54 1185.59 C430.2 1164.4 430.2 1150.6 430.2 1135.4 C430.2 1120.2 430.2 1103.6 430.2 1073.83 C430.2 1044.07 430.2 1001.13 430.2 959.6 C430.2 918.07 430.2 877.93 441.98 853.7 C453.75 829.47 477.3 821.13 489.08 816.97 L500.85 812.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="419" y="1075.8" width="22.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="430.2" y="1087" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
-    <rect x="434" y="0" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="500.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">User Request</text>
-    <polygon points="500.4,82.8 566.4,148.8 500.4,214.8 434.4,148.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="500.4" y="148.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has JWT?</text>
-    <rect x="489.2" y="780" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="547.2" y="796.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Login Page</text>
-    <polygon points="323,281.6 397.4,356 323,430.4 248.6,356" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="323" y="356" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">JWT Valid?</text>
-    <polygon points="1195.8,879.6 1274.4,958.2 1195.8,1036.8 1117.2,958.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1195.8" y="958.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth Method</text>
-    <rect x="1274.4" y="1120.4" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1357.6" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Email + Password</text>
-    <rect x="1074.8" y="1120.4" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1149.6" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OAuth Provider</text>
-    <rect x="925.6" y="1120.4" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="975.2" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SAML IdP</text>
-    <rect x="680" y="1120.4" width="183.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="771.6" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">WebAuthn Challenge</text>
-    <polygon points="1144.1,1203.2 1239.5,1298.6 1144.1,1394 1048.7,1298.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1144.1" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Credentials OK?</text>
-    <polygon points="1091.8,1792.8 1174.6,1875.6 1091.8,1958.4 1009,1875.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1091.8" y="1875.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">MFA Enabled?</text>
-    <rect x="1425.5" y="1282.2" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1500.3" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OAuth Callback</text>
-    <polygon points="1500.3,1448.2 1595.7,1543.6 1500.3,1639 1404.9,1543.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1500.3" y="1543.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Account Linked?</text>
-    <rect x="1498" y="1710" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1572.8" y="1726.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Create Account</text>
-    <rect x="768" y="1282.2" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="842.8" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SAML Assertion</text>
-    <polygon points="842.8,1444 942.4,1543.6 842.8,1643.2 743.2,1543.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="842.8" y="1543.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Valid Assertion?</text>
-    <polygon points="626.8,1207.4 718,1298.6 626.8,1389.8 535.6,1298.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="626.8" y="1298.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Passkey Valid?</text>
-    <rect x="888" y="2348.8" width="191.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="983.8" y="2365.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Issue JWT + Refresh</text>
-    <rect x="712.8" y="2025.2" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="791.8" y="2041.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">TOTP / SMS Code</text>
-    <polygon points="791.8,2124.8 870.4,2203.4 791.8,2282 713.2,2203.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="791.8" y="2203.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code Valid?</text>
-    <polygon points="534.8,497.2 642.8,605.2 534.8,713.2 426.8,605.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="534.8" y="605.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has Refresh Token?</text>
-    <polygon points="95.8,862.8 191.2,958.2 95.8,1053.6 0.4,958.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="95.8" y="958.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has Permission?</text>
-    <rect x="228.5" y="780" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="299.1" y="796.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rotate Tokens</text>
-    <rect x="241.6" y="1120.4" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="312.2" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">403 Forbidden</text>
-    <rect x="-0" y="1120.4" width="191.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="95.8" y="1136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Proceed to Resource</text>
   </g>
 </svg>

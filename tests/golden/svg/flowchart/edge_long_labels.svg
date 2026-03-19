@@ -5,6 +5,20 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <rect x="319.8" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="356.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <rect x="328.2" y="99.6" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="356.8" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">End</text>
+    <rect x="1748" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1785" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Input</text>
+    <rect x="1965.4" y="99.6" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="2010.8" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Process</text>
+    <rect x="1743.8" y="199.2" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1785" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Output</text>
+    <rect x="1168.8" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1210" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Source</text>
+    <rect x="1177.2" y="99.6" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1210" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sink</text>
     <path d="M356.8 32.8 L356.8 38.37 C356.8 43.93 356.8 55.07 356.8 66.2 C356.8 77.33 356.8 88.47 356.8 94.03 L356.8 99.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="55" width="713.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="356.8" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">This is a very long edge label that should test how the renderer handles text positioning on edges</text>
@@ -20,19 +34,5 @@
     <path d="M1743.8 206.51 L1713.03 199.73 C1682.27 192.94 1620.73 179.37 1589.97 164.29 C1559.2 149.2 1559.2 132.6 1559.2 116 C1559.2 99.4 1559.2 82.8 1590.67 67.56 C1622.13 52.32 1685.07 38.44 1716.53 31.5 L1748 24.56" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
     <rect x="1400.4" y="104.8" width="317.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="1559.2" y="116" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Asynchronous callback with retry on failure</text>
-    <rect x="319.8" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="356.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
-    <rect x="328.2" y="99.6" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="356.8" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">End</text>
-    <rect x="1748" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1785" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Input</text>
-    <rect x="1965.4" y="99.6" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="2010.8" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Process</text>
-    <rect x="1743.8" y="199.2" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1785" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Output</text>
-    <rect x="1168.8" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1210" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Source</text>
-    <rect x="1177.2" y="99.6" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1210" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sink</text>
   </g>
 </svg>

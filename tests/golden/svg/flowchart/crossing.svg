@@ -5,12 +5,6 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M22.28 32.8 L20.26 36.97 C18.25 41.13 14.23 49.47 13.22 57.8 C12.21 66.13 14.23 74.47 15.23 78.63 L16.24 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M50.4 31.55 L56.23 35.93 C62.07 40.3 73.73 49.05 83.11 57.59 C92.49 66.13 99.57 74.47 103.11 78.63 L106.66 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M140.8 31.55 L146.63 35.93 C152.47 40.3 164.13 49.05 174.52 57.59 C184.9 66.13 194 74.47 198.55 78.63 L203.09 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M100.4 31.55 L94.57 35.93 C88.73 40.3 77.07 49.05 66.68 57.59 C56.3 66.13 47.2 74.47 42.65 78.63 L38.11 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M190.8 31.55 L184.97 35.93 C179.13 40.3 167.47 49.05 158.09 57.59 C148.71 66.13 141.63 74.47 138.09 78.63 L134.54 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M218.92 32.8 L220.94 36.97 C222.95 41.13 226.97 49.47 227.98 57.8 C228.99 66.13 226.97 74.47 225.97 78.63 L224.96 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="10" y="0" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="30.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
     <rect x="0" y="82.8" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
@@ -23,5 +17,11 @@
     <text x="221" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F</text>
     <rect x="190.8" y="0" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="211" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <path d="M22.28 32.8 L20.26 36.97 C18.25 41.13 14.23 49.47 13.22 57.8 C12.21 66.13 14.23 74.47 15.23 78.63 L16.24 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M50.4 31.55 L56.23 35.93 C62.07 40.3 73.73 49.05 83.11 57.59 C92.49 66.13 99.57 74.47 103.11 78.63 L106.66 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M140.8 31.55 L146.63 35.93 C152.47 40.3 164.13 49.05 174.52 57.59 C184.9 66.13 194 74.47 198.55 78.63 L203.09 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M100.4 31.55 L94.57 35.93 C88.73 40.3 77.07 49.05 66.68 57.59 C56.3 66.13 47.2 74.47 42.65 78.63 L38.11 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M190.8 31.55 L184.97 35.93 C179.13 40.3 167.47 49.05 158.09 57.59 C148.71 66.13 141.63 74.47 138.09 78.63 L134.54 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M218.92 32.8 L220.94 36.97 C222.95 41.13 226.97 49.47 227.98 57.8 C228.99 66.13 226.97 74.47 225.97 78.63 L224.96 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

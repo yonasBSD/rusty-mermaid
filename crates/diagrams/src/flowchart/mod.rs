@@ -82,6 +82,11 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         }
     }
 
+    for node in &layout.nodes {
+        render_node(node, scene, theme);
+    }
+
+    // Z-order: subgraphs (background) → nodes → edges + markers (foreground).
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
             let segments = interpolate(&edge.points, CurveType::Basis);
@@ -115,10 +120,6 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                 render_edge_label(scene, mid, label, edge.label_size, theme);
             }
         }
-    }
-
-    for node in &layout.nodes {
-        render_node(node, scene, theme);
     }
 }
 
@@ -582,5 +583,34 @@ mod tests {
             matches!(p, Primitive::Path { marker_end: Some(_), .. })
         });
         assert!(has_edge_path, "themed scene should have edge paths with markers");
+    }
+
+    #[test]
+    fn edges_render_after_nodes_for_marker_visibility() {
+        // Markers (circle, cross) must render ON TOP of nodes. This means
+        // edge Paths must appear after node Rects in the primitive list.
+        let d = crate::flowchart::parser::parse(
+            "flowchart TD\n    A --o B\n    A --x C",
+        )
+        .unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let last_node_idx = scene
+            .primitives()
+            .iter()
+            .rposition(|p| matches!(p, Primitive::Rect { .. }))
+            .expect("should have node rects");
+        let first_edge_idx = scene
+            .primitives()
+            .iter()
+            .position(|p| matches!(p, Primitive::Path { marker_end: Some(_), .. }))
+            .expect("should have edge paths with markers");
+
+        assert!(
+            first_edge_idx > last_node_idx,
+            "edge paths (idx {first_edge_idx}) must come after all node rects (last idx {last_node_idx}) \
+             so markers render on top of nodes"
+        );
     }
 }

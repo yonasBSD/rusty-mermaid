@@ -5,6 +5,20 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <rect x="235.3" y="0" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="280.7" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <polygon points="280.7,82.8 334.1,136.2 280.7,189.6 227.3,136.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="280.7" y="136.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth?</text>
+    <polygon points="384.7,256.4 442.3,314 384.7,371.6 327.1,314" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="384.7" y="314" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Admin?</text>
+    <rect x="0" y="438.4" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="83.2" y="454.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">401 Unauthorized</text>
+    <rect x="416" y="438.4" width="124.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="478.2" y="454.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Admin Panel</text>
+    <rect x="216.4" y="438.4" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="291.2" y="454.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">User Dashboard</text>
+    <rect x="241.6" y="521.2" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="291.2" y="537.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
     <path d="M280.7 32.8 L280.7 36.97 C280.7 41.13 280.7 49.47 280.7 57.8 C280.7 66.13 280.7 74.47 280.7 78.63 L280.7 82.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M309.81 160.49 L322.29 170.91 C334.77 181.33 359.74 202.16 372.22 218.15 C384.7 234.13 384.7 245.27 384.7 250.83 L384.7 256.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="369.9" y="211.8" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
@@ -21,19 +35,5 @@
     <path d="M478.2 471.2 L478.2 475.37 C478.2 479.53 478.2 487.87 455.3 497.1 C432.4 506.34 386.6 516.48 363.7 521.55 L340.8 526.62" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M291.2 471.2 L291.2 475.37 C291.2 479.53 291.2 487.87 291.2 496.2 C291.2 504.53 291.2 512.87 291.2 517.03 L291.2 521.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M83.2 471.2 L83.2 475.37 C83.2 479.53 83.2 487.87 109.6 497.29 C136 506.71 188.8 517.22 215.2 522.47 L241.6 527.73" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <rect x="235.3" y="0" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="280.7" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
-    <polygon points="280.7,82.8 334.1,136.2 280.7,189.6 227.3,136.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="280.7" y="136.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth?</text>
-    <polygon points="384.7,256.4 442.3,314 384.7,371.6 327.1,314" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="384.7" y="314" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Admin?</text>
-    <rect x="0" y="438.4" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="83.2" y="454.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">401 Unauthorized</text>
-    <rect x="416" y="438.4" width="124.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="478.2" y="454.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Admin Panel</text>
-    <rect x="216.4" y="438.4" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="291.2" y="454.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">User Dashboard</text>
-    <rect x="241.6" y="521.2" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="291.2" y="537.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
   </g>
 </svg>

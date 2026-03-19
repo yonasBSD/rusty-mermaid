@@ -5,13 +5,13 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M248 16.4 L243.83 16.4 C239.67 16.4 231.33 16.4 223 16.4 C214.67 16.4 206.33 16.4 202.17 16.4 L198 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M115.6 16.4 L111.43 16.4 C107.27 16.4 98.93 16.4 90.6 16.4 C82.27 16.4 73.93 16.4 69.77 16.4 L65.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="248" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="285" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Right</text>
     <rect x="115.6" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="156.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Middle</text>
     <rect x="0" y="0" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="32.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Left</text>
+    <path d="M248 16.4 L243.83 16.4 C239.67 16.4 231.33 16.4 223 16.4 C214.67 16.4 206.33 16.4 202.17 16.4 L198 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M115.6 16.4 L111.43 16.4 C107.27 16.4 98.93 16.4 90.6 16.4 C82.27 16.4 73.93 16.4 69.77 16.4 L65.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

@@ -5,6 +5,16 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <polygon points="39.2,0 138.4,0 154.8,32.8 22.8,32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="88.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wide Top</text>
+    <polygon points="80.6,99.6 237.8,99.6 221.4,132.4 97,132.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="159.2" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wide Bottom</text>
+    <polygon points="97,199.2 221.4,199.2 237.8,232 80.6,232" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="159.2" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Another Top</text>
+    <rect x="92.8" y="282" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="159.2" y="298.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Regular Rect</text>
+    <polygon points="14.4,364.8 163.2,364.8 146.8,397.6 30.8,397.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="88.8" y="381.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Final Trap</text>
     <path d="M111.98 32.8 L119.85 38.37 C127.72 43.93 143.46 55.07 151.33 66.2 C159.2 77.33 159.2 88.47 159.2 94.03 L159.2 99.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="130" y="55" width="58.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="159.2" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">narrows</text>
@@ -16,15 +26,5 @@
     <path d="M65.62 32.8 L57.75 38.37 C49.88 43.93 34.14 55.07 26.27 68.93 C18.4 82.8 18.4 99.4 18.4 116 C18.4 132.6 18.4 149.2 18.4 165.8 C18.4 182.4 18.4 199 18.4 214.2 C18.4 229.4 18.4 243.2 18.4 257 C18.4 270.8 18.4 284.6 18.4 298.4 C18.4 312.2 18.4 326 25.49 337.07 C32.57 348.13 46.74 356.47 53.83 360.63 L60.91 364.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="204.4" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="18.4" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">skip</text>
-    <polygon points="39.2,0 138.4,0 154.8,32.8 22.8,32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="88.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wide Top</text>
-    <polygon points="80.6,99.6 237.8,99.6 221.4,132.4 97,132.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="159.2" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wide Bottom</text>
-    <polygon points="97,199.2 221.4,199.2 237.8,232 80.6,232" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="159.2" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Another Top</text>
-    <rect x="92.8" y="282" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="159.2" y="298.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Regular Rect</text>
-    <polygon points="14.4,364.8 163.2,364.8 146.8,397.6 30.8,397.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="88.8" y="381.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Final Trap</text>
   </g>
 </svg>
