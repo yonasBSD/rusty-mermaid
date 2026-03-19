@@ -47,7 +47,7 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
 "##
         ),
         MarkerType::Circle => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <circle cx="5" cy="5" r="4" fill="{color}" />
 </marker>
 "##
@@ -59,19 +59,19 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
 "##
         ),
         MarkerType::Aggregation => format!(
-            r##"<marker id="{id}" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <path d="M0 6 L6 0 L12 6 L6 12 Z" fill="white" stroke="{color}" stroke-width="1" />
 </marker>
 "##
         ),
         MarkerType::Composition => format!(
-            r##"<marker id="{id}" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <path d="M0 6 L6 0 L12 6 L6 12 Z" fill="{color}" />
 </marker>
 "##
         ),
         MarkerType::Dependency => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
   <path d="M0 0 L10 5 L0 10" fill="none" stroke="{color}" stroke-width="1.5" />
 </marker>
 "##

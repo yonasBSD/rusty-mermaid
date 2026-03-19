@@ -18,21 +18,23 @@ use crate::common::rendering::{
 /// Viewbox-unit inset for each marker type.
 /// The path endpoint is pulled back by `inset × 0.8 × stroke_width` pixels
 /// so the marker body hides the stroke butt-cap.
-fn marker_inset_vb(marker: MarkerType) -> f64 {
-    match marker {
-        // Arrow tip tapers to zero width; d=2 gives half-width=1 > stroke half-width 0.625
-        MarkerType::ArrowPoint | MarkerType::ArrowBarb | MarkerType::ArrowOpen => 2.0,
-        // Cross strokes overlap within 0.06 vb units at x=6; edge invisible
-        MarkerType::Cross => 2.0,
-        // Solid fill — stroke fully hidden behind circle body
-        _ => 0.0,
-    }
-}
+/// Viewbox-unit inset applied uniformly to all markers.
+/// Every marker body is wide enough at d=2 from its leading edge
+/// to hide the 1.25-viewBox-unit stroke (half-width 0.625).
+const MARKER_INSET_VB: f64 = 2.0;
 
 /// Convert marker inset from viewBox units to user-space pixels.
-/// scale = markerWidth(8) × stroke_width / viewBoxWidth(10) = 0.8 × stroke_width
+/// scale = markerWidth × stroke_width / viewBoxWidth
 fn marker_inset_px(marker: MarkerType, stroke_width: f64) -> f64 {
-    marker_inset_vb(marker) * 0.8 * stroke_width
+    let (marker_w, vb_w) = match marker {
+        // viewBox 0 0 12 12, markerWidth 8
+        MarkerType::Aggregation | MarkerType::Composition => (8.0, 12.0),
+        // viewBox 0 0 10 10, markerWidth 6
+        MarkerType::Dependency => (6.0, 10.0),
+        // viewBox 0 0 10 10, markerWidth 8 (all others)
+        _ => (8.0, 10.0),
+    };
+    MARKER_INSET_VB * marker_w / vb_w * stroke_width
 }
 
 /// Pull the last point of a path back along its incoming tangent by `dist` pixels.
@@ -697,18 +699,22 @@ mod tests {
     }
 
     #[test]
-    fn marker_inset_all_pointed_markers_have_positive_inset() {
-        // Every marker with a tapered or gapped leading edge needs a positive inset
-        // so the stroke butt-cap hides behind the marker body.
+    fn marker_inset_all_markers_have_positive_inset() {
+        // Every marker gets a uniform positive inset so the stroke butt-cap
+        // hides behind the marker body.
         for m in [
             MarkerType::ArrowPoint,
             MarkerType::ArrowBarb,
             MarkerType::ArrowOpen,
             MarkerType::Cross,
+            MarkerType::Circle,
+            MarkerType::Aggregation,
+            MarkerType::Composition,
+            MarkerType::Dependency,
         ] {
             assert!(
-                marker_inset_vb(m) > 0.0,
-                "{m:?} must have positive viewBox inset to hide stroke"
+                MARKER_INSET_VB > 0.0,
+                "viewBox inset must be positive"
             );
             assert!(
                 marker_inset_px(m, 1.5) > 0.0,
@@ -809,8 +815,8 @@ mod tests {
     }
 
     #[test]
-    fn edge_path_not_shortened_for_circle_marker() {
-        // Circle markers have solid fill — no shortening needed.
+    fn edge_path_shortened_for_circle_marker() {
+        // All markers use the same uniform inset.
         let d = crate::flowchart::parser::parse("graph TD\n    A --o B").unwrap();
         let layout = crate::flowchart::bridge::layout(&d);
         let scene = to_scene(&layout);
@@ -819,12 +825,47 @@ mod tests {
         let node_top = target_node.y - target_node.height / 2.0;
 
         for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::Circle), .. } = p {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::Circle), style, .. } = p {
                 let endpoint = prev_endpoint(segments).unwrap();
-                let gap = (node_top - endpoint.y).abs();
+                let sw = style.stroke_width.unwrap_or(1.5);
+                let expected_inset = marker_inset_px(MarkerType::Circle, sw);
+                let gap = node_top - endpoint.y;
                 assert!(
-                    gap < 0.5,
-                    "circle marker edge should NOT be shortened: gap={gap:.1}px"
+                    gap > 0.0,
+                    "edge endpoint ({:.1}) should be above node boundary ({:.1})",
+                    endpoint.y, node_top
+                );
+                assert!(
+                    (gap - expected_inset).abs() < 1.0,
+                    "gap ({gap:.1}) should be ~{expected_inset:.1}px"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn edge_path_shortened_for_cross_marker() {
+        let d = crate::flowchart::parser::parse("graph TD\n    A --x B").unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
+        let node_top = target_node.y - target_node.height / 2.0;
+
+        for p in scene.primitives() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::Cross), style, .. } = p {
+                let endpoint = prev_endpoint(segments).unwrap();
+                let sw = style.stroke_width.unwrap_or(1.5);
+                let expected_inset = marker_inset_px(MarkerType::Cross, sw);
+                let gap = node_top - endpoint.y;
+                assert!(
+                    gap > 0.0,
+                    "edge endpoint ({:.1}) should be above node boundary ({:.1})",
+                    endpoint.y, node_top
+                );
+                assert!(
+                    (gap - expected_inset).abs() < 1.0,
+                    "gap ({gap:.1}) should be ~{expected_inset:.1}px"
                 );
             }
         }
@@ -857,5 +898,182 @@ mod tests {
             "edge paths (idx {first_edge_idx}) must come after all node rects (last idx {last_node_idx}) \
              so markers render on top of nodes"
         );
+    }
+
+    mod prop_tests {
+        use super::*;
+        use proptest::prelude::*;
+
+        fn arb_point() -> impl Strategy<Value = Point> {
+            (-500.0..500.0_f64, -500.0..500.0_f64)
+                .prop_map(|(x, y)| Point::new(x, y))
+        }
+
+        /// Straight vertical path: MoveTo → LineTo
+        fn arb_straight_path(min_len: f64) -> impl Strategy<Value = Vec<PathSegment>> {
+            (arb_point(), min_len..500.0_f64).prop_map(|(start, len)| {
+                vec![
+                    PathSegment::MoveTo(start),
+                    PathSegment::LineTo(Point::new(start.x, start.y + len)),
+                ]
+            })
+        }
+
+        /// Path with a short final LineTo (forces cascade into preceding cubic).
+        /// dist is constrained to short_len + fraction of the cubic tangent length,
+        /// so the shortening is always achievable.
+        fn arb_cascade_path() -> impl Strategy<Value = (Vec<PathSegment>, f64, f64)> {
+            (
+                arb_point(),
+                50.0..200.0_f64,  // cubic span
+                1.0..10.0_f64,    // short final LineTo
+                0.01..0.9_f64,    // fraction of cubic tangent to consume after popping LineTo
+            )
+                .prop_map(|(start, span, short_len, extra_frac)| {
+                    let cubic_tangent = span * 0.1; // distance from cp2 to cubic endpoint
+                    let cubic_end_y = start.y + span;
+                    let final_y = cubic_end_y + short_len;
+                    let dist = short_len + extra_frac * cubic_tangent;
+                    let segs = vec![
+                        PathSegment::MoveTo(start),
+                        PathSegment::CubicTo {
+                            cp1: Point::new(start.x, start.y + span * 0.3),
+                            cp2: Point::new(start.x, cubic_end_y - cubic_tangent),
+                            to: Point::new(start.x, cubic_end_y),
+                        },
+                        PathSegment::LineTo(Point::new(start.x, final_y)),
+                    ];
+                    (segs, dist, final_y)
+                })
+        }
+
+        proptest! {
+            #[test]
+            fn shorten_end_distance_exact_for_straight_path(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let orig_end = prev_endpoint(&segs).unwrap();
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+
+                let actual_retraction = orig_end.distance_to(new_end);
+                prop_assert!(
+                    (actual_retraction - dist).abs() < 0.01,
+                    "retraction {actual_retraction:.3} should equal requested {dist:.3}"
+                );
+            }
+
+            #[test]
+            fn shorten_end_stays_on_line(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                let orig_end = prev_endpoint(&segs).unwrap();
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+
+                // Collinearity: cross product ≈ 0
+                let dx1 = orig_end.x - start.x;
+                let dy1 = orig_end.y - start.y;
+                let dx2 = new_end.x - start.x;
+                let dy2 = new_end.y - start.y;
+                let cross = (dx1 * dy2 - dy1 * dx2).abs();
+                prop_assert!(cross < 0.01, "new endpoint should stay collinear, cross={cross:.4}");
+            }
+
+            #[test]
+            fn shorten_end_never_overshoots_start(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                let orig_end = prev_endpoint(&segs).unwrap();
+                let orig_len = start.distance_to(orig_end);
+
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+                let new_len = start.distance_to(new_end);
+
+                prop_assert!(new_len < orig_len, "path should get shorter");
+                prop_assert!(new_len > 0.0, "path should not collapse to zero");
+            }
+
+            #[test]
+            fn shorten_start_distance_exact_for_straight_path(
+                dist in 1.0..50.0_f64,
+                path in arb_straight_path(51.0),
+            ) {
+                let mut segs = path.clone();
+                let orig_start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                shorten_path_start(&mut segs, dist);
+                let new_start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+
+                let actual = orig_start.distance_to(new_start);
+                prop_assert!(
+                    (actual - dist).abs() < 0.01,
+                    "start retraction {actual:.3} should equal {dist:.3}"
+                );
+            }
+
+            #[test]
+            fn cascade_total_retraction_correct(
+                (mut segs, dist, orig_final_y) in arb_cascade_path(),
+            ) {
+                let orig_end = Point::new(
+                    match segs[0] { PathSegment::MoveTo(p) => p.x, _ => unreachable!() },
+                    orig_final_y,
+                );
+                shorten_path_end(&mut segs, dist);
+                let new_end = prev_endpoint(&segs).unwrap();
+
+                let actual = orig_end.distance_to(new_end);
+                // Cubic tangent shortening is approximate, allow 1px tolerance
+                prop_assert!(
+                    (actual - dist).abs() < 1.5,
+                    "cascade retraction {actual:.2} should be ~{dist:.2}"
+                );
+            }
+
+            #[test]
+            fn inset_scales_linearly(
+                sw1 in 0.5..5.0_f64,
+                sw2 in 0.5..5.0_f64,
+            ) {
+                let i1 = marker_inset_px(MarkerType::ArrowPoint, sw1);
+                let i2 = marker_inset_px(MarkerType::ArrowPoint, sw2);
+                // i1/sw1 should equal i2/sw2 (constant ratio)
+                let ratio1 = i1 / sw1;
+                let ratio2 = i2 / sw2;
+                prop_assert!(
+                    (ratio1 - ratio2).abs() < 0.001,
+                    "inset should scale linearly: {ratio1:.4} vs {ratio2:.4}"
+                );
+            }
+
+            #[test]
+            fn bidir_shortening_independent(
+                dist in 1.0..20.0_f64,
+            ) {
+                let mut segs = vec![
+                    PathSegment::MoveTo(Point::new(0.0, 0.0)),
+                    PathSegment::LineTo(Point::new(0.0, 100.0)),
+                ];
+                shorten_path_start(&mut segs, dist);
+                shorten_path_end(&mut segs, dist);
+                let start = match segs[0] { PathSegment::MoveTo(p) => p, _ => unreachable!() };
+                let end = prev_endpoint(&segs).unwrap();
+
+                let new_len = start.distance_to(end);
+                prop_assert!(
+                    (new_len - (100.0 - 2.0 * dist)).abs() < 0.01,
+                    "bidir: len {new_len:.2} should be {:.2}", 100.0 - 2.0 * dist
+                );
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@
     <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
-    <marker id="marker-circle" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="marker-circle" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <circle cx="5" cy="5" r="4" fill="#333333" />
     </marker>
     <marker id="marker-cross" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
@@ -35,10 +35,10 @@
     <path d="M218.39 32.8 L222.23 36.97 C226.06 41.13 233.73 49.47 237.57 60.53 C241.4 71.6 241.4 85.4 241.4 99.2 C241.4 113 241.4 126.8 241.4 144.8 C241.4 162.8 241.4 185 241.4 196.1 L241.4 207.2" fill="none" stroke="#333333" stroke-width="1.5" />
     <path d="M188.21 32.8 L184.37 36.97 C180.54 41.13 172.87 49.47 169.03 57.8 C165.2 66.13 165.2 74.47 165.2 78.63 L165.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point)" />
     <path d="M162.1 26.66 L141.25 31.85 C120.4 37.04 78.7 47.42 57.85 56.78 C37 66.13 37 74.47 37 77.2" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point)" />
-    <path d="M507.75 115.6 L515.89 119.77 C524.03 123.93 540.32 132.27 548.46 140.6 C556.6 148.93 556.6 157.27 556.6 161.43 L556.6 165.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle)" />
+    <path d="M507.75 115.6 L515.89 119.77 C524.03 123.93 540.32 132.27 548.46 140.6 C556.6 148.93 556.6 157.27 556.6 161.43 L556.6 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle)" />
     <path d="M443.65 115.6 L435.51 119.77 C427.37 123.93 411.08 132.27 402.94 141.3 C394.8 150.33 394.8 160.07 394.8 164.93 L394.8 167.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross)" />
     <path d="M241.4 242.4 L241.4 251.1 C241.4 262.2 241.4 284.4 241.4 299.67 C241.4 314.93 241.4 323.27 241.4 327.43 L241.4 329.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#arrow-point)" marker-end="url(#arrow-point)" />
-    <path d="M276.77 364.4 L285.76 368.57 C294.75 372.73 312.72 381.07 321.71 389.4 C330.7 397.73 330.7 406.07 330.7 410.23 L330.7 414.4" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-circle)" marker-end="url(#marker-circle)" />
+    <path d="M278.95 365.41 L285.76 368.57 C294.75 372.73 312.72 381.07 321.71 389.4 C330.7 397.73 330.7 406.07 330.7 410.23 L330.7 412" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-circle)" marker-end="url(#marker-circle)" />
     <path d="M203.85 365.41 L197.04 368.57 C188.05 372.73 170.08 381.07 161.09 389.4 C152.1 397.73 152.1 406.07 152.1 410.23 L152.1 412" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-cross)" marker-end="url(#marker-cross)" />
   </g>
 </svg>
