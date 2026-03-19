@@ -48,6 +48,34 @@ fn complex_flowchart_to_svg() {
 }
 
 #[test]
+fn sequence_diagram_to_svg() {
+    let mmd = "sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi there\n    Note right of Bob: Thinking";
+    let scene = render_to_scene(mmd).unwrap();
+    let svg = SvgRenderer.render(&scene);
+
+    assert!(svg.starts_with("<svg"));
+    assert!(svg.contains("<rect"));
+    assert!(svg.contains("<text"));
+    assert!(svg.contains("<path"));
+    assert!(svg.trim_end().ends_with("</svg>"));
+
+    // Should have participant names and message labels.
+    assert!(svg.contains("Alice"));
+    assert!(svg.contains("Bob"));
+    assert!(svg.contains("Hello"));
+}
+
+#[test]
+fn sequence_self_message_to_svg() {
+    let mmd = "sequenceDiagram\n    Alice->>Alice: Think\n    Alice->>Bob: Done";
+    let scene = render_to_scene(mmd).unwrap();
+    let svg = SvgRenderer.render(&scene);
+
+    assert!(svg.contains("Think"));
+    assert!(svg.contains("Done"));
+}
+
+#[test]
 fn svg_output_is_valid_xml_structure() {
     let mmd = "graph TD\n    A --> B";
     let scene = render_to_scene(mmd).unwrap();

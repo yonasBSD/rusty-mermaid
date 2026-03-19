@@ -861,7 +861,7 @@ Phase 10: sequence diagram
   [ ] 10.2r ── diff review ──
 
   10c — Layout engine
-  [ ] 10.3  sequence/layout.rs: coordinate-based positioning
+  [x] 10.3  sequence/layout.rs: coordinate-based positioning
             SequenceLayout struct with positioned elements:
               ActorLayout { id, x, y, width, height, kind }
               LifelineLayout { actor_id, x, top_y, bottom_y }
@@ -900,7 +900,7 @@ Phase 10: sequence diagram
   [ ] 10.3r ── diff review ──
 
   10d — Scene rendering
-  [ ] 10.4  sequence/mod.rs: SequenceLayout → Scene
+  [x] 10.4  sequence/mod.rs: SequenceLayout → Scene
             Z-order (back to front):
               1. Fragment backgrounds (rect, dashed border)
               2. Lifelines (thin dashed vertical lines)
@@ -929,7 +929,7 @@ Phase 10: sequence diagram
   [ ] 10.4r ── diff review ──
 
   10e — Integration
-  [ ] 10.5  Wire into lib.rs: DiagramKind::Sequence, detect(), render_to_scene()
+  [x] 10.5  Wire into lib.rs: DiagramKind::Sequence, detect(), render_to_scene()
             Feature flag: sequence = [] (no dagre dep)
             Add "sequence" to default features
             + unit tests: detect("sequenceDiagram\n...")

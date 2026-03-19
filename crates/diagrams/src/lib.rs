@@ -17,6 +17,7 @@ use common::error::ParseError;
 pub enum DiagramKind {
     Flowchart,
     State,
+    Sequence,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -32,11 +33,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("stateDiagram") {
         return Some(DiagramKind::State);
     }
+    if line.starts_with("sequenceDiagram") {
+        return Some(DiagramKind::Sequence);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     let kind = detect(input).ok_or_else(|| {
         ParseError::new(
@@ -58,6 +62,15 @@ pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseEr
             let diagram = state::parser::parse(input)?;
             let layout = state::bridge::layout(&diagram);
             Ok(state::to_scene(&layout))
+        }
+        #[cfg(feature = "sequence")]
+        DiagramKind::Sequence => {
+            let diagram = sequence::parser::parse(input)?;
+            let layout = sequence::layout::layout(
+                &diagram,
+                &rusty_mermaid_core::SimpleTextMeasure::default(),
+            );
+            Ok(sequence::to_scene(&layout))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
@@ -98,6 +111,22 @@ mod tests {
     }
 
     #[test]
+    fn detect_sequence() {
+        assert_eq!(
+            detect("sequenceDiagram\n    Alice->>Bob: Hello"),
+            Some(DiagramKind::Sequence)
+        );
+    }
+
+    #[test]
+    fn detect_sequence_with_comment() {
+        assert_eq!(
+            detect("%% comment\nsequenceDiagram\n    A->>B: hi"),
+            Some(DiagramKind::Sequence)
+        );
+    }
+
+    #[test]
     fn detect_unknown() {
         assert_eq!(detect("pie\n    title Chart"), None);
     }
@@ -114,6 +143,16 @@ mod tests {
     #[test]
     fn render_state_to_scene() {
         let scene = render_to_scene("stateDiagram-v2\n    [*] --> Still\n    Still --> [*]").unwrap();
+        assert!(scene.width > 0.0);
+        assert!(!scene.primitives().is_empty());
+    }
+
+    #[cfg(feature = "sequence")]
+    #[test]
+    fn render_sequence_to_scene() {
+        let scene =
+            render_to_scene("sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi")
+                .unwrap();
         assert!(scene.width > 0.0);
         assert!(!scene.primitives().is_empty());
     }
