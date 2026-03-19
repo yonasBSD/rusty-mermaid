@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 434.4 313.6" width="434.4" height="313.6">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 434.4 293.6" width="434.4" height="293.6">
   <defs>
     <marker id="arrow-point" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M57 56.8 L57 216.8" fill="none" stroke="#afa5c8" stroke-width="1" />
-    <path d="M184.6 56.8 L184.6 216.8" fill="none" stroke="#afa5c8" stroke-width="1" />
-    <path d="M329 56.8 L329 216.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57 56.8 L57 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M184.6 56.8 L184.6 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M329 56.8 L329 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M57 96.8 L184.6 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="120.8" y="88.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">First</text>
     <path d="M184.6 136.8 L329 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
@@ -20,11 +20,11 @@
     <text x="184.6" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
     <rect x="283.6" y="20" width="90.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="329" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
-    <rect x="20" y="216.8" width="74" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="57" y="235.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
-    <rect x="156" y="216.8" width="57.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="184.6" y="235.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
-    <rect x="283.6" y="216.8" width="90.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="329" y="235.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="196.8" width="74" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="156" y="196.8" width="57.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="184.6" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="283.6" y="196.8" width="90.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="329" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
   </g>
 </svg>

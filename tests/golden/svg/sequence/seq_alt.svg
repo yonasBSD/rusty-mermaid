@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 323.6 433.6" width="323.6" height="433.6">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 323.6 413.6" width="323.6" height="413.6">
   <defs>
     <marker id="arrow-point" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 Z" fill="#333333" />
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
@@ -13,8 +13,8 @@
     <text x="16" y="194.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Failure]</text>
     <path d="M8 232.8 L275.6 232.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
     <text x="16" y="246.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Timeout]</text>
-    <path d="M57 56.8 L57 336.8" fill="none" stroke="#afa5c8" stroke-width="1" />
-    <path d="M235 56.8 L235 336.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57 56.8 L57 316.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M235 56.8 L235 316.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M57 96.8 L235 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="146" y="88.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
     <path d="M235 180.8 L57 180.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
@@ -27,9 +27,9 @@
     <text x="57" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
     <rect x="206.4" y="20" width="57.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="235" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
-    <rect x="20" y="336.8" width="74" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="57" y="355.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
-    <rect x="206.4" y="336.8" width="57.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="235" y="355.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="316.8" width="74" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57" y="335.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="206.4" y="316.8" width="57.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="235" y="335.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
   </g>
 </svg>

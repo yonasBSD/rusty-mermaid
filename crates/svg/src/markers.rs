@@ -36,13 +36,13 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
     match marker {
         MarkerType::ArrowPoint => format!(
             r##"<marker id="{id}" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-  <path d="M0 0 L10 5 L0 10 Z" fill="{color}" />
+  <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="{color}" />
 </marker>
 "##
         ),
         MarkerType::ArrowBarb | MarkerType::ArrowOpen => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-  <path d="M0 0 L10 5 L0 10" fill="none" stroke="{color}" stroke-width="1.5" />
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="{color}" stroke-width="1" stroke-linejoin="round" />
 </marker>
 "##
         ),
@@ -53,8 +53,8 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
 "##
         ),
         MarkerType::Cross => format!(
-            r##"<marker id="{id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-  <path d="M2 2 L8 8 M8 2 L2 8" stroke="{color}" stroke-width="1.5" />
+            r##"<marker id="{id}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M2 2 Q5 4.5 8 8 M8 2 Q5 5.5 2 8" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" />
 </marker>
 "##
         ),
@@ -93,7 +93,7 @@ mod tests {
     fn arrow_point_def() {
         let def = marker_def(MarkerType::ArrowPoint, "#333333");
         assert!(def.contains(r#"id="arrow-point""#));
-        assert!(def.contains("L10 5"));
+        assert!(def.contains("M10 5"));
         assert!(def.contains(r##"fill="#333333""##));
     }
 
