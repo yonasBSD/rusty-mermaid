@@ -2,7 +2,8 @@ use std::collections::{BTreeMap, HashSet};
 
 use rusty_mermaid_core::{
     BBox, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
-    intersect_circle, intersect_line_circle, intersect_polygon, intersect_rect,
+    intersect_circle, intersect_line_circle, intersect_line_ellipse, intersect_polygon,
+    intersect_rect,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
@@ -754,13 +755,22 @@ fn shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> {
             intersect_polygon(&verts, center, target)
         }
         Shape::Cylinder => {
-            // The cylinder's elliptical caps extend beyond the dagre bounding
-            // box by ry. Clip to a rect matching the full visual height.
+            // Composite intersection: rect for straight sides, ellipse for caps.
             let rx = hw;
             let ry = rx / (2.5 + w / 50.0);
-            let full_h = h + ry;
-            let bbox = BBox::new(cx, cy, w, full_h);
-            intersect_rect(&bbox, target)
+            let body_h = h - ry;
+            let top_cap_cy = cy - body_h / 2.0;
+            let bot_cap_cy = cy + body_h / 2.0;
+            let full_bbox = BBox::new(cx, cy, w, h + ry);
+            let rect_hit = intersect_rect(&full_bbox, target);
+
+            if rect_hit.y <= top_cap_cy {
+                intersect_line_ellipse(center, target, Point::new(cx, top_cap_cy), rx, ry)
+            } else if rect_hit.y >= bot_cap_cy {
+                intersect_line_ellipse(center, target, Point::new(cx, bot_cap_cy), rx, ry)
+            } else {
+                rect_hit
+            }
         }
         Shape::Asymmetric => {
             let notch = h / 4.0;
@@ -1352,29 +1362,30 @@ mod tests {
     }
 
     // ── Cylinder ──
+    // bbox 80×60, cx=100, cy=100.
+    // rx = 40, ry = 40 / (2.5 + 80/50) = 40/4.1 ≈ 9.756
+    // body_h = 60 - ry ≈ 50.244
+    // top_cap_cy ≈ 100 - 25.122 = 74.878
+    // bot_cap_cy ≈ 100 + 25.122 = 125.122
 
     #[test]
     fn shape_intersect_cylinder_right() {
-        // Cylinder uses intersect_rect with expanded height.
-        // bbox 80x60, rx = hw = 40, ry = 40 / (2.5 + 80/50) = 40/4.1 ≈ 9.756
-        // full_h = 60 + ry ≈ 69.756. Rect intersect with this taller bbox.
         let b = test_bbox();
         let p = shape_intersect(Shape::Cylinder, b, Point::new(200.0, 100.0)).unwrap();
-        // Ray rightward: hits right edge at x = cx + w/2 = 140.
         assert_point_near(p, Point::new(140.0, 100.0), "cylinder right");
     }
 
     #[test]
     fn shape_intersect_cylinder_top() {
+        // Axis-aligned upward ray hits top cap ellipse at (cx, top_cap_cy - ry).
         let b = test_bbox();
         let p = shape_intersect(Shape::Cylinder, b, Point::new(100.0, 0.0)).unwrap();
-        // full_h = 60 + 40/4.1 ≈ 69.756. half = ≈34.878.
-        // Hit at y = 100 - 34.878 ≈ 65.122.
         let rx = 40.0;
         let ry = rx / (2.5 + 80.0 / 50.0);
-        let full_hh = (60.0 + ry) / 2.0;
+        let body_h = 60.0 - ry;
+        let top_cap_cy = 100.0 - body_h / 2.0;
         assert_near(p.x, 100.0, "cylinder top x");
-        assert_near(p.y, 100.0 - full_hh, "cylinder top y");
+        assert_near(p.y, top_cap_cy - ry, "cylinder top y");
     }
 
     #[test]
@@ -1383,9 +1394,42 @@ mod tests {
         let p = shape_intersect(Shape::Cylinder, b, Point::new(100.0, 200.0)).unwrap();
         let rx = 40.0;
         let ry = rx / (2.5 + 80.0 / 50.0);
-        let full_hh = (60.0 + ry) / 2.0;
+        let body_h = 60.0 - ry;
+        let bot_cap_cy = 100.0 + body_h / 2.0;
         assert_near(p.x, 100.0, "cylinder bottom x");
-        assert_near(p.y, 100.0 + full_hh, "cylinder bottom y");
+        assert_near(p.y, bot_cap_cy + ry, "cylinder bottom y");
+    }
+
+    #[test]
+    fn shape_intersect_cylinder_diagonal_top_right() {
+        // Diagonal ray into top-right cap region must land on ellipse, not rect.
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Cylinder, b, Point::new(200.0, 0.0)).unwrap();
+        let rx = 40.0;
+        let ry = rx / (2.5 + 80.0 / 50.0);
+        let body_h = 60.0 - ry;
+        let top_cap_cy = 100.0 - body_h / 2.0;
+        // Point must satisfy the ellipse equation for the top cap.
+        let eq = ((p.x - 100.0) / rx).powi(2) + ((p.y - top_cap_cy) / ry).powi(2);
+        assert!(
+            (eq - 1.0).abs() < 0.01,
+            "diagonal top-right should land on cap ellipse, eq = {eq}"
+        );
+    }
+
+    #[test]
+    fn shape_intersect_cylinder_diagonal_bottom_left() {
+        let b = test_bbox();
+        let p = shape_intersect(Shape::Cylinder, b, Point::new(0.0, 200.0)).unwrap();
+        let rx = 40.0;
+        let ry = rx / (2.5 + 80.0 / 50.0);
+        let body_h = 60.0 - ry;
+        let bot_cap_cy = 100.0 + body_h / 2.0;
+        let eq = ((p.x - 100.0) / rx).powi(2) + ((p.y - bot_cap_cy) / ry).powi(2);
+        assert!(
+            (eq - 1.0).abs() < 0.01,
+            "diagonal bottom-left should land on cap ellipse, eq = {eq}"
+        );
     }
 
     // ── Asymmetric ──

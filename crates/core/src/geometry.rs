@@ -129,6 +129,25 @@ pub fn intersect_line_circle(origin: Point, target: Point, center: Point, radius
     }
 }
 
+/// Find where a ray from `origin` toward `target` exits an ellipse.
+/// Returns the farthest forward intersection (exit point).
+/// Analogous to `intersect_line_circle` but for an ellipse with independent radii.
+pub fn intersect_line_ellipse(
+    origin: Point,
+    target: Point,
+    center: Point,
+    rx: f64,
+    ry: f64,
+) -> Point {
+    // Scale y so the ellipse becomes a circle of radius rx, then use circle intersection.
+    let scale = rx / ry;
+    let scaled_origin = Point::new(origin.x, center.y + (origin.y - center.y) * scale);
+    let scaled_target = Point::new(target.x, center.y + (target.y - center.y) * scale);
+    let hit = intersect_line_circle(scaled_origin, scaled_target, center, rx);
+    // Inverse scale
+    Point::new(hit.x, center.y + (hit.y - center.y) / scale)
+}
+
 /// Intersect line segment (p1→p2) with ray (origin→direction).
 /// Returns the intersection point if it lies on the segment and in the ray's forward direction.
 fn segment_ray_intersect(p1: Point, p2: Point, origin: Point, target: Point) -> Option<Point> {
@@ -576,6 +595,41 @@ mod tests {
         let p = intersect_circle(center, r, Point::new(tiny, 0.0));
         // Should normalize the direction and project to boundary
         assert_point_near(p, Point::new(r, 0.0));
+    }
+
+    // ── Line-ellipse ──
+
+    #[test]
+    fn line_ellipse_axis_aligned_right() {
+        let origin = Point::new(0.0, 0.0);
+        let target = Point::new(200.0, 0.0);
+        let center = Point::new(50.0, 0.0);
+        let p = intersect_line_ellipse(origin, target, center, 40.0, 10.0);
+        assert_point_near(p, Point::new(90.0, 0.0));
+    }
+
+    #[test]
+    fn line_ellipse_axis_aligned_up() {
+        let origin = Point::new(0.0, 0.0);
+        let target = Point::new(0.0, -200.0);
+        let center = Point::new(0.0, -50.0);
+        let p = intersect_line_ellipse(origin, target, center, 40.0, 10.0);
+        assert_point_near(p, Point::new(0.0, -60.0));
+    }
+
+    #[test]
+    fn line_ellipse_diagonal_lands_on_boundary() {
+        let origin = Point::new(0.0, 0.0);
+        let target = Point::new(100.0, -100.0);
+        let center = Point::new(30.0, -30.0);
+        let rx = 40.0;
+        let ry = 10.0;
+        let p = intersect_line_ellipse(origin, target, center, rx, ry);
+        let eq = ((p.x - center.x) / rx).powi(2) + ((p.y - center.y) / ry).powi(2);
+        assert!(
+            (eq - 1.0).abs() < 1e-4,
+            "expected point on ellipse boundary, eq = {eq}"
+        );
     }
 
     // ── Property-based tests ──
