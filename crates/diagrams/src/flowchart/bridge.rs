@@ -183,12 +183,18 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
-    // Expand bounds to include edge label extents (labels can be wider
-    // than the gap between nodes, extending past the node bounding box).
+    // Expand bounds to include edge control points and label extents
+    // (dagre routes and labels can extend past the node bounding box).
     let mut min_x: f64 = 0.0;
     let mut min_y: f64 = 0.0;
     let label_pad = 4.0;
     for edge in &edges {
+        for pt in &edge.points {
+            min_x = min_x.min(pt.x);
+            min_y = min_y.min(pt.y);
+            max_x = max_x.max(pt.x);
+            max_y = max_y.max(pt.y);
+        }
         if let Some(size) = edge.label_size {
             if edge.points.len() < 2 { continue; }
             let mid = edge.points[edge.points.len() / 2];

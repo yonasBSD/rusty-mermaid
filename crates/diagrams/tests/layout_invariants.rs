@@ -460,13 +460,9 @@ fn state_no_nan_inf() {
 // Invariant: edge points within layout bounds (with tolerance for curves)
 // ---------------------------------------------------------------------------
 
-/// Edge control points should be within layout bounds.
-/// Currently some dagre routes go slightly negative (~10px) — tracked as a
-/// known issue. Using 10px tolerance until viewBox expansion covers edge
-/// control points (not just labels).
 #[test]
 fn flowchart_edge_points_within_bounds() {
-    let tol = 10.0;
+    let tol = 1.0;
     let mut failures = Vec::new();
     for fr in load_flowcharts() {
         let (lw, lh) = (fr.layout.width, fr.layout.height);
