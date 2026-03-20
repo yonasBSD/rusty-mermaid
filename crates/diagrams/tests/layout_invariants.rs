@@ -447,6 +447,32 @@ fn state_no_leaf_node_overlaps() {
     assert!(failures.is_empty(), "overlapping nodes:\n{}", failures.join("\n"));
 }
 
+#[test]
+fn state_pseudo_states_no_overlap_with_leaves() {
+    let mut failures = Vec::new();
+    for sr in STATES.iter() {
+        let pseudos: Vec<_> = sr.layout.nodes.iter()
+            .filter(|n| matches!(n.shape, Shape::StateStart | Shape::StateEnd))
+            .collect();
+        let leaves: Vec<_> = sr.layout.nodes.iter()
+            .filter(|n| !n.is_compound)
+            .filter(|n| !matches!(n.shape, Shape::StateStart | Shape::StateEnd))
+            .collect();
+        for p in &pseudos {
+            for l in &leaves {
+                let pb = node_bbox(p);
+                let lb = node_bbox(l);
+                if rects_overlap(pb, lb) {
+                    failures.push(format!(
+                        "{}: pseudo-state {} overlaps leaf {}", sr.stem, p.id, l.id
+                    ));
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "pseudo-state overlaps:\n{}", failures.join("\n"));
+}
+
 // ===========================================================================
 // TIER 7: Spatial — containment (subgraphs / compounds)
 // ===========================================================================

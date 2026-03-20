@@ -33,9 +33,9 @@
     <path d="M817.8 84.18 L946.23 92.19 C1074.67 100.19 1331.53 116.19 1456.41 129.76 C1581.29 143.33 1574.18 154.47 1570.63 160.03 L1568.36 163.58" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="1166.61" y="97.71" width="72.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="1203.01" y="108.91" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">open help</text>
-    <path d="M789.2 98.8 L789.2 104.37 C789.2 109.93 789.2 121.07 789.2 133.6 C789.2 146.13 789.2 160.07 789.2 167.03 L789.2 171.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="763.6" y="125.2" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="789.2" y="136.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">logout</text>
+    <path d="M760.6 97.55 L749.7 103.33 C738.8 109.1 717 120.65 706.1 133.39 C695.2 146.13 695.2 160.07 695.2 167.03 L695.2 171.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="688.55" y="114.43" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="714.15" y="125.63" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">logout</text>
     <path d="M39.73 165.6 L36.17 160.03 C32.62 154.47 25.51 143.33 145.65 129.77 C265.8 116.22 513.2 100.23 636.9 92.24 L758.2 84.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="371.07" y="97.75" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="389.47" y="108.95" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">done</text>
@@ -83,8 +83,8 @@
     <text x="821" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Settings</text>
     <rect x="339" y="165.6" width="82.4" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="380.2" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Upload</text>
-    <circle cx="789.2" cy="182" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
-    <circle cx="789.2" cy="182" r="4" fill="#9370db" />
+    <circle cx="695.2" cy="182" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="695.2" cy="182" r="4" fill="#9370db" />
     <circle cx="789.2" cy="8" r="8" fill="#333333" stroke="#333333" />
   </g>
 </svg>

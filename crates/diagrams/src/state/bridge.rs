@@ -590,7 +590,7 @@ fn center_bullseyes_in_state(
 
 fn center_bullseyes_in_scope(
     transitions: &[StateTransition],
-    _states: &[StateNode],
+    states: &[StateNode],
     scope_prefix: &str,
     g: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
@@ -610,19 +610,29 @@ fn center_bullseyes_in_scope(
         .map(|t| t.src.as_str())
         .collect();
 
+    // Collect non-compound peer node IDs for overlap checks.
+    // Compound nodes are containers — pseudo-states naturally share their space.
+    let peer_nids: Vec<NodeId> = states
+        .iter()
+        .filter(|s| !s.is_composite())
+        .filter_map(|s| id_map.get(s.id.as_str()).copied())
+        .collect();
+
     if start_targets.len() == 1 {
         let start_key = format!("{scope_prefix}[*]_start");
         let Some(&start_nid) = id_map.get(&start_key) else { return };
         let Some(&target_nid) = id_map.get(start_targets[0]) else { return };
         let target_x = g.node(target_nid).map(|n| n.x).unwrap_or(0.0);
 
-        if let Some(n) = g.node_mut(start_nid) {
-            n.x = target_x;
-        }
-        for eid in g.out_edges(start_nid).collect::<Vec<_>>() {
-            if let Some(e) = g.edge_mut(eid) {
-                for pt in &mut e.points {
-                    pt.x = target_x;
+        if !would_overlap(g, start_nid, target_x, &peer_nids) {
+            if let Some(n) = g.node_mut(start_nid) {
+                n.x = target_x;
+            }
+            for eid in g.out_edges(start_nid).collect::<Vec<_>>() {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x = target_x;
+                    }
                 }
             }
         }
@@ -634,17 +644,45 @@ fn center_bullseyes_in_scope(
         let Some(&source_nid) = id_map.get(end_sources[0]) else { return };
         let source_x = g.node(source_nid).map(|n| n.x).unwrap_or(0.0);
 
-        if let Some(n) = g.node_mut(end_nid) {
-            n.x = source_x;
-        }
-        for eid in g.in_edges(end_nid).collect::<Vec<_>>() {
-            if let Some(e) = g.edge_mut(eid) {
-                for pt in &mut e.points {
-                    pt.x = source_x;
+        if !would_overlap(g, end_nid, source_x, &peer_nids) {
+            if let Some(n) = g.node_mut(end_nid) {
+                n.x = source_x;
+            }
+            for eid in g.in_edges(end_nid).collect::<Vec<_>>() {
+                if let Some(e) = g.edge_mut(eid) {
+                    for pt in &mut e.points {
+                        pt.x = source_x;
+                    }
                 }
             }
         }
     }
+}
+
+/// Check if moving `nid` to `new_x` would cause it to overlap with any peer node.
+fn would_overlap(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    nid: NodeId,
+    new_x: f64,
+    peers: &[NodeId],
+) -> bool {
+    let Some(node) = g.node(nid) else { return false };
+    let half_w = node.width / 2.0;
+    let half_h = node.height / 2.0;
+    let min_gap = 10.0;
+
+    for &pid in peers {
+        if pid == nid {
+            continue;
+        }
+        let Some(peer) = g.node(pid) else { continue };
+        let x_overlap = (new_x - peer.x).abs() < half_w + peer.width / 2.0 + min_gap;
+        let y_overlap = (node.y - peer.y).abs() < half_h + peer.height / 2.0 + min_gap;
+        if x_overlap && y_overlap {
+            return true;
+        }
+    }
+    false
 }
 
 /// Center external nodes that connect to composite states.
