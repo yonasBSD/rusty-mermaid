@@ -133,7 +133,7 @@ impl Scene {
     }
 }
 
-/// A single drawing element. SVG and gpui both consume these.
+/// A single drawing element. All backends (SVG, raster, gpui, wgpu, PDF) consume these.
 #[derive(Debug, Clone)]
 pub enum Primitive {
     Rect {
@@ -183,7 +183,7 @@ pub enum Primitive {
     },
 }
 
-/// Path drawing commands, mirroring SVG path data.
+/// Path drawing commands (standard 2D path model: MoveTo, LineTo, CubicTo, etc.).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PathSegment {
     MoveTo(Point),
