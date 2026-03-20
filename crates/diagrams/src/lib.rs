@@ -42,6 +42,15 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
 /// Unified entry: parse + layout → Scene.
 #[cfg(any(feature = "flowchart", feature = "state", feature = "sequence"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
+    render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
+}
+
+/// Unified entry with explicit theme: parse + layout → Scene.
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence"))]
+pub fn render_to_scene_themed(
+    input: &str,
+    theme: &rusty_mermaid_core::Theme,
+) -> Result<rusty_mermaid_core::Scene, ParseError> {
     let kind = detect(input).ok_or_else(|| {
         ParseError::new(
             common::error::ParseErrorKind::UnexpectedToken,
@@ -55,13 +64,13 @@ pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseEr
         DiagramKind::Flowchart => {
             let diagram = flowchart::parser::parse(input)?;
             let layout = flowchart::bridge::layout(&diagram);
-            Ok(flowchart::to_scene(&layout))
+            Ok(flowchart::to_scene_themed(&layout, theme))
         }
         #[cfg(feature = "state")]
         DiagramKind::State => {
             let diagram = state::parser::parse(input)?;
             let layout = state::bridge::layout(&diagram);
-            Ok(state::to_scene(&layout))
+            Ok(state::to_scene_themed(&layout, theme))
         }
         #[cfg(feature = "sequence")]
         DiagramKind::Sequence => {
@@ -70,7 +79,7 @@ pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseEr
                 &diagram,
                 &rusty_mermaid_core::SimpleTextMeasure::default(),
             );
-            Ok(sequence::to_scene(&layout))
+            Ok(sequence::to_scene_themed(&layout, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(

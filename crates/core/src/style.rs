@@ -24,9 +24,10 @@ pub enum FontWeight {
 pub const DEFAULT_FONT_FAMILY: &str =
     "'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace";
 
-/// Diagram color theme. All rendering reads from this — no hardcoded colors.
+/// Diagram color theme. All rendering reads from this — no hardcoded values.
 #[derive(Debug, Clone)]
 pub struct Theme {
+    // -- Colors --
     pub node_fill: Color,
     pub node_stroke: Color,
     pub node_text: Color,
@@ -46,6 +47,17 @@ pub struct Theme {
     pub subgraph_label: Color,
     pub divider_stroke: Color,
     pub region_stroke: Color,
+    pub lifeline_stroke: Color,
+    pub activation_fill: Color,
+    pub activation_stroke: Color,
+    // -- Typography --
+    pub font_size_node: f64,
+    pub font_size_edge_label: f64,
+    pub font_size_label: f64,
+    pub font_size_small: f64,
+    pub font_size_title: f64,
+    // -- Stroke --
+    pub default_stroke_width: f64,
 }
 
 impl Default for Theme {
@@ -59,49 +71,67 @@ impl Theme {
     pub fn light() -> Self {
         Self {
             node_fill: Color::rgba(236, 236, 255, 178),   // lavender @ 70%
-            node_stroke: Color::rgb(147, 112, 219),      // #9370DB purple
-            node_text: Color::rgb(51, 51, 51),           // #333333
-            edge_stroke: Color::rgb(51, 51, 51),         // #333333
-            edge_label_text: Color::rgb(51, 51, 51),     // #333333
+            node_stroke: Color::rgb(147, 112, 219),       // #9370DB purple
+            node_text: Color::rgb(51, 51, 51),            // #333333
+            edge_stroke: Color::rgb(51, 51, 51),          // #333333
+            edge_label_text: Color::rgb(51, 51, 51),      // #333333
             edge_label_bg: Color::rgba(245, 243, 255, 191), // frosted lavender @ 75%
-            start_fill: Color::rgb(51, 51, 51),          // #333333
-            end_inner_fill: Color::rgb(147, 112, 219),   // #9370DB purple
+            start_fill: Color::rgb(51, 51, 51),           // #333333
+            end_inner_fill: Color::rgb(147, 112, 219),    // #9370DB purple
             composite_fill: Color::rgba(255, 255, 255, 204), // white @ 80%
             composite_stroke: Color::rgb(147, 112, 219),  // #9370DB
             composite_label: Color::rgb(51, 51, 51),
-            note_fill: Color::rgba(255, 248, 200, 178),  // warm yellow @ 70%
-            note_stroke: Color::rgb(170, 170, 51),       // #aaaa33
+            note_fill: Color::rgba(255, 248, 200, 178),   // warm yellow @ 70%
+            note_stroke: Color::rgb(170, 170, 51),        // #aaaa33
             note_text: Color::rgb(51, 51, 51),
             subgraph_fill: Color::rgba(236, 242, 220, 153), // sage @ 60%
             subgraph_stroke: Color::rgb(168, 174, 142),   // #a8ae8e muted olive
             subgraph_label: Color::rgb(51, 51, 51),
-            divider_stroke: Color::rgb(128, 128, 128),   // #808080
-            region_stroke: Color::rgb(128, 128, 128),    // #808080
+            divider_stroke: Color::rgb(128, 128, 128),    // #808080
+            region_stroke: Color::rgb(128, 128, 128),     // #808080
+            lifeline_stroke: Color::rgb(175, 165, 200),   // gray-lavender blend
+            activation_fill: Color::rgba(200, 190, 230, 180), // light lavender
+            activation_stroke: Color::rgb(153, 153, 153), // #999999
+            font_size_node: 14.0,
+            font_size_edge_label: 12.0,
+            font_size_label: 13.0,
+            font_size_small: 11.0,
+            font_size_title: 16.0,
+            default_stroke_width: 1.5,
         }
     }
 
     /// Dark theme for dark backgrounds.
     pub fn dark() -> Self {
         Self {
-            node_fill: Color::rgb(45, 45, 68),           // #2d2d44
-            node_stroke: Color::rgb(124, 111, 189),      // #7c6fbd
-            node_text: Color::rgb(205, 214, 244),        // #cdd6f4
-            edge_stroke: Color::rgb(108, 112, 134),      // #6c7086
-            edge_label_text: Color::rgb(186, 194, 222),  // #bac2de
-            edge_label_bg: Color::rgba(30, 30, 46, 204), // dark semi-transparent
-            start_fill: Color::rgb(205, 214, 244),       // #cdd6f4
-            end_inner_fill: Color::rgb(124, 111, 189),   // #7c6fbd
-            composite_fill: Color::rgb(37, 37, 56),      // #252538
+            node_fill: Color::rgb(45, 45, 68),            // #2d2d44
+            node_stroke: Color::rgb(124, 111, 189),       // #7c6fbd
+            node_text: Color::rgb(205, 214, 244),         // #cdd6f4
+            edge_stroke: Color::rgb(166, 173, 200),       // #a6adc8
+            edge_label_text: Color::rgb(186, 194, 222),   // #bac2de
+            edge_label_bg: Color::rgba(30, 30, 46, 204),  // dark semi-transparent
+            start_fill: Color::rgb(205, 214, 244),        // #cdd6f4
+            end_inner_fill: Color::rgb(124, 111, 189),    // #7c6fbd
+            composite_fill: Color::rgb(37, 37, 56),       // #252538
             composite_stroke: Color::rgb(124, 111, 189),
             composite_label: Color::rgb(186, 194, 222),
-            note_fill: Color::rgb(62, 60, 40),           // dark yellow-brown
+            note_fill: Color::rgb(62, 60, 40),            // dark yellow-brown
             note_stroke: Color::rgb(170, 170, 51),
             note_text: Color::rgb(205, 214, 244),
-            subgraph_fill: Color::rgb(40, 43, 35),       // #282b23 dark sage
+            subgraph_fill: Color::rgb(40, 43, 35),        // #282b23 dark sage
             subgraph_stroke: Color::rgb(105, 112, 85),    // #697055 muted dark olive
             subgraph_label: Color::rgb(205, 214, 244),
             divider_stroke: Color::rgb(88, 91, 112),
             region_stroke: Color::rgb(88, 91, 112),
+            lifeline_stroke: Color::rgb(100, 95, 130),    // muted purple-gray
+            activation_fill: Color::rgba(60, 55, 85, 180), // dark lavender
+            activation_stroke: Color::rgb(88, 91, 112),   // #585b70
+            font_size_node: 14.0,
+            font_size_edge_label: 12.0,
+            font_size_label: 13.0,
+            font_size_small: 11.0,
+            font_size_title: 16.0,
+            default_stroke_width: 1.5,
         }
     }
 }
@@ -183,6 +213,34 @@ mod tests {
         let t = Theme::dark();
         assert!(t.node_fill.luminance() < 0.1);
         assert!(t.node_text.luminance() > 0.5);
+    }
+
+    #[test]
+    fn theme_light_typography_and_stroke() {
+        let t = Theme::light();
+        assert!((t.font_size_node - 14.0).abs() < f64::EPSILON);
+        assert!((t.font_size_edge_label - 12.0).abs() < f64::EPSILON);
+        assert!((t.font_size_label - 13.0).abs() < f64::EPSILON);
+        assert!((t.font_size_small - 11.0).abs() < f64::EPSILON);
+        assert!((t.font_size_title - 16.0).abs() < f64::EPSILON);
+        assert!((t.default_stroke_width - 1.5).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn theme_light_sequence_colors() {
+        let t = Theme::light();
+        assert_eq!(t.lifeline_stroke, Color::rgb(175, 165, 200));
+        assert_eq!(t.activation_fill, Color::rgba(200, 190, 230, 180));
+        assert_eq!(t.activation_stroke, Color::rgb(153, 153, 153));
+    }
+
+    #[test]
+    fn theme_dark_has_all_new_fields() {
+        let t = Theme::dark();
+        assert!((t.font_size_node - 14.0).abs() < f64::EPSILON);
+        assert!((t.default_stroke_width - 1.5).abs() < f64::EPSILON);
+        assert!(t.lifeline_stroke.luminance() < 0.3);
+        assert!(t.activation_fill.a < 255);
     }
 
     #[test]

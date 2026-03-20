@@ -46,7 +46,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         let mut cstyle = Style {
             fill: Some(theme.composite_fill),
             stroke: Some(theme.composite_stroke),
-            stroke_width: Some(1.5),
+            stroke_width: Some(theme.default_stroke_width),
             ..Default::default()
         };
         if let Some(custom) = &node.custom_style {
@@ -117,12 +117,13 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             let mut segments = clip_segments_at_compounds(&segments, &compounds);
             let label_pos = path_midpoint(&segments);
             let marker_end = Some(rusty_mermaid_core::MarkerType::ArrowPoint);
-            shorten_path_for_markers(&mut segments, None, marker_end, 1.5);
+            let sw = theme.default_stroke_width;
+            shorten_path_for_markers(&mut segments, None, marker_end, sw);
             scene.push(Primitive::Path {
                 segments,
                 style: Style {
                     stroke: Some(theme.edge_stroke),
-                    stroke_width: Some(1.5),
+                    stroke_width: Some(sw),
                     ..Default::default()
                 },
                 marker_start: None,
@@ -157,7 +158,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     style: Style {
                         fill: Some(Color::TRANSPARENT),
                         stroke: Some(theme.node_stroke),
-                        stroke_width: Some(1.5),
+                        stroke_width: Some(theme.default_stroke_width),
                         ..Default::default()
                     },
                 });
@@ -212,7 +213,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     content: node.label.clone(),
                     anchor: TextAnchor::Middle,
                     style: TextStyle {
-                        font_size: 12.0,
+                        font_size: theme.font_size_edge_label,
                         fill: Some(theme.note_text),
                         ..Default::default()
                     },
@@ -226,7 +227,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     style: Style {
                         fill: Some(theme.composite_fill),
                         stroke: Some(theme.node_stroke),
-                        stroke_width: Some(1.5),
+                        stroke_width: Some(theme.default_stroke_width),
                         ..Default::default()
                     },
                 });
@@ -235,7 +236,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                     content: "H".to_string(),
                     anchor: TextAnchor::Middle,
                     style: TextStyle {
-                        font_size: 12.0,
+                        font_size: theme.font_size_edge_label,
                         fill: Some(theme.node_text),
                         ..Default::default()
                     },

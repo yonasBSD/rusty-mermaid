@@ -10,7 +10,7 @@ pub fn node_style(theme: &Theme) -> Style {
     Style {
         fill: Some(theme.node_fill),
         stroke: Some(theme.node_stroke),
-        stroke_width: Some(1.5),
+        stroke_width: Some(theme.default_stroke_width),
         ..Default::default()
     }
 }
@@ -26,7 +26,7 @@ pub fn label_style(theme: &Theme) -> TextStyle {
 /// Default edge label text style from theme.
 pub fn edge_label_style(theme: &Theme) -> TextStyle {
     TextStyle {
-        font_size: 12.0,
+        font_size: theme.font_size_edge_label,
         fill: Some(theme.edge_label_text),
         ..Default::default()
     }
@@ -296,7 +296,7 @@ mod tests {
         let s = node_style(&theme);
         assert_eq!(s.fill, Some(theme.node_fill));
         assert_eq!(s.stroke, Some(theme.node_stroke));
-        assert_eq!(s.stroke_width, Some(1.5));
+        assert_eq!(s.stroke_width, Some(theme.default_stroke_width));
     }
 
     #[test]

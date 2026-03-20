@@ -11,15 +11,9 @@ use crate::common::rendering::shorten_path_for_markers;
 use ir::{ArrowHead, LineStyle, ParticipantKind};
 use layout::{
     ActorLayout, MessageLayout, SequenceLayout, activation_width, self_msg_height, self_msg_width,
-    stick_arm_span, stick_body_h, stick_figure_h, stick_head_r, stick_leg_h, stick_text_gap,
+    stick_figure_h, stick_text_gap,
 };
 
-/// Lifeline color — gray-lavender blend.
-const LIFELINE_STROKE: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgb(175, 165, 200);
-/// Activation box border.
-const ACTIVATION_STROKE: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgb(153, 153, 153);
-/// Activation box fill — light lavender for a glassy look.
-const ACTIVATION_FILL: rusty_mermaid_core::Color = rusty_mermaid_core::Color::rgba(200, 190, 230, 180);
 
 /// Convert a sequence layout into a Scene with default theme.
 pub fn to_scene(seq_layout: &SequenceLayout) -> Scene {
@@ -36,7 +30,7 @@ pub fn to_scene_themed(seq_layout: &SequenceLayout, theme: &Theme) -> Scene {
 fn render_layout(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
     // Z-order: back → front
     render_fragments(l, scene, theme);
-    render_lifelines(l, scene);
+    render_lifelines(l, scene, theme);
     render_activations(l, scene, theme);
     render_messages(l, scene, theme);
     render_notes(l, scene, theme);
@@ -90,7 +84,7 @@ fn render_fragments(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
             content: tag_text,
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: 12.0,
+                font_size: theme.font_size_edge_label,
                 font_weight: FontWeight::Bold,
                 fill: Some(rusty_mermaid_core::Color::WHITE),
                 ..Default::default()
@@ -104,7 +98,7 @@ fn render_fragments(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
                 content: label.clone(),
                 anchor: TextAnchor::Start,
                 style: TextStyle {
-                    font_size: 12.0,
+                    font_size: theme.font_size_edge_label,
                     fill: Some(theme.subgraph_label),
                     ..Default::default()
                 },
@@ -133,7 +127,7 @@ fn render_fragments(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
                     content: format!("[{label}]"),
                     anchor: TextAnchor::Start,
                     style: TextStyle {
-                        font_size: 11.0,
+                        font_size: theme.font_size_small,
                         fill: Some(theme.subgraph_label),
                         ..Default::default()
                     },
@@ -147,7 +141,7 @@ fn render_fragments(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
 // Lifelines
 // ---------------------------------------------------------------------------
 
-fn render_lifelines(l: &SequenceLayout, scene: &mut Scene) {
+fn render_lifelines(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
     for ll in &l.lifelines {
         scene.push(Primitive::Path {
             segments: vec![
@@ -155,7 +149,7 @@ fn render_lifelines(l: &SequenceLayout, scene: &mut Scene) {
                 PathSegment::LineTo(Point::new(ll.x, ll.bottom_y)),
             ],
             style: Style {
-                stroke: Some(LIFELINE_STROKE),
+                stroke: Some(theme.lifeline_stroke),
                 stroke_width: Some(1.0),
                 ..Default::default()
             },
@@ -179,8 +173,8 @@ fn render_activations(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
             rx: 0.0,
             ry: 0.0,
             style: Style {
-                fill: Some(ACTIVATION_FILL),
-                stroke: Some(ACTIVATION_STROKE),
+                fill: Some(theme.activation_fill),
+                stroke: Some(theme.activation_stroke),
                 stroke_width: Some(0.5),
                 ..Default::default()
             },
@@ -206,9 +200,10 @@ fn render_messages(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
 }
 
 fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
+    let sw = theme.default_stroke_width;
     let mut style = Style {
         stroke: Some(theme.edge_stroke),
-        stroke_width: Some(1.5),
+        stroke_width: Some(sw),
         ..Default::default()
     };
     if msg.arrow.line == LineStyle::Dotted {
@@ -219,7 +214,6 @@ fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme)
         PathSegment::MoveTo(Point::new(msg.from_x, msg.y)),
         PathSegment::LineTo(Point::new(msg.to_x, msg.y)),
     ];
-    let sw = style.stroke_width.unwrap_or(1.5);
     shorten_path_for_markers(&mut segments, None, marker_end, sw);
     scene.push(Primitive::Path {
         segments,
@@ -235,7 +229,7 @@ fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme)
             content: label.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: 13.0,
+                font_size: theme.font_size_label,
                 fill: Some(theme.edge_label_text),
                 ..Default::default()
             },
@@ -247,10 +241,11 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
     let x = msg.from_x;
     let w = self_msg_width();
     let h = self_msg_height();
+    let sw = theme.default_stroke_width;
 
     let mut style = Style {
         stroke: Some(theme.edge_stroke),
-        stroke_width: Some(1.5),
+        stroke_width: Some(sw),
         ..Default::default()
     };
     if msg.arrow.line == LineStyle::Dotted {
@@ -267,7 +262,6 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
             to: Point::new(x, msg.y + h),
         },
     ];
-    let sw = style.stroke_width.unwrap_or(1.5);
     shorten_path_for_markers(&mut segments, None, marker_end, sw);
     scene.push(Primitive::Path {
         segments,
@@ -282,7 +276,7 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
             content: label.clone(),
             anchor: TextAnchor::Start,
             style: TextStyle {
-                font_size: 13.0,
+                font_size: theme.font_size_label,
                 fill: Some(theme.edge_label_text),
                 ..Default::default()
             },
@@ -313,8 +307,8 @@ fn render_msg_number(msg: &MessageLayout, n: u32, scene: &mut Scene, theme: &The
         content: n.to_string(),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: 11.0,
-            fill: Some(rusty_mermaid_core::Color::rgb(255, 255, 255)),
+            font_size: theme.font_size_small,
+            fill: Some(rusty_mermaid_core::Color::WHITE),
             font_weight: FontWeight::Bold,
             ..Default::default()
         },
@@ -354,7 +348,7 @@ fn render_notes(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
             content: note.text.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: 12.0,
+                font_size: theme.font_size_edge_label,
                 fill: Some(theme.note_text),
                 ..Default::default()
             },
@@ -384,7 +378,7 @@ fn render_actor_box(actor: &ActorLayout, scene: &mut Scene, theme: &Theme) {
         style: Style {
             fill: Some(theme.node_fill),
             stroke: Some(theme.node_stroke),
-            stroke_width: Some(1.5),
+            stroke_width: Some(theme.default_stroke_width),
             ..Default::default()
         },
     });
@@ -416,7 +410,7 @@ fn render_actor_stick(actor: &ActorLayout, scene: &mut Scene, theme: &Theme) {
     let icon_style = Style {
         fill: Some(theme.node_fill),
         stroke: Some(theme.node_stroke),
-        stroke_width: Some(1.5),
+        stroke_width: Some(theme.default_stroke_width),
         ..Default::default()
     };
 
@@ -460,7 +454,7 @@ fn render_title(title: &str, l: &SequenceLayout, scene: &mut Scene, theme: &Them
         content: title.to_owned(),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: 16.0,
+            font_size: theme.font_size_title,
             font_weight: FontWeight::Bold,
             fill: Some(theme.node_text),
             ..Default::default()

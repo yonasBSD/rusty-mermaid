@@ -17,11 +17,12 @@ use crate::common::rendering::{
 };
 
 fn edge_style(stroke: StrokeType, theme: &Theme) -> Style {
+    let sw = theme.default_stroke_width;
     Style {
         stroke: Some(theme.edge_stroke),
         stroke_width: Some(match stroke {
-            StrokeType::Thick => 3.5,
-            _ => 1.5,
+            StrokeType::Thick => sw * 2.0 + 0.5,
+            _ => sw,
         }),
         stroke_dasharray: match stroke {
             StrokeType::Dotted => Some(vec![3.0, 3.0]),
@@ -54,7 +55,7 @@ fn subgraph_style(theme: &Theme) -> Style {
 
 fn subgraph_label_style(theme: &Theme) -> TextStyle {
     TextStyle {
-        font_size: 13.0,
+        font_size: theme.font_size_label,
         fill: Some(theme.subgraph_label),
         font_weight: rusty_mermaid_core::FontWeight::Bold,
         ..Default::default()
@@ -113,7 +114,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                 overlay_style(&mut estyle, custom);
             }
 
-            let sw = estyle.stroke_width.unwrap_or(1.5);
+            let sw = estyle.stroke_width.unwrap_or(theme.default_stroke_width);
             shorten_path_for_markers(&mut segments, marker_start, marker_end, sw);
 
             scene.push(Primitive::Path {
