@@ -189,27 +189,34 @@ pub fn shorten_path_for_markers(
 
 /// Pull the last point of a path back along its incoming tangent by `dist` pixels.
 /// If the terminal segment is shorter than `dist`, removes it and continues into
-/// the preceding segment (handles short final LineTo from Bézier interpolation).
+/// the preceding segment (handles short final segments from Bézier interpolation).
 fn shorten_path_end(segments: &mut Vec<PathSegment>, mut remaining: f64) {
     while remaining > 0.0 && segments.len() > 1 {
         let n = segments.len();
-        if let PathSegment::LineTo(to) = segments[n - 1] {
-            if let Some(prev) = prev_endpoint(&segments[..n - 1]) {
-                let seg_len = to.distance_to(prev);
-                if seg_len <= remaining {
-                    segments.pop();
-                    remaining -= seg_len;
-                    continue;
+        // Absorb any short terminal segment (LineTo, CubicTo, QuadTo)
+        let (to, prev) = match segments[n - 1] {
+            PathSegment::LineTo(to)
+            | PathSegment::CubicTo { to, .. }
+            | PathSegment::QuadTo { to, .. } => {
+                if let Some(prev) = prev_endpoint(&segments[..n - 1]) {
+                    (to, prev)
+                } else {
+                    break;
                 }
             }
+            _ => break,
+        };
+        let seg_len = to.distance_to(prev);
+        if seg_len <= remaining {
+            segments.pop();
+            remaining -= seg_len;
+            continue;
         }
+        // Segment is long enough — pull back within it
         let n = segments.len();
-        let prev = if n >= 2 { prev_endpoint(&segments[..n - 1]) } else { None };
         match &mut segments[n - 1] {
             PathSegment::LineTo(to) => {
-                if let Some(p) = prev {
-                    pull_toward(to, p, remaining);
-                }
+                pull_toward(to, prev, remaining);
             }
             PathSegment::CubicTo { cp2, to, .. } => {
                 let dir = *cp2;
@@ -226,15 +233,21 @@ fn shorten_path_end(segments: &mut Vec<PathSegment>, mut remaining: f64) {
 }
 
 /// Pull the first point of a path inward along its outgoing tangent by `dist` pixels.
-/// Cascades through short leading LineTo segments (analogous to `shorten_path_end`).
+/// Cascades through short leading segments (analogous to `shorten_path_end`).
 fn shorten_path_start(segments: &mut Vec<PathSegment>, mut remaining: f64) {
     while remaining > 0.0 && segments.len() > 1 {
         let start = match segments[0] {
             PathSegment::MoveTo(p) => p,
             _ => return,
         };
-        // If the second segment is a short LineTo, absorb it and keep going
-        if let PathSegment::LineTo(to) = segments[1] {
+        // Absorb short second segment (LineTo, CubicTo, QuadTo)
+        let seg_endpoint = match segments[1] {
+            PathSegment::LineTo(to)
+            | PathSegment::CubicTo { to, .. }
+            | PathSegment::QuadTo { to, .. } => Some(to),
+            _ => None,
+        };
+        if let Some(to) = seg_endpoint {
             let seg_len = start.distance_to(to);
             if seg_len <= remaining {
                 segments[0] = PathSegment::MoveTo(to);
@@ -455,6 +468,66 @@ mod tests {
         if let PathSegment::MoveTo(p) = segs[0] {
             // Started at (0,4) after absorbing, pulled 2.0 toward cp1 (0,20)
             assert!((p.y - 6.0).abs() < 0.01);
+        } else {
+            panic!("expected MoveTo");
+        }
+    }
+
+    #[test]
+    fn shorten_path_end_cascades_through_micro_cubic() {
+        // Basis spline interpolation can produce micro CubicTo segments near
+        // endpoints. The cascade must absorb these so shortening doesn't silently
+        // fail. Regression: resume edge in state_history_in_composite had a
+        // 0.07px CubicTo that defeated the entire 3.15px shortening.
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 30.0),
+                cp2: Point::new(0.0, 80.0),
+                to: Point::new(0.0, 96.0),
+            },
+            // Micro cubic: only 0.07px
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 96.03),
+                cp2: Point::new(0.0, 96.05),
+                to: Point::new(0.0, 96.07),
+            },
+        ];
+        shorten_path_end(&mut segs, 3.15);
+        // Micro cubic (0.07px) absorbed, remaining ~3.08px pulled from main cubic
+        assert_eq!(segs.len(), 2, "micro cubic should be absorbed");
+        let end = prev_endpoint(&segs).unwrap();
+        assert!(
+            (end.y - (96.0 - 3.08)).abs() < 0.5,
+            "endpoint should be pulled back into preceding cubic, got y={:.2}",
+            end.y
+        );
+    }
+
+    #[test]
+    fn shorten_path_start_cascades_through_micro_cubic() {
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            // Micro cubic: only 0.05px
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 0.02),
+                cp2: Point::new(0.0, 0.04),
+                to: Point::new(0.0, 0.05),
+            },
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 20.0),
+                cp2: Point::new(0.0, 80.0),
+                to: Point::new(0.0, 100.0),
+            },
+        ];
+        shorten_path_start(&mut segs, 3.15);
+        assert_eq!(segs.len(), 2, "micro cubic should be absorbed");
+        if let PathSegment::MoveTo(p) = segs[0] {
+            assert!(
+                p.y > 3.0,
+                "start should be pulled forward past micro cubic, got y={:.2}",
+                p.y
+            );
         } else {
             panic!("expected MoveTo");
         }

@@ -20,7 +20,7 @@
     <path d="M106.68 256.6 L103.12 251.03 C99.57 245.47 92.46 234.33 92.46 223.2 C92.46 212.07 99.57 200.93 103.12 195.37 L104.98 192.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="74.06" y="212" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="92.46" y="223.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">stop</text>
-    <path d="M101.98 530 L97.31 524.43 C92.64 518.87 83.29 507.73 78.62 496.6 C73.95 485.47 73.95 474.33 73.95 463.27 C73.95 463.24 73.95 463.22 73.95 463.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M101.98 530 L97.31 524.43 C92.64 518.87 83.29 507.73 78.62 496.6 C73.95 485.47 73.95 474.33 73.95 466.35" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="54.48" y="488.55" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="80.08" y="499.75" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">resume</text>
     <circle cx="117.15" cy="99" r="8" fill="#333333" stroke="#333333" />
