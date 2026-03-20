@@ -62,8 +62,15 @@ fn subgraph_label_style(theme: &Theme) -> TextStyle {
 }
 
 fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
-    // Draw subgraph boundaries first (behind nodes)
-    for sg in &layout.subgraphs {
+    // Draw subgraph boundaries first (behind nodes), largest first so
+    // nested subgraphs render on top of their parents.
+    let mut subgraphs: Vec<&_> = layout.subgraphs.iter().collect();
+    subgraphs.sort_by(|a, b| {
+        let area_a = a.width * a.height;
+        let area_b = b.width * b.height;
+        area_b.partial_cmp(&area_a).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    for sg in &subgraphs {
         let bbox = BBox::new(sg.x, sg.y, sg.width, sg.height);
         scene.push(Primitive::Rect {
             bbox,
@@ -560,6 +567,42 @@ mod tests {
 
         // Subgraph label text should appear
         assert!(has_text(&scene, "My Group"), "subgraph label text should be in scene");
+    }
+
+    #[test]
+    fn nested_subgraphs_render_outermost_first() {
+        let mmd = "flowchart TD\n    subgraph outer[Outer]\n        subgraph middle[Middle]\n            subgraph inner[Inner]\n                A --> B\n            end\n        end\n    end";
+        let d = crate::flowchart::parser::parse(mmd).unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Collect subgraph rect areas in scene order (subgraphs render before nodes)
+        let subgraph_areas: Vec<f64> = scene
+            .primitives()
+            .iter()
+            .filter_map(|p| {
+                if let Primitive::Rect { bbox, rx, .. } = p {
+                    // Subgraph rects use rx=5 and are larger than leaf nodes
+                    if *rx == 5.0 && bbox.width * bbox.height > 3000.0 {
+                        return Some(bbox.width * bbox.height);
+                    }
+                }
+                None
+            })
+            .collect();
+
+        assert!(
+            subgraph_areas.len() >= 3,
+            "expected at least 3 subgraph rects, got {}",
+            subgraph_areas.len()
+        );
+        for w in subgraph_areas.windows(2) {
+            assert!(
+                w[0] >= w[1],
+                "subgraph rects must be ordered largest-first for correct z-ordering: {:.0} < {:.0}",
+                w[0], w[1]
+            );
+        }
     }
 
     #[test]

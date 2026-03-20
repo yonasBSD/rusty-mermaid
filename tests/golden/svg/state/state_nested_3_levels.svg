@@ -5,15 +5,15 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="40" y="248" width="186" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="133" y="260" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inner</text>
-    <path d="M40 272 L226 272" fill="none" stroke="#9370db" stroke-width="1" />
-    <rect x="20" y="157" width="226" height="479.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="133" y="169" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Middle</text>
-    <path d="M20 181 L246 181" fill="none" stroke="#9370db" stroke-width="1" />
     <rect x="0" y="66" width="266" height="661.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
     <text x="133" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outer</text>
     <path d="M0 90 L266 90" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="20" y="157" width="226" height="479.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="133" y="169" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Middle</text>
+    <path d="M20 181 L246 181" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="40" y="248" width="186" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="133" y="260" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inner</text>
+    <path d="M40 272 L226 272" fill="none" stroke="#9370db" stroke-width="1" />
     <path d="M133 289 L133 293.17 C133 297.33 133 305.67 133 314 C133 322.33 133 330.67 133 334.83 L133 335.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M147.46 371.8 L151.13 375.97 C154.81 380.13 162.15 388.47 162.15 396.8 C162.15 405.13 154.81 413.47 151.13 417.63 L149.54 419.44" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M133 454.6 L133 458.77 C133 462.93 133 471.27 133 479.6 C133 487.93 133 496.27 133 500.43 L133 501.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />

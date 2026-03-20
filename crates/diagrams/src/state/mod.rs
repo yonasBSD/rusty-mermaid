@@ -28,7 +28,13 @@ pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
 }
 
 fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
-    let compounds: Vec<&NodeLayout> = layout.nodes.iter().filter(|n| n.is_compound).collect();
+    let mut compounds: Vec<&NodeLayout> = layout.nodes.iter().filter(|n| n.is_compound).collect();
+    // Sort largest-area first so outer composites render behind inner ones
+    compounds.sort_by(|a, b| {
+        let area_a = a.width * a.height;
+        let area_b = b.width * b.height;
+        area_b.partial_cmp(&area_a).unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     // Render compound (container) nodes first so children draw on top
     for node in &compounds {
@@ -821,6 +827,46 @@ mod tests {
             }
         }
         assert!(found_arrow_into_paused, "should find at least one arrow targeting Paused");
+    }
+
+    #[test]
+    fn nested_compounds_render_outermost_first() {
+        // Outer > Middle > Inner: compound rects must appear in the scene
+        // in decreasing area order so inner composites paint on top.
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Outer\n    state Outer {\n        [*] --> Middle\n        state Middle {\n            [*] --> Inner\n            state Inner {\n                [*] --> Core\n                Core --> Processing\n                Processing --> Core\n                Processing --> [*]\n            }\n            Inner --> [*]\n        }\n        Middle --> [*]\n    }\n    Outer --> [*]"
+        ).unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Collect compound rect areas in scene order
+        let compound_areas: Vec<f64> = scene
+            .primitives()
+            .iter()
+            .filter_map(|p| {
+                if let Primitive::Rect { bbox, rx, .. } = p {
+                    // Compound rects use rx=5, filter by area > typical leaf node
+                    if *rx == 5.0 && bbox.width * bbox.height > 5000.0 {
+                        return Some(bbox.width * bbox.height);
+                    }
+                }
+                None
+            })
+            .collect();
+
+        assert!(
+            compound_areas.len() >= 3,
+            "expected at least 3 compound rects (Outer, Middle, Inner), got {}",
+            compound_areas.len()
+        );
+        // Each successive compound rect must have equal or smaller area
+        for w in compound_areas.windows(2) {
+            assert!(
+                w[0] >= w[1],
+                "compound rects must be ordered largest-first for correct z-ordering: {:.0} < {:.0}",
+                w[0], w[1]
+            );
+        }
     }
 
     #[test]

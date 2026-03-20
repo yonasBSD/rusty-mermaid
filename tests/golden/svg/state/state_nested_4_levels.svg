@@ -5,18 +5,18 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="60" y="339" width="144" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="132" y="351" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Component</text>
-    <path d="M60 363 L204 363" fill="none" stroke="#9370db" stroke-width="1" />
-    <rect x="40" y="248" width="184" height="479.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="132" y="260" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Module</text>
-    <path d="M40 272 L224 272" fill="none" stroke="#9370db" stroke-width="1" />
-    <rect x="20" y="157" width="224" height="661.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="132" y="169" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Subsystem</text>
-    <path d="M20 181 L244 181" fill="none" stroke="#9370db" stroke-width="1" />
     <rect x="0" y="66" width="264" height="843.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
     <text x="132" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">System</text>
     <path d="M0 90 L264 90" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="20" y="157" width="224" height="661.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="169" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Subsystem</text>
+    <path d="M20 181 L244 181" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="40" y="248" width="184" height="479.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="260" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Module</text>
+    <path d="M40 272 L224 272" fill="none" stroke="#9370db" stroke-width="1" />
+    <rect x="60" y="339" width="144" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="132" y="351" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Component</text>
+    <path d="M60 363 L204 363" fill="none" stroke="#9370db" stroke-width="1" />
     <path d="M132 380 L132 384.17 C132 388.33 132 396.67 132 405 C132 413.33 132 421.67 132 425.83 L132 426.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M142.3 462.8 L144.92 466.97 C147.53 471.13 152.77 479.47 152.77 487.8 C152.77 496.13 147.53 504.47 144.92 508.63 L143.97 510.13" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M132 545.6 L132 549.77 C132 553.93 132 562.27 132 570.6 C132 578.93 132 587.27 132 591.43 L132 592.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
