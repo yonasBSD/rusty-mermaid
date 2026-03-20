@@ -49,14 +49,13 @@ impl SvgRenderer {
         if let Some(c) = &self.config.marker_color {
             return c.to_string();
         }
-        // Derive from the first path that actually uses markers.
-        for prim in scene.primitives() {
+        for elem in scene.elements() {
             if let rusty_mermaid_core::Primitive::Path {
                 style,
                 marker_start,
                 marker_end,
                 ..
-            } = prim
+            } = &elem.primitive
             {
                 if marker_start.is_some() || marker_end.is_some() {
                     if let Some(c) = &style.stroke {
@@ -86,7 +85,7 @@ impl Renderer for SvgRenderer {
         let mut doc = SvgDocument::new(w, h);
 
         // Emit marker defs if any paths use markers
-        let markers = collect_markers(scene.primitives());
+        let markers = collect_markers(scene.elements());
         if !markers.is_empty() {
             let color = self.resolve_marker_color(scene);
             doc.open_tag("defs", &[]);
@@ -100,8 +99,8 @@ impl Renderer for SvgRenderer {
         let transform = format!("translate({tx}, {ty})");
         doc.open_tag("g", &[("transform", &transform)]);
 
-        for prim in scene.primitives() {
-            render_primitive(&mut doc, prim);
+        for elem in scene.elements() {
+            render_primitive(&mut doc, &elem.primitive);
         }
 
         doc.close_tag("g");

@@ -136,7 +136,7 @@ mod tests {
     fn render_flowchart_to_scene() {
         let scene = render_to_scene("graph TD\n    A[Start] --> B[End]").unwrap();
         assert!(scene.width > 0.0);
-        assert!(!scene.primitives().is_empty());
+        assert!(!scene.is_empty());
     }
 
     #[cfg(feature = "state")]
@@ -144,7 +144,7 @@ mod tests {
     fn render_state_to_scene() {
         let scene = render_to_scene("stateDiagram-v2\n    [*] --> Still\n    Still --> [*]").unwrap();
         assert!(scene.width > 0.0);
-        assert!(!scene.primitives().is_empty());
+        assert!(!scene.is_empty());
     }
 
     #[cfg(feature = "sequence")]
@@ -154,6 +154,6 @@ mod tests {
             render_to_scene("sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi")
                 .unwrap();
         assert!(scene.width > 0.0);
-        assert!(!scene.primitives().is_empty());
+        assert!(!scene.is_empty());
     }
 }

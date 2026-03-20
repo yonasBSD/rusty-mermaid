@@ -1,4 +1,4 @@
-use rusty_mermaid_core::{MarkerType, Primitive, TextAnchor, Transform};
+use rusty_mermaid_core::{Element, MarkerType, Primitive, TextAnchor, Transform};
 
 use crate::document::{fmt_f64, write_f64, SvgDocument};
 use crate::markers::marker_id;
@@ -173,31 +173,33 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
 }
 
 /// Collect all marker types used in a scene.
-pub fn collect_markers(primitives: &[Primitive]) -> Vec<MarkerType> {
+pub fn collect_markers(elements: &[Element]) -> Vec<MarkerType> {
     let mut markers = Vec::new();
-    for prim in primitives {
-        match prim {
-            Primitive::Path { marker_start, marker_end, .. } => {
-                if let Some(m) = marker_start
-                    && !markers.contains(m) {
-                        markers.push(*m);
-                    }
-                if let Some(m) = marker_end
-                    && !markers.contains(m) {
-                        markers.push(*m);
-                    }
-            }
-            Primitive::Group { children, .. } => {
-                for m in collect_markers(children) {
-                    if !markers.contains(&m) {
-                        markers.push(m);
-                    }
-                }
-            }
-            _ => {}
-        }
+    for elem in elements {
+        collect_markers_prim(&elem.primitive, &mut markers);
     }
     markers
+}
+
+fn collect_markers_prim(prim: &Primitive, markers: &mut Vec<MarkerType>) {
+    match prim {
+        Primitive::Path { marker_start, marker_end, .. } => {
+            if let Some(m) = marker_start
+                && !markers.contains(m) {
+                    markers.push(*m);
+                }
+            if let Some(m) = marker_end
+                && !markers.contains(m) {
+                    markers.push(*m);
+                }
+        }
+        Primitive::Group { children, .. } => {
+            for child in children {
+                collect_markers_prim(child, markers);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn transform_to_attr(t: &Transform) -> String {
@@ -467,21 +469,27 @@ mod tests {
 
     #[test]
     fn collect_markers_from_paths() {
-        let prims = vec![
-            Primitive::Path {
-                segments: vec![],
-                style: Style::default(),
-                marker_start: None,
-                marker_end: Some(MarkerType::ArrowPoint),
+        let elems = vec![
+            Element {
+                primitive: Primitive::Path {
+                    segments: vec![],
+                    style: Style::default(),
+                    marker_start: None,
+                    marker_end: Some(MarkerType::ArrowPoint),
+                },
+                id: None,
             },
-            Primitive::Path {
-                segments: vec![],
-                style: Style::default(),
-                marker_start: Some(MarkerType::Circle),
-                marker_end: Some(MarkerType::ArrowPoint),
+            Element {
+                primitive: Primitive::Path {
+                    segments: vec![],
+                    style: Style::default(),
+                    marker_start: Some(MarkerType::Circle),
+                    marker_end: Some(MarkerType::ArrowPoint),
+                },
+                id: None,
             },
         ];
-        let markers = collect_markers(&prims);
+        let markers = collect_markers(&elems);
         assert_eq!(markers.len(), 2);
         assert!(markers.contains(&MarkerType::ArrowPoint));
         assert!(markers.contains(&MarkerType::Circle));

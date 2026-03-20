@@ -641,12 +641,11 @@ mod tests {
 
         assert_scene_valid(&scene);
 
-        let prims = scene.primitives();
         // At least: start circle + 2 state rects + 2 state labels + 2 edge paths
         assert!(
-            prims.len() >= 7,
+            scene.len() >= 7,
             "expected at least 7 primitives, got {}",
-            prims.len()
+            scene.len()
         );
     }
 
@@ -678,9 +677,9 @@ mod tests {
 
         // This filter is test-specific (checks rx/ry values), keep inline
         let rects: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Rect { rx, ry, .. } if *rx == 5.0 && *ry == 5.0))
+            .filter(|e| matches!(e.primitive, Primitive::Rect { rx, ry, .. } if rx == 5.0 && ry == 5.0))
             .collect();
         assert!(
             rects.len() >= 2,
@@ -698,11 +697,11 @@ mod tests {
         let scene = to_scene(&layout);
 
         let arrow_paths: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| {
+            .filter(|e| {
                 matches!(
-                    p,
+                    e.primitive,
                     Primitive::Path {
                         marker_end: Some(MarkerType::ArrowPoint),
                         ..
@@ -733,11 +732,11 @@ mod tests {
         // Separator line: a Path with exactly 2 segments (MoveTo + LineTo)
         // Test-specific filter — keep inline
         let separator_paths: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| {
+            .filter(|e| {
                 matches!(
-                    p,
+                    &e.primitive,
                     Primitive::Path {
                         segments,
                         marker_start: None,
@@ -771,8 +770,8 @@ mod tests {
         let target = layout.nodes.iter().find(|n| n.label == "Moving").unwrap();
         let node_top = target.y - target.height / 2.0;
 
-        for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
+        for e in scene.elements() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = &e.primitive {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
                 let expected = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
@@ -808,8 +807,8 @@ mod tests {
         // Check that every arrow-marked path ending near the Paused node
         // has its endpoint properly shortened (not inside the rect)
         let mut found_arrow_into_paused = false;
-        for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), .. } = p {
+        for e in scene.elements() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), .. } = &e.primitive {
                 let Some(endpoint) = prev_endpoint(segments) else { continue };
                 // Check edges pointing at Paused (endpoint near Paused's top)
                 if (endpoint.y - paused_top).abs() < 10.0
@@ -841,10 +840,10 @@ mod tests {
 
         // Collect compound rect areas in scene order
         let compound_areas: Vec<f64> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter_map(|p| {
-                if let Primitive::Rect { bbox, rx, .. } = p {
+            .filter_map(|e| {
+                if let Primitive::Rect { bbox, rx, .. } = &e.primitive {
                     // Compound rects use rx=5, filter by area > typical leaf node
                     if *rx == 5.0 && bbox.width * bbox.height > 5000.0 {
                         return Some(bbox.width * bbox.height);
@@ -876,7 +875,7 @@ mod tests {
         let scene = to_scene(&layout);
 
         assert!(
-            scene.primitives().is_empty(),
+            scene.is_empty(),
             "empty diagram should produce empty scene"
         );
     }

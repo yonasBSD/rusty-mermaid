@@ -13,7 +13,10 @@ pub use geometry::{
     intersect_polygon, intersect_rect,
 };
 pub use renderer::Renderer;
-pub use scene::{MarkerType, PathSegment, Primitive, Scene, TextAnchor, Transform};
+pub use scene::{
+    Element, ElementId, ElementKind, MarkerType, PathSegment, Primitive, Scene, TextAnchor,
+    Transform,
+};
 pub use shape::Shape;
 pub use style::{FontWeight, Style, TextStyle, Theme};
 pub use text::{SimpleTextMeasure, TextMeasure};

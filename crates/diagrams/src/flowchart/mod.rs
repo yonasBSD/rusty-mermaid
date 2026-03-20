@@ -463,9 +463,9 @@ mod tests {
 
         assert_scene_valid(&scene);
 
-        let prims = scene.primitives();
+        let elems = scene.elements();
         // At minimum: 2 nodes (Rect + Text each) + 1 edge (Path)
-        assert!(prims.len() >= 5, "expected at least 5 primitives, got {}", prims.len());
+        assert!(elems.len() >= 5, "expected at least 5 primitives, got {}", elems.len());
 
         assert!(has_rect(&scene), "scene should contain Rect primitives for nodes");
         assert!(has_path(&scene), "scene should contain Path primitives for edges");
@@ -484,11 +484,11 @@ mod tests {
         );
         // Diamond has exactly 4 points
         let polygons: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Polygon { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Polygon { .. }))
             .collect();
-        if let Primitive::Polygon { points, .. } = &polygons[0] {
+        if let Primitive::Polygon { points, .. } = &polygons[0].primitive {
             assert_eq!(points.len(), 4, "diamond polygon should have 4 vertices");
         }
     }
@@ -504,11 +504,11 @@ mod tests {
             "circle shape should produce Circle primitive"
         );
         let circles: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Circle { .. }))
             .collect();
-        if let Primitive::Circle { radius, .. } = &circles[0] {
+        if let Primitive::Circle { radius, .. } = &circles[0].primitive {
             assert!(*radius > 0.0);
         }
     }
@@ -520,11 +520,11 @@ mod tests {
         let scene = to_scene(&layout);
 
         let edge_paths: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| {
+            .filter(|e| {
                 matches!(
-                    p,
+                    e.primitive,
                     Primitive::Path {
                         marker_end: Some(MarkerType::ArrowPoint),
                         ..
@@ -556,11 +556,11 @@ mod tests {
 
         // First rect should be the subgraph background (rendered before nodes)
         let rects: Vec<_> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Rect { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Rect { .. }))
             .collect();
-        if let Primitive::Rect { rx, ry, .. } = &rects[0] {
+        if let Primitive::Rect { rx, ry, .. } = &rects[0].primitive {
             assert!((*rx - 5.0).abs() < f64::EPSILON, "subgraph rect should have rx=5");
             assert!((*ry - 5.0).abs() < f64::EPSILON, "subgraph rect should have ry=5");
         }
@@ -578,10 +578,10 @@ mod tests {
 
         // Collect subgraph rect areas in scene order (subgraphs render before nodes)
         let subgraph_areas: Vec<f64> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter_map(|p| {
-                if let Primitive::Rect { bbox, rx, .. } = p {
+            .filter_map(|e| {
+                if let Primitive::Rect { bbox, rx, .. } = &e.primitive {
                     // Subgraph rects use rx=5 and are larger than leaf nodes
                     if *rx == 5.0 && bbox.width * bbox.height > 3000.0 {
                         return Some(bbox.width * bbox.height);
@@ -615,7 +615,7 @@ mod tests {
             height: 0.0,
         };
         let scene = to_scene(&layout);
-        assert!(scene.primitives().is_empty());
+        assert!(scene.is_empty());
         assert!((scene.width - 0.0).abs() < f64::EPSILON);
         assert!((scene.height - 0.0).abs() < f64::EPSILON);
     }
@@ -627,8 +627,8 @@ mod tests {
         let theme = Theme::default();
         let scene = to_scene_themed(&layout, &theme);
 
-        let has_edge_path = scene.primitives().iter().any(|p| {
-            matches!(p, Primitive::Path { marker_end: Some(_), .. })
+        let has_edge_path = scene.elements().iter().any(|e| {
+            matches!(e.primitive, Primitive::Path { marker_end: Some(_), .. })
         });
         assert!(has_edge_path, "themed scene should have edge paths with markers");
     }
@@ -684,8 +684,8 @@ mod tests {
         let node_top = target_node.y - target_node.height / 2.0;
 
         // The edge path endpoint should be ABOVE the node boundary (shortened)
-        for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
+        for e in scene.elements() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = &e.primitive {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
                 let expected_inset = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
@@ -713,8 +713,8 @@ mod tests {
         let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
         let node_top = target_node.y - target_node.height / 2.0;
 
-        for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::Circle), style, .. } = p {
+        for e in scene.elements() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::Circle), style, .. } = &e.primitive {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
                 let expected_inset = marker_inset_px(MarkerType::Circle, sw) + STROKE_CLEARANCE_PX;
@@ -741,8 +741,8 @@ mod tests {
         let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
         let node_top = target_node.y - target_node.height / 2.0;
 
-        for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::Cross), style, .. } = p {
+        for e in scene.elements() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::Cross), style, .. } = &e.primitive {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
                 let expected_inset = marker_inset_px(MarkerType::Cross, sw) + STROKE_CLEARANCE_PX;
@@ -772,14 +772,14 @@ mod tests {
         let scene = to_scene(&layout);
 
         let last_node_idx = scene
-            .primitives()
+            .elements()
             .iter()
-            .rposition(|p| matches!(p, Primitive::Rect { .. }))
+            .rposition(|e| matches!(e.primitive, Primitive::Rect { .. }))
             .expect("should have node rects");
         let first_edge_idx = scene
-            .primitives()
+            .elements()
             .iter()
-            .position(|p| matches!(p, Primitive::Path { marker_end: Some(_), .. }))
+            .position(|e| matches!(e.primitive, Primitive::Path { marker_end: Some(_), .. }))
             .expect("should have edge paths with markers");
 
         assert!(

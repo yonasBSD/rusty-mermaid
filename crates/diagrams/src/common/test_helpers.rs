@@ -4,57 +4,57 @@ pub mod test_helpers {
 
     pub fn count_rects(scene: &Scene) -> usize {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Rect { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Rect { .. }))
             .count()
     }
 
     pub fn count_circles(scene: &Scene) -> usize {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Circle { .. }))
             .count()
     }
 
     pub fn count_polygons(scene: &Scene) -> usize {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Polygon { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Polygon { .. }))
             .count()
     }
 
     pub fn count_paths(scene: &Scene) -> usize {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Path { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Path { .. }))
             .count()
     }
 
     pub fn count_texts(scene: &Scene) -> usize {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Text { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Text { .. }))
             .count()
     }
 
     pub fn has_text(scene: &Scene, expected: &str) -> bool {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .any(|p| matches!(p, Primitive::Text { content, .. } if content == expected))
+            .any(|e| matches!(&e.primitive, Primitive::Text { content, .. } if content == expected))
     }
 
     pub fn find_texts(scene: &Scene) -> Vec<&str> {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .filter_map(|p| {
-                if let Primitive::Text { content, .. } = p {
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
                     Some(content.as_str())
                 } else {
                     None
@@ -66,30 +66,27 @@ pub mod test_helpers {
     pub fn assert_scene_valid(scene: &Scene) {
         assert!(scene.width > 0.0, "scene width must be positive");
         assert!(scene.height > 0.0, "scene height must be positive");
-        assert!(
-            !scene.primitives().is_empty(),
-            "scene must have primitives"
-        );
+        assert!(!scene.is_empty(), "scene must have primitives");
     }
 
     pub fn has_rect(scene: &Scene) -> bool {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .any(|p| matches!(p, Primitive::Rect { .. }))
+            .any(|e| matches!(e.primitive, Primitive::Rect { .. }))
     }
 
     pub fn has_path(scene: &Scene) -> bool {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .any(|p| matches!(p, Primitive::Path { .. }))
+            .any(|e| matches!(e.primitive, Primitive::Path { .. }))
     }
 
     pub fn has_circle(scene: &Scene) -> bool {
         scene
-            .primitives()
+            .elements()
             .iter()
-            .any(|p| matches!(p, Primitive::Circle { .. }))
+            .any(|e| matches!(e.primitive, Primitive::Circle { .. }))
     }
 }

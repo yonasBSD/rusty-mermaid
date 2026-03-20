@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use rusty_mermaid_core::{MarkerType, Primitive, Scene};
+use rusty_mermaid_core::{MarkerType, Primitive, Scene, Element};
 use rusty_mermaid_diagrams::{detect, render_to_scene, DiagramKind};
 
 /// Workspace root: two levels up from the diagrams crate manifest dir.
@@ -63,8 +63,8 @@ impl SvgFingerprint {
             has_groups: false,
             primitive_types_sorted: Vec::new(),
         };
-        for p in scene.primitives() {
-            walk_primitive(p, &mut fp);
+        for elem in scene.elements() {
+            walk_primitive(&elem.primitive, &mut fp);
         }
         fp.text_contents.sort();
         fp.marker_types.sort();

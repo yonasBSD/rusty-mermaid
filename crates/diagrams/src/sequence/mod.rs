@@ -564,8 +564,8 @@ mod tests {
         let l = layout::layout(&d, &SimpleTextMeasure::default());
         let dark = Theme::dark();
         let scene = to_scene_themed(&l, &dark);
-        let has_dark_stroke = scene.primitives().iter().any(|p| {
-            matches!(p, Primitive::Path { style, marker_end: Some(_), .. }
+        let has_dark_stroke = scene.elements().iter().any(|e| {
+            matches!(&e.primitive, Primitive::Path { style, marker_end: Some(_), .. }
                 if style.stroke == Some(dark.edge_stroke))
         });
         assert!(has_dark_stroke, "dark theme should apply edge_stroke to message paths");
@@ -635,9 +635,9 @@ mod tests {
         assert!(has_text(&scene, "2"));
         // At least 2 circles for numbers (plus any actor circles).
         let circles = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Circle { .. }))
             .count();
         assert!(circles >= 2, "expected ≥2 number circles, got {circles}");
     }
@@ -651,9 +651,9 @@ mod tests {
         let scene = make_scene(&d);
         // Without autonumber, no number badge circles.
         let circles = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter(|p| matches!(p, Primitive::Circle { .. }))
+            .filter(|e| matches!(e.primitive, Primitive::Circle { .. }))
             .count();
         assert_eq!(circles, 0, "no circles expected without autonumber");
     }
@@ -666,8 +666,8 @@ mod tests {
             Message::new("A", "A", ArrowStyle::SOLID_FILLED).with_label("think"),
         ));
         let scene = make_scene(&d);
-        let has_cubic = scene.primitives().iter().any(|p| {
-            if let Primitive::Path { segments, .. } = p {
+        let has_cubic = scene.elements().iter().any(|e| {
+            if let Primitive::Path { segments, .. } = &e.primitive {
                 segments
                     .iter()
                     .any(|s| matches!(s, PathSegment::CubicTo { .. }))
@@ -706,9 +706,9 @@ mod tests {
 
         // Collect fragment background rects (dashed stroke = fragment).
         let frag_rects: Vec<&BBox> = scene
-            .primitives()
+            .elements()
             .iter()
-            .filter_map(|p| match p {
+            .filter_map(|e| match &e.primitive {
                 Primitive::Rect {
                     bbox,
                     style: Style { stroke_dasharray: Some(_), .. },
@@ -772,8 +772,8 @@ mod tests {
 
         let bob_x = l.lifelines.iter().find(|ll| ll.actor_id == "Bob").unwrap().x;
 
-        for p in scene.primitives() {
-            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
+        for e in scene.elements() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = &e.primitive {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
                 let expected = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
