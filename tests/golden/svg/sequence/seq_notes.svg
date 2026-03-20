@@ -8,9 +8,9 @@
     <path d="M122.4 56.8 L122.4 464" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M266.8 56.8 L266.8 464" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M419.6 56.8 L419.6 464" fill="none" stroke="#afa5c8" stroke-width="1" />
-    <path d="M122.4 96.8 L263.65 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M122.4 96.8 L264.4 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="194.6" y="88.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
-    <path d="M266.8 290.4 L416.45 290.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M266.8 290.4 L417.2 290.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <text x="343.2" y="282.4" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Forward</text>
     <rect x="0" y="136.8" width="112.4" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
     <text x="56.2" y="155.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sender note</text>

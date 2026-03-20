@@ -5,11 +5,11 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M41.2 32.8 L41.2 36.97 C41.2 41.13 41.2 49.47 41.2 57.8 C41.2 66.13 41.2 74.47 41.2 75.65" fill="none" stroke="#ff0000" stroke-width="4" marker-end="url(#arrow-point)" />
-    <path d="M41.2 115.6 L41.2 119.77 C41.2 123.93 41.2 132.27 41.2 140.6 C41.2 148.93 41.2 157.27 41.2 161.43 L41.2 163.25" fill="none" stroke="#888888" stroke-width="1" marker-end="url(#arrow-point)" />
-    <path d="M41.2 198.4 L41.2 202.57 C41.2 206.73 41.2 215.07 41.2 223.4 C41.2 231.73 41.2 240.07 41.2 242.85" fill="none" stroke="#00ff00" stroke-width="3" stroke-dasharray="5" marker-end="url(#arrow-point)" />
-    <path d="M41.2 281.2 L41.2 285.37 C41.2 289.53 41.2 297.87 41.2 306.2 C41.2 314.53 41.2 322.87 41.2 327.03 L41.2 328.85" fill="none" stroke="#888888" stroke-width="1" marker-end="url(#arrow-point)" />
-    <path d="M41.2 364 L41.2 368.17 C41.2 372.33 41.2 380.67 41.2 389 C41.2 397.33 41.2 405.67 41.2 409.83 L41.2 410.05" fill="none" stroke="#0000ff" stroke-width="2" marker-end="url(#arrow-point)" />
+    <path d="M41.2 32.8 L41.2 36.97 C41.2 41.13 41.2 49.47 41.2 57.8 C41.2 66.13 41.2 74.47 41.2 76.4" fill="none" stroke="#ff0000" stroke-width="4" marker-end="url(#arrow-point)" />
+    <path d="M41.2 115.6 L41.2 119.77 C41.2 123.93 41.2 132.27 41.2 140.6 C41.2 148.93 41.2 157.27 41.2 161.43 L41.2 164" fill="none" stroke="#888888" stroke-width="1" marker-end="url(#arrow-point)" />
+    <path d="M41.2 198.4 L41.2 202.57 C41.2 206.73 41.2 215.07 41.2 223.4 C41.2 231.73 41.2 240.07 41.2 243.6" fill="none" stroke="#00ff00" stroke-width="3" stroke-dasharray="5" marker-end="url(#arrow-point)" />
+    <path d="M41.2 281.2 L41.2 285.37 C41.2 289.53 41.2 297.87 41.2 306.2 C41.2 314.53 41.2 322.87 41.2 327.03 L41.2 329.6" fill="none" stroke="#888888" stroke-width="1" marker-end="url(#arrow-point)" />
+    <path d="M41.2 364 L41.2 368.17 C41.2 372.33 41.2 380.67 41.2 389 C41.2 397.33 41.2 405.67 41.2 409.83 L41.2 410.8" fill="none" stroke="#0000ff" stroke-width="2" marker-end="url(#arrow-point)" />
     <rect x="4.2" y="0" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="41.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
     <rect x="0" y="82.8" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

@@ -759,7 +759,7 @@ mod tests {
 
     #[test]
     fn edge_path_shortened_for_arrow_marker() {
-        use crate::common::rendering::{marker_inset_px, prev_endpoint, STROKE_CLEARANCE_PX};
+        use crate::common::rendering::{marker_inset_px, prev_endpoint};
         let d =
             crate::state::parser::parse("stateDiagram-v2\n    Still --> Moving")
                 .unwrap();
@@ -774,7 +774,7 @@ mod tests {
             if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = &e.primitive {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
-                let expected = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
+                let expected = marker_inset_px(MarkerType::ArrowPoint, sw);
                 let gap = node_top - endpoint.y;
                 assert!(
                     gap > 0.0,

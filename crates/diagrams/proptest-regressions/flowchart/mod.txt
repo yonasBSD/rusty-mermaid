@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 7cb0d844afc844a72b8ed05376cc458ea3d86d70f6e9abe49276d0bb34cd6f17 # shrinks to (mut segs, dist, orig_final_y) = ([MoveTo(Point { x: 0.0, y: 0.0 }), CubicTo { cp1: Point { x: 0.0, y: 15.0 }, cp2: Point { x: 0.0, y: 45.0 }, to: Point { x: 0.0, y: 50.0 } }, LineTo(Point { x: 0.0, y: 51.0 })], 36.186824883528786, 51.0)

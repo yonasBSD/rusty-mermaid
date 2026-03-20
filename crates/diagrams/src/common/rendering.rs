@@ -161,11 +161,6 @@ pub fn marker_inset_px(marker: MarkerType, stroke_width: f64) -> f64 {
     MARKER_INSET_VB * marker_w / vb_w * stroke_width
 }
 
-/// Extra shortening so the marker tip clears the target node's visual stroke
-/// boundary. Without this, the tip lands exactly on the geometric centre of
-/// the node stroke and appears to penetrate by half a stroke width.
-pub(crate) const STROKE_CLEARANCE_PX: f64 = 0.75;
-
 /// Shorten path endpoints so the stroke butt-cap hides behind marker bodies.
 pub fn shorten_path_for_markers(
     segments: &mut Vec<PathSegment>,
@@ -174,13 +169,13 @@ pub fn shorten_path_for_markers(
     stroke_width: f64,
 ) {
     if let Some(m) = marker_end {
-        let inset = marker_inset_px(m, stroke_width) + STROKE_CLEARANCE_PX;
+        let inset = marker_inset_px(m, stroke_width);
         if inset > 0.0 {
             shorten_path_end(segments, inset);
         }
     }
     if let Some(m) = marker_start {
-        let inset = marker_inset_px(m, stroke_width) + STROKE_CLEARANCE_PX;
+        let inset = marker_inset_px(m, stroke_width);
         if inset > 0.0 {
             shorten_path_start(segments, inset);
         }

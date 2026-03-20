@@ -5,7 +5,7 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M20.2 32.8 L20.2 36.97 C20.2 41.13 20.2 49.47 20.2 57.8 C20.2 66.13 20.2 74.47 20.2 78.63 L20.2 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M20.2 32.8 L20.2 36.97 C20.2 41.13 20.2 49.47 20.2 57.8 C20.2 66.13 20.2 74.47 20.2 78.63 L20.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="0" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="20.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
     <rect x="0" y="82.8" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

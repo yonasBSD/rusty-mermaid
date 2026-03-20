@@ -5,13 +5,13 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M62.2 32.8 L62.2 36.97 C62.2 41.13 62.2 49.47 62.2 57.8 C62.2 66.13 62.2 74.47 62.2 78.63 L62.2 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M62.2 115.6 L62.2 119.77 C62.2 123.93 62.2 132.27 62.2 140.6 C62.2 148.93 62.2 157.27 62.2 161.43 L62.2 162.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M62.2 198.4 L62.2 202.57 C62.2 206.73 62.2 215.07 62.2 223.4 C62.2 231.73 62.2 240.07 62.2 244.23 L62.2 245.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M62.2 281.2 L62.2 285.37 C62.2 289.53 62.2 297.87 62.2 306.2 C62.2 314.53 62.2 322.87 62.2 327.03 L62.2 328.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M62.2 364 L62.2 368.17 C62.2 372.33 62.2 380.67 62.2 389 C62.2 397.33 62.2 405.67 62.2 409.83 L62.2 410.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M62.2 446.8 L62.2 450.97 C62.2 455.13 62.2 463.47 62.2 471.8 C62.2 480.13 62.2 488.47 62.2 492.63 L62.2 493.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M62.2 529.6 L62.2 533.77 C62.2 537.93 62.2 546.27 62.2 554.6 C62.2 562.93 62.2 571.27 62.2 575.43 L62.2 576.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 32.8 L62.2 36.97 C62.2 41.13 62.2 49.47 62.2 57.8 C62.2 66.13 62.2 74.47 62.2 78.63 L62.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 115.6 L62.2 119.77 C62.2 123.93 62.2 132.27 62.2 140.6 C62.2 148.93 62.2 157.27 62.2 161.43 L62.2 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 198.4 L62.2 202.57 C62.2 206.73 62.2 215.07 62.2 223.4 C62.2 231.73 62.2 240.07 62.2 244.23 L62.2 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 281.2 L62.2 285.37 C62.2 289.53 62.2 297.87 62.2 306.2 C62.2 314.53 62.2 322.87 62.2 327.03 L62.2 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 364 L62.2 368.17 C62.2 372.33 62.2 380.67 62.2 389 C62.2 397.33 62.2 405.67 62.2 409.83 L62.2 411.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 446.8 L62.2 450.97 C62.2 455.13 62.2 463.47 62.2 471.8 C62.2 480.13 62.2 488.47 62.2 492.63 L62.2 494.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M62.2 529.6 L62.2 533.77 C62.2 537.93 62.2 546.27 62.2 554.6 C62.2 562.93 62.2 571.27 62.2 575.43 L62.2 577.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="21" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="62.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Café ☕</text>
     <rect x="8.4" y="82.8" width="107.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

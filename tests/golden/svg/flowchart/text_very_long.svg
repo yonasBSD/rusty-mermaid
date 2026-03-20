@@ -5,8 +5,8 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M688 32.8 L688 36.97 C688 41.13 688 49.47 688 57.8 C688 66.13 688 74.47 688 78.63 L688 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M688 115.6 L688 119.77 C688 123.93 688 132.27 688 140.6 C688 148.93 688 157.27 688 161.43 L688 162.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M688 32.8 L688 36.97 C688 41.13 688 49.47 688 57.8 C688 66.13 688 74.47 688 78.63 L688 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M688 115.6 L688 119.77 C688 123.93 688 132.27 688 140.6 C688 148.93 688 157.27 688 161.43 L688 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="0" width="1376" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="688" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">This is an extremely long label that tests how the renderer handles text overflow when a node contains more than one hundred characters in a single line of text</text>
     <rect x="651" y="82.8" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
