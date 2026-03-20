@@ -445,7 +445,7 @@ fn render_subroutine(bbox: BBox, style: Style, scene: &mut Scene) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::rendering::{marker_inset_px, prev_endpoint, MARKER_INSET_VB};
+    use crate::common::rendering::{marker_inset_px, prev_endpoint, MARKER_INSET_VB, STROKE_CLEARANCE_PX};
     use crate::common::test_helpers::test_helpers::*;
 
     #[test]
@@ -645,7 +645,7 @@ mod tests {
             if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
-                let expected_inset = marker_inset_px(MarkerType::ArrowPoint, sw);
+                let expected_inset = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
                 let gap = node_top - endpoint.y;
                 assert!(
                     gap > 0.0,
@@ -674,7 +674,7 @@ mod tests {
             if let Primitive::Path { segments, marker_end: Some(MarkerType::Circle), style, .. } = p {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
-                let expected_inset = marker_inset_px(MarkerType::Circle, sw);
+                let expected_inset = marker_inset_px(MarkerType::Circle, sw) + STROKE_CLEARANCE_PX;
                 let gap = node_top - endpoint.y;
                 assert!(
                     gap > 0.0,
@@ -702,7 +702,7 @@ mod tests {
             if let Primitive::Path { segments, marker_end: Some(MarkerType::Cross), style, .. } = p {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
-                let expected_inset = marker_inset_px(MarkerType::Cross, sw);
+                let expected_inset = marker_inset_px(MarkerType::Cross, sw) + STROKE_CLEARANCE_PX;
                 let gap = node_top - endpoint.y;
                 assert!(
                     gap > 0.0,

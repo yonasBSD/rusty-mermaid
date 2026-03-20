@@ -14,16 +14,16 @@
     <rect x="0" y="66" width="266" height="661.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
     <text x="133" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outer</text>
     <path d="M0 90 L266 90" fill="none" stroke="#9370db" stroke-width="1" />
-    <path d="M133 289 L133 293.17 C133 297.33 133 305.67 133 314 C133 322.33 133 330.67 133 334.83 L133 336.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M147.46 371.8 L151.13 375.97 C154.81 380.13 162.15 388.47 162.15 396.8 C162.15 405.13 154.81 413.47 151.13 417.63 L149.05 420" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 454.6 L133 458.77 C133 462.93 133 471.27 133 479.6 C133 487.93 133 496.27 133 500.43 L133 502.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 198 L133 202.17 C133 206.33 133 214.67 133 223 C133 231.33 133 239.67 133 245.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 545.6 C133 553.93 133 562.27 133 570.6 C133 578.93 133 587.27 133 591.43 L133 593.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 107 L133 111.17 C133 115.33 133 123.67 133 132 C133 140.33 133 148.67 133 154.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 636.6 C133 644.93 133 653.27 133 661.6 C133 669.93 133 678.27 133 682.43 L133 684.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 16 L133 20.17 C133 24.33 133 32.67 133 41 C133 49.33 133 57.67 133 63.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133 727.6 C133 735.93 133 744.27 133 752.6 C133 760.93 133 769.27 133 773.43 L133 775.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M118.54 421.8 L114.87 417.63 C111.19 413.47 103.85 405.13 103.85 396.8 C103.85 388.47 111.19 380.13 114.87 375.97 L116.95 373.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 289 L133 293.17 C133 297.33 133 305.67 133 314 C133 322.33 133 330.67 133 334.83 L133 335.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M147.46 371.8 L151.13 375.97 C154.81 380.13 162.15 388.47 162.15 396.8 C162.15 405.13 154.81 413.47 151.13 417.63 L149.54 419.44" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 454.6 L133 458.77 C133 462.93 133 471.27 133 479.6 C133 487.93 133 496.27 133 500.43 L133 501.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 198 L133 202.17 C133 206.33 133 214.67 133 223 C133 231.33 133 239.67 133 244.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 545.6 C133 553.93 133 562.27 133 570.6 C133 578.93 133 587.27 133 591.43 L133 592.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 107 L133 111.17 C133 115.33 133 123.67 133 132 C133 140.33 133 148.67 133 153.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 636.6 C133 644.93 133 653.27 133 661.6 C133 669.93 133 678.27 133 682.43 L133 683.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 16 L133 20.17 C133 24.33 133 32.67 133 41 C133 49.33 133 57.67 133 62.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133 727.6 C133 735.93 133 744.27 133 752.6 C133 760.93 133 769.27 133 773.43 L133 774.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M118.54 421.8 L114.87 417.63 C111.19 413.47 103.85 405.13 103.85 396.8 C103.85 388.47 111.19 380.13 114.87 375.97 L116.46 374.16" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="100.2" y="339" width="65.6" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="133" y="355.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Core</text>
     <circle cx="133" cy="512.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />

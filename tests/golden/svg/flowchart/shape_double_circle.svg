@@ -18,11 +18,11 @@
     <circle cx="67.2" cy="388.2" r="67.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <circle cx="67.2" cy="388.2" r="62.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="67.2" y="388.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Error State</text>
-    <path d="M167.97 50.18 L189.31 58.32 C210.65 66.45 253.32 82.73 274.66 95.03 C296 107.33 296 115.67 296 119.83 L296 121.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M133.4 74 L133.4 78.17 C133.4 82.33 133.4 90.67 133.4 104.03 C133.4 117.4 133.4 135.8 133.4 145 L133.4 151.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M157.9 228.52 L165.7 239.07 C173.5 249.62 189.1 270.71 202.78 288.22 C216.46 305.74 228.21 319.68 234.09 326.65 L238.42 331.78" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M296 266.8 L296 270.97 C296 275.13 296 283.47 295.56 291.86 C295.12 300.26 294.24 308.72 293.81 312.95 L293.61 314.79" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M121.87 234.95 L119.11 244.43 C116.35 253.9 110.82 272.85 105.83 287.98 C100.83 303.1 96.37 314.4 94.13 320.05 L92.78 323.47" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M60.27 321.36 L59.76 316.43 C59.24 311.51 58.22 301.65 57.71 280.66 C57.2 259.67 57.2 227.53 57.2 195.4 C57.2 163.27 57.2 131.13 65.12 108.63 C73.03 86.12 88.87 73.23 96.78 66.79 L102.84 61.87" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M167.97 50.18 L189.31 58.32 C210.65 66.45 253.32 82.73 274.66 95.03 C296 107.33 296 115.67 296 119.83 L296 120.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M133.4 74 L133.4 78.17 C133.4 82.33 133.4 90.67 133.4 104.03 C133.4 117.4 133.4 135.8 133.4 145 L133.4 151.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M157.9 228.52 L165.7 239.07 C173.5 249.62 189.1 270.71 202.78 288.22 C216.46 305.74 228.21 319.68 234.09 326.65 L237.94 331.21" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M296 266.8 L296 270.97 C296 275.13 296 283.47 295.56 291.86 C295.12 300.26 294.24 308.72 293.81 312.95 L293.69 314.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M121.87 234.95 L119.11 244.43 C116.35 253.9 110.82 272.85 105.83 287.98 C100.83 303.1 96.37 314.4 94.13 320.05 L93.06 322.77" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M60.27 321.36 L59.76 316.43 C59.24 311.51 58.22 301.65 57.71 280.66 C57.2 259.67 57.2 227.53 57.2 195.4 C57.2 163.27 57.2 131.13 65.12 108.63 C73.03 86.12 88.87 73.23 96.78 66.79 L102.26 62.34" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

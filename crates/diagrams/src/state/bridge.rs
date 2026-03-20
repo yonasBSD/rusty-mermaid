@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, HashSet};
 
 use rusty_mermaid_core::{
-    BBox, Shape, intersect_circle, intersect_polygon, Point, SimpleTextMeasure, Style, TextMeasure,
-    TextStyle,
+    BBox, Shape, intersect_circle, intersect_polygon, intersect_rect, Point, SimpleTextMeasure,
+    Style, TextMeasure, TextStyle,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
@@ -827,6 +827,9 @@ fn state_shape_intersect(shape: Shape, bbox: BBox, adj: Point) -> Option<Point> 
             let r = bbox.width.max(bbox.height) / 2.0;
             intersect_circle(center, r, target)
         }
+        Shape::RoundedRect | Shape::ForkJoin | Shape::Note => {
+            intersect_rect(&bbox, target)
+        }
         _ => return None,
     };
 
@@ -1503,6 +1506,64 @@ mod tests {
             capslock.x, p1_cx);
     }
 
+    #[test]
+    fn edge_endpoint_touches_rect_boundary() {
+        // Verify edges targeting RoundedRect nodes have endpoints on the node boundary.
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> Idle\n        Idle --> Running : start\n        Running --> Idle : stop\n        state hist1 <<history>>\n        Running --> hist1\n    }\n    Active --> Paused : pause\n    Paused --> Active : resume"
+        ).unwrap();
+        let result = layout(&d);
+
+        let paused = result.nodes.iter().find(|n| n.id == "Paused").unwrap();
+        let paused_top = paused.y - paused.height / 2.0;
+        let paused_bottom = paused.y + paused.height / 2.0;
+        let paused_left = paused.x - paused.width / 2.0;
+        let paused_right = paused.x + paused.width / 2.0;
+
+        // "pause" edge: Active → Paused, endpoint should touch Paused boundary
+        let pause_edge = result.edges.iter()
+            .find(|e| e.label.as_deref() == Some("pause"))
+            .expect("pause edge should exist");
+        let last_pt = *pause_edge.points.last().unwrap();
+        assert!(
+            (last_pt.x >= paused_left - 0.5 && last_pt.x <= paused_right + 0.5)
+            && (last_pt.y >= paused_top - 0.5 && last_pt.y <= paused_bottom + 0.5),
+            "pause edge endpoint ({:.2}, {:.2}) should be on Paused rect boundary \
+             [x: {:.2}..{:.2}, y: {:.2}..{:.2}]",
+            last_pt.x, last_pt.y,
+            paused_left, paused_right, paused_top, paused_bottom
+        );
+
+        // Check that the endpoint is ON the boundary (not inside)
+        let on_left = (last_pt.x - paused_left).abs() < 1.0;
+        let on_right = (last_pt.x - paused_right).abs() < 1.0;
+        let on_top = (last_pt.y - paused_top).abs() < 1.0;
+        let on_bottom = (last_pt.y - paused_bottom).abs() < 1.0;
+        assert!(on_left || on_right || on_top || on_bottom,
+            "pause edge endpoint ({:.2}, {:.2}) should be ON boundary, not inside. \
+             Distances: left={:.2} right={:.2} top={:.2} bottom={:.2}",
+            last_pt.x, last_pt.y,
+            (last_pt.x - paused_left).abs(),
+            (last_pt.x - paused_right).abs(),
+            (last_pt.y - paused_top).abs(),
+            (last_pt.y - paused_bottom).abs()
+        );
+
+        // "resume" edge: Paused → Active, first point should touch Paused boundary
+        let resume_edge = result.edges.iter()
+            .find(|e| e.label.as_deref() == Some("resume"))
+            .expect("resume edge should exist");
+        let first_pt = resume_edge.points[0];
+        assert!(
+            (first_pt.x >= paused_left - 0.5 && first_pt.x <= paused_right + 0.5)
+            && (first_pt.y >= paused_top - 0.5 && first_pt.y <= paused_bottom + 0.5),
+            "resume edge start ({:.2}, {:.2}) should be on Paused rect boundary \
+             [x: {:.2}..{:.2}, y: {:.2}..{:.2}]",
+            first_pt.x, first_pt.y,
+            paused_left, paused_right, paused_top, paused_bottom
+        );
+    }
+
     // ---------------------------------------------------------------
     // state_shape_intersect unit tests
     // ---------------------------------------------------------------
@@ -1523,28 +1584,57 @@ mod tests {
         );
     }
 
-    // --- RoundedRect, ForkJoinBar, NoteRect return None ---
+    // --- RoundedRect, ForkJoinBar, NoteRect clip to rect boundary ---
 
     #[test]
-    fn intersect_rounded_rect_returns_none() {
+    fn intersect_rounded_rect_from_above() {
         let bbox = bbox_at_origin(100.0, 60.0);
-        assert!(state_shape_intersect(Shape::RoundedRect, bbox, Point::new(0.0, -100.0)).is_none());
-        assert!(state_shape_intersect(Shape::RoundedRect, bbox, Point::new(100.0, 0.0)).is_none());
-        assert!(state_shape_intersect(Shape::RoundedRect, bbox, Point::new(50.0, 50.0)).is_none());
+        let p = state_shape_intersect(Shape::RoundedRect, bbox, Point::new(0.0, -100.0)).unwrap();
+        assert_point_near(p, Point::new(0.0, -30.0), 1e-6, "rounded rect from above");
     }
 
     #[test]
-    fn intersect_fork_join_bar_returns_none() {
+    fn intersect_rounded_rect_from_right() {
+        let bbox = bbox_at_origin(100.0, 60.0);
+        let p = state_shape_intersect(Shape::RoundedRect, bbox, Point::new(100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(50.0, 0.0), 1e-6, "rounded rect from right");
+    }
+
+    #[test]
+    fn intersect_rounded_rect_diagonal() {
+        let bbox = bbox_at_origin(100.0, 60.0);
+        let p = state_shape_intersect(Shape::RoundedRect, bbox, Point::new(50.0, 50.0)).unwrap();
+        // Ray at ~45 degrees from center: hits bottom edge at y=30
+        assert_point_near(p, Point::new(30.0, 30.0), 1e-6, "rounded rect diagonal");
+    }
+
+    #[test]
+    fn intersect_fork_join_bar_from_above() {
         let bbox = bbox_at_origin(70.0, 7.0);
-        assert!(state_shape_intersect(Shape::ForkJoin, bbox, Point::new(0.0, -50.0)).is_none());
-        assert!(state_shape_intersect(Shape::ForkJoin, bbox, Point::new(100.0, 100.0)).is_none());
+        let p = state_shape_intersect(Shape::ForkJoin, bbox, Point::new(0.0, -50.0)).unwrap();
+        assert_point_near(p, Point::new(0.0, -3.5), 1e-6, "fork-join from above");
     }
 
     #[test]
-    fn intersect_note_rect_returns_none() {
+    fn intersect_fork_join_bar_diagonal() {
+        let bbox = bbox_at_origin(70.0, 7.0);
+        let p = state_shape_intersect(Shape::ForkJoin, bbox, Point::new(100.0, 100.0)).unwrap();
+        // Wide rect: diagonal ray hits bottom edge (y=3.5) first
+        assert_point_near(p, Point::new(3.5, 3.5), 1e-6, "fork-join diagonal");
+    }
+
+    #[test]
+    fn intersect_note_rect_from_above() {
         let bbox = bbox_at_origin(80.0, 40.0);
-        assert!(state_shape_intersect(Shape::Note, bbox, Point::new(0.0, -50.0)).is_none());
-        assert!(state_shape_intersect(Shape::Note, bbox, Point::new(-100.0, 0.0)).is_none());
+        let p = state_shape_intersect(Shape::Note, bbox, Point::new(0.0, -50.0)).unwrap();
+        assert_point_near(p, Point::new(0.0, -20.0), 1e-6, "note from above");
+    }
+
+    #[test]
+    fn intersect_note_rect_from_left() {
+        let bbox = bbox_at_origin(80.0, 40.0);
+        let p = state_shape_intersect(Shape::Note, bbox, Point::new(-100.0, 0.0)).unwrap();
+        assert_point_near(p, Point::new(-40.0, 0.0), 1e-6, "note from left");
     }
 
     // --- Circle shapes: StartCircle, EndBullseye, HistoryCircle ---

@@ -15,12 +15,12 @@
     <text x="182" y="397.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Circle</text>
     <rect x="0" y="380.8" width="90.8" height="32.8" rx="16.4" ry="16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="45.4" y="397.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Stadium</text>
-    <path d="M113.7 32.8 L113.7 36.97 C113.7 41.13 113.7 49.47 113.7 57.8 C113.7 66.13 113.7 74.47 113.7 78.63 L113.7 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M113.7 115.6 L113.7 119.77 C113.7 123.93 113.7 132.27 113.7 140.6 C113.7 148.93 113.7 157.27 113.7 161.43 L113.7 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M139.52 263.38 L146.6 273.25 C153.68 283.12 167.84 302.86 174.92 318.3 C182 333.73 182 344.87 182 350.43 L182 353.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M113.7 32.8 L113.7 36.97 C113.7 41.13 113.7 49.47 113.7 57.8 C113.7 66.13 113.7 74.47 113.7 78.63 L113.7 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M113.7 115.6 L113.7 119.77 C113.7 123.93 113.7 132.27 113.7 140.6 C113.7 148.93 113.7 157.27 113.7 161.43 L113.7 162.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M139.52 263.38 L146.6 273.25 C153.68 283.12 167.84 302.86 174.92 318.3 C182 333.73 182 344.87 182 350.43 L182 352.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="167.2" y="311.4" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="182" y="322.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Yes</text>
-    <path d="M87.88 263.38 L80.8 273.25 C73.72 283.12 59.56 302.86 52.48 322.43 C45.4 342 45.4 361.4 45.4 371.1 L45.4 378.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M87.88 263.38 L80.8 273.25 C73.72 283.12 59.56 302.86 52.48 322.43 C45.4 342 45.4 361.4 45.4 371.1 L45.4 377.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="34.2" y="311.4" width="22.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="45.4" y="322.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
   </g>

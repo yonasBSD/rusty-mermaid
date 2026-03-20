@@ -754,7 +754,7 @@ mod tests {
 
     #[test]
     fn edge_path_shortened_for_arrow_marker() {
-        use crate::common::rendering::{marker_inset_px, prev_endpoint};
+        use crate::common::rendering::{marker_inset_px, prev_endpoint, STROKE_CLEARANCE_PX};
         let d =
             crate::state::parser::parse("stateDiagram-v2\n    Still --> Moving")
                 .unwrap();
@@ -769,7 +769,7 @@ mod tests {
             if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
-                let expected = marker_inset_px(MarkerType::ArrowPoint, sw);
+                let expected = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
                 let gap = node_top - endpoint.y;
                 assert!(
                     gap > 0.0,
@@ -782,6 +782,45 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn cross_compound_edge_arrow_touches_rect_boundary() {
+        // Edges crossing compound boundaries (Active → Paused) must have arrow
+        // tips touching the target rect boundary, not penetrating inside.
+        use crate::common::rendering::prev_endpoint;
+
+        let d = crate::state::parser::parse(
+            "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> Idle\n        Idle --> Running : start\n        Running --> Idle : stop\n        state hist1 <<history>>\n        Running --> hist1\n    }\n    Active --> Paused : pause\n    Paused --> Active : resume"
+        ).unwrap();
+        let layout = crate::state::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        let paused = layout.nodes.iter().find(|n| n.id == "Paused").unwrap();
+        let paused_top = paused.y - paused.height / 2.0;
+
+        // Check that every arrow-marked path ending near the Paused node
+        // has its endpoint properly shortened (not inside the rect)
+        let mut found_arrow_into_paused = false;
+        for p in scene.primitives() {
+            if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), .. } = p {
+                let Some(endpoint) = prev_endpoint(segments) else { continue };
+                // Check edges pointing at Paused (endpoint near Paused's top)
+                if (endpoint.y - paused_top).abs() < 10.0
+                    && endpoint.x >= paused.x - paused.width / 2.0 - 5.0
+                    && endpoint.x <= paused.x + paused.width / 2.0 + 5.0
+                {
+                    found_arrow_into_paused = true;
+                    assert!(
+                        endpoint.y < paused_top,
+                        "arrow endpoint y={:.2} should be above Paused top boundary y={:.2} \
+                         (arrow tip extends past endpoint to touch boundary)",
+                        endpoint.y, paused_top
+                    );
+                }
+            }
+        }
+        assert!(found_arrow_into_paused, "should find at least one arrow targeting Paused");
     }
 
     #[test]

@@ -23,9 +23,9 @@
       <tspan x="79" dy="16.8">italic line</tspan>
       <tspan x="79" dy="16.8">bold line</tspan>
     </text>
-    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78.63 L79 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 149.2 L79 153.37 C79 157.53 79 165.87 79 174.2 C79 182.53 79 190.87 79 195.03 L79 196.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 232 L79 236.17 C79 240.33 79 248.67 79 257 C79 265.33 79 273.67 79 277.83 L79 279.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 314.8 L79 318.97 C79 323.13 79 331.47 79 339.8 C79 348.13 79 356.47 79 360.63 L79 362.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78.63 L79 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 149.2 L79 153.37 C79 157.53 79 165.87 79 174.2 C79 182.53 79 190.87 79 195.03 L79 196.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 232 L79 236.17 C79 240.33 79 248.67 79 257 C79 265.33 79 273.67 79 277.83 L79 278.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 314.8 L79 318.97 C79 323.13 79 331.47 79 339.8 C79 348.13 79 356.47 79 360.63 L79 361.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

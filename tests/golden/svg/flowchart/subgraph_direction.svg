@@ -17,9 +17,9 @@
     <text x="291.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
     <rect x="271.2" y="222.4" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="291.4" y="238.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E</text>
-    <path d="M291.4 32.8 L291.4 36.97 C291.4 41.13 291.4 49.47 291.4 57.8 C291.4 66.13 291.4 74.47 291.4 78.63 L291.4 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M291.4 172.4 L291.4 176.57 C291.4 180.73 291.4 189.07 291.4 197.4 C291.4 205.73 291.4 214.07 291.4 218.23 L291.4 220" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M221.2 140 L225.37 140 C229.53 140 237.87 140 246.2 140 C254.53 140 262.87 140 267.03 140 L268.8 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M311.6 140 L315.77 140 C319.93 140 328.27 140 336.6 140 C344.93 140 353.27 140 357.43 140 L359.2 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M291.4 32.8 L291.4 36.97 C291.4 41.13 291.4 49.47 291.4 57.8 C291.4 66.13 291.4 74.47 291.4 78.63 L291.4 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M291.4 172.4 L291.4 176.57 C291.4 180.73 291.4 189.07 291.4 197.4 C291.4 205.73 291.4 214.07 291.4 218.23 L291.4 219.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M221.2 140 L225.37 140 C229.53 140 237.87 140 246.2 140 C254.53 140 262.87 140 267.03 140 L268.05 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M311.6 140 L315.77 140 C319.93 140 328.27 140 336.6 140 C344.93 140 353.27 140 357.43 140 L358.45 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

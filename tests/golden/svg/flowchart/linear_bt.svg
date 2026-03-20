@@ -9,6 +9,6 @@
     <text x="41.2" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bottom</text>
     <rect x="12.6" y="0" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="41.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top</text>
-    <path d="M41.2 82.8 L41.2 78.63 C41.2 74.47 41.2 66.13 41.2 57.8 C41.2 49.47 41.2 41.13 41.2 36.97 L41.2 35.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M41.2 82.8 L41.2 78.63 C41.2 74.47 41.2 66.13 41.2 57.8 C41.2 49.47 41.2 41.13 41.2 36.97 L41.2 35.95" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

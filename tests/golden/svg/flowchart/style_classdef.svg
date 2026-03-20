@@ -15,8 +15,8 @@
     <text x="182" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inline</text>
     <rect x="140.8" y="82.8" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="182" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Normal</text>
-    <path d="M45.4 32.8 L45.4 36.97 C45.4 41.13 45.4 49.47 45.4 57.8 C45.4 66.13 45.4 74.47 45.4 78.63 L45.4 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M45.4 115.6 L45.4 119.77 C45.4 123.93 45.4 132.27 45.4 140.6 C45.4 148.93 45.4 157.27 45.4 161.43 L45.4 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M182 32.8 L182 36.97 C182 41.13 182 49.47 182 57.8 C182 66.13 182 74.47 182 78.63 L182 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M45.4 32.8 L45.4 36.97 C45.4 41.13 45.4 49.47 45.4 57.8 C45.4 66.13 45.4 74.47 45.4 78.63 L45.4 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M45.4 115.6 L45.4 119.77 C45.4 123.93 45.4 132.27 45.4 140.6 C45.4 148.93 45.4 157.27 45.4 161.43 L45.4 162.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M182 32.8 L182 36.97 C182 41.13 182 49.47 182 57.8 C182 66.13 182 74.47 182 78.63 L182 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

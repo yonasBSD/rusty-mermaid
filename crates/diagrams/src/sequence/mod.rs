@@ -757,7 +757,7 @@ mod tests {
 
     #[test]
     fn edge_path_shortened_for_arrow_marker() {
-        use crate::common::rendering::{marker_inset_px, prev_endpoint};
+        use crate::common::rendering::{marker_inset_px, prev_endpoint, STROKE_CLEARANCE_PX};
         let mut d = two_actor_diagram();
         d.items.push(SequenceItem::Message(Message {
             from: "Alice".into(),
@@ -776,7 +776,7 @@ mod tests {
             if let Primitive::Path { segments, marker_end: Some(MarkerType::ArrowPoint), style, .. } = p {
                 let endpoint = prev_endpoint(segments).unwrap();
                 let sw = style.stroke_width.unwrap_or(1.5);
-                let expected = marker_inset_px(MarkerType::ArrowPoint, sw);
+                let expected = marker_inset_px(MarkerType::ArrowPoint, sw) + STROKE_CLEARANCE_PX;
                 let gap = bob_x - endpoint.x;
                 assert!(
                     gap > 0.0,
