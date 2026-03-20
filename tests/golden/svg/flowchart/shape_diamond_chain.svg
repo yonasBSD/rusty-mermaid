@@ -5,22 +5,6 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <polygon points="220.2,0 311.4,91.2 220.2,182.4 129,91.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="220.2" y="91.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validate Input</text>
-    <polygon points="220.2,232.4 294.6,306.8 220.2,381.2 145.8,306.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="220.2" y="306.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Check Auth</text>
-    <polygon points="277,448 355.6,526.6 277,605.2 198.4,526.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="277" y="526.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rate Limit?</text>
-    <rect x="45" y="1128.4" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="82" y="1144.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Error</text>
-    <polygon points="338,672 412.4,746.4 338,820.8 263.6,746.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="338" y="746.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has Cache?</text>
-    <rect x="373.3" y="958.2" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="439.7" y="974.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Return Cache</text>
-    <polygon points="236.3,887.6 323.3,974.6 236.3,1061.6 149.3,974.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="236.3" y="974.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">DB Available?</text>
-    <rect x="210.1" y="1128.4" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="259.7" y="1144.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Query DB</text>
     <path d="M220.2 182.4 L220.2 186.57 C220.2 190.73 220.2 199.07 220.2 207.4 C220.2 215.73 220.2 224.07 220.2 228.23 L220.2 229.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <path d="M245.87 355.53 L251.06 365.37 C256.25 375.22 266.62 394.91 271.81 410.32 C277 425.73 277 436.87 277 442.43 L277 444.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="258.6" y="403.4" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
@@ -46,5 +30,21 @@
     <path d="M207.92 1033.22 L202.93 1043.51 C197.94 1053.81 187.97 1074.41 172.26 1090.27 C156.54 1106.13 135.08 1117.27 124.35 1122.83 L116.41 1126.95" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="166.8" y="1083.8" width="22.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="178" y="1095" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
+    <polygon points="220.2,0 311.4,91.2 220.2,182.4 129,91.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="220.2" y="91.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validate Input</text>
+    <polygon points="220.2,232.4 294.6,306.8 220.2,381.2 145.8,306.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="220.2" y="306.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Check Auth</text>
+    <polygon points="277,448 355.6,526.6 277,605.2 198.4,526.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="277" y="526.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rate Limit?</text>
+    <rect x="45" y="1128.4" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="82" y="1144.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Error</text>
+    <polygon points="338,672 412.4,746.4 338,820.8 263.6,746.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="338" y="746.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Has Cache?</text>
+    <rect x="373.3" y="958.2" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="439.7" y="974.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Return Cache</text>
+    <polygon points="236.3,887.6 323.3,974.6 236.3,1061.6 149.3,974.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="236.3" y="974.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">DB Available?</text>
+    <rect x="210.1" y="1128.4" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="259.7" y="1144.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Query DB</text>
   </g>
 </svg>

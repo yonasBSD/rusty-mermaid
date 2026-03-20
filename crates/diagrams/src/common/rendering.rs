@@ -226,16 +226,33 @@ fn shorten_path_end(segments: &mut Vec<PathSegment>, mut remaining: f64) {
 }
 
 /// Pull the first point of a path inward along its outgoing tangent by `dist` pixels.
-fn shorten_path_start(segments: &mut [PathSegment], dist: f64) {
-    if segments.len() < 2 { return; }
-    let toward = match &segments[1] {
-        PathSegment::LineTo(to) => *to,
-        PathSegment::CubicTo { cp1, .. } => *cp1,
-        PathSegment::QuadTo { cp, .. } => *cp,
-        _ => return,
-    };
-    if let PathSegment::MoveTo(start) = &mut segments[0] {
-        pull_toward(start, toward, dist);
+/// Cascades through short leading LineTo segments (analogous to `shorten_path_end`).
+fn shorten_path_start(segments: &mut Vec<PathSegment>, mut remaining: f64) {
+    while remaining > 0.0 && segments.len() > 1 {
+        let start = match segments[0] {
+            PathSegment::MoveTo(p) => p,
+            _ => return,
+        };
+        // If the second segment is a short LineTo, absorb it and keep going
+        if let PathSegment::LineTo(to) = segments[1] {
+            let seg_len = start.distance_to(to);
+            if seg_len <= remaining {
+                segments[0] = PathSegment::MoveTo(to);
+                segments.remove(1);
+                remaining -= seg_len;
+                continue;
+            }
+        }
+        let toward = match &segments[1] {
+            PathSegment::LineTo(to) => *to,
+            PathSegment::CubicTo { cp1, .. } => *cp1,
+            PathSegment::QuadTo { cp, .. } => *cp,
+            _ => return,
+        };
+        if let PathSegment::MoveTo(start) = &mut segments[0] {
+            pull_toward(start, toward, remaining);
+        }
+        break;
     }
 }
 
@@ -416,6 +433,30 @@ mod tests {
         shorten_path_start(&mut segs, 10.0);
         if let PathSegment::MoveTo(p) = segs[0] {
             assert!((p.y - 10.0).abs() < 0.01);
+        }
+    }
+
+    #[test]
+    fn shorten_path_start_cascades_through_short_segment() {
+        // When the first LineTo is shorter than the requested shortening,
+        // absorb it and continue into the next segment.
+        let mut segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(0.0, 4.0)),
+            PathSegment::CubicTo {
+                cp1: Point::new(0.0, 20.0),
+                cp2: Point::new(0.0, 70.0),
+                to: Point::new(0.0, 100.0),
+            },
+        ];
+        shorten_path_start(&mut segs, 6.0);
+        // First LineTo (len=4) absorbed, remaining 2.0 pulled into CubicTo
+        assert_eq!(segs.len(), 2);
+        if let PathSegment::MoveTo(p) = segs[0] {
+            // Started at (0,4) after absorbing, pulled 2.0 toward cp1 (0,20)
+            assert!((p.y - 6.0).abs() < 0.01);
+        } else {
+            panic!("expected MoveTo");
         }
     }
 

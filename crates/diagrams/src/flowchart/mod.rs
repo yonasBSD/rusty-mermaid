@@ -90,11 +90,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         }
     }
 
-    for node in &layout.nodes {
-        render_node(node, scene, theme);
-    }
-
-    // Z-order: subgraphs (background) → nodes → edges + markers (foreground).
+    // Z-order: subgraphs (background) → edges + markers → nodes (foreground).
     for edge in &layout.edges {
         if edge.points.len() >= 2 {
             let mut segments = interpolate(&edge.points, CurveType::Basis);
@@ -131,6 +127,10 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
                 render_edge_label(scene, mid, label, edge.label_size, theme);
             }
         }
+    }
+
+    for node in &layout.nodes {
+        render_node(node, scene, theme);
     }
 }
 
@@ -403,24 +403,25 @@ fn render_asymmetric(bbox: BBox, style: Style, scene: &mut Scene) {
     });
 }
 
-/// Subroutine: rect with double vertical bars (8px offset each side).
+/// Subroutine: rect with double vertical bars (8px inset each side).
+/// The bbox already includes the bar width (set in bridge sizing).
 fn render_subroutine(bbox: BBox, style: Style, scene: &mut Scene) {
     let (cx, cy, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
-    let bar_offset = 8.0;
+    let bar_inset = 8.0;
     scene.push(Primitive::Rect {
-        bbox: BBox::new(cx, cy, w + bar_offset * 2.0, h),
+        bbox,
         rx: 0.0,
         ry: 0.0,
         style: style.clone(),
     });
-    // Left inner vertical bar
-    let left = cx - w / 2.0;
     let top = cy - h / 2.0;
     let bottom = cy + h / 2.0;
+    // Left inner vertical bar
+    let left_bar = cx - w / 2.0 + bar_inset;
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(left, top)),
-            PathSegment::LineTo(Point::new(left, bottom)),
+            PathSegment::MoveTo(Point::new(left_bar, top)),
+            PathSegment::LineTo(Point::new(left_bar, bottom)),
         ],
         style: Style {
             fill: None,
@@ -432,11 +433,11 @@ fn render_subroutine(bbox: BBox, style: Style, scene: &mut Scene) {
         marker_end: None,
     });
     // Right inner vertical bar
-    let right = cx + w / 2.0;
+    let right_bar = cx + w / 2.0 - bar_inset;
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(right, top)),
-            PathSegment::LineTo(Point::new(right, bottom)),
+            PathSegment::MoveTo(Point::new(right_bar, top)),
+            PathSegment::LineTo(Point::new(right_bar, bottom)),
         ],
         style: Style {
             fill: None,
@@ -761,9 +762,61 @@ mod tests {
     }
 
     #[test]
-    fn edges_render_after_nodes_for_marker_visibility() {
-        // Markers (circle, cross) must render ON TOP of nodes. This means
-        // edge Paths must appear after node Rects in the primitive list.
+    fn subroutine_edge_terminates_at_visual_boundary() {
+        // The subroutine shape has 8px decorative bars inset from each side.
+        // Edge endpoints must land at the outer rect boundary, not at the
+        // inner bar position. Regression: arrows were clipped behind the node
+        // when dagre used the wrong (smaller) width for intersection.
+        let d = crate::flowchart::parser::parse(
+            "flowchart LR\n    A --> B[[Process]]\n    B --> C",
+        )
+        .unwrap();
+        let layout = crate::flowchart::bridge::layout(&d);
+        let scene = to_scene(&layout);
+
+        // Find the subroutine rect (the one with rx=0, ry=0 whose width is larger)
+        let sub_rects: Vec<_> = scene.elements().iter().filter_map(|e| {
+            if let Primitive::Rect { bbox, rx, .. } = &e.primitive {
+                if *rx == 0.0 { Some(bbox) } else { None }
+            } else { None }
+        }).collect();
+        assert!(!sub_rects.is_empty(), "should have subroutine rect");
+        let sub = sub_rects.iter().max_by(|a, b| a.width.partial_cmp(&b.width).unwrap()).unwrap();
+        let sub_left = sub.x - sub.width / 2.0;
+        let sub_right = sub.x + sub.width / 2.0;
+
+        // Find edge paths with markers
+        let edge_paths: Vec<_> = scene.elements().iter().filter_map(|e| {
+            if let Primitive::Path { segments, marker_end: Some(_), .. } = &e.primitive {
+                Some(segments)
+            } else { None }
+        }).collect();
+        assert!(edge_paths.len() >= 2, "should have at least 2 edge paths");
+
+        // Inbound edge: endpoint should be at or just outside sub_left
+        let inbound_end = prev_endpoint(&edge_paths[0]).unwrap();
+        assert!(
+            inbound_end.x <= sub_left + 1.0,
+            "inbound edge endpoint ({:.1}) should be at or outside subroutine left ({:.1})",
+            inbound_end.x, sub_left
+        );
+
+        // Outbound edge: start should be at or just outside sub_right
+        let outbound_start = match edge_paths[1][0] {
+            PathSegment::MoveTo(p) => p,
+            _ => panic!("expected MoveTo"),
+        };
+        assert!(
+            outbound_start.x >= sub_right - 1.0,
+            "outbound edge start ({:.1}) should be at or outside subroutine right ({:.1})",
+            outbound_start.x, sub_right
+        );
+    }
+
+    #[test]
+    fn edges_render_behind_nodes() {
+        // Edges must render BEHIND nodes so node shapes cleanly cover any
+        // marker overshoot. This matches state diagram and mermaid.js z-order.
         let d = crate::flowchart::parser::parse(
             "flowchart TD\n    A --o B\n    A --x C",
         )
@@ -771,21 +824,25 @@ mod tests {
         let layout = crate::flowchart::bridge::layout(&d);
         let scene = to_scene(&layout);
 
-        let last_node_idx = scene
+        let last_edge_idx = scene
             .elements()
             .iter()
-            .rposition(|e| matches!(e.primitive, Primitive::Rect { .. }))
-            .expect("should have node rects");
-        let first_edge_idx = scene
-            .elements()
-            .iter()
-            .position(|e| matches!(e.primitive, Primitive::Path { marker_end: Some(_), .. }))
+            .rposition(|e| matches!(e.primitive, Primitive::Path { marker_end: Some(_), .. }))
             .expect("should have edge paths with markers");
-
+        let first_node_after_edges = scene
+            .elements()
+            .iter()
+            .enumerate()
+            .position(|(i, e)| {
+                i > last_edge_idx
+                    && matches!(e.primitive, Primitive::Rect { .. }
+                        | Primitive::Circle { .. }
+                        | Primitive::Polygon { .. })
+            });
         assert!(
-            first_edge_idx > last_node_idx,
-            "edge paths (idx {first_edge_idx}) must come after all node rects (last idx {last_node_idx}) \
-             so markers render on top of nodes"
+            first_node_after_edges.is_some(),
+            "node shapes must render after edge paths (last edge idx {last_edge_idx}) \
+             so nodes cover edges"
         );
     }
 }

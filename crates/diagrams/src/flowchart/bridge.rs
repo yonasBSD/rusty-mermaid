@@ -269,6 +269,11 @@ fn build_flow_graph<'a>(
                 let ry = rx / (2.5 + text_w / 50.0);
                 (text_w, text_h + ry * 2.0)
             }
+            Shape::Subroutine => {
+                // Include the 8px decorative bar offset on each side so dagre's
+                // intersection calculation uses the full visual boundary.
+                (text_w + 16.0, text_h)
+            }
             _ => (text_w, text_h),
         };
 

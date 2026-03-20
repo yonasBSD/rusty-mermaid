@@ -5,6 +5,8 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <path d="M53.8 32.8 L53.8 36.97 C53.8 41.13 53.8 49.47 53.8 57.8 C53.8 66.13 53.8 74.47 53.8 78.63 L53.8 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M211.4 32.8 L211.4 36.97 C211.4 41.13 211.4 49.47 211.4 57.8 C211.4 66.13 211.4 74.47 211.4 78.63 L211.4 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="0" width="107.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="53.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Island 1a</text>
     <rect x="0" y="82.8" width="107.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
@@ -13,7 +15,5 @@
     <text x="211.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Island 2a</text>
     <rect x="157.6" y="82.8" width="107.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="211.4" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Island 2b</text>
-    <path d="M53.8 32.8 L53.8 36.97 C53.8 41.13 53.8 49.47 53.8 57.8 C53.8 66.13 53.8 74.47 53.8 78.63 L53.8 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M211.4 32.8 L211.4 36.97 C211.4 41.13 211.4 49.47 211.4 57.8 C211.4 66.13 211.4 74.47 211.4 78.63 L211.4 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>

@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 353.4 238.4" width="353.4" height="238.4">
   <g transform="translate(20, 20)">
+    <path d="M110.6 32.8 L110.6 36.97 C110.6 41.13 110.6 49.47 110.6 60.53 C110.6 71.6 110.6 85.4 110.6 99.2 C110.6 113 110.6 126.8 110.6 137.87 C110.6 148.93 110.6 157.27 110.6 161.43 L110.6 165.6" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M20.2 32.8 L20.2 36.97 C20.2 41.13 20.2 49.47 20.2 57.8 C20.2 66.13 20.2 74.47 20.2 78.63 L20.2 82.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" />
+    <path d="M201 32.8 L201 36.97 C201 41.13 201 49.47 201 60.53 C201 71.6 201 85.4 201 99.2 C201 113 201 126.8 201 137.87 C201 148.93 201 157.27 201 161.43 L201 165.6" fill="none" stroke="#333333" stroke-width="3.5" />
+    <path d="M291.4 32.8 L291.4 36.97 C291.4 41.13 291.4 49.47 291.4 60.53 C291.4 71.6 291.4 85.4 291.4 99.2 C291.4 113 291.4 126.8 291.4 137.87 C291.4 148.93 291.4 157.27 291.4 161.43 L291.4 165.6" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="269.4" y="88" width="44" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="291.4" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">label</text>
     <rect x="90.4" y="0" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="110.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
     <rect x="90.4" y="165.6" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
@@ -16,11 +22,5 @@
     <text x="291.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">G</text>
     <rect x="271.2" y="165.6" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="291.4" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">H</text>
-    <path d="M110.6 32.8 L110.6 36.97 C110.6 41.13 110.6 49.47 110.6 60.53 C110.6 71.6 110.6 85.4 110.6 99.2 C110.6 113 110.6 126.8 110.6 137.87 C110.6 148.93 110.6 157.27 110.6 161.43 L110.6 165.6" fill="none" stroke="#333333" stroke-width="1.5" />
-    <path d="M20.2 32.8 L20.2 36.97 C20.2 41.13 20.2 49.47 20.2 57.8 C20.2 66.13 20.2 74.47 20.2 78.63 L20.2 82.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" />
-    <path d="M201 32.8 L201 36.97 C201 41.13 201 49.47 201 60.53 C201 71.6 201 85.4 201 99.2 C201 113 201 126.8 201 137.87 C201 148.93 201 157.27 201 161.43 L201 165.6" fill="none" stroke="#333333" stroke-width="3.5" />
-    <path d="M291.4 32.8 L291.4 36.97 C291.4 41.13 291.4 49.47 291.4 60.53 C291.4 71.6 291.4 85.4 291.4 99.2 C291.4 113 291.4 126.8 291.4 137.87 C291.4 148.93 291.4 157.27 291.4 161.43 L291.4 165.6" fill="none" stroke="#333333" stroke-width="1.5" />
-    <rect x="269.4" y="88" width="44" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="291.4" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">label</text>
   </g>
 </svg>

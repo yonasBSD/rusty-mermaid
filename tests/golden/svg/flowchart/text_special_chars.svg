@@ -5,6 +5,13 @@
     </marker>
   </defs>
   <g transform="translate(20, 20)">
+    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78.63 L79 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 115.6 L79 119.77 C79 123.93 79 132.27 79 140.6 C79 148.93 79 157.27 79 161.43 L79 162.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 198.4 L79 202.57 C79 206.73 79 215.07 79 223.4 C79 231.73 79 240.07 79 244.23 L79 245.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 281.2 L79 285.37 C79 289.53 79 297.87 79 306.2 C79 314.53 79 322.87 79 327.03 L79 328.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 364 L79 368.17 C79 372.33 79 380.67 79 389 C79 397.33 79 405.67 79 409.83 L79 410.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 446.8 L79 450.97 C79 455.13 79 463.47 79 471.8 C79 480.13 79 488.47 79 492.63 L79 493.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M79 529.6 L79 533.77 C79 537.93 79 546.27 79 554.6 C79 562.93 79 571.27 79 575.43 L79 576.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
     <rect x="0" y="0" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="79" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ampersand &amp; Co.</text>
     <rect x="8.4" y="82.8" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
@@ -21,12 +28,5 @@
     <text x="79" y="513.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Line 1; Line 2</text>
     <rect x="0" y="579.6" width="158" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="79" y="596" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">path/to/file.rs</text>
-    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78.63 L79 79.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 115.6 L79 119.77 C79 123.93 79 132.27 79 140.6 C79 148.93 79 157.27 79 161.43 L79 162.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 198.4 L79 202.57 C79 206.73 79 215.07 79 223.4 C79 231.73 79 240.07 79 244.23 L79 245.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 281.2 L79 285.37 C79 289.53 79 297.87 79 306.2 C79 314.53 79 322.87 79 327.03 L79 328.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 364 L79 368.17 C79 372.33 79 380.67 79 389 C79 397.33 79 405.67 79 409.83 L79 410.85" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 446.8 L79 450.97 C79 455.13 79 463.47 79 471.8 C79 480.13 79 488.47 79 492.63 L79 493.65" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79 529.6 L79 533.77 C79 537.93 79 546.27 79 554.6 C79 562.93 79 571.27 79 575.43 L79 576.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
   </g>
 </svg>
