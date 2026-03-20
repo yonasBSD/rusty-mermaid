@@ -8,22 +8,25 @@ use rusty_mermaid_core::{Color, Renderer, Scene};
 
 use document::SvgDocument;
 use markers::marker_defs;
-use primitive::{collect_markers, render_primitive};
+use primitive::{collect_marker_colors, render_primitive};
 
 /// SVG-specific rendering configuration.
 #[derive(Debug, Clone)]
 pub struct SvgConfig {
     /// Padding around the diagram (pixels on each side).
     pub padding: f64,
-    /// Color for arrow markers. If None, derives from first path stroke or falls back to #333.
-    pub marker_color: Option<Color>,
+    /// Default stroke color for paths/arcs that don't specify one.
+    pub default_stroke: Color,
+    /// Default stroke width for paths that don't specify one.
+    pub default_stroke_width: f64,
 }
 
 impl Default for SvgConfig {
     fn default() -> Self {
         Self {
             padding: 20.0,
-            marker_color: None,
+            default_stroke: Color::rgb(51, 51, 51),
+            default_stroke_width: 1.5,
         }
     }
 }
@@ -43,29 +46,6 @@ impl SvgRenderer {
     pub fn with_config(config: SvgConfig) -> Self {
         Self { config }
     }
-
-    /// Derive marker color from config, or from the first marker-bearing path's stroke.
-    fn resolve_marker_color(&self, scene: &Scene) -> String {
-        if let Some(c) = &self.config.marker_color {
-            return c.to_string();
-        }
-        for elem in scene.elements() {
-            if let rusty_mermaid_core::Primitive::Path {
-                style,
-                marker_start,
-                marker_end,
-                ..
-            } = &elem.primitive
-            {
-                if marker_start.is_some() || marker_end.is_some() {
-                    if let Some(c) = &style.stroke {
-                        return c.to_string();
-                    }
-                }
-            }
-        }
-        "#333333".to_string()
-    }
 }
 
 impl Default for SvgRenderer {
@@ -84,12 +64,11 @@ impl Renderer for SvgRenderer {
 
         let mut doc = SvgDocument::new(w, h);
 
-        // Emit marker defs if any paths use markers
-        let markers = collect_markers(scene.elements());
-        if !markers.is_empty() {
-            let color = self.resolve_marker_color(scene);
+        // Emit per-color marker defs
+        let marker_colors = collect_marker_colors(scene.elements(), &self.config);
+        if !marker_colors.is_empty() {
             doc.open_tag("defs", &[]);
-            doc.raw(&marker_defs(&markers, &color));
+            doc.raw(&marker_defs(&marker_colors));
             doc.close_tag("defs");
         }
 
@@ -100,7 +79,7 @@ impl Renderer for SvgRenderer {
         doc.open_tag("g", &[("transform", &transform)]);
 
         for elem in scene.elements() {
-            render_primitive(&mut doc, &elem.primitive);
+            render_primitive(&mut doc, &elem.primitive, &self.config);
         }
 
         doc.close_tag("g");
@@ -168,7 +147,7 @@ mod tests {
 
         let svg = SvgRenderer::new().render(&scene);
         assert!(svg.contains("<defs>"));
-        assert!(svg.contains("arrow-point"));
+        assert!(svg.contains("arrow-point-333333"));
         assert!(svg.contains("marker-end"));
     }
 
@@ -194,8 +173,8 @@ mod tests {
     }
 
     #[test]
-    fn marker_color_from_config() {
-        let mut scene = Scene::new(200.0, 100.0);
+    fn per_color_marker_defs() {
+        let mut scene = Scene::new(200.0, 200.0);
         scene.push(Primitive::Path {
             segments: vec![
                 PathSegment::MoveTo(Point::new(0.0, 0.0)),
@@ -208,16 +187,25 @@ mod tests {
             marker_start: None,
             marker_end: Some(MarkerType::ArrowPoint),
         });
-        let renderer = SvgRenderer::with_config(SvgConfig {
-            marker_color: Some(Color::rgb(0, 128, 0)),
-            ..Default::default()
+        scene.push(Primitive::Path {
+            segments: vec![
+                PathSegment::MoveTo(Point::new(0.0, 50.0)),
+                PathSegment::LineTo(Point::new(100.0, 50.0)),
+            ],
+            style: Style {
+                stroke: Some(Color::rgb(0, 128, 0)),
+                ..Default::default()
+            },
+            marker_start: None,
+            marker_end: Some(MarkerType::ArrowPoint),
         });
-        let svg = renderer.render(&scene);
-        assert!(svg.contains("#008000"), "marker should use config color");
+        let svg = SvgRenderer::new().render(&scene);
+        assert!(svg.contains("arrow-point-ff0000"), "red marker def");
+        assert!(svg.contains("arrow-point-008000"), "green marker def");
     }
 
     #[test]
-    fn marker_color_derived_from_path_stroke() {
+    fn marker_color_matches_edge_stroke() {
         let mut scene = Scene::new(200.0, 100.0);
         scene.push(Primitive::Path {
             segments: vec![
@@ -232,6 +220,7 @@ mod tests {
             marker_end: Some(MarkerType::ArrowPoint),
         });
         let svg = SvgRenderer::new().render(&scene);
-        assert!(svg.contains("#9370db"), "marker should derive color from path stroke");
+        assert!(svg.contains("arrow-point-9370db"), "marker ID should include edge color");
+        assert!(svg.contains(r#"marker-end="url(#arrow-point-9370db)""#));
     }
 }

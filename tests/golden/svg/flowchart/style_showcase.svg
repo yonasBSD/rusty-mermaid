@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 726 180.39" width="726" height="180.39">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M74 74.39 L78.17 74.39 C82.33 74.39 90.67 74.39 99 74.39 C107.33 74.39 115.67 74.39 119.83 74.39 L121.6 74.39" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M235.42 94.97 L245.12 99.36 C254.82 103.75 274.21 112.54 290.17 116.93 C306.13 121.32 318.67 121.32 324.93 121.32 L328.8 121.32" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M74 74.39 L78.17 74.39 C82.33 74.39 90.67 74.39 99 74.39 C107.33 74.39 115.67 74.39 119.83 74.39 L121.6 74.39" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M235.42 94.97 L245.12 99.36 C254.82 103.75 274.21 112.54 290.17 116.93 C306.13 121.32 318.67 121.32 324.93 121.32 L328.8 121.32" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="278.8" y="110.12" width="29.6" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="293.6" y="121.32" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Yes</text>
-    <path d="M235.42 53.82 L245.12 49.42 C254.82 45.03 274.21 36.25 290.8 31.85 C307.4 27.46 321.2 27.46 328.1 27.46 L332.6 27.46" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M235.42 53.82 L245.12 49.42 C254.82 45.03 274.21 36.25 290.8 31.85 C307.4 27.46 321.2 27.46 328.1 27.46 L332.6 27.46" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="282.4" y="16.26" width="22.4" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="293.6" y="27.46" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
-    <path d="M438 121.32 L442.17 121.32 C446.33 121.32 454.67 121.32 466.01 116.23 C477.36 111.15 491.71 100.97 498.89 95.88 L504.11 92.18" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M434.2 27.46 L439 27.46 C443.8 27.46 453.4 27.46 465.38 32.55 C477.36 37.64 491.71 47.82 498.89 52.9 L504.11 56.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M570.4 74.39 L574.57 74.39 C578.73 74.39 587.07 74.39 595.4 74.39 C603.73 74.39 612.07 74.39 616.23 74.39 L618 74.39" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M438 121.32 L442.17 121.32 C446.33 121.32 454.67 121.32 466.01 116.23 C477.36 111.15 491.71 100.97 498.89 95.88 L504.11 92.18" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M434.2 27.46 L439 27.46 C443.8 27.46 453.4 27.46 465.38 32.55 C477.36 37.64 491.71 47.82 498.89 52.9 L504.11 56.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M570.4 74.39 L574.57 74.39 C578.73 74.39 587.07 74.39 595.4 74.39 C603.73 74.39 612.07 74.39 616.23 74.39 L618 74.39" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="0" y="57.99" width="74" height="32.8" rx="16.4" ry="16.4" fill="#4caf50" stroke="#2e7d32" stroke-width="2" />
     <text x="37" y="74.39" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Start</text>
     <polygon points="190,8.39 256,74.39 190,140.39 124,74.39" fill="#ff9800" stroke="#e65100" stroke-width="2" />

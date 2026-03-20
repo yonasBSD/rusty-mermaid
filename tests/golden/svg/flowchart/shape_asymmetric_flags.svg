@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 992.4 72.8" width="992.4" height="72.8">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M116 16.4 L120.17 16.4 C124.33 16.4 132.67 16.4 141 16.4 C149.33 16.4 157.67 16.4 161.83 16.4 L163.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M248.4 16.4 L252.57 16.4 C256.73 16.4 265.07 16.4 274.77 16.4 C284.47 16.4 295.53 16.4 301.07 16.4 L304.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M406 16.4 L410.17 16.4 C414.33 16.4 422.67 16.4 431 16.4 C439.33 16.4 447.67 16.4 451.83 16.4 L453.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M538.4 16.4 L542.57 16.4 C546.73 16.4 555.07 16.4 564.77 16.4 C574.47 16.4 585.53 16.4 591.07 16.4 L594.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M704.4 16.4 L708.57 16.4 C712.73 16.4 721.07 16.4 729.4 16.4 C737.73 16.4 746.07 16.4 750.23 16.4 L752 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M836.8 16.4 L840.97 16.4 C845.13 16.4 853.47 16.4 863.17 16.4 C872.87 16.4 883.93 16.4 889.47 16.4 L892.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M116 16.4 L120.17 16.4 C124.33 16.4 132.67 16.4 141 16.4 C149.33 16.4 157.67 16.4 161.83 16.4 L163.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M248.4 16.4 L252.57 16.4 C256.73 16.4 265.07 16.4 274.77 16.4 C284.47 16.4 295.53 16.4 301.07 16.4 L304.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M406 16.4 L410.17 16.4 C414.33 16.4 422.67 16.4 431 16.4 C439.33 16.4 447.67 16.4 451.83 16.4 L453.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M538.4 16.4 L542.57 16.4 C546.73 16.4 555.07 16.4 564.77 16.4 C574.47 16.4 585.53 16.4 591.07 16.4 L594.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M704.4 16.4 L708.57 16.4 C712.73 16.4 721.07 16.4 729.4 16.4 C737.73 16.4 746.07 16.4 750.23 16.4 L752 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M836.8 16.4 L840.97 16.4 C845.13 16.4 853.47 16.4 863.17 16.4 C872.87 16.4 883.93 16.4 889.47 16.4 L892.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <polygon points="0,0 116,0 116,32.8 0,32.8 8.2,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="58" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start Flag</text>
     <rect x="166" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

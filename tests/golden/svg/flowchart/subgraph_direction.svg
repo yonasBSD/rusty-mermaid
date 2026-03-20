@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 458 295.2" width="458" height="295.2">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
     <rect x="164.8" y="82.8" width="253.2" height="89.6" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
     <text x="172.8" y="94.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">LR Inside TD</text>
-    <path d="M291.4 32.8 L291.4 36.97 C291.4 41.13 291.4 49.47 291.4 57.8 C291.4 66.13 291.4 74.47 291.4 78.63 L291.4 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M291.4 172.4 L291.4 176.57 C291.4 180.73 291.4 189.07 291.4 197.4 C291.4 205.73 291.4 214.07 291.4 218.23 L291.4 220" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M221.2 140 L225.37 140 C229.53 140 237.87 140 246.2 140 C254.53 140 262.87 140 267.03 140 L268.8 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M311.6 140 L315.77 140 C319.93 140 328.27 140 336.6 140 C344.93 140 353.27 140 357.43 140 L359.2 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M291.4 32.8 L291.4 36.97 C291.4 41.13 291.4 49.47 291.4 57.8 C291.4 66.13 291.4 74.47 291.4 78.63 L291.4 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M291.4 172.4 L291.4 176.57 C291.4 180.73 291.4 189.07 291.4 197.4 C291.4 205.73 291.4 214.07 291.4 218.23 L291.4 220" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M221.2 140 L225.37 140 C229.53 140 237.87 140 246.2 140 C254.53 140 262.87 140 267.03 140 L268.8 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M311.6 140 L315.77 140 C319.93 140 328.27 140 336.6 140 C344.93 140 353.27 140 357.43 140 L359.2 140" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="180.8" y="123.6" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="201" y="140" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
     <rect x="271.2" y="123.6" width="40.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

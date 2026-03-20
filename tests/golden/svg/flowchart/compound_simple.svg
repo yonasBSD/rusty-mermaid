@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.4 288.4" width="192.4" height="288.4">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
     <rect x="0" y="0" width="152.4" height="165.6" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
     <text x="8" y="12" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Group</text>
-    <path d="M76.2 57.8 L76.2 61.97 C76.2 66.13 76.2 74.47 76.2 82.8 C76.2 91.13 76.2 99.47 76.2 103.63 L76.2 105.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M76.2 140.6 L76.2 144.77 C76.2 148.93 76.2 157.27 76.2 165.6 C76.2 173.93 76.2 182.27 76.2 190.6 C76.2 198.93 76.2 207.27 76.2 211.43 L76.2 213.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M76.2 57.8 L76.2 61.97 C76.2 66.13 76.2 74.47 76.2 82.8 C76.2 91.13 76.2 99.47 76.2 103.63 L76.2 105.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M76.2 140.6 L76.2 144.77 C76.2 148.93 76.2 157.27 76.2 165.6 C76.2 173.93 76.2 182.27 76.2 190.6 C76.2 198.93 76.2 207.27 76.2 211.43 L76.2 213.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="35" y="25" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="76.2" y="41.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Node A</text>
     <rect x="35" y="107.8" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

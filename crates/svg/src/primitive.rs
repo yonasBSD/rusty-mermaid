@@ -1,12 +1,13 @@
 use rusty_mermaid_core::{Element, MarkerType, Primitive, TextAnchor, Transform};
 
+use crate::SvgConfig;
 use crate::document::{fmt_f64, write_f64, SvgDocument};
 use crate::markers::marker_id;
 use crate::path::segments_to_d;
 use crate::style::{push_style_attrs, push_text_style_attrs};
 
 /// Render a single Primitive into the SVG document.
-pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
+pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive, config: &SvgConfig) {
     match prim {
         Primitive::Rect { bbox, rx, ry, style } => {
             let mut attrs: Vec<(String, String)> = vec![
@@ -52,20 +53,29 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
         Primitive::Path { segments, style, marker_start, marker_end } => {
             let d = segments_to_d(segments);
             let mut attrs: Vec<(String, String)> = vec![("d".into(), d)];
-            // Default path: no fill, black stroke
+
+            // Apply defaults for missing fill/stroke from config.
             if style.fill.is_none() {
                 attrs.push(("fill".into(), "none".into()));
             }
             if style.stroke.is_none() && style.stroke_width.is_none() {
-                attrs.push(("stroke".into(), "#333".into()));
-                attrs.push(("stroke-width".into(), "1.5".into()));
+                attrs.push(("stroke".into(), config.default_stroke.to_string()));
+                attrs.push(("stroke-width".into(), fmt_f64(config.default_stroke_width)));
             }
             push_style_attrs(&mut attrs, style);
+
+            // Marker references use per-color IDs.
+            let stroke_color = style
+                .stroke
+                .unwrap_or(config.default_stroke)
+                .to_string();
             if let Some(m) = marker_start {
-                attrs.push(("marker-start".into(), format!("url(#{})", marker_id(*m))));
+                let id = marker_id(*m, &stroke_color);
+                attrs.push(("marker-start".into(), format!("url(#{id})")));
             }
             if let Some(m) = marker_end {
-                attrs.push(("marker-end".into(), format!("url(#{})", marker_id(*m))));
+                let id = marker_id(*m, &stroke_color);
+                attrs.push(("marker-end".into(), format!("url(#{id})")));
             }
             let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
             doc.empty_tag("path", &refs);
@@ -161,41 +171,53 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive) {
             let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
             doc.open_tag("g", &refs);
             for child in children {
-                render_primitive(doc, child);
+                render_primitive(doc, child, config);
             }
             doc.close_tag("g");
         }
 
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
-            render_arc(doc, center, *inner_r, *outer_r, *start_angle, *end_angle, style);
+            render_arc(doc, center, *inner_r, *outer_r, *start_angle, *end_angle, style, config);
         }
     }
 }
 
-/// Collect all marker types used in a scene.
-pub fn collect_markers(elements: &[Element]) -> Vec<MarkerType> {
-    let mut markers = Vec::new();
+/// Collect all (MarkerType, color_string) pairs from scene elements.
+pub fn collect_marker_colors(elements: &[Element], config: &SvgConfig) -> Vec<(MarkerType, String)> {
+    let mut result = Vec::new();
     for elem in elements {
-        collect_markers_prim(&elem.primitive, &mut markers);
+        collect_markers_prim(&elem.primitive, config, &mut result);
     }
-    markers
+    result
 }
 
-fn collect_markers_prim(prim: &Primitive, markers: &mut Vec<MarkerType>) {
+fn collect_markers_prim(
+    prim: &Primitive,
+    config: &SvgConfig,
+    out: &mut Vec<(MarkerType, String)>,
+) {
     match prim {
-        Primitive::Path { marker_start, marker_end, .. } => {
-            if let Some(m) = marker_start
-                && !markers.contains(m) {
-                    markers.push(*m);
+        Primitive::Path { style, marker_start, marker_end, .. } => {
+            let color = style
+                .stroke
+                .unwrap_or(config.default_stroke)
+                .to_string();
+            if let Some(m) = marker_start {
+                let pair = (*m, color.clone());
+                if !out.contains(&pair) {
+                    out.push(pair);
                 }
-            if let Some(m) = marker_end
-                && !markers.contains(m) {
-                    markers.push(*m);
+            }
+            if let Some(m) = marker_end {
+                let pair = (*m, color.clone());
+                if !out.contains(&pair) {
+                    out.push(pair);
                 }
+            }
         }
         Primitive::Group { children, .. } => {
             for child in children {
-                collect_markers_prim(child, markers);
+                collect_markers_prim(child, config, out);
             }
         }
         _ => {}
@@ -221,6 +243,7 @@ fn render_arc(
     start_angle: f64,
     end_angle: f64,
     style: &rusty_mermaid_core::Style,
+    config: &SvgConfig,
 ) {
     // Convert arc to SVG path
     let x1 = center.x + outer_r * start_angle.cos();
@@ -243,7 +266,7 @@ fn render_arc(
         attrs.push(("fill".into(), "none".into()));
     }
     if style.stroke.is_none() {
-        attrs.push(("stroke".into(), "#333".into()));
+        attrs.push(("stroke".into(), config.default_stroke.to_string()));
     }
     let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
     doc.empty_tag("path", &refs);
@@ -371,7 +394,7 @@ mod tests {
 
     fn render_one(prim: &Primitive) -> String {
         let mut doc = SvgDocument::new(200.0, 200.0);
-        render_primitive(&mut doc, prim);
+        render_primitive(&mut doc, prim, &SvgConfig::default());
         doc.finish()
     }
 
@@ -415,13 +438,16 @@ mod tests {
                 PathSegment::MoveTo(Point::new(0.0, 0.0)),
                 PathSegment::LineTo(Point::new(100.0, 100.0)),
             ],
-            style: Style::default(),
+            style: Style {
+                stroke: Some(Color::rgb(51, 51, 51)),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: Some(MarkerType::ArrowPoint),
         });
         assert!(svg.contains(r#"d="M0 0 L100 100""#));
         assert!(svg.contains("marker-end"));
-        assert!(svg.contains("url(#arrow-point)"));
+        assert!(svg.contains("url(#arrow-point-333333)"));
     }
 
     #[test]
@@ -468,12 +494,15 @@ mod tests {
     }
 
     #[test]
-    fn collect_markers_from_paths() {
+    fn collect_marker_colors_from_paths() {
         let elems = vec![
             Element {
                 primitive: Primitive::Path {
                     segments: vec![],
-                    style: Style::default(),
+                    style: Style {
+                        stroke: Some(Color::rgb(255, 0, 0)),
+                        ..Default::default()
+                    },
                     marker_start: None,
                     marker_end: Some(MarkerType::ArrowPoint),
                 },
@@ -482,17 +511,47 @@ mod tests {
             Element {
                 primitive: Primitive::Path {
                     segments: vec![],
-                    style: Style::default(),
+                    style: Style {
+                        stroke: Some(Color::rgb(0, 128, 0)),
+                        ..Default::default()
+                    },
                     marker_start: Some(MarkerType::Circle),
                     marker_end: Some(MarkerType::ArrowPoint),
                 },
                 id: None,
             },
         ];
-        let markers = collect_markers(&elems);
-        assert_eq!(markers.len(), 2);
-        assert!(markers.contains(&MarkerType::ArrowPoint));
-        assert!(markers.contains(&MarkerType::Circle));
+        let mc = collect_marker_colors(&elems, &SvgConfig::default());
+        assert_eq!(mc.len(), 3);
+        assert!(mc.contains(&(MarkerType::ArrowPoint, "#ff0000".into())));
+        assert!(mc.contains(&(MarkerType::Circle, "#008000".into())));
+        assert!(mc.contains(&(MarkerType::ArrowPoint, "#008000".into())));
+    }
+
+    #[test]
+    fn path_default_uses_config_stroke() {
+        let config = SvgConfig {
+            default_stroke: Color::rgb(0, 0, 255),
+            default_stroke_width: 2.0,
+            ..Default::default()
+        };
+        let mut doc = SvgDocument::new(200.0, 200.0);
+        render_primitive(
+            &mut doc,
+            &Primitive::Path {
+                segments: vec![
+                    PathSegment::MoveTo(Point::new(0.0, 0.0)),
+                    PathSegment::LineTo(Point::new(100.0, 0.0)),
+                ],
+                style: Style::default(),
+                marker_start: None,
+                marker_end: None,
+            },
+            &config,
+        );
+        let svg = doc.finish();
+        assert!(svg.contains(r##"stroke="#0000ff""##), "should use config default_stroke");
+        assert!(svg.contains(r#"stroke-width="2""#), "should use config default_stroke_width");
     }
 
     #[test]

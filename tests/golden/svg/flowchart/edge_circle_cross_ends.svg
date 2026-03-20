@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 975.6 172.4" width="975.6" height="172.4">
   <defs>
-    <marker id="marker-circle" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="marker-circle-333333" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <circle cx="5" cy="5" r="4" fill="#333333" />
     </marker>
-    <marker id="marker-cross" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="marker-cross-333333" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M2 2 Q5 4.5 8 8 M8 2 Q5 5.5 2 8" fill="none" stroke="#333333" stroke-width="1.5" stroke-linecap="round" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M310.4 22.53 L344.33 29.81 C378.27 37.09 446.13 51.64 480.07 64.49 C514 77.33 514 88.47 514 94.03 L514 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle)" />
-    <path d="M304.98 32.8 L312.85 38.37 C320.72 43.93 336.46 55.07 344.33 66.2 C352.2 77.33 352.2 88.47 352.2 94.03 L352.2 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross)" />
-    <path d="M659 35.2 L659 38.37 C659 43.93 659 55.07 659 66.2 C659 77.33 659 88.47 659 94.03 L659 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-circle)" marker-end="url(#marker-circle)" />
-    <path d="M783 35.2 L783 38.37 C783 43.93 783 55.07 783 66.2 C783 77.33 783 88.47 783 94.03 L783 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-cross)" marker-end="url(#marker-cross)" />
-    <path d="M258.62 32.8 L250.75 38.37 C242.88 43.93 227.14 55.07 219.27 66.2 C211.4 77.33 211.4 88.47 211.4 94.03 L211.4 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle)" />
+    <path d="M310.4 22.53 L344.33 29.81 C378.27 37.09 446.13 51.64 480.07 64.49 C514 77.33 514 88.47 514 94.03 L514 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle-333333)" />
+    <path d="M304.98 32.8 L312.85 38.37 C320.72 43.93 336.46 55.07 344.33 66.2 C352.2 77.33 352.2 88.47 352.2 94.03 L352.2 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross-333333)" />
+    <path d="M659 35.2 L659 38.37 C659 43.93 659 55.07 659 66.2 C659 77.33 659 88.47 659 94.03 L659 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-circle-333333)" marker-end="url(#marker-circle-333333)" />
+    <path d="M783 35.2 L783 38.37 C783 43.93 783 55.07 783 66.2 C783 77.33 783 88.47 783 94.03 L783 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-cross-333333)" marker-end="url(#marker-cross-333333)" />
+    <path d="M258.62 32.8 L250.75 38.37 C242.88 43.93 227.14 55.07 219.27 66.2 C211.4 77.33 211.4 88.47 211.4 94.03 L211.4 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-circle-333333)" />
     <rect x="193" y="55" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="211.4" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">data</text>
-    <path d="M253.2 22.89 L221.37 30.1 C189.53 37.32 125.87 51.76 94.03 64.55 C62.2 77.33 62.2 88.47 62.2 94.03 L62.2 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross)" />
+    <path d="M253.2 22.89 L221.37 30.1 C189.53 37.32 125.87 51.76 94.03 64.55 C62.2 77.33 62.2 88.47 62.2 94.03 L62.2 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross-333333)" />
     <rect x="36.6" y="55" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="62.2" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">reject</text>
-    <path d="M902.8 35.2 L902.8 38.37 C902.8 43.93 902.8 55.07 902.8 66.2 C902.8 77.33 902.8 88.47 902.8 94.03 L902.8 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-circle)" marker-end="url(#marker-circle)" />
+    <path d="M902.8 35.2 L902.8 38.37 C902.8 43.93 902.8 55.07 902.8 66.2 C902.8 77.33 902.8 88.47 902.8 94.03 L902.8 97.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-circle-333333)" marker-end="url(#marker-circle-333333)" />
     <rect x="884.4" y="55" width="36.8" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="902.8" y="66.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">sync</text>
     <rect x="253.2" y="0" width="57.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160.5 238.4" width="160.5" height="238.4">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M56.29 32.8 L60.13 36.97 C63.96 41.13 71.63 49.47 75.47 57.8 C79.3 66.13 79.3 74.47 79.3 78.63 L79.3 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M79.3 115.6 L79.3 119.77 C79.3 123.93 79.3 132.27 75.47 140.6 C71.63 148.93 63.96 157.27 60.13 161.43 L57.92 163.83" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M26.11 165.6 L22.27 161.43 C18.44 157.27 10.77 148.93 6.93 137.87 C3.1 126.8 3.1 113 3.1 99.2 C3.1 85.4 3.1 71.6 6.93 60.53 C10.77 49.47 18.44 41.13 22.27 36.97 L24.48 34.57" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M56.29 32.8 L60.13 36.97 C63.96 41.13 71.63 49.47 75.47 57.8 C79.3 66.13 79.3 74.47 79.3 78.63 L79.3 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M79.3 115.6 L79.3 119.77 C79.3 123.93 79.3 132.27 75.47 140.6 C71.63 148.93 63.96 157.27 60.13 161.43 L57.92 163.83" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M26.11 165.6 L22.27 161.43 C18.44 157.27 10.77 148.93 6.93 137.87 C3.1 126.8 3.1 113 3.1 99.2 C3.1 85.4 3.1 71.6 6.93 60.53 C10.77 49.47 18.44 41.13 22.27 36.97 L24.48 34.57" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="0" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="41.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 1</text>
     <rect x="38.1" y="82.8" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />

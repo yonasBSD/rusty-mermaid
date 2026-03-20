@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290.4 404" width="290.4" height="404">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M125.2 32.8 L125.2 36.97 C125.2 41.13 125.2 49.47 125.2 57.8 C125.2 66.13 125.2 74.47 125.2 78.63 L125.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M125.2 115.6 L125.2 119.77 C125.2 123.93 125.2 132.27 125.2 140.6 C125.2 148.93 125.2 157.27 125.2 161.43 L125.2 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M125.2 198.4 L125.2 202.57 C125.2 206.73 125.2 215.07 125.2 223.4 C125.2 231.73 125.2 240.07 125.2 244.23 L125.2 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
-    <path d="M125.2 281.2 L125.2 285.37 C125.2 289.53 125.2 297.87 125.2 306.2 C125.2 314.53 125.2 322.87 125.2 327.03 L125.2 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M125.2 32.8 L125.2 36.97 C125.2 41.13 125.2 49.47 125.2 57.8 C125.2 66.13 125.2 74.47 125.2 78.63 L125.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M125.2 115.6 L125.2 119.77 C125.2 123.93 125.2 132.27 125.2 140.6 C125.2 148.93 125.2 157.27 125.2 161.43 L125.2 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M125.2 198.4 L125.2 202.57 C125.2 206.73 125.2 215.07 125.2 223.4 C125.2 231.73 125.2 240.07 125.2 244.23 L125.2 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M125.2 281.2 L125.2 285.37 C125.2 289.53 125.2 297.87 125.2 306.2 C125.2 314.53 125.2 322.87 125.2 327.03 L125.2 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <rect x="67.2" y="0" width="116" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="125.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
       <tspan font-weight="bold">Bold Label</tspan>

@@ -1,8 +1,7 @@
 use rusty_mermaid_core::MarkerType;
 
-/// Return the SVG `<marker>` definition for a marker type.
-/// Each marker has a unique ID used in `marker-start`/`marker-end` references.
-pub fn marker_id(marker: MarkerType) -> &'static str {
+/// Base SVG ID for a marker type (without color suffix).
+fn marker_base_id(marker: MarkerType) -> &'static str {
     match marker {
         MarkerType::ArrowPoint => "arrow-point",
         MarkerType::ArrowBarb => "arrow-barb",
@@ -16,23 +15,35 @@ pub fn marker_id(marker: MarkerType) -> &'static str {
     }
 }
 
-/// Generate all marker definitions for the given marker types.
-/// `color` is used for fills and strokes (e.g. "#333333" for light, "#6c7086" for dark).
-pub fn marker_defs(markers: &[MarkerType], color: &str) -> String {
+/// Strip leading `#` from a CSS color string for use as an ID suffix.
+fn color_suffix(color: &str) -> &str {
+    color.strip_prefix('#').unwrap_or(color)
+}
+
+/// Return the SVG marker reference ID for a (marker, color) pair.
+/// E.g. `"arrow-point-333333"` for ArrowPoint with stroke `"#333333"`.
+pub fn marker_id(marker: MarkerType, color: &str) -> String {
+    format!("{}-{}", marker_base_id(marker), color_suffix(color))
+}
+
+/// Generate all `<marker>` definitions for the given (type, color) pairs.
+/// Deduplicates identical pairs.
+pub fn marker_defs(markers: &[(MarkerType, String)]) -> String {
     let mut defs = String::new();
-    let mut seen = Vec::new();
-    for &m in markers {
-        if seen.contains(&m) {
+    let mut seen: Vec<(MarkerType, &str)> = Vec::new();
+    for (m, color) in markers {
+        let pair = (*m, color.as_str());
+        if seen.contains(&pair) {
             continue;
         }
-        seen.push(m);
-        defs.push_str(&marker_def(m, color));
+        seen.push(pair);
+        defs.push_str(&marker_def(*m, color));
     }
     defs
 }
 
 fn marker_def(marker: MarkerType, color: &str) -> String {
-    let id = marker_id(marker);
+    let id = marker_id(marker, color);
     match marker {
         MarkerType::ArrowPoint => format!(
             r##"<marker id="{id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
@@ -85,41 +96,48 @@ mod tests {
     use super::*;
 
     #[test]
-    fn arrow_point_id() {
-        assert_eq!(marker_id(MarkerType::ArrowPoint), "arrow-point");
+    fn marker_id_includes_color() {
+        let id = marker_id(MarkerType::ArrowPoint, "#333333");
+        assert_eq!(id, "arrow-point-333333");
+    }
+
+    #[test]
+    fn marker_id_strips_hash() {
+        let id = marker_id(MarkerType::Circle, "#ff0000");
+        assert_eq!(id, "marker-circle-ff0000");
     }
 
     #[test]
     fn arrow_point_def() {
-        let def = marker_def(MarkerType::ArrowPoint, "#333333");
-        assert!(def.contains(r#"id="arrow-point""#));
-        assert!(def.contains("M10 5"));
-        assert!(def.contains(r##"fill="#333333""##));
+        let defs = marker_defs(&[(MarkerType::ArrowPoint, "#333333".into())]);
+        assert!(defs.contains(r#"id="arrow-point-333333""#));
+        assert!(defs.contains(r##"fill="#333333""##));
     }
 
     #[test]
-    fn circle_marker_def() {
-        let def = marker_def(MarkerType::Circle, "#333333");
-        assert!(def.contains(r#"id="marker-circle""#));
-        assert!(def.contains("<circle"));
+    fn multiple_colors_generate_separate_defs() {
+        let defs = marker_defs(&[
+            (MarkerType::ArrowPoint, "#333333".into()),
+            (MarkerType::ArrowPoint, "#ff0000".into()),
+        ]);
+        assert!(defs.contains(r#"id="arrow-point-333333""#));
+        assert!(defs.contains(r#"id="arrow-point-ff0000""#));
     }
 
     #[test]
-    fn marker_defs_deduplicates() {
-        let defs = marker_defs(&[MarkerType::ArrowPoint, MarkerType::ArrowPoint, MarkerType::Circle], "#333");
-        let count = defs.matches("arrow-point").count();
-        assert_eq!(count, 1);
+    fn deduplicates_same_marker_color() {
+        let defs = marker_defs(&[
+            (MarkerType::ArrowPoint, "#333".into()),
+            (MarkerType::Circle, "#333".into()),
+            (MarkerType::ArrowPoint, "#333".into()),
+        ]);
+        let arrow_count = defs.matches("arrow-point").count();
+        assert_eq!(arrow_count, 1, "should deduplicate identical (type, color)");
     }
 
     #[test]
     fn marker_defs_empty() {
-        let defs = marker_defs(&[], "#333");
+        let defs = marker_defs(&[]);
         assert!(defs.is_empty());
-    }
-
-    #[test]
-    fn marker_def_uses_custom_color() {
-        let def = marker_def(MarkerType::ArrowPoint, "#6c7086");
-        assert!(def.contains(r##"fill="#6c7086""##));
     }
 }

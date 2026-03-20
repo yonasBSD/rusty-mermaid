@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 401.6" width="576" height="401.6">
   <defs>
-    <marker id="arrow-point" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
@@ -8,16 +8,16 @@
     <path d="M52.8 90.8 L52.8 270.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M256 90.8 L256 270.8" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M488 90.8 L488 270.8" fill="none" stroke="#afa5c8" stroke-width="1" />
-    <path d="M52.8 130.8 L253.6 130.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M52.8 130.8 L253.6 130.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <text x="154.4" y="122.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">GET /api/data</text>
-    <path d="M256 170.8 L485.6 170.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point)" />
+    <path d="M256 170.8 L485.6 170.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
     <text x="372" y="162.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
       <tspan>SELECT </tspan>
       <tspan font-style="italic"> FROM data</tspan>
     </text>
-    <path d="M488 210.8 L258.4 210.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
+    <path d="M488 210.8 L258.4 210.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
     <text x="372" y="202.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Results</text>
-    <path d="M256 250.8 L55.2 250.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point)" />
+    <path d="M256 250.8 L55.2 250.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
     <text x="154.4" y="242.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">JSON response</text>
     <circle cx="52.8" cy="29" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <rect x="39.8" y="41" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
