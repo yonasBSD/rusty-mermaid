@@ -1,16 +1,16 @@
-use rusty_mermaid_core::{Color, PathSegment, Point, Primitive, Style, TextAnchor, Transform};
+use std::sync::{Mutex, OnceLock};
+
+use rusty_mermaid_core::{Color, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform};
 use tiny_skia::{
     FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, Stroke,
     Transform as SkTransform,
 };
 
-use crate::RasterConfig;
-
 pub fn render_primitive(
     pixmap: &mut Pixmap,
     prim: &Primitive,
     transform: SkTransform,
-    config: &RasterConfig,
+    theme: &Theme,
 ) {
     match prim {
         Primitive::Rect { bbox, rx, ry, style } => {
@@ -40,7 +40,7 @@ pub fn render_primitive(
                 paint.anti_alias = true;
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
-            if let Some((stroke_color, width)) = resolve_stroke(style, config) {
+            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
                 let mut paint = Paint::default();
                 paint.set_color(stroke_color);
                 paint.anti_alias = true;
@@ -62,7 +62,7 @@ pub fn render_primitive(
                 paint.anti_alias = true;
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
-            if let Some((stroke_color, width)) = resolve_stroke(style, config) {
+            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
                 let mut paint = Paint::default();
                 paint.set_color(stroke_color);
                 paint.anti_alias = true;
@@ -86,7 +86,7 @@ pub fn render_primitive(
                 paint.anti_alias = true;
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
-            if let Some((stroke_color, width)) = resolve_stroke(style, config) {
+            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
                 let mut paint = Paint::default();
                 paint.set_color(stroke_color);
                 paint.anti_alias = true;
@@ -105,11 +105,11 @@ pub fn render_primitive(
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
 
-            let (stroke_color, width) = if let Some(sw) = resolve_stroke(style, config) {
+            let (stroke_color, width) = if let Some(sw) = resolve_stroke(style, theme) {
                 sw
             } else {
                 // Paths default to stroked
-                (to_skia_color(config.default_stroke), config.default_stroke_width as f32)
+                (to_skia_color(theme.edge_stroke), theme.default_stroke_width as f32)
             };
             let mut paint = Paint::default();
             paint.set_color(stroke_color);
@@ -127,37 +127,7 @@ pub fn render_primitive(
         }
 
         Primitive::Text { position, content, anchor, style } => {
-            // Text rendering placeholder: draw a small rectangle where text would be.
-            // Full glyph rendering (cosmic-text/fontdue) deferred to 11.8.
-            let font_size = style.font_size as f32;
-            let char_w = font_size * 0.6;
-            let text_w = char_w * content.len() as f32;
-            let text_h = font_size;
-
-            let x = match anchor {
-                TextAnchor::Start => position.x as f32,
-                TextAnchor::Middle => position.x as f32 - text_w / 2.0,
-                TextAnchor::End => position.x as f32 - text_w,
-            };
-            let y = position.y as f32 - text_h / 2.0;
-
-            let mut pb = PathBuilder::new();
-            pb.move_to(x, y);
-            pb.line_to(x + text_w, y);
-            pb.line_to(x + text_w, y + text_h);
-            pb.line_to(x, y + text_h);
-            pb.close();
-            let Some(path) = pb.finish() else { return };
-
-            let fill_color = style.fill.unwrap_or(Color::rgb(51, 51, 51));
-            let mut paint = Paint::default();
-            paint.set_color(to_skia_color(fill_color));
-            paint.anti_alias = true;
-            // Draw a subtle filled rect as text placeholder
-            paint.set_color(tiny_skia::Color::from_rgba8(
-                fill_color.r, fill_color.g, fill_color.b, 40,
-            ));
-            pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
+            render_text(pixmap, position, content, *anchor, style, transform, theme);
         }
 
         Primitive::Polygon { points, style } => {
@@ -176,7 +146,7 @@ pub fn render_primitive(
                 paint.anti_alias = true;
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
-            if let Some((stroke_color, width)) = resolve_stroke(style, config) {
+            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
                 let mut paint = Paint::default();
                 paint.set_color(stroke_color);
                 paint.anti_alias = true;
@@ -188,12 +158,12 @@ pub fn render_primitive(
         Primitive::Group { transform: group_tf, children } => {
             let child_transform = compose_transform(transform, group_tf);
             for child in children {
-                render_primitive(pixmap, child, child_transform, config);
+                render_primitive(pixmap, child, child_transform, theme);
             }
         }
 
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
-            render_arc(pixmap, center, *inner_r, *outer_r, *start_angle, *end_angle, style, transform, config);
+            render_arc(pixmap, center, *inner_r, *outer_r, *start_angle, *end_angle, style, transform, theme);
         }
     }
 }
@@ -208,11 +178,11 @@ fn resolve_fill(style: &Style) -> Option<tiny_skia::Color> {
     style.fill.map(|c| to_skia_color(c))
 }
 
-fn resolve_stroke(style: &Style, config: &RasterConfig) -> Option<(tiny_skia::Color, f32)> {
+fn resolve_stroke(style: &Style, theme: &Theme) -> Option<(tiny_skia::Color, f32)> {
     match (style.stroke, style.stroke_width) {
         (Some(c), Some(w)) => Some((to_skia_color(c), w as f32)),
-        (Some(c), None) => Some((to_skia_color(c), config.default_stroke_width as f32)),
-        (None, Some(w)) => Some((to_skia_color(config.default_stroke), w as f32)),
+        (Some(c), None) => Some((to_skia_color(c), theme.default_stroke_width as f32)),
+        (None, Some(w)) => Some((to_skia_color(theme.edge_stroke), w as f32)),
         (None, None) => None,
     }
 }
@@ -235,22 +205,28 @@ fn make_stroke(width: f32, style: &Style) -> Stroke {
 
 fn segments_to_path(segments: &[PathSegment]) -> Option<tiny_skia::Path> {
     let mut pb = PathBuilder::new();
+    let mut cur = Point::new(0.0, 0.0);
     for seg in segments {
         match seg {
-            PathSegment::MoveTo(p) => pb.move_to(p.x as f32, p.y as f32),
-            PathSegment::LineTo(p) => pb.line_to(p.x as f32, p.y as f32),
+            PathSegment::MoveTo(p) => {
+                pb.move_to(p.x as f32, p.y as f32);
+                cur = *p;
+            }
+            PathSegment::LineTo(p) => {
+                pb.line_to(p.x as f32, p.y as f32);
+                cur = *p;
+            }
             PathSegment::CubicTo { cp1, cp2, to } => {
                 pb.cubic_to(cp1.x as f32, cp1.y as f32, cp2.x as f32, cp2.y as f32, to.x as f32, to.y as f32);
+                cur = *to;
             }
             PathSegment::QuadTo { cp, to } => {
                 pb.quad_to(cp.x as f32, cp.y as f32, to.x as f32, to.y as f32);
+                cur = *to;
             }
             PathSegment::ArcTo { rx, ry, rotation, large_arc, sweep, to } => {
-                // Convert SVG arc to cubic beziers via tiny-skia's arc support
-                // tiny-skia doesn't have arc_to, so approximate with line
-                // (full arc conversion deferred to 11.8)
-                pb.line_to(to.x as f32, to.y as f32);
-                let _ = (rx, ry, rotation, large_arc, sweep);
+                arc_to_cubics(&mut pb, cur, *rx, *ry, *rotation, *large_arc, *sweep, *to);
+                cur = *to;
             }
             PathSegment::Close => pb.close(),
         }
@@ -507,7 +483,7 @@ fn render_arc(
     end_angle: f64,
     style: &Style,
     transform: SkTransform,
-    config: &RasterConfig,
+    theme: &Theme,
 ) {
     // Build arc wedge/annular sector as a path
     let cx = center.x as f32;
@@ -550,11 +526,277 @@ fn render_arc(
         paint.anti_alias = true;
         pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
     }
-    if let Some((stroke_color, width)) = resolve_stroke(style, config) {
+    if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
         let mut paint = Paint::default();
         paint.set_color(stroke_color);
         paint.anti_alias = true;
         let stroke = make_stroke(width, style);
         pixmap.stroke_path(&path, &paint, &stroke, transform, None);
     }
+}
+
+// ── Text rendering ──
+
+static DEFAULT_FONT: OnceLock<fontdue::Font> = OnceLock::new();
+static CUSTOM_FONT: Mutex<Option<fontdue::Font>> = Mutex::new(None);
+
+fn default_font() -> &'static fontdue::Font {
+    DEFAULT_FONT.get_or_init(|| {
+        let bytes = include_bytes!("../fonts/IntelOneMono-Regular.ttf");
+        fontdue::Font::from_bytes(
+            bytes as &[u8],
+            fontdue::FontSettings::default(),
+        )
+        .expect("embedded font must be valid")
+    })
+}
+
+fn render_text(
+    pixmap: &mut Pixmap,
+    position: &Point,
+    content: &str,
+    anchor: TextAnchor,
+    style: &rusty_mermaid_core::TextStyle,
+    transform: SkTransform,
+    theme: &Theme,
+) {
+    // Use custom font from theme if provided, otherwise embedded default
+    if let Some(ref custom_bytes) = theme.custom_font {
+        let mut guard = CUSTOM_FONT.lock().unwrap();
+        if guard.is_none() {
+            if let Ok(f) = fontdue::Font::from_bytes(
+                custom_bytes.as_slice(),
+                fontdue::FontSettings::default(),
+            ) {
+                *guard = Some(f);
+            }
+        }
+        if let Some(ref font) = *guard {
+            render_text_with_font(pixmap, position, content, anchor, style, transform, font);
+            return;
+        }
+    }
+    render_text_with_font(pixmap, position, content, anchor, style, transform, default_font());
+}
+
+fn render_text_with_font(
+    pixmap: &mut Pixmap,
+    position: &Point,
+    content: &str,
+    anchor: TextAnchor,
+    style: &rusty_mermaid_core::TextStyle,
+    transform: SkTransform,
+    font: &fontdue::Font,
+) {
+    let px = style.font_size as f32;
+    let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
+
+    // Handle multi-line text
+    let lines: Vec<&str> = content.split('\n').collect();
+    let line_height = px * 1.2;
+    let total_h = line_height * (lines.len() - 1) as f32;
+    let base_y = position.y as f32 - total_h / 2.0;
+
+    for (line_idx, line) in lines.iter().enumerate() {
+        // Measure line width for anchor alignment
+        let mut line_w: f32 = 0.0;
+        for ch in line.chars() {
+            let (metrics, _) = font.rasterize(ch, px);
+            line_w += metrics.advance_width;
+        }
+
+        let start_x = match anchor {
+            TextAnchor::Start => position.x as f32,
+            TextAnchor::Middle => position.x as f32 - line_w / 2.0,
+            TextAnchor::End => position.x as f32 - line_w,
+        };
+        let line_y = base_y + line_idx as f32 * line_height;
+
+        let mut cursor_x = start_x;
+        for ch in line.chars() {
+            let (metrics, bitmap) = font.rasterize(ch, px);
+            if metrics.width > 0 && metrics.height > 0 {
+                blit_glyph(
+                    pixmap,
+                    &bitmap,
+                    metrics.width,
+                    metrics.height,
+                    cursor_x + metrics.xmin as f32,
+                    line_y - metrics.ymin as f32 - metrics.height as f32,
+                    fill,
+                    transform,
+                );
+            }
+            cursor_x += metrics.advance_width;
+        }
+    }
+}
+
+fn blit_glyph(
+    pixmap: &mut Pixmap,
+    bitmap: &[u8],
+    glyph_w: usize,
+    glyph_h: usize,
+    x: f32,
+    y: f32,
+    color: Color,
+    transform: SkTransform,
+) {
+    let pw = pixmap.width() as usize;
+    let ph = pixmap.height() as usize;
+
+    for gy in 0..glyph_h {
+        for gx in 0..glyph_w {
+            let alpha = bitmap[gy * glyph_w + gx];
+            if alpha == 0 {
+                continue;
+            }
+
+            // Apply transform to glyph pixel position
+            let sx = x + gx as f32;
+            let sy = y + gy as f32;
+            let tx = transform.sx * sx + transform.kx * sy + transform.tx;
+            let ty = transform.ky * sx + transform.sy * sy + transform.ty;
+
+            let px_x = tx as usize;
+            let px_y = ty as usize;
+            if px_x >= pw || px_y >= ph {
+                continue;
+            }
+
+            // Alpha-blend onto existing pixel
+            let idx = px_y * pw + px_x;
+            let dst = pixmap.pixels_mut();
+            let bg = dst[idx];
+            let a = alpha as f32 / 255.0;
+            let inv_a = 1.0 - a;
+
+            let r = (color.r as f32 * a + bg.red() as f32 * inv_a) as u8;
+            let g = (color.g as f32 * a + bg.green() as f32 * inv_a) as u8;
+            let b = (color.b as f32 * a + bg.blue() as f32 * inv_a) as u8;
+            let out_a = ((a + bg.alpha() as f32 / 255.0 * inv_a) * 255.0) as u8;
+
+            dst[idx] = tiny_skia::PremultipliedColorU8::from_rgba(r, g, b, out_a).unwrap();
+        }
+    }
+}
+
+// ── SVG Arc to Cubic Bezier conversion ──
+
+fn arc_to_cubics(
+    pb: &mut PathBuilder,
+    from: Point,
+    rx: f64,
+    ry: f64,
+    x_rotation: f64,
+    large_arc: bool,
+    sweep: bool,
+    to: Point,
+) {
+    // Implementation of the SVG arc endpoint-to-center parameterization
+    // Reference: https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+    let mut rx = rx.abs();
+    let mut ry = ry.abs();
+
+    if rx < 1e-10 || ry < 1e-10 {
+        pb.line_to(to.x as f32, to.y as f32);
+        return;
+    }
+
+    let phi = x_rotation.to_radians();
+    let (sin_phi, cos_phi) = phi.sin_cos();
+
+    let dx = (from.x - to.x) / 2.0;
+    let dy = (from.y - to.y) / 2.0;
+    let x1p = cos_phi * dx + sin_phi * dy;
+    let y1p = -sin_phi * dx + cos_phi * dy;
+
+    // Scale radii if needed
+    let lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
+    if lambda > 1.0 {
+        let s = lambda.sqrt();
+        rx *= s;
+        ry *= s;
+    }
+
+    let rxsq = rx * rx;
+    let rysq = ry * ry;
+    let x1psq = x1p * x1p;
+    let y1psq = y1p * y1p;
+
+    let num = (rxsq * rysq - rxsq * y1psq - rysq * x1psq).max(0.0);
+    let den = rxsq * y1psq + rysq * x1psq;
+    let sq = if den < 1e-10 { 0.0 } else { (num / den).sqrt() };
+    let sign = if large_arc == sweep { -1.0 } else { 1.0 };
+
+    let cxp = sign * sq * rx * y1p / ry;
+    let cyp = sign * sq * -ry * x1p / rx;
+
+    let cx = cos_phi * cxp - sin_phi * cyp + (from.x + to.x) / 2.0;
+    let cy = sin_phi * cxp + cos_phi * cyp + (from.y + to.y) / 2.0;
+
+    let theta1 = vec_angle(1.0, 0.0, (x1p - cxp) / rx, (y1p - cyp) / ry);
+    let mut dtheta = vec_angle(
+        (x1p - cxp) / rx,
+        (y1p - cyp) / ry,
+        (-x1p - cxp) / rx,
+        (-y1p - cyp) / ry,
+    );
+
+    if !sweep && dtheta > 0.0 {
+        dtheta -= std::f64::consts::TAU;
+    } else if sweep && dtheta < 0.0 {
+        dtheta += std::f64::consts::TAU;
+    }
+
+    // Split into segments of at most pi/2
+    let n_segs = (dtheta.abs() / (std::f64::consts::FRAC_PI_2 + 0.001)).ceil() as usize;
+    let seg_angle = dtheta / n_segs as f64;
+
+    for i in 0..n_segs {
+        let t1 = theta1 + seg_angle * i as f64;
+        let t2 = theta1 + seg_angle * (i + 1) as f64;
+        arc_segment_to_cubic(pb, cx, cy, rx, ry, sin_phi, cos_phi, t1, t2);
+    }
+}
+
+fn arc_segment_to_cubic(
+    pb: &mut PathBuilder,
+    cx: f64, cy: f64,
+    rx: f64, ry: f64,
+    sin_phi: f64, cos_phi: f64,
+    t1: f64, t2: f64,
+) {
+    let alpha = (4.0 / 3.0) * ((t2 - t1) / 4.0).tan();
+
+    let (sin1, cos1) = t1.sin_cos();
+    let (sin2, cos2) = t2.sin_cos();
+
+    let ex1 = rx * cos1;
+    let ey1 = ry * sin1;
+    let ex2 = rx * cos2;
+    let ey2 = ry * sin2;
+
+    let cp1x = ex1 - alpha * rx * sin1;
+    let cp1y = ey1 + alpha * ry * cos1;
+    let cp2x = ex2 + alpha * rx * sin2;
+    let cp2y = ey2 - alpha * ry * cos2;
+
+    // Rotate and translate
+    let c1x = cos_phi * cp1x - sin_phi * cp1y + cx;
+    let c1y = sin_phi * cp1x + cos_phi * cp1y + cy;
+    let c2x = cos_phi * cp2x - sin_phi * cp2y + cx;
+    let c2y = sin_phi * cp2x + cos_phi * cp2y + cy;
+    let x = cos_phi * ex2 - sin_phi * ey2 + cx;
+    let y = sin_phi * ex2 + cos_phi * ey2 + cy;
+
+    pb.cubic_to(c1x as f32, c1y as f32, c2x as f32, c2y as f32, x as f32, y as f32);
+}
+
+fn vec_angle(ux: f64, uy: f64, vx: f64, vy: f64) -> f64 {
+    let sign = if ux * vy - uy * vx < 0.0 { -1.0 } else { 1.0 };
+    let dot = ux * vx + uy * vy;
+    let len = (ux * ux + uy * uy).sqrt() * (vx * vx + vy * vy).sqrt();
+    let cos = if len < 1e-10 { 1.0 } else { dot / len };
+    sign * cos.clamp(-1.0, 1.0).acos()
 }

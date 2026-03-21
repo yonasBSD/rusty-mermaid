@@ -1,30 +1,21 @@
 mod primitive;
 
-use rusty_mermaid_core::{Color, Renderer, Scene};
+use rusty_mermaid_core::{Color, Renderer, Scene, Theme};
 
 /// Raster-specific rendering configuration.
 #[derive(Debug, Clone)]
 pub struct RasterConfig {
-    /// Padding around the diagram (pixels on each side, before scaling).
-    pub padding: f64,
     /// DPI scale factor (1.0 = 1x, 2.0 = 2x / Retina).
     pub scale: f64,
-    /// Background color (default: white).
-    pub background: Color,
-    /// Default stroke color for paths that don't specify one.
-    pub default_stroke: Color,
-    /// Default stroke width for paths that don't specify one.
-    pub default_stroke_width: f64,
+    /// Theme providing colors, typography, padding, background, and optional custom font.
+    pub theme: Theme,
 }
 
 impl Default for RasterConfig {
     fn default() -> Self {
         Self {
-            padding: 20.0,
             scale: 2.0,
-            background: Color::WHITE,
-            default_stroke: Color::rgb(51, 51, 51),
-            default_stroke_width: 1.5,
+            theme: Theme::default(),
         }
     }
 }
@@ -56,7 +47,8 @@ impl Renderer for RasterRenderer {
     type Output = Vec<u8>;
 
     fn render(&self, scene: &Scene) -> Vec<u8> {
-        let padding = self.config.padding;
+        let theme = &self.config.theme;
+        let padding = theme.padding;
         let scale = self.config.scale;
         let w = ((scene.width + padding * 2.0) * scale).ceil() as u32;
         let h = ((scene.height + padding * 2.0) * scale).ceil() as u32;
@@ -64,7 +56,7 @@ impl Renderer for RasterRenderer {
         let mut pixmap = tiny_skia::Pixmap::new(w, h).expect("pixmap dimensions must be > 0");
 
         // Fill background
-        let bg = to_skia_color(self.config.background);
+        let bg = to_skia_color(theme.background);
         pixmap.fill(bg);
 
         // Render all primitives with padding offset applied via transform
@@ -72,7 +64,7 @@ impl Renderer for RasterRenderer {
             .post_translate(padding as f32 * scale as f32, padding as f32 * scale as f32);
 
         for elem in scene.elements() {
-            primitive::render_primitive(&mut pixmap, &elem.primitive, offset, &self.config);
+            primitive::render_primitive(&mut pixmap, &elem.primitive, offset, theme);
         }
 
         encode_png(&pixmap)
@@ -203,5 +195,70 @@ mod tests {
         });
         let png = renderer.render(&scene);
         assert_eq!(&png[..4], &[0x89, b'P', b'N', b'G']);
+    }
+
+    #[test]
+    fn render_text() {
+        use rusty_mermaid_core::{TextAnchor, TextStyle};
+        let renderer = RasterRenderer::new();
+        let mut scene = Scene::new(200.0, 50.0);
+        scene.push(Primitive::Text {
+            position: Point::new(100.0, 25.0),
+            content: String::from("Hello"),
+            anchor: TextAnchor::Middle,
+            style: TextStyle {
+                font_size: 14.0,
+                fill: Some(Color::rgb(51, 51, 51)),
+                ..Default::default()
+            },
+        });
+        let png = renderer.render(&scene);
+        assert_eq!(&png[..4], &[0x89, b'P', b'N', b'G']);
+        // Text rendering produces more pixel data than empty scene
+        let empty_png = RasterRenderer::new().render(&Scene::new(200.0, 50.0));
+        assert_ne!(png, empty_png);
+    }
+
+    #[test]
+    fn render_text_multiline() {
+        use rusty_mermaid_core::{TextAnchor, TextStyle};
+        let renderer = RasterRenderer::new();
+        let mut scene = Scene::new(200.0, 100.0);
+        scene.push(Primitive::Text {
+            position: Point::new(100.0, 50.0),
+            content: String::from("Line 1\nLine 2"),
+            anchor: TextAnchor::Middle,
+            style: TextStyle::default(),
+        });
+        let png = renderer.render(&scene);
+        assert_eq!(&png[..4], &[0x89, b'P', b'N', b'G']);
+    }
+
+    #[test]
+    fn render_full_diagram_to_file() {
+        use rusty_mermaid_core::Renderer;
+        let scene = rusty_mermaid_diagrams::render_to_scene(
+            "stateDiagram-v2\n    [*] --> Active\n    Active --> Paused : pause\n    Paused --> Active : resume\n    Active --> [*] : done",
+        ).unwrap();
+        let renderer = RasterRenderer::new();
+        let png = renderer.render(&scene);
+        let path = std::env::temp_dir().join("rusty_mermaid_state.png");
+        std::fs::write(&path, &png).unwrap();
+        eprintln!("wrote PNG to {}", path.display());
+        assert!(png.len() > 1000);
+    }
+
+    #[test]
+    fn render_flowchart_to_file() {
+        use rusty_mermaid_core::Renderer;
+        let scene = rusty_mermaid_diagrams::render_to_scene(
+            "flowchart TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[Fail]",
+        ).unwrap();
+        let renderer = RasterRenderer::new();
+        let png = renderer.render(&scene);
+        let path = std::env::temp_dir().join("rusty_mermaid_flowchart.png");
+        std::fs::write(&path, &png).unwrap();
+        eprintln!("wrote PNG to {}", path.display());
+        assert!(png.len() > 1000);
     }
 }

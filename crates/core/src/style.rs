@@ -58,6 +58,13 @@ pub struct Theme {
     pub font_size_title: f64,
     // -- Stroke --
     pub default_stroke_width: f64,
+    // -- Rendering --
+    /// Padding around the diagram (pixels on each side).
+    pub padding: f64,
+    /// Background color for raster/interactive backends.
+    pub background: Color,
+    /// Custom font bytes (TTF/OTF). When `None`, backends use embedded default.
+    pub custom_font: Option<Vec<u8>>,
 }
 
 impl Default for Theme {
@@ -98,6 +105,9 @@ impl Theme {
             font_size_small: 11.0,
             font_size_title: 16.0,
             default_stroke_width: 1.5,
+            padding: 20.0,
+            background: Color::WHITE,
+            custom_font: None,
         }
     }
 
@@ -132,6 +142,9 @@ impl Theme {
             font_size_small: 11.0,
             font_size_title: 16.0,
             default_stroke_width: 1.5,
+            padding: 20.0,
+            background: Color::rgb(30, 30, 46),  // #1e1e2e
+            custom_font: None,
         }
     }
 }
