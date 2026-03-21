@@ -1,0 +1,12 @@
+[package]
+name = "rusty-mermaid-gpui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "gpui (Zed) rendering backend for rusty-mermaid diagrams"
+
+[dependencies]
+rusty-mermaid-core = { workspace = true }
+rusty-mermaid-viewport = { workspace = true }
+gpui = "0.2"
+anyhow = "1"
