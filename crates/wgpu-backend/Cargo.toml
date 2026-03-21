@@ -9,4 +9,10 @@ description = "wgpu/vello GPU rendering backend for rusty-mermaid diagrams"
 rusty-mermaid-core = { workspace = true }
 rusty-mermaid-viewport = { workspace = true }
 vello = "0.8"
+wgpu = "28"
 skrifa = "0.40"
+png = "0.17"
+pollster = "0.4"
+
+[dev-dependencies]
+rusty-mermaid-diagrams = { workspace = true }
