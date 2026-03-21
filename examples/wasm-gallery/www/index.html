@@ -11,15 +11,21 @@
     .subtitle { color: var(--text2); margin-bottom: 20px; font-size: 14px; }
     .header { display: flex; justify-content: space-between; align-items: center; }
     .controls { display: none; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
-    select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; background: var(--card-bg); color: var(--text); transition: background 0.2s; }
+    select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; background: var(--card-bg); color: var(--text); }
     .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 14px; color: var(--text); transition: background 0.2s; }
     .theme-btn:hover { opacity: 0.8; }
-    .card { background: var(--card-bg); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px var(--shadow); overflow: auto; transition: background 0.2s; }
-    .diagram-name { color: var(--text2); font-size: 14px; margin-bottom: 8px; font-family: monospace; }
+    .view-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 14px; color: var(--text); }
+    .view-btn.active { background: #9370db; color: white; border-color: #9370db; }
+    .card { background: var(--card-bg); border-radius: 8px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 3px var(--shadow); overflow: auto; transition: background 0.2s; }
+    .card h2 { margin-top: 0; color: var(--text2); font-size: 16px; font-family: monospace; }
+    .card img { max-width: 100%; border: 1px solid var(--border); border-radius: 4px; }
+    .section-title { color: #9370db; font-size: 20px; margin: 24px 0 8px; border-bottom: 2px solid var(--border); padding-bottom: 4px; }
     canvas { display: block; }
     .error { color: #c33; padding: 20px; display: none; }
     .loading { color: var(--text2); padding: 20px; }
-    .stats { color: var(--text2); font-size: 12px; }
+    .progress { color: var(--text2); font-size: 13px; }
+    #single-view { display: none; }
+    #gallery-view { display: none; }
     a { color: #9370db; }
   </style>
 </head>
@@ -29,21 +35,29 @@
       <h1>rusty-mermaid GPU Gallery</h1>
       <p class="subtitle">Rendered via vello compute shaders on WebGPU &mdash; <span id="diagram-count"></span> diagrams</p>
     </div>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">Dark</button>
+    <div style="display:flex;gap:8px">
+      <button class="view-btn active" id="btn-gallery" onclick="showGallery()">Gallery</button>
+      <button class="view-btn" id="btn-single" onclick="showSingle()">Single</button>
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">Dark</button>
+    </div>
   </div>
 
   <div class="controls" id="controls">
     <label for="diagram-select">Diagram:</label>
     <select id="diagram-select"></select>
-    <span class="stats" id="render-time"></span>
   </div>
 
-  <div class="card">
-    <div id="loading" class="loading">Initializing WebGPU...</div>
-    <div id="error" class="error"></div>
-    <div class="diagram-name" id="diagram-name"></div>
-    <canvas id="diagram-canvas"></canvas>
+  <div id="loading" class="loading">Initializing WebGPU...</div>
+  <div id="error" class="error"></div>
+
+  <div id="single-view">
+    <div class="card">
+      <div id="diagram-name" style="font-family:monospace;color:var(--text2);margin-bottom:8px"></div>
+      <canvas id="diagram-canvas"></canvas>
+    </div>
   </div>
+
+  <div id="gallery-view"></div>
 
   <script>
     var isDark = localStorage.getItem('rm-gpu-theme') === 'dark';
@@ -55,10 +69,24 @@
       document.documentElement.classList.toggle('dark', isDark);
       document.getElementById('theme-btn').textContent = isDark ? 'Light' : 'Dark';
       localStorage.setItem('rm-gpu-theme', isDark ? 'dark' : 'light');
-      // Re-render is handled by the WASM module detecting the theme class
-      // For now, re-select to trigger re-render
       var select = document.getElementById('diagram-select');
       if (select.onchange) select.onchange();
+    }
+
+    function showGallery() {
+      document.getElementById('single-view').style.display = 'none';
+      document.getElementById('gallery-view').style.display = 'block';
+      document.getElementById('controls').style.display = 'none';
+      document.getElementById('btn-gallery').classList.add('active');
+      document.getElementById('btn-single').classList.remove('active');
+    }
+
+    function showSingle() {
+      document.getElementById('single-view').style.display = 'block';
+      document.getElementById('gallery-view').style.display = 'none';
+      document.getElementById('controls').style.display = 'flex';
+      document.getElementById('btn-gallery').classList.remove('active');
+      document.getElementById('btn-single').classList.add('active');
     }
   </script>
 

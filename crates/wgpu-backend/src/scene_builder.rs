@@ -382,7 +382,7 @@ fn get_font_set() -> &'static FontSet {
             primary_bold: load(include_bytes!("../../raster/fonts/IntelOneMono-Bold.ttf")),
             primary_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-Italic.ttf")),
             primary_bold_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-BoldItalic.ttf")),
-            extended_text: load(include_bytes!("../../raster/fonts/NotoSansMono-Regular.ttf")),
+            extended_text: load(include_bytes!("../../raster/fonts/NotoSans-Regular.ttf")),
             dingbats: load(include_bytes!("../../raster/fonts/NotoSansSymbols2-Regular.ttf")),
             arabic: load(include_bytes!("../../raster/fonts/NotoSansArabic-Regular.ttf")),
             external: std::sync::Mutex::new(ExternalFonts { cjk: None, emoji: None }),

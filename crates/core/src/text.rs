@@ -45,12 +45,12 @@ use crate::font_fallback::{FontSlot, font_for_char};
 /// These ratios account for the actual advance widths of each fallback font.
 pub const fn char_width_ratio(ch: char) -> f64 {
     match font_for_char(ch) {
-        FontSlot::Primary => 1.0,       // Intel One Mono: 0.6em
-        FontSlot::ExtendedText => 1.1,   // Noto Sans Mono: slightly wider
-        FontSlot::Dingbats => 1.5,       // Noto Sans Symbols 2: wider symbols
-        FontSlot::Arabic => 1.0,         // Noto Sans Arabic: varies, ~1.0 average
-        FontSlot::Cjk => 2.0,           // CJK: full-width, 2x Latin
-        FontSlot::Emoji => 2.2,          // Color emoji: wider than full-width
+        FontSlot::Primary => 1.0,       // Intel One Mono: 0.6em monospace
+        FontSlot::ExtendedText => 0.85,  // Noto Sans: proportional, narrower than mono
+        FontSlot::Dingbats => 1.4,       // Noto Sans Symbols 2: wider symbols
+        FontSlot::Arabic => 0.8,         // Noto Sans Arabic: proportional, varies
+        FontSlot::Cjk => 1.8,           // CJK: wide but proportional, ~1.8x Latin mono
+        FontSlot::Emoji => 2.0,          // Color emoji: ~2x Latin mono width
     }
 }
 

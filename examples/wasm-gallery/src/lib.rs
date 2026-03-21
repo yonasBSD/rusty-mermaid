@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::HtmlCanvasElement;
@@ -199,42 +202,89 @@ pub async fn main() -> Result<(), JsValue> {
         is_dark: false,
     };
 
-    // Scan all diagram text and fetch only the needed font subsets
     fetch_needed_fonts().await;
 
+    let gpu = Rc::new(RefCell::new(gpu));
+    let surface = Rc::new(surface);
+
     // Render first diagram
-    render_current(&canvas, &surface, &mut gpu, 0);
+    render_current(&canvas, &surface, &mut gpu.borrow_mut(), 0);
 
     // Diagram select handler
-    let canvas_clone = canvas.clone();
+    let canvas_s = canvas.clone();
+    let gpu_s = gpu.clone();
+    let surface_s = surface.clone();
     let select_closure = Closure::wrap(Box::new(move || {
         let document = web_sys::window().unwrap().document().unwrap();
-        let select = document
-            .get_element_by_id("diagram-select")
-            .unwrap()
-            .dyn_into::<web_sys::HtmlSelectElement>()
-            .unwrap();
-        let idx = select.selected_index() as usize;
-        render_current(&canvas_clone, &surface, &mut gpu, idx);
+        let sel = document.get_element_by_id("diagram-select").unwrap()
+            .dyn_into::<web_sys::HtmlSelectElement>().unwrap();
+        render_current(&canvas_s, &surface_s, &mut gpu_s.borrow_mut(), sel.selected_index() as usize);
     }) as Box<dyn FnMut()>);
     select.set_onchange(Some(select_closure.as_ref().unchecked_ref()));
     select_closure.forget();
 
-    // Hide loading, show controls
     if let Some(el) = document.get_element_by_id("loading") {
         let _ = el.set_attribute("style", "display:none");
-    }
-    if let Some(el) = document.get_element_by_id("controls") {
-        let _ = el.set_attribute("style", "display:flex");
     }
     if let Some(el) = document.get_element_by_id("diagram-count") {
         el.set_text_content(Some(&format!("{}", DIAGRAMS.len())));
     }
-    if let Some(el) = document.get_element_by_id("diagram-name") {
-        el.set_text_content(Some(DIAGRAMS[0].0));
+
+    // Render gallery view directly
+    render_gallery(&canvas, &surface, &mut gpu.borrow_mut());
+
+    // Show gallery by default
+    if let Some(el) = document.get_element_by_id("gallery-view") {
+        let _ = el.set_attribute("style", "display:block");
     }
 
     Ok(())
+}
+
+fn render_gallery(
+    canvas: &HtmlCanvasElement,
+    surface: &wgpu::Surface<'static>,
+    gpu: &mut GpuState,
+) {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let gallery_div = document.get_element_by_id("gallery-view").unwrap();
+    gallery_div.set_inner_html("");
+
+    // Group diagrams by section (prefix before /)
+    let mut current_section = String::new();
+
+    for (i, (name, _)) in DIAGRAMS.iter().enumerate() {
+        let section = name.split('/').next().unwrap_or(name);
+
+        if section != current_section {
+            current_section = section.to_string();
+            let h = document.create_element("h2").unwrap();
+            h.set_class_name("section-title");
+            h.set_text_content(Some(section));
+            gallery_div.append_child(&h).unwrap();
+        }
+
+        // Render diagram to canvas
+        render_current(canvas, surface, gpu, i);
+
+        // Capture as data URL
+        let data_url = canvas.to_data_url().unwrap_or_default();
+
+        // Create card with image
+        let card = document.create_element("div").unwrap();
+        card.set_class_name("card");
+
+        let title = document.create_element("h2").unwrap();
+        title.set_text_content(Some(name));
+        card.append_child(&title).unwrap();
+
+        let img = document.create_element("img").unwrap();
+        img.set_attribute("src", &data_url).unwrap();
+        img.set_attribute("alt", name).unwrap();
+        card.append_child(&img).unwrap();
+
+        gallery_div.append_child(&card).unwrap();
+    }
 }
 
 fn render_current(

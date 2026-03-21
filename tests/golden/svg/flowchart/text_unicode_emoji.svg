@@ -1,41 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 165.24 900.8" width="165.24" height="900.8">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 163.14 900.8" width="163.14" height="900.8">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M62.62 32.8 L62.62 36.97 C62.62 41.13 62.62 49.47 62.62 57.8 C62.62 66.13 62.62 74.47 62.62 78.63 L62.62 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 115.6 L62.62 119.77 C62.62 123.93 62.62 132.27 62.62 140.6 C62.62 148.93 62.62 157.27 62.62 161.43 L62.62 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 198.4 L62.62 202.57 C62.62 206.73 62.62 215.07 62.62 223.4 C62.62 231.73 62.62 240.07 62.62 244.23 L62.62 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 281.2 L62.62 285.37 C62.62 289.53 62.62 297.87 62.62 306.2 C62.62 314.53 62.62 322.87 62.62 327.03 L62.62 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 364 L62.62 368.17 C62.62 372.33 62.62 380.67 62.62 389 C62.62 397.33 62.62 405.67 62.62 409.83 L62.62 411.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 446.8 L62.62 450.97 C62.62 455.13 62.62 463.47 62.62 471.8 C62.62 480.13 62.62 488.47 62.62 492.63 L62.62 494.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 529.6 L62.62 533.77 C62.62 537.93 62.62 546.27 62.62 554.6 C62.62 562.93 62.62 571.27 62.62 575.43 L62.62 577.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 612.4 L62.62 616.57 C62.62 620.73 62.62 629.07 62.62 637.4 C62.62 645.73 62.62 654.07 62.62 658.23 L62.62 660" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 695.2 L62.62 699.37 C62.62 703.53 62.62 711.87 62.62 720.2 C62.62 728.53 62.62 736.87 62.62 741.03 L62.62 742.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M62.62 778 L62.62 782.17 C62.62 786.33 62.62 794.67 62.62 803 C62.62 811.33 62.62 819.67 62.62 823.83 L62.62 825.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="19.32" y="0" width="86.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Café ☕</text>
-    <rect x="6.72" y="82.8" width="111.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">✔ Success</text>
-    <rect x="6.72" y="165.6" width="111.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">✘ Failure</text>
-    <rect x="0" y="248.4" width="125.24" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">→ Next Step</text>
-    <rect x="15.12" y="331.2" width="95" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">★★★★☆</text>
-    <rect x="25.62" y="414" width="74" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="430.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">مرحبا</text>
-    <rect x="13.02" y="496.8" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="513.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">你好世界</text>
-    <rect x="7.56" y="579.6" width="110.12" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="596" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">α + β = γ</text>
-    <rect x="12.18" y="662.4" width="100.88" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="678.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">😀 Smile</text>
-    <rect x="12.18" y="745.2" width="100.88" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="761.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">🎉 Party</text>
-    <rect x="7.98" y="828" width="109.28" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="62.62" y="844.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">🚀 Launch</text>
+    <path d="M61.57 32.8 L61.57 36.97 C61.57 41.13 61.57 49.47 61.57 57.8 C61.57 66.13 61.57 74.47 61.57 78.63 L61.57 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 115.6 L61.57 119.77 C61.57 123.93 61.57 132.27 61.57 140.6 C61.57 148.93 61.57 157.27 61.57 161.43 L61.57 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 198.4 L61.57 202.57 C61.57 206.73 61.57 215.07 61.57 223.4 C61.57 231.73 61.57 240.07 61.57 244.23 L61.57 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 281.2 L61.57 285.37 C61.57 289.53 61.57 297.87 61.57 306.2 C61.57 314.53 61.57 322.87 61.57 327.03 L61.57 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 364 L61.57 368.17 C61.57 372.33 61.57 380.67 61.57 389 C61.57 397.33 61.57 405.67 61.57 409.83 L61.57 411.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 446.8 L61.57 450.97 C61.57 455.13 61.57 463.47 61.57 471.8 C61.57 480.13 61.57 488.47 61.57 492.63 L61.57 494.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 529.6 L61.57 533.77 C61.57 537.93 61.57 546.27 61.57 554.6 C61.57 562.93 61.57 571.27 61.57 575.43 L61.57 577.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 612.4 L61.57 616.57 C61.57 620.73 61.57 629.07 61.57 637.4 C61.57 645.73 61.57 654.07 61.57 658.23 L61.57 660" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 695.2 L61.57 699.37 C61.57 703.53 61.57 711.87 61.57 720.2 C61.57 728.53 61.57 736.87 61.57 741.03 L61.57 742.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M61.57 778 L61.57 782.17 C61.57 786.33 61.57 794.67 61.57 803 C61.57 811.33 61.57 819.67 61.57 823.83 L61.57 825.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="18.69" y="0" width="85.76" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Café ☕</text>
+    <rect x="6.09" y="82.8" width="110.96" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">✔ Success</text>
+    <rect x="6.09" y="165.6" width="110.96" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">✘ Failure</text>
+    <rect x="0" y="248.4" width="123.14" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">→ Next Step</text>
+    <rect x="16.17" y="331.2" width="90.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">★★★★☆</text>
+    <rect x="28.77" y="414" width="65.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="430.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">مرحبا</text>
+    <rect x="15.33" y="496.8" width="92.48" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="513.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">你好世界</text>
+    <rect x="9.66" y="579.6" width="103.82" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="596" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">α + β = γ</text>
+    <rect x="11.97" y="662.4" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="678.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">😀 Smile</text>
+    <rect x="11.97" y="745.2" width="99.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="761.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">🎉 Party</text>
+    <rect x="7.77" y="828" width="107.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.57" y="844.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">🚀 Launch</text>
   </g>
 </svg>
