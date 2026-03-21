@@ -4,43 +4,73 @@
   <meta charset="utf-8">
   <title>rusty-mermaid GPU Gallery (vello/WebGPU)</title>
   <style>
-    :root { --bg: #f5f5f5; --card-bg: white; --text: #333; --text2: #555; --border: #eee; }
-    body { font-family: system-ui; max-width: 1200px; margin: 0 auto; padding: 20px; background: var(--bg); color: var(--text); }
-    h1 { margin-bottom: 4px; }
+    :root { --bg: #f5f5f5; --card-bg: white; --text: #333; --text2: #555; --pre-bg: #f8f8f8; --border: #eee; --shadow: rgba(0,0,0,0.1); }
+    :root.dark { --bg: #1e1e2e; --card-bg: #2d2d44; --text: #cdd6f4; --text2: #bac2de; --pre-bg: #252538; --border: #45475a; --shadow: rgba(0,0,0,0.4); }
+    body { font-family: system-ui; max-width: 1200px; margin: 0 auto; padding: 20px; background: var(--bg); color: var(--text); transition: background 0.2s, color 0.2s; }
+    h1 { color: var(--text); margin-bottom: 4px; }
     .subtitle { color: var(--text2); margin-bottom: 20px; font-size: 14px; }
-    .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
-    select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; background: var(--card-bg); }
-    .canvas-wrap { background: var(--card-bg); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .controls { display: none; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; background: var(--card-bg); color: var(--text); transition: background 0.2s; }
+    .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 14px; color: var(--text); transition: background 0.2s; }
+    .theme-btn:hover { opacity: 0.8; }
+    .card { background: var(--card-bg); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px var(--shadow); overflow: auto; transition: background 0.2s; }
+    .diagram-name { color: var(--text2); font-size: 14px; margin-bottom: 8px; font-family: monospace; }
     canvas { display: block; }
     .error { color: #c33; padding: 20px; display: none; }
     .loading { color: var(--text2); padding: 20px; }
+    .stats { color: var(--text2); font-size: 12px; }
+    a { color: #9370db; }
   </style>
 </head>
 <body>
-  <h1>rusty-mermaid GPU Gallery</h1>
-  <p class="subtitle">Rendered via vello compute shaders on WebGPU (Chrome 113+ required)</p>
+  <div class="header">
+    <div>
+      <h1>rusty-mermaid GPU Gallery</h1>
+      <p class="subtitle">Rendered via vello compute shaders on WebGPU &mdash; <span id="diagram-count"></span> diagrams</p>
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">Dark</button>
+  </div>
 
-  <div class="controls">
+  <div class="controls" id="controls">
     <label for="diagram-select">Diagram:</label>
     <select id="diagram-select"></select>
+    <span class="stats" id="render-time"></span>
   </div>
 
-  <div class="canvas-wrap">
+  <div class="card">
     <div id="loading" class="loading">Initializing WebGPU...</div>
     <div id="error" class="error"></div>
+    <div class="diagram-name" id="diagram-name"></div>
     <canvas id="diagram-canvas"></canvas>
   </div>
+
+  <script>
+    var isDark = localStorage.getItem('rm-gpu-theme') === 'dark';
+    if (isDark) document.documentElement.classList.add('dark');
+    document.getElementById('theme-btn').textContent = isDark ? 'Light' : 'Dark';
+
+    function toggleTheme() {
+      isDark = !isDark;
+      document.documentElement.classList.toggle('dark', isDark);
+      document.getElementById('theme-btn').textContent = isDark ? 'Light' : 'Dark';
+      localStorage.setItem('rm-gpu-theme', isDark ? 'dark' : 'light');
+      // Re-render is handled by the WASM module detecting the theme class
+      // For now, re-select to trigger re-render
+      var select = document.getElementById('diagram-select');
+      if (select.onchange) select.onchange();
+    }
+  </script>
 
   <script type="module">
     async function init() {
       const loading = document.getElementById('loading');
       const error = document.getElementById('error');
 
-      // Check WebGPU support
       if (!navigator.gpu) {
         loading.style.display = 'none';
         error.style.display = 'block';
-        error.textContent = 'WebGPU is not supported in this browser. Please use Chrome 113+ or Edge 113+.';
+        error.textContent = 'WebGPU is not supported. Please use Chrome 113+ or Edge 113+.';
         return;
       }
 
@@ -51,7 +81,7 @@
       } catch (e) {
         loading.style.display = 'none';
         error.style.display = 'block';
-        error.textContent = `Failed to initialize: ${e.message || e}`;
+        error.textContent = 'Failed to initialize: ' + (e.message || e);
         console.error(e);
       }
     }
