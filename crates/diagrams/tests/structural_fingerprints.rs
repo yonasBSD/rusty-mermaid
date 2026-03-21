@@ -152,7 +152,7 @@ fn structural_fingerprint_regression() {
             }
             let text = fs::read_to_string(&path).unwrap();
             match detect(&text) {
-                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
+                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) | Some(DiagramKind::Sequence) => {}
                 _ => continue,
             }
             let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
@@ -295,7 +295,7 @@ fn update_fingerprints() {
             }
             let text = fs::read_to_string(&path).unwrap();
             match detect(&text) {
-                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) => {}
+                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) | Some(DiagramKind::Sequence) => {}
                 _ => continue,
             }
             let scene = match render_to_scene(&text) {
