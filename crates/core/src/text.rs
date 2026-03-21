@@ -306,45 +306,45 @@ mod tests {
     #[test]
     fn cjk_chars_wider_than_latin() {
         let m = SimpleTextMeasure::default();
-        // "你好世界" = 4 CJK chars × 1.7 × 8.4 = 57.12
+        // "你好世界" = 4 CJK chars × 1.8 × 8.4 = 60.48
         let (w, _) = m.measure("你好世界", &default_style());
-        assert!((w - 4.0 * 1.7 * 8.4).abs() < 1e-10);
+        assert!((w - 4.0 * 1.8 * 8.4).abs() < 1e-10);
     }
 
     #[test]
     fn japanese_kana_wider_than_latin() {
         let m = SimpleTextMeasure::default();
-        // "こんにちは世界" = 7 wide chars × 1.7 × 8.4
+        // "こんにちは世界" = 7 wide chars × 1.8 × 8.4
         let (w, _) = m.measure("こんにちは世界", &default_style());
-        assert!((w - 7.0 * 1.7 * 8.4).abs() < 1e-10);
+        assert!((w - 7.0 * 1.8 * 8.4).abs() < 1e-10);
     }
 
     #[test]
     fn mixed_latin_cjk() {
         let m = SimpleTextMeasure::default();
-        // "Hi你好" = 2×1.0 + 2×1.7 = 5.4 units × 8.4 = 45.36
+        // "Hi你好" = 2×1.0 + 2×1.8 = 5.6 units × 8.4 = 47.04
         let (w, _) = m.measure("Hi你好", &default_style());
-        assert!((w - (2.0 + 2.0 * 1.7) * 8.4).abs() < 1e-10);
+        assert!((w - (2.0 + 2.0 * 1.8) * 8.4).abs() < 1e-10);
     }
 
     #[test]
-    fn latin_and_cyrillic_are_narrow() {
+    fn latin_and_cyrillic_widths() {
         let m = SimpleTextMeasure::default();
         let (w_latin, _) = m.measure("hello", &default_style());
         let (w_cyrillic, _) = m.measure("приве", &default_style());
-        // Both 5 chars × 1.0 × 8.4 = 42.0
+        // Latin: 5 chars × 1.0 × 8.4 = 42.0
         assert!((w_latin - 42.0).abs() < 1e-10);
-        assert!((w_cyrillic - 42.0).abs() < 1e-10);
+        // Cyrillic: 5 chars × 0.85 (ExtendedText ratio) × 8.4 = 35.7
+        assert!((w_cyrillic - 35.7).abs() < 1e-10);
     }
 
     #[test]
-    fn wide_char_detection() {
-        assert!(is_wide_char('你'));  // CJK ideograph
-        assert!(is_wide_char('こ'));  // Hiragana
-        assert!(is_wide_char('ア'));  // Katakana
-        assert!(is_wide_char('한'));  // Hangul
-        assert!(!is_wide_char('A'));  // Latin
-        assert!(!is_wide_char('Я'));  // Cyrillic
-        assert!(!is_wide_char('م'));  // Arabic
+    fn char_width_ratios() {
+        assert!((char_width_ratio('A') - 1.0).abs() < f64::EPSILON);   // Primary
+        assert!((char_width_ratio('你') - 1.8).abs() < f64::EPSILON);  // CJK
+        assert!((char_width_ratio('α') - 0.85).abs() < f64::EPSILON);  // ExtendedText
+        assert!((char_width_ratio('★') - 1.4).abs() < f64::EPSILON);   // Dingbats
+        assert!((char_width_ratio('→') - 1.0).abs() < f64::EPSILON);   // Monospace
+        assert!((char_width_ratio('م') - 0.8).abs() < f64::EPSILON);   // Arabic
     }
 }
