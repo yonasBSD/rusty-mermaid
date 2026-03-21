@@ -39,11 +39,20 @@ impl SimpleTextMeasure {
     }
 }
 
-/// CJK glyph width relative to Latin in monospace fonts.
-/// Terminal convention is 2.0, but actual monospace fonts (Intel One Mono,
-/// JetBrains Mono, etc.) render CJK at roughly 1.0em vs Latin's 0.6em,
-/// giving a ratio of ~1.67. We use 1.7 for comfortable padding.
-const CJK_WIDTH_RATIO: f64 = 1.7;
+use crate::font_fallback::{FontSlot, font_for_char};
+
+/// Width multiplier per FontSlot relative to Intel One Mono's advance.
+/// These ratios account for the actual advance widths of each fallback font.
+pub const fn char_width_ratio(ch: char) -> f64 {
+    match font_for_char(ch) {
+        FontSlot::Primary => 1.0,       // Intel One Mono: 0.6em
+        FontSlot::ExtendedText => 1.1,   // Noto Sans Mono: slightly wider
+        FontSlot::Dingbats => 1.5,       // Noto Sans Symbols 2: wider symbols
+        FontSlot::Arabic => 1.0,         // Noto Sans Arabic: varies, ~1.0 average
+        FontSlot::Cjk => 2.0,           // CJK: full-width, 2x Latin
+        FontSlot::Emoji => 2.2,          // Color emoji: wider than full-width
+    }
+}
 
 impl TextMeasure for SimpleTextMeasure {
     fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64) {
@@ -55,7 +64,7 @@ impl TextMeasure for SimpleTextMeasure {
             line_count += 1;
             let w: f64 = line
                 .chars()
-                .map(|c| if is_wide_char(c) { CJK_WIDTH_RATIO } else { 1.0 })
+                .map(|c| char_width_ratio(c))
                 .sum();
             max_width = max_width.max(w);
         }
@@ -134,50 +143,6 @@ pub fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
     } else {
         None
     }
-}
-
-/// Check if a character is East Asian Wide or Fullwidth per UAX #11.
-/// Covers the most common ranges; not exhaustive but sufficient for
-/// CJK, Japanese kana, Korean, and fullwidth Latin/symbols.
-fn is_wide_char(c: char) -> bool {
-    let cp = c as u32;
-    matches!(cp,
-        // CJK Unified Ideographs
-        0x4E00..=0x9FFF |
-        // CJK Extension A
-        0x3400..=0x4DBF |
-        // CJK Extension B+
-        0x20000..=0x2A6DF |
-        // CJK Compatibility Ideographs
-        0xF900..=0xFAFF |
-        // Hiragana
-        0x3040..=0x309F |
-        // Katakana
-        0x30A0..=0x30FF |
-        // CJK Symbols and Punctuation
-        0x3000..=0x303F |
-        // Hangul Syllables
-        0xAC00..=0xD7AF |
-        // Hangul Jamo
-        0x1100..=0x11FF |
-        // Hangul Compatibility Jamo
-        0x3130..=0x318F |
-        // Fullwidth Forms (fullwidth Latin, etc.)
-        0xFF01..=0xFF60 |
-        // Halfwidth CJK punctuation (these are actually narrow, skip)
-        // Enclosed CJK Letters
-        0x3200..=0x32FF |
-        // CJK Compatibility
-        0x3300..=0x33FF |
-        // Katakana Phonetic Extensions
-        0x31F0..=0x31FF |
-        // Bopomofo
-        0x3100..=0x312F |
-        // CJK Radicals Supplement
-        0x2E80..=0x2EFF |
-        // Kangxi Radicals
-        0x2F00..=0x2FDF
-    )
 }
 
 /// Strip HTML tags and markdown markers from text in a single pass.

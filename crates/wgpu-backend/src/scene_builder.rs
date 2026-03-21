@@ -512,25 +512,17 @@ fn render_text(
             vec![(line as &str, false, false)]
         };
 
-        // Measure line width (primary font advance for all chars)
-        let mut line_w: f32 = 0.0;
-        for (text, _, _) in &text_parts {
-            for ch in text.chars() {
-                let gid = primary_cm.map(ch).unwrap_or_default();
-                line_w += primary_gm.advance_width(gid).unwrap_or(font_size * 0.6);
-            }
-        }
-
-        let start_x = match anchor {
-            TextAnchor::Start => position.x as f32,
-            TextAnchor::Middle => position.x as f32 - line_w / 2.0,
-            TextAnchor::End => position.x as f32 - line_w,
-        };
         let line_y = first_baseline_y + line_idx as f32 * line_height;
-        let mut cursor_x = start_x;
+
+        // First pass: shape all runs, compute actual rendered width.
+        struct ShapedRun {
+            glyphs: Vec<ShapedGlyph>,
+            font: FontData,
+            width: f32,
+        }
+        let mut runs: Vec<ShapedRun> = Vec::new();
 
         for (text, is_bold, is_italic) in &text_parts {
-            // Split text into runs by FontSlot (O(n) single pass)
             let chars: Vec<char> = text.chars().collect();
             let mut i = 0;
             while i < chars.len() {
@@ -539,30 +531,47 @@ fn render_text(
                 while i < chars.len() && font_for_char(chars[i]) == slot {
                     i += 1;
                 }
-                let run: String = chars[run_start..i].iter().collect();
-
-                // Resolve font for this slot
+                let run_text: String = chars[run_start..i].iter().collect();
                 let fd = font_for_slot(fs, slot, *is_bold, *is_italic);
-                if let Some(ref fd) = fd {
-                    let shaped = shape_run(&run, fd, font_size);
-                    let mut gx = cursor_x;
-                    let glyphs: Vec<_> = shaped.iter().map(|sg| {
-                        let g = vello::Glyph {
-                            id: sg.glyph_id,
-                            x: gx + sg.x_offset,
-                            y: line_y + sg.y_offset,
-                        };
-                        gx += sg.x_advance;
-                        g
-                    }).collect();
-                    scene.draw_glyphs(fd).font_size(font_size).transform(transform)
-                        .brush(to_vello_color(fill_color)).draw(Fill::NonZero, glyphs.into_iter());
-                    cursor_x = gx;
+                if let Some(fd) = fd {
+                    let shaped = shape_run(&run_text, &fd, font_size);
+                    let width: f32 = shaped.iter().map(|sg| sg.x_advance).sum();
+                    runs.push(ShapedRun { glyphs: shaped, font: fd, width });
                 } else {
-                    // External font not available — skip with default advance
-                    cursor_x += (i - run_start) as f32 * font_size * 0.6;
+                    let w = (i - run_start) as f32 * font_size * 0.6;
+                    runs.push(ShapedRun { glyphs: vec![], font: fs.primary.clone(), width: w });
                 }
             }
+        }
+
+        // Compute actual total width and center
+        let actual_w: f32 = runs.iter().map(|r| r.width).sum();
+        let start_x = match anchor {
+            TextAnchor::Start => position.x as f32,
+            TextAnchor::Middle => position.x as f32 - actual_w / 2.0,
+            TextAnchor::End => position.x as f32 - actual_w,
+        };
+
+        // Second pass: render at centered position
+        let mut cursor_x = start_x;
+        for run in &runs {
+            if run.glyphs.is_empty() {
+                cursor_x += run.width;
+                continue;
+            }
+            let mut gx = cursor_x;
+            let glyphs: Vec<_> = run.glyphs.iter().map(|sg| {
+                let g = vello::Glyph {
+                    id: sg.glyph_id,
+                    x: gx + sg.x_offset,
+                    y: line_y + sg.y_offset,
+                };
+                gx += sg.x_advance;
+                g
+            }).collect();
+            scene.draw_glyphs(&run.font).font_size(font_size).transform(transform)
+                .brush(to_vello_color(fill_color)).draw(Fill::NonZero, glyphs.into_iter());
+            cursor_x = gx;
         }
     }
 }
