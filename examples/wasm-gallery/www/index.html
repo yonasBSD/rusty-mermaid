@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>rusty-mermaid GPU Gallery (vello/WebGPU)</title>
+  <style>
+    :root { --bg: #f5f5f5; --card-bg: white; --text: #333; --text2: #555; --border: #eee; }
+    body { font-family: system-ui; max-width: 1200px; margin: 0 auto; padding: 20px; background: var(--bg); color: var(--text); }
+    h1 { margin-bottom: 4px; }
+    .subtitle { color: var(--text2); margin-bottom: 20px; font-size: 14px; }
+    .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+    select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; background: var(--card-bg); }
+    .canvas-wrap { background: var(--card-bg); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: auto; }
+    canvas { display: block; }
+    .error { color: #c33; padding: 20px; display: none; }
+    .loading { color: var(--text2); padding: 20px; }
+  </style>
+</head>
+<body>
+  <h1>rusty-mermaid GPU Gallery</h1>
+  <p class="subtitle">Rendered via vello compute shaders on WebGPU (Chrome 113+ required)</p>
+
+  <div class="controls">
+    <label for="diagram-select">Diagram:</label>
+    <select id="diagram-select"></select>
+  </div>
+
+  <div class="canvas-wrap">
+    <div id="loading" class="loading">Initializing WebGPU...</div>
+    <div id="error" class="error"></div>
+    <canvas id="diagram-canvas"></canvas>
+  </div>
+
+  <script type="module">
+    async function init() {
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+
+      // Check WebGPU support
+      if (!navigator.gpu) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = 'WebGPU is not supported in this browser. Please use Chrome 113+ or Edge 113+.';
+        return;
+      }
+
+      try {
+        const wasm = await import('../pkg/rusty_mermaid_wasm_gallery.js');
+        await wasm.default();
+        loading.style.display = 'none';
+      } catch (e) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = `Failed to initialize: ${e.message || e}`;
+        console.error(e);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

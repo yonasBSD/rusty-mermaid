@@ -1,0 +1,360 @@
+use wasm_bindgen::prelude::*;
+use web_sys::HtmlCanvasElement;
+
+use rusty_mermaid_core::Theme;
+use rusty_mermaid_viewport::ViewportState;
+use rusty_mermaid_wgpu::build_vello_scene;
+
+/// All diagram sources bundled at compile time.
+static DIAGRAMS: &[(&str, &str)] = &[
+    ("hello", "flowchart TD\n    A[Hello] --> B[World]"),
+    ("decision", "flowchart TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[Fail]\n    C --> E[End]\n    D --> E"),
+    ("state_simple", "stateDiagram-v2\n    [*] --> Active\n    Active --> Paused : pause\n    Paused --> Active : resume\n    Active --> [*] : done"),
+    ("state_composite", "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> Running\n        Running --> Stopped : stop\n        Stopped --> Running : start\n    }\n    Active --> [*]"),
+    ("linear", "flowchart LR\n    A --> B --> C --> D --> E"),
+    ("diamond", "flowchart TD\n    Start --> IsValid{Valid?}\n    IsValid -->|Yes| Process[Process]\n    IsValid -->|No| Error[Error]\n    Process --> End\n    Error --> End"),
+    ("subgraph", "flowchart TD\n    subgraph Frontend\n        A[React] --> B[Redux]\n    end\n    subgraph Backend\n        C[API] --> D[DB]\n    end\n    B --> C"),
+    ("arrows", "flowchart LR\n    A --> B\n    C --- D\n    E -.-> F\n    G ==> H"),
+    ("shapes", "flowchart TD\n    A[Rectangle] --> B(Rounded)\n    B --> C{Diamond}\n    C --> D([Stadium])\n    D --> E[[Subroutine]]"),
+    ("sequence", "sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi\n    Alice->>Bob: How are you?\n    Bob-->>Alice: Fine!"),
+];
+
+/// Blit shader: copies Rgba8Unorm texture to whatever the surface format is.
+const BLIT_SHADER: &str = r"
+@group(0) @binding(0) var src_tex: texture_2d<f32>;
+@group(0) @binding(1) var src_sampler: sampler;
+
+struct VertexOutput {
+    @builtin(position) pos: vec4<f32>,
+    @location(0) uv: vec2<f32>,
+};
+
+@vertex
+fn vs_main(@builtin(vertex_index) idx: u32) -> VertexOutput {
+    // Fullscreen triangle (3 vertices cover the screen)
+    var positions = array<vec2<f32>, 3>(
+        vec2(-1.0, -1.0),
+        vec2( 3.0, -1.0),
+        vec2(-1.0,  3.0),
+    );
+    var uvs = array<vec2<f32>, 3>(
+        vec2(0.0, 1.0),
+        vec2(2.0, 1.0),
+        vec2(0.0, -1.0),
+    );
+    var out: VertexOutput;
+    out.pos = vec4(positions[idx], 0.0, 1.0);
+    out.uv = uvs[idx];
+    return out;
+}
+
+@fragment
+fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
+    return textureSample(src_tex, src_sampler, in.uv);
+}
+";
+
+struct GpuState {
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    renderer: vello::Renderer,
+    blit_pipeline: wgpu::RenderPipeline,
+    blit_bind_group_layout: wgpu::BindGroupLayout,
+    sampler: wgpu::Sampler,
+    surface_format: wgpu::TextureFormat,
+}
+
+#[wasm_bindgen(start)]
+pub async fn main() -> Result<(), JsValue> {
+    console_error_panic_hook::set_once();
+
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+
+    let select = document
+        .get_element_by_id("diagram-select")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlSelectElement>()
+        .unwrap();
+
+    for (name, _) in DIAGRAMS {
+        let option = document.create_element("option").unwrap();
+        option.set_text_content(Some(name));
+        option.set_attribute("value", name).unwrap();
+        select.append_child(&option).unwrap();
+    }
+
+    let canvas = document
+        .get_element_by_id("diagram-canvas")
+        .unwrap()
+        .dyn_into::<HtmlCanvasElement>()
+        .unwrap();
+
+    let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+        backends: wgpu::Backends::BROWSER_WEBGPU,
+        ..Default::default()
+    });
+
+    let surface = instance
+        .create_surface(wgpu::SurfaceTarget::Canvas(canvas.clone()))
+        .unwrap();
+
+    let adapter = instance
+        .request_adapter(&wgpu::RequestAdapterOptions {
+            compatible_surface: Some(&surface),
+            power_preference: wgpu::PowerPreference::HighPerformance,
+            ..Default::default()
+        })
+        .await
+        .map_err(|e| JsValue::from_str(&format!("No WebGPU adapter: {e}")))?;
+
+    let result: Result<(wgpu::Device, wgpu::Queue), wgpu::RequestDeviceError> = adapter
+        .request_device(&wgpu::DeviceDescriptor::default())
+        .await;
+    let (device, queue) =
+        result.map_err(|e| JsValue::from_str(&format!("Device creation failed: {e}")))?;
+
+    let renderer = vello::Renderer::new(
+        &device,
+        vello::RendererOptions {
+            use_cpu: false,
+            antialiasing_support: vello::AaSupport::all(),
+            num_init_threads: None,
+            pipeline_cache: None,
+        },
+    )
+    .map_err(|e| JsValue::from_str(&format!("Vello renderer failed: {e}")))?;
+
+    // Determine surface format
+    let caps = surface.get_capabilities(&adapter);
+    let surface_format = caps.formats.first().copied().unwrap_or(wgpu::TextureFormat::Bgra8Unorm);
+
+    // Build blit pipeline for Rgba8Unorm → surface format conversion
+    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some("blit_shader"),
+        source: wgpu::ShaderSource::Wgsl(BLIT_SHADER.into()),
+    });
+
+    let blit_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("blit_bgl"),
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    count: None,
+                },
+            ],
+        });
+
+    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: Some("blit_layout"),
+        bind_group_layouts: &[&blit_bind_group_layout],
+        immediate_size: 0,
+    });
+
+    let blit_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: Some("blit_pipeline"),
+        layout: Some(&pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: &shader,
+            entry_point: Some("vs_main"),
+            buffers: &[],
+            compilation_options: Default::default(),
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: &shader,
+            entry_point: Some("fs_main"),
+            targets: &[Some(wgpu::ColorTargetState {
+                format: surface_format,
+                blend: None,
+                write_mask: wgpu::ColorWrites::ALL,
+            })],
+            compilation_options: Default::default(),
+        }),
+        primitive: wgpu::PrimitiveState::default(),
+        depth_stencil: None,
+        multisample: wgpu::MultisampleState::default(),
+        multiview_mask: None,
+        cache: None,
+    });
+
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        ..Default::default()
+    });
+
+    let mut gpu = GpuState {
+        device,
+        queue,
+        renderer,
+        blit_pipeline,
+        blit_bind_group_layout,
+        sampler,
+        surface_format,
+    };
+
+    // Render first diagram
+    render_diagram(DIAGRAMS[0].1, &canvas, &surface, &mut gpu);
+
+    // Handle dropdown changes
+    let canvas_clone = canvas.clone();
+    let closure = Closure::wrap(Box::new(move || {
+        let window = web_sys::window().unwrap();
+        let document = window.document().unwrap();
+        let select = document
+            .get_element_by_id("diagram-select")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlSelectElement>()
+            .unwrap();
+        let idx = select.selected_index() as usize;
+        if idx < DIAGRAMS.len() {
+            render_diagram(DIAGRAMS[idx].1, &canvas_clone, &surface, &mut gpu);
+        }
+    }) as Box<dyn FnMut()>);
+
+    select.set_onchange(Some(closure.as_ref().unchecked_ref()));
+    closure.forget();
+
+    // Hide loading
+    if let Some(el) = document.get_element_by_id("loading") {
+        el.set_attribute("style", "display:none").unwrap();
+    }
+
+    Ok(())
+}
+
+fn render_diagram(
+    mmd: &str,
+    canvas: &HtmlCanvasElement,
+    surface: &wgpu::Surface<'static>,
+    gpu: &mut GpuState,
+) {
+    let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(mmd) else {
+        web_sys::console::error_1(&"Failed to parse diagram".into());
+        return;
+    };
+
+    let theme = Theme::light();
+    let dpr = web_sys::window().unwrap().device_pixel_ratio();
+    let padding = theme.padding;
+    let w = scene.width + padding * 2.0;
+    let h = scene.height + padding * 2.0;
+    let pixel_w = (w * dpr) as u32;
+    let pixel_h = (h * dpr) as u32;
+
+    canvas.set_width(pixel_w);
+    canvas.set_height(pixel_h);
+    let style = canvas.style();
+    let _ = style.set_property("width", &format!("{w}px"));
+    let _ = style.set_property("height", &format!("{h}px"));
+
+    let viewport = ViewportState { zoom: dpr, ..Default::default() };
+    let vello_scene = build_vello_scene(&scene, &theme, &viewport);
+
+    // Configure surface
+    surface.configure(
+        &gpu.device,
+        &wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: gpu.surface_format,
+            width: pixel_w,
+            height: pixel_h,
+            present_mode: wgpu::PresentMode::AutoVsync,
+            desired_maximum_frame_latency: 2,
+            alpha_mode: wgpu::CompositeAlphaMode::Auto,
+            view_formats: vec![],
+        },
+    );
+
+    // Vello renders to Rgba8Unorm (needs STORAGE_BINDING)
+    let vello_target = gpu.device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("vello_target"),
+        size: wgpu::Extent3d { width: pixel_w, height: pixel_h, depth_or_array_layers: 1 },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8Unorm,
+        usage: wgpu::TextureUsages::STORAGE_BINDING | wgpu::TextureUsages::TEXTURE_BINDING,
+        view_formats: &[],
+    });
+    let vello_view = vello_target.create_view(&wgpu::TextureViewDescriptor::default());
+
+    let bg = vello::peniko::Color::from_rgba8(255, 255, 255, 255);
+    if let Err(e) = gpu.renderer.render_to_texture(
+        &gpu.device,
+        &gpu.queue,
+        &vello_scene,
+        &vello_view,
+        &vello::RenderParams {
+            base_color: bg,
+            width: pixel_w,
+            height: pixel_h,
+            antialiasing_method: vello::AaConfig::Msaa16,
+        },
+    ) {
+        web_sys::console::error_1(&format!("Render failed: {e}").into());
+        return;
+    }
+
+    // Blit vello texture → surface via render pass (format conversion)
+    let surface_texture = match surface.get_current_texture() {
+        Ok(st) => st,
+        Err(e) => {
+            web_sys::console::error_1(&format!("Surface texture failed: {e}").into());
+            return;
+        }
+    };
+    let surface_view = surface_texture
+        .texture
+        .create_view(&wgpu::TextureViewDescriptor::default());
+
+    let bind_group = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("blit_bg"),
+        layout: &gpu.blit_bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&vello_view),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&gpu.sampler),
+            },
+        ],
+    });
+
+    let mut encoder = gpu.device.create_command_encoder(&Default::default());
+    {
+        let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("blit_pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &surface_view,
+                depth_slice: None,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color::WHITE),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            ..Default::default()
+        });
+        pass.set_pipeline(&gpu.blit_pipeline);
+        pass.set_bind_group(0, &bind_group, &[]);
+        pass.draw(0..3, 0..1); // fullscreen triangle
+    }
+    gpu.queue.submit(Some(encoder.finish()));
+    surface_texture.present();
+}
