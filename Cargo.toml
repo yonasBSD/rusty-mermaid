@@ -8,6 +8,19 @@ members = [
     "crates/viewport",
     "crates/raster",
     "crates/gpui-backend",
+    "crates/wgpu-backend",
+]
+# GPU backends pull heavy platform deps — exclude from default workspace builds
+# Build individually: cargo check -p rusty-mermaid-wgpu / cargo check -p rusty-mermaid-gpui
+exclude = []
+default-members = [
+    "crates/core",
+    "crates/graph",
+    "crates/dagre",
+    "crates/diagrams",
+    "crates/svg",
+    "crates/viewport",
+    "crates/raster",
 ]
 resolver = "3"
 
@@ -25,6 +38,7 @@ rusty-mermaid-svg = { path = "crates/svg" }
 rusty-mermaid-viewport = { path = "crates/viewport" }
 rusty-mermaid-raster = { path = "crates/raster" }
 rusty-mermaid-gpui = { path = "crates/gpui-backend" }
+rusty-mermaid-wgpu = { path = "crates/wgpu-backend" }
 thiserror = "2"
 
 # Fast debug builds - optimize for compile speed

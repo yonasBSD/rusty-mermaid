@@ -1,0 +1,12 @@
+[package]
+name = "rusty-mermaid-wgpu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "wgpu/vello GPU rendering backend for rusty-mermaid diagrams"
+
+[dependencies]
+rusty-mermaid-core = { workspace = true }
+rusty-mermaid-viewport = { workspace = true }
+vello = "0.8"
+skrifa = "0.40"
