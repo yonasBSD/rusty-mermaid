@@ -269,7 +269,12 @@ fn render_gallery(
 
         // Get CSS dimensions (before DPR scaling)
         let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(DIAGRAMS[i].1) else { continue };
-        let theme = Theme::light();
+        let is_dark = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.document_element())
+            .map(|el| el.class_list().contains("dark"))
+            .unwrap_or(false);
+        let theme = if is_dark { Theme::dark() } else { Theme::light() };
         let css_w = scene.width + theme.padding * 2.0;
         let css_h = scene.height + theme.padding * 2.0;
 

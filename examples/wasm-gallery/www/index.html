@@ -60,7 +60,7 @@
   <div id="gallery-view"></div>
 
   <script>
-    var isDark = localStorage.getItem('rm-gpu-theme') === 'dark';
+    var isDark = localStorage.getItem('rm-theme') === 'dark';
     if (isDark) document.documentElement.classList.add('dark');
     document.getElementById('theme-btn').textContent = isDark ? 'Light' : 'Dark';
 
@@ -68,9 +68,9 @@
       isDark = !isDark;
       document.documentElement.classList.toggle('dark', isDark);
       document.getElementById('theme-btn').textContent = isDark ? 'Light' : 'Dark';
-      localStorage.setItem('rm-gpu-theme', isDark ? 'dark' : 'light');
-      var select = document.getElementById('diagram-select');
-      if (select.onchange) select.onchange();
+      localStorage.setItem('rm-theme', isDark ? 'dark' : 'light');
+      // Re-render: reload the page to re-render all diagrams with new theme
+      location.reload();
     }
 
     function showGallery() {
