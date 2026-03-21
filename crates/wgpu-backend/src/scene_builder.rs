@@ -1,5 +1,7 @@
+use std::sync::{Arc, OnceLock};
+
 use vello::kurbo::{self, Affine, BezPath, Cap, Join, Point as KPoint, Rect, RoundedRect, Stroke, Vec2};
-use vello::peniko::{Color as VelloColor, Fill};
+use vello::peniko::{Blob, Color as VelloColor, Fill, FontData};
 use vello::Scene as VelloScene;
 
 use rusty_mermaid_core::{
@@ -111,24 +113,7 @@ fn paint_primitive(
         }
 
         Primitive::Text { position, content, anchor, style } => {
-            // Text rendering via vello requires skrifa font loading + manual glyph layout.
-            // For now, render a subtle rect placeholder (same approach as raster initial).
-            // Full glyph rendering will be wired when parley/skrifa integration is added.
-            let font_size = style.font_size;
-            let char_w = font_size * 0.6;
-            let text_w = char_w * content.len() as f64;
-
-            let x = match anchor {
-                TextAnchor::Start => position.x,
-                TextAnchor::Middle => position.x - text_w / 2.0,
-                TextAnchor::End => position.x - text_w,
-            };
-            let y = position.y - font_size / 2.0;
-            let rect = Rect::new(x, y, x + text_w, y + font_size);
-
-            let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
-            let c = to_vello_color(fill).multiply_alpha(0.15);
-            scene.fill(Fill::NonZero, transform, c, None, &rect);
+            render_text(scene, position, content, *anchor, style, theme, transform);
         }
 
         Primitive::Polygon { points, style } => {
@@ -376,4 +361,77 @@ fn last_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
     let last = points[points.len() - 1];
     let prev = points[points.len() - 2];
     Some((last, (last.y - prev.y).atan2(last.x - prev.x)))
+}
+
+// ── Text rendering ──
+
+static DEFAULT_FONT_DATA: OnceLock<FontData> = OnceLock::new();
+
+fn get_font_data(theme: &Theme) -> FontData {
+    if let Some(ref custom_bytes) = theme.custom_font {
+        FontData::new(Blob::new(Arc::new(custom_bytes.clone())), 0)
+    } else {
+        DEFAULT_FONT_DATA
+            .get_or_init(|| {
+                let bytes = include_bytes!("../../raster/fonts/IntelOneMono-Regular.ttf");
+                FontData::new(Blob::new(Arc::new(bytes.to_vec())), 0)
+            })
+            .clone()
+    }
+}
+
+fn render_text(
+    scene: &mut VelloScene,
+    position: &Point,
+    content: &str,
+    anchor: TextAnchor,
+    style: &rusty_mermaid_core::TextStyle,
+    theme: &Theme,
+    transform: Affine,
+) {
+    let font_data = get_font_data(theme);
+    let font_size = style.font_size as f32;
+    let fill_color = style.fill.unwrap_or(Color::rgb(51, 51, 51));
+
+    let font_ref = skrifa::FontRef::from_index(font_data.data.as_ref(), font_data.index)
+        .expect("embedded font must be valid");
+    let charmap = skrifa::MetadataProvider::charmap(&font_ref);
+    let glyph_metrics = skrifa::MetadataProvider::glyph_metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
+
+    let lines: Vec<&str> = content.split('\n').collect();
+    let line_height = font_size * 1.2;
+    let total_h = line_height * (lines.len() - 1) as f32;
+    let base_y = position.y as f32 - total_h / 2.0;
+
+    for (line_idx, line) in lines.iter().enumerate() {
+        // Measure line width
+        let mut line_w: f32 = 0.0;
+        let mut glyphs = Vec::new();
+        for ch in line.chars() {
+            let gid = charmap.map(ch).unwrap_or_default();
+            let advance = glyph_metrics.advance_width(gid).unwrap_or(font_size * 0.6);
+            glyphs.push((gid, line_w));
+            line_w += advance;
+        }
+
+        let start_x = match anchor {
+            TextAnchor::Start => position.x as f32,
+            TextAnchor::Middle => position.x as f32 - line_w / 2.0,
+            TextAnchor::End => position.x as f32 - line_w,
+        };
+        let line_y = base_y + line_idx as f32 * line_height;
+
+        let glyph_iter = glyphs.into_iter().map(|(gid, x_off)| vello::Glyph {
+            id: gid.to_u32(),
+            x: start_x + x_off,
+            y: line_y,
+        });
+
+        scene
+            .draw_glyphs(&font_data)
+            .font_size(font_size)
+            .transform(transform)
+            .brush(to_vello_color(fill_color))
+            .draw(Fill::NonZero, glyph_iter);
+    }
 }
