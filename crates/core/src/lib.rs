@@ -1,4 +1,5 @@
 pub mod curve;
+pub mod font_fallback;
 pub mod geometry;
 pub mod marker_shapes;
 pub mod renderer;
