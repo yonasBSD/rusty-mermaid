@@ -286,9 +286,9 @@ fn render_gallery(
         let img = document.create_element("img").unwrap();
         img.set_attribute("src", &data_url).unwrap();
         img.set_attribute("alt", name).unwrap();
-        // Set CSS dimensions to match SVG gallery sizing
-        img.set_attribute("width", &format!("{}", css_w as u32)).unwrap();
-        img.set_attribute("height", &format!("{}", css_h as u32)).unwrap();
+        // Set only width — height auto-scales to preserve aspect ratio
+        // when max-width:100% constrains wide diagrams
+        let _ = img.set_attribute("style", &format!("width:{}px;height:auto", css_w as u32));
         card.append_child(&img).unwrap();
 
         gallery_div.append_child(&card).unwrap();
