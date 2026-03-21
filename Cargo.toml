@@ -12,7 +12,7 @@ members = [
 ]
 # GPU backends pull heavy platform deps — exclude from default workspace builds
 # Build individually: cargo check -p rusty-mermaid-wgpu / cargo check -p rusty-mermaid-gpui
-exclude = ["examples/wasm-gallery"]
+exclude = ["examples/wasm-gallery", "examples/gpui-gallery"]
 default-members = [
     "crates/core",
     "crates/graph",

@@ -1,0 +1,17 @@
+[package]
+name = "rusty-mermaid-gpui-gallery"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Standalone gpui gallery: native GPU diagram rendering via Metal/DirectX"
+
+[[bin]]
+name = "gpui-gallery"
+path = "src/main.rs"
+
+[dependencies]
+rusty-mermaid-core = { path = "../../crates/core" }
+rusty-mermaid-diagrams = { path = "../../crates/diagrams" }
+rusty-mermaid-gpui = { path = "../../crates/gpui-backend" }
+rusty-mermaid-viewport = { path = "../../crates/viewport" }
+gpui = "0.2"
