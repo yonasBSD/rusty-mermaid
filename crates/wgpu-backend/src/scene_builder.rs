@@ -3,7 +3,9 @@ use vello::peniko::{Color as VelloColor, Fill};
 use vello::Scene as VelloScene;
 
 use rusty_mermaid_core::{
-    Color, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
+    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
+    Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme,
+    Transform,
 };
 use rusty_mermaid_viewport::ViewportState;
 
@@ -241,79 +243,61 @@ fn paint_marker(
     stroke_width: f64,
     transform: Affine,
 ) {
-    let size = (stroke_width * 4.0).max(6.0);
-    let (sin, cos) = angle.sin_cos();
-    let tx = tip.x;
-    let ty = tip.y;
+    let geom = marker_geometry(marker);
 
-    match marker {
-        MarkerType::ArrowPoint | MarkerType::ArrowBarb => {
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
-
-            let mut path = BezPath::new();
-            path.move_to(KPoint::new(tx, ty));
-            path.line_to(KPoint::new(p1x, p1y));
-            path.line_to(KPoint::new(p2x, p2y));
-            path.close_path();
+    match &geom.shape {
+        MarkerShape::FilledPath(_) => {
+            let pts = transform_marker_points(&geom, tip, angle, stroke_width);
+            let path = points_to_bezpath(&pts, true);
             scene.fill(Fill::NonZero, transform, to_vello_color(color), None, &path);
         }
-        MarkerType::ArrowOpen | MarkerType::Dependency => {
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
-
-            let mut path = BezPath::new();
-            path.move_to(KPoint::new(p1x, p1y));
-            path.line_to(KPoint::new(tx, ty));
-            path.line_to(KPoint::new(p2x, p2y));
-            let stroke = Stroke::new(stroke_width);
+        MarkerShape::StrokedPath { closed, stroke_width: sw, .. } => {
+            let pts = transform_marker_points(&geom, tip, angle, stroke_width);
+            let path = points_to_bezpath(&pts, *closed);
+            let stroke = Stroke::new(sw * stroke_width / geom.vb_w * geom.marker_w);
             scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
         }
-        MarkerType::Circle => {
-            let r = size * 0.4;
-            let (mcx, mcy) = rotate_point(-r, 0.0, sin, cos, tx, ty);
-            let circle = kurbo::Circle::new(KPoint::new(mcx, mcy), r);
+        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: sw, .. } => {
+            let pts = transform_marker_points(&geom, tip, angle, stroke_width);
+            let path = points_to_bezpath(&pts, true);
+            let fill_color = if *fill_is_marker_color { color } else { Color::WHITE };
+            scene.fill(Fill::NonZero, transform, to_vello_color(fill_color), None, &path);
+            let stroke = Stroke::new(sw * stroke_width / geom.vb_w * geom.marker_w);
+            scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
+        }
+        MarkerShape::FilledCircle { .. } => {
+            let (center, r) = transform_marker_circle(&geom, tip, angle, stroke_width);
+            let circle = kurbo::Circle::new(KPoint::new(center.x, center.y), r);
             scene.fill(Fill::NonZero, transform, to_vello_color(color), None, &circle);
         }
-        MarkerType::Cross => {
-            let half = size * 0.4;
-            let (mcx, mcy) = rotate_point(-half, 0.0, sin, cos, tx, ty);
-            let mut path = BezPath::new();
-            path.move_to(KPoint::new(mcx - half, mcy - half));
-            path.line_to(KPoint::new(mcx + half, mcy + half));
-            path.move_to(KPoint::new(mcx - half, mcy + half));
-            path.line_to(KPoint::new(mcx + half, mcy - half));
-            let stroke = Stroke::new(stroke_width);
-            scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
+        MarkerShape::StrokedCurves { stroke_width: sw, .. } => {
+            let curves = transform_marker_curves(&geom, tip, angle, stroke_width);
+            let stroke = Stroke::new(sw * stroke_width / geom.vb_w * geom.marker_w)
+                .with_caps(Cap::Round);
+            for curve in &curves {
+                if curve.len() >= 3 {
+                    let mut path = BezPath::new();
+                    path.move_to(to_kpoint(&curve[0]));
+                    path.quad_to(to_kpoint(&curve[1]), to_kpoint(&curve[2]));
+                    scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
+                }
+            }
         }
-        MarkerType::Aggregation | MarkerType::Composition => {
-            let half = size * 0.5;
-            let (p1x, p1y) = rotate_point(-half, 0.0, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-half * 0.5, -half * 0.4, sin, cos, tx, ty);
-            let (p3x, p3y) = rotate_point(-half * 0.5, half * 0.4, sin, cos, tx, ty);
-
-            let mut path = BezPath::new();
-            path.move_to(KPoint::new(tx, ty));
-            path.line_to(KPoint::new(p2x, p2y));
-            path.line_to(KPoint::new(p1x, p1y));
-            path.line_to(KPoint::new(p3x, p3y));
-            path.close_path();
-
-            let fill = if matches!(marker, MarkerType::Composition) {
-                color
-            } else {
-                Color::WHITE
-            };
-            scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &path);
-            let stroke = Stroke::new(stroke_width * 0.5);
-            scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
-        }
-        _ => {}
     }
 }
 
-fn rotate_point(dx: f64, dy: f64, sin: f64, cos: f64, cx: f64, cy: f64) -> (f64, f64) {
-    (cx + dx * cos - dy * sin, cy + dx * sin + dy * cos)
+fn points_to_bezpath(pts: &[Point], closed: bool) -> BezPath {
+    let mut path = BezPath::new();
+    if let Some(first) = pts.first() {
+        path.move_to(to_kpoint(first));
+        for p in &pts[1..] {
+            path.line_to(to_kpoint(p));
+        }
+        if closed {
+            path.close_path();
+        }
+    }
+    path
 }
 
 // ── Arc (pie/annular sector) ──

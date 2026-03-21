@@ -3,7 +3,9 @@ use gpui::{
     Point as GpuiPoint, TextRun, Window,
 };
 use rusty_mermaid_core::{
-    Color, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
+    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
+    Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme,
+    Transform,
 };
 use rusty_mermaid_viewport::ViewportState;
 
@@ -369,93 +371,66 @@ fn paint_marker(
     ox: f32,
     oy: f32,
 ) {
-    let size = (stroke_width * 4.0).max(6.0 * zoom);
-    let (sin, cos) = (angle as f32).sin_cos();
-    let tx = tip.x as f32 * zoom + ox;
-    let ty = tip.y as f32 * zoom + oy;
+    let geom = marker_geometry(marker);
+    let sw = stroke_width as f64 / zoom as f64; // undo zoom for geometry, re-applied via transform_pt
 
-    match marker {
-        MarkerType::ArrowPoint | MarkerType::ArrowBarb => {
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
+    // Transform shared geometry to scene coords, then apply zoom+offset
+    let scene_to_screen = |p: &Point| -> GpuiPoint<Pixels> {
+        point(px(p.x as f32 * zoom + ox), px(p.y as f32 * zoom + oy))
+    };
 
+    match &geom.shape {
+        MarkerShape::FilledPath(_) => {
+            let pts = transform_marker_points(&geom, tip, angle, sw);
             let mut pb = PathBuilder::fill();
-            pb.move_to(point(px(tx), px(ty)));
-            pb.line_to(point(px(p1x), px(p1y)));
-            pb.line_to(point(px(p2x), px(p2y)));
+            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
+            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
             pb.close();
-            if let Ok(path) = pb.build() {
-                window.paint_path(path, color);
-            }
+            if let Ok(path) = pb.build() { window.paint_path(path, color); }
         }
-        MarkerType::ArrowOpen | MarkerType::Dependency => {
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
-
-            let mut pb = PathBuilder::stroke(px(stroke_width));
-            pb.move_to(point(px(p1x), px(p1y)));
-            pb.line_to(point(px(tx), px(ty)));
-            pb.line_to(point(px(p2x), px(p2y)));
-            if let Ok(path) = pb.build() {
-                window.paint_path(path, color);
-            }
+        MarkerShape::StrokedPath { closed, stroke_width: rel_sw, .. } => {
+            let pts = transform_marker_points(&geom, tip, angle, sw);
+            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32 * zoom;
+            let mut pb = PathBuilder::stroke(px(w));
+            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
+            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
+            if *closed { pb.close(); }
+            if let Ok(path) = pb.build() { window.paint_path(path, color); }
         }
-        MarkerType::Circle => {
-            let r = size * 0.4;
-            let (mcx, mcy) = rotate_point(-r, 0.0, sin, cos, tx, ty);
-            if let Ok(path) = circle_fill_path(mcx, mcy, r) {
-                window.paint_path(path, color);
-            }
-        }
-        MarkerType::Cross => {
-            let half = size * 0.4;
-            let (mcx, mcy) = rotate_point(-half, 0.0, sin, cos, tx, ty);
-            let mut pb = PathBuilder::stroke(px(stroke_width));
-            pb.move_to(point(px(mcx - half), px(mcy - half)));
-            pb.line_to(point(px(mcx + half), px(mcy + half)));
-            pb.move_to(point(px(mcx - half), px(mcy + half)));
-            pb.line_to(point(px(mcx + half), px(mcy - half)));
-            if let Ok(path) = pb.build() {
-                window.paint_path(path, color);
-            }
-        }
-        MarkerType::Aggregation | MarkerType::Composition => {
-            let half = size * 0.5;
-            let (p1x, p1y) = rotate_point(-half, 0.0, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-half * 0.5, -half * 0.4, sin, cos, tx, ty);
-            let (p3x, p3y) = rotate_point(-half * 0.5, half * 0.4, sin, cos, tx, ty);
-
-            let fill = if matches!(marker, MarkerType::Composition) {
-                color
-            } else {
-                Hsla { h: 0.0, s: 0.0, l: 1.0, a: 1.0 }
-            };
-
+        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: rel_sw, .. } => {
+            let pts = transform_marker_points(&geom, tip, angle, sw);
+            let fill = if *fill_is_marker_color { color } else { Hsla { h: 0.0, s: 0.0, l: 1.0, a: 1.0 } };
             let mut pb = PathBuilder::fill();
-            pb.move_to(point(px(tx), px(ty)));
-            pb.line_to(point(px(p2x), px(p2y)));
-            pb.line_to(point(px(p1x), px(p1y)));
-            pb.line_to(point(px(p3x), px(p3y)));
+            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
+            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
             pb.close();
-            if let Ok(path) = pb.build() {
-                window.paint_path(path, fill);
-            }
-            let mut pb = PathBuilder::stroke(px(stroke_width * 0.5));
-            pb.move_to(point(px(tx), px(ty)));
-            pb.line_to(point(px(p2x), px(p2y)));
-            pb.line_to(point(px(p1x), px(p1y)));
-            pb.line_to(point(px(p3x), px(p3y)));
+            if let Ok(path) = pb.build() { window.paint_path(path, fill); }
+            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32 * zoom;
+            let mut pb = PathBuilder::stroke(px(w));
+            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
+            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
             pb.close();
-            if let Ok(path) = pb.build() {
+            if let Ok(path) = pb.build() { window.paint_path(path, color); }
+        }
+        MarkerShape::FilledCircle { .. } => {
+            let (center, r) = transform_marker_circle(&geom, tip, angle, sw);
+            if let Ok(path) = circle_fill_path(center.x as f32 * zoom + ox, center.y as f32 * zoom + oy, r as f32 * zoom) {
                 window.paint_path(path, color);
             }
         }
-        _ => {}
+        MarkerShape::StrokedCurves { stroke_width: rel_sw, .. } => {
+            let curves = transform_marker_curves(&geom, tip, angle, sw);
+            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32 * zoom;
+            for curve in &curves {
+                if curve.len() >= 3 {
+                    let mut pb = PathBuilder::stroke(px(w));
+                    pb.move_to(scene_to_screen(&curve[0]));
+                    pb.curve_to(scene_to_screen(&curve[2]), scene_to_screen(&curve[1]));
+                    if let Ok(path) = pb.build() { window.paint_path(path, color); }
+                }
+            }
+        }
     }
-}
-
-fn rotate_point(dx: f32, dy: f32, sin: f32, cos: f32, cx: f32, cy: f32) -> (f32, f32) {
-    (cx + dx * cos - dy * sin, cy + dx * sin + dy * cos)
 }
 
 // ── Arc ──

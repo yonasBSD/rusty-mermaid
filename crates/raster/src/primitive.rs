@@ -1,6 +1,9 @@
 use std::sync::{Mutex, OnceLock};
 
-use rusty_mermaid_core::{Color, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform};
+use rusty_mermaid_core::{
+    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
+    Color, MarkerShape, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
+};
 use tiny_skia::{
     FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, Stroke,
     Transform as SkTransform,
@@ -304,126 +307,97 @@ fn draw_marker(
     stroke_width: f32,
     transform: SkTransform,
 ) {
-    use rusty_mermaid_core::MarkerType;
-    let size = (stroke_width * 4.0).max(6.0);
-    let (sin, cos) = (angle as f32).sin_cos();
-    let tx = tip.x as f32;
-    let ty = tip.y as f32;
+    let geom = marker_geometry(marker);
+    let sw = stroke_width as f64;
 
-    match marker {
-        MarkerType::ArrowPoint | MarkerType::ArrowBarb => {
-            // Filled triangle pointing in the direction of `angle`
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
-
-            let mut pb = PathBuilder::new();
-            pb.move_to(tx, ty);
-            pb.line_to(p1x, p1y);
-            pb.line_to(p2x, p2y);
-            pb.close();
-            if let Some(path) = pb.finish() {
+    match &geom.shape {
+        MarkerShape::FilledPath(_) => {
+            let pts = transform_marker_points(&geom, tip, angle, sw);
+            if let Some(path) = points_to_skia_path(&pts, true) {
                 let mut paint = Paint::default();
                 paint.set_color(color);
                 paint.anti_alias = true;
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
         }
-        MarkerType::ArrowOpen => {
-            // Open chevron (no fill, just stroked lines)
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
-
-            let mut pb = PathBuilder::new();
-            pb.move_to(p1x, p1y);
-            pb.line_to(tx, ty);
-            pb.line_to(p2x, p2y);
-            if let Some(path) = pb.finish() {
+        MarkerShape::StrokedPath { closed, stroke_width: rel_sw, .. } => {
+            let pts = transform_marker_points(&geom, tip, angle, sw);
+            if let Some(path) = points_to_skia_path(&pts, *closed) {
                 let mut paint = Paint::default();
                 paint.set_color(color);
                 paint.anti_alias = true;
-                let stroke = Stroke { width: stroke_width, ..Default::default() };
+                let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32;
+                let stroke = Stroke { width: w, ..Default::default() };
                 pixmap.stroke_path(&path, &paint, &stroke, transform, None);
             }
         }
-        MarkerType::Circle => {
-            let r = size * 0.4;
-            let (cx, cy) = rotate_point(-r, 0.0, sin, cos, tx, ty);
-            if let Some(path) = circle_path(cx, cy, r) {
-                let mut paint = Paint::default();
-                paint.set_color(color);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-        }
-        MarkerType::Cross => {
-            let half = size * 0.4;
-            let (cx, cy) = rotate_point(-half, 0.0, sin, cos, tx, ty);
-            let mut pb = PathBuilder::new();
-            pb.move_to(cx - half, cy - half);
-            pb.line_to(cx + half, cy + half);
-            pb.move_to(cx - half, cy + half);
-            pb.line_to(cx + half, cy - half);
-            if let Some(path) = pb.finish() {
-                let mut paint = Paint::default();
-                paint.set_color(color);
-                paint.anti_alias = true;
-                let stroke = Stroke { width: stroke_width, ..Default::default() };
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-            }
-        }
-        MarkerType::Aggregation | MarkerType::Composition => {
-            // Diamond shape
-            let half = size * 0.5;
-            let (p1x, p1y) = rotate_point(-half, 0.0, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-half * 0.5, -half * 0.4, sin, cos, tx, ty);
-            let (p3x, p3y) = rotate_point(-half * 0.5, half * 0.4, sin, cos, tx, ty);
-
-            let mut pb = PathBuilder::new();
-            pb.move_to(tx, ty);
-            pb.line_to(p2x, p2y);
-            pb.line_to(p1x, p1y);
-            pb.line_to(p3x, p3y);
-            pb.close();
-            if let Some(path) = pb.finish() {
-                let mut paint = Paint::default();
-                paint.set_color(if matches!(marker, MarkerType::Composition) {
+        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: rel_sw, .. } => {
+            let pts = transform_marker_points(&geom, tip, angle, sw);
+            if let Some(path) = points_to_skia_path(&pts, true) {
+                let fill_color = if *fill_is_marker_color {
                     color
                 } else {
                     tiny_skia::Color::from_rgba8(255, 255, 255, 255)
-                });
+                };
+                let mut paint = Paint::default();
+                paint.set_color(fill_color);
                 paint.anti_alias = true;
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
 
+                let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32;
                 let mut stroke_paint = Paint::default();
                 stroke_paint.set_color(color);
                 stroke_paint.anti_alias = true;
-                let stroke = Stroke { width: stroke_width * 0.5, ..Default::default() };
+                let stroke = Stroke { width: w, ..Default::default() };
                 pixmap.stroke_path(&path, &stroke_paint, &stroke, transform, None);
             }
         }
-        MarkerType::Dependency => {
-            // Open arrow (same as ArrowOpen)
-            let (p1x, p1y) = rotate_point(-size, -size * 0.5, sin, cos, tx, ty);
-            let (p2x, p2y) = rotate_point(-size, size * 0.5, sin, cos, tx, ty);
-
-            let mut pb = PathBuilder::new();
-            pb.move_to(p1x, p1y);
-            pb.line_to(tx, ty);
-            pb.line_to(p2x, p2y);
-            if let Some(path) = pb.finish() {
+        MarkerShape::FilledCircle { .. } => {
+            let (center, r) = transform_marker_circle(&geom, tip, angle, sw);
+            if let Some(path) = circle_path(center.x as f32, center.y as f32, r as f32) {
                 let mut paint = Paint::default();
                 paint.set_color(color);
                 paint.anti_alias = true;
-                let stroke = Stroke { width: stroke_width, ..Default::default() };
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
+                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
         }
-        _ => {} // Future marker types
+        MarkerShape::StrokedCurves { stroke_width: rel_sw, .. } => {
+            let curves = transform_marker_curves(&geom, tip, angle, sw);
+            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32;
+            for curve in &curves {
+                if curve.len() >= 3 {
+                    let mut pb = PathBuilder::new();
+                    pb.move_to(curve[0].x as f32, curve[0].y as f32);
+                    pb.quad_to(
+                        curve[1].x as f32, curve[1].y as f32,
+                        curve[2].x as f32, curve[2].y as f32,
+                    );
+                    if let Some(path) = pb.finish() {
+                        let mut paint = Paint::default();
+                        paint.set_color(color);
+                        paint.anti_alias = true;
+                        let stroke = Stroke {
+                            width: w,
+                            line_cap: LineCap::Round,
+                            ..Default::default()
+                        };
+                        pixmap.stroke_path(&path, &paint, &stroke, transform, None);
+                    }
+                }
+            }
+        }
     }
 }
 
-fn rotate_point(dx: f32, dy: f32, sin: f32, cos: f32, cx: f32, cy: f32) -> (f32, f32) {
-    (cx + dx * cos - dy * sin, cy + dx * sin + dy * cos)
+fn points_to_skia_path(pts: &[Point], closed: bool) -> Option<tiny_skia::Path> {
+    if pts.is_empty() { return None; }
+    let mut pb = PathBuilder::new();
+    pb.move_to(pts[0].x as f32, pts[0].y as f32);
+    for p in &pts[1..] {
+        pb.line_to(p.x as f32, p.y as f32);
+    }
+    if closed { pb.close(); }
+    pb.finish()
 }
 
 fn first_point(segments: &[PathSegment]) -> Option<Point> {
