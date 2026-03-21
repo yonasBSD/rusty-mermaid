@@ -206,10 +206,38 @@ fn segments_to_bezpath(segments: &[PathSegment]) -> BezPath {
                 path.quad_to(to_kpoint(cp), to_kpoint(to));
             }
             PathSegment::ArcTo { rx, ry, rotation, large_arc, sweep, to } => {
-                // kurbo Arc expects center parameterization; convert via line for now.
-                // Full SVG arc conversion deferred to parley/kurbo integration.
-                path.line_to(to_kpoint(to));
-                let _ = (rx, ry, rotation, large_arc, sweep);
+                // Convert SVG arc → kurbo Arc → bezier path segments
+                let from = path.elements().last().map(|el| match el {
+                    kurbo::PathEl::MoveTo(p) | kurbo::PathEl::LineTo(p) => *p,
+                    kurbo::PathEl::QuadTo(_, p) | kurbo::PathEl::CurveTo(_, _, p) => *p,
+                    kurbo::PathEl::ClosePath => KPoint::ORIGIN,
+                }).unwrap_or(KPoint::ORIGIN);
+
+                let svg_arc = kurbo::SvgArc {
+                    from,
+                    to: to_kpoint(to),
+                    radii: Vec2::new(*rx, *ry),
+                    x_rotation: rotation.to_radians(),
+                    large_arc: *large_arc,
+                    sweep: *sweep,
+                };
+
+                if let Some(arc) = kurbo::Arc::from_svg_arc(&svg_arc) {
+                    // Append arc as bezier curves (skip the initial MoveTo)
+                    use kurbo::Shape;
+                    for el in arc.path_elements(0.1) {
+                        match el {
+                            kurbo::PathEl::MoveTo(_) => {} // skip — we're already at `from`
+                            kurbo::PathEl::LineTo(p) => path.line_to(p),
+                            kurbo::PathEl::QuadTo(c, p) => path.quad_to(c, p),
+                            kurbo::PathEl::CurveTo(c1, c2, p) => path.curve_to(c1, c2, p),
+                            kurbo::PathEl::ClosePath => path.close_path(),
+                        }
+                    }
+                } else {
+                    // Degenerate arc — straight line
+                    path.line_to(to_kpoint(to));
+                }
             }
             PathSegment::Close => path.close_path(),
         }
