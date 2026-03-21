@@ -8,3 +8,5 @@ tests/golden/package.json
 tests/golden/package-lock.json
 fuzz/target/
 fuzz/artifacts/
+tests/visual/gallery_gpu/
+examples/wasm-gallery/www/pkg/
