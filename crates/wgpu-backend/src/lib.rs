@@ -1,6 +1,6 @@
 mod scene_builder;
 
-pub use scene_builder::build_vello_scene;
+pub use scene_builder::{build_vello_scene, set_external_font};
 
 use rusty_mermaid_core::{Color, Scene, Theme};
 use rusty_mermaid_viewport::ViewportState;

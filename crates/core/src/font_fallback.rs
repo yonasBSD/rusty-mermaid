@@ -8,9 +8,11 @@
 pub enum FontSlot {
     /// Intel One Mono — ASCII, Latin, Latin Extended
     Primary,
-    /// Noto Sans Mono — Greek, Cyrillic, symbols, arrows, box drawing
-    Symbols,
-    /// Noto Sans Arabic — Arabic, Persian, Urdu
+    /// Noto Sans Mono — Greek, Cyrillic, extended Latin scripts
+    ExtendedText,
+    /// Noto Sans Symbols 2 — dingbats, arrows, misc symbols, box drawing
+    Dingbats,
+    /// Noto Sans Arabic — Arabic, Persian, Urdu, Hebrew
     Arabic,
     /// Noto Sans SC — CJK (Chinese, Japanese, Korean) — CDN only
     Cjk,
@@ -19,13 +21,11 @@ pub enum FontSlot {
 }
 
 impl FontSlot {
-    /// True if this font is embedded in the binary.
     #[inline]
     pub const fn is_embedded(self) -> bool {
-        matches!(self, Self::Primary | Self::Symbols | Self::Arabic)
+        matches!(self, Self::Primary | Self::ExtendedText | Self::Dingbats | Self::Arabic)
     }
 
-    /// True if this font must be fetched from CDN (WASM) or system (native).
     #[inline]
     pub const fn is_external(self) -> bool {
         matches!(self, Self::Cjk | Self::Emoji)
@@ -43,9 +43,9 @@ pub const fn font_for_char(ch: char) -> FontSlot {
         0x1E00..=0x1EFF => FontSlot::Primary,
 
         // Greek and Coptic + Greek Extended
-        0x0370..=0x03FF | 0x1F00..=0x1FFF => FontSlot::Symbols,
+        0x0370..=0x03FF | 0x1F00..=0x1FFF => FontSlot::ExtendedText,
         // Cyrillic + Cyrillic Supplement + Cyrillic Extended
-        0x0400..=0x04FF | 0x0500..=0x052F | 0x2DE0..=0x2DFF | 0xA640..=0xA69F => FontSlot::Symbols,
+        0x0400..=0x04FF | 0x0500..=0x052F | 0x2DE0..=0x2DFF | 0xA640..=0xA69F => FontSlot::ExtendedText,
 
         // Arabic + Arabic Supplement + Arabic Extended + Arabic Presentation Forms
         0x0600..=0x06FF | 0x0750..=0x077F | 0x08A0..=0x08FF |
@@ -74,30 +74,32 @@ pub const fn font_for_char(ch: char) -> FontSlot {
         0xFE00..=0xFE0F |   // Variation Selectors
         0x200D => FontSlot::Emoji, // ZWJ
 
-        // General Punctuation, Superscripts, Currency, Number Forms
-        0x2000..=0x20CF => FontSlot::Symbols,
-        // Letterlike Symbols, Number Forms, Arrows
-        0x2100..=0x21FF => FontSlot::Symbols,
+        // General Punctuation, Superscripts, Currency
+        0x2000..=0x20CF => FontSlot::ExtendedText,
+        // Letterlike Symbols, Number Forms
+        0x2100..=0x214F => FontSlot::ExtendedText,
+        // Arrows — most monospace fonts cover these
+        0x2190..=0x21FF => FontSlot::ExtendedText,
         // Mathematical Operators
-        0x2200..=0x22FF => FontSlot::Symbols,
+        0x2200..=0x22FF => FontSlot::ExtendedText,
         // Misc Technical, Control Pictures, OCR
-        0x2300..=0x23FF => FontSlot::Symbols,
+        0x2300..=0x23FF => FontSlot::Dingbats,
         // Enclosed Alphanumerics
-        0x2460..=0x24FF => FontSlot::Symbols,
+        0x2460..=0x24FF => FontSlot::Dingbats,
         // Box Drawing, Block Elements, Geometric Shapes
-        0x2500..=0x25FF => FontSlot::Symbols,
-        // Misc Symbols + Dingbats
-        0x2600..=0x27BF => FontSlot::Symbols,
+        0x2500..=0x25FF => FontSlot::Dingbats,
+        // Misc Symbols + Dingbats (☕ ✔ ✘ ★ ☆ etc.)
+        0x2600..=0x27BF => FontSlot::Dingbats,
         // Supplemental Arrows, Misc Math Symbols
-        0x27C0..=0x27EF | 0x2980..=0x29FF | 0x2B00..=0x2BFF => FontSlot::Symbols,
+        0x27C0..=0x27EF | 0x2980..=0x29FF | 0x2B00..=0x2BFF => FontSlot::Dingbats,
 
-        // Devanagari, Bengali, Tamil, etc. — Symbols as best effort
-        0x0900..=0x0DFF => FontSlot::Symbols,
+        // Devanagari, Bengali, Tamil, etc.
+        0x0900..=0x0DFF => FontSlot::ExtendedText,
         // Thai, Lao
-        0x0E00..=0x0E7F | 0x0E80..=0x0EFF => FontSlot::Symbols,
+        0x0E00..=0x0E7F | 0x0E80..=0x0EFF => FontSlot::ExtendedText,
 
-        // Everything else → Symbols (best effort)
-        _ => FontSlot::Symbols,
+        // Everything else → ExtendedText (best effort)
+        _ => FontSlot::ExtendedText,
     }
 }
 
@@ -179,16 +181,16 @@ mod tests {
     }
 
     #[test]
-    fn greek_is_symbols() {
-        assert_eq!(font_for_char('α'), FontSlot::Symbols);
-        assert_eq!(font_for_char('β'), FontSlot::Symbols);
-        assert_eq!(font_for_char('γ'), FontSlot::Symbols);
+    fn greek_is_extended_text() {
+        assert_eq!(font_for_char('α'), FontSlot::ExtendedText);
+        assert_eq!(font_for_char('β'), FontSlot::ExtendedText);
+        assert_eq!(font_for_char('γ'), FontSlot::ExtendedText);
     }
 
     #[test]
-    fn cyrillic_is_symbols() {
-        assert_eq!(font_for_char('П'), FontSlot::Symbols);
-        assert_eq!(font_for_char('р'), FontSlot::Symbols);
+    fn cyrillic_is_extended_text() {
+        assert_eq!(font_for_char('П'), FontSlot::ExtendedText);
+        assert_eq!(font_for_char('р'), FontSlot::ExtendedText);
     }
 
     #[test]
@@ -205,18 +207,17 @@ mod tests {
     }
 
     #[test]
-    fn symbols_are_symbols() {
-        assert_eq!(font_for_char('★'), FontSlot::Symbols);
-        assert_eq!(font_for_char('☆'), FontSlot::Symbols);
-        assert_eq!(font_for_char('→'), FontSlot::Symbols);
-        assert_eq!(font_for_char('✔'), FontSlot::Symbols);
-        assert_eq!(font_for_char('✘'), FontSlot::Symbols);
+    fn symbols_are_dingbats() {
+        assert_eq!(font_for_char('★'), FontSlot::Dingbats);
+        assert_eq!(font_for_char('☆'), FontSlot::Dingbats);
+        assert_eq!(font_for_char('→'), FontSlot::ExtendedText);
+        assert_eq!(font_for_char('✔'), FontSlot::Dingbats);
+        assert_eq!(font_for_char('✘'), FontSlot::Dingbats);
     }
 
     #[test]
-    fn coffee_is_symbols() {
-        // ☕ U+2615 is in Misc Symbols (2600-26FF)
-        assert_eq!(font_for_char('☕'), FontSlot::Symbols);
+    fn coffee_is_dingbats() {
+        assert_eq!(font_for_char('☕'), FontSlot::Dingbats);
     }
 
     #[test]

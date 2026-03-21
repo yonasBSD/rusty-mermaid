@@ -19,7 +19,8 @@ wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 web-sys = { version = "0.3", features = [
     "Document", "Element", "HtmlCanvasElement", "HtmlSelectElement",
-    "CssStyleDeclaration", "DomTokenList",
+    "CssStyleDeclaration", "DomTokenList", "Response",
+    "Headers", "RequestInit", "Request",
     "Window", "Navigator", "Gpu", "console",
 ] }
 console_error_panic_hook = "0.1"

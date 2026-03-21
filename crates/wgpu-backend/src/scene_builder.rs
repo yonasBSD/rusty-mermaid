@@ -351,6 +351,119 @@ fn first_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
     Some((p0, (p0.y - p1.y).atan2(p0.x - p1.x)))
 }
 
+// ── Text: deterministic font selection + shaping ──
+
+use rusty_mermaid_core::font_fallback::{FontSlot, font_for_char};
+
+/// Pre-loaded font data indexed by FontSlot. Initialized once.
+struct FontSet {
+    primary: FontData,       // Intel One Mono Regular
+    primary_bold: FontData,
+    primary_italic: FontData,
+    primary_bold_italic: FontData,
+    extended_text: FontData, // Noto Sans Mono (Greek, Cyrillic)
+    dingbats: FontData,      // Noto Sans Symbols 2 (☕ ✔ ★ → etc.)
+    arabic: FontData,        // Noto Sans Arabic
+    external: std::sync::Mutex<ExternalFonts>,
+}
+
+struct ExternalFonts {
+    cjk: Option<FontData>,
+    emoji: Option<FontData>,
+}
+
+static FONT_SET: OnceLock<FontSet> = OnceLock::new();
+
+fn get_font_set() -> &'static FontSet {
+    FONT_SET.get_or_init(|| {
+        let load = |bytes: &[u8]| FontData::new(Blob::new(Arc::new(bytes.to_vec())), 0);
+        FontSet {
+            primary: load(include_bytes!("../../raster/fonts/IntelOneMono-Regular.ttf")),
+            primary_bold: load(include_bytes!("../../raster/fonts/IntelOneMono-Bold.ttf")),
+            primary_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-Italic.ttf")),
+            primary_bold_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-BoldItalic.ttf")),
+            extended_text: load(include_bytes!("../../raster/fonts/NotoSansMono-Regular.ttf")),
+            dingbats: load(include_bytes!("../../raster/fonts/NotoSansSymbols2-Regular.ttf")),
+            arabic: load(include_bytes!("../../raster/fonts/NotoSansArabic-Regular.ttf")),
+            external: std::sync::Mutex::new(ExternalFonts { cjk: None, emoji: None }),
+        }
+    })
+}
+
+/// Set an external font (called from WASM after CDN fetch).
+pub fn set_external_font(slot: FontSlot, bytes: Vec<u8>) {
+    let fs = get_font_set();
+    if let Ok(mut ext) = fs.external.lock() {
+        let fd = FontData::new(Blob::new(Arc::new(bytes)), 0);
+        match slot {
+            FontSlot::Cjk => ext.cjk = Some(fd),
+            FontSlot::Emoji => ext.emoji = Some(fd),
+            _ => {}
+        }
+    }
+}
+
+/// Resolve FontSlot to FontData. Returns None for unavailable external fonts.
+fn font_for_slot(fs: &FontSet, slot: FontSlot, bold: bool, italic: bool) -> Option<FontData> {
+    match slot {
+        FontSlot::Primary => Some(match (bold, italic) {
+            (true, true) => fs.primary_bold_italic.clone(),
+            (true, false) => fs.primary_bold.clone(),
+            (false, true) => fs.primary_italic.clone(),
+            (false, false) => fs.primary.clone(),
+        }),
+        FontSlot::ExtendedText => Some(fs.extended_text.clone()),
+        FontSlot::Dingbats => Some(fs.dingbats.clone()),
+        FontSlot::Arabic => Some(fs.arabic.clone()),
+        FontSlot::Cjk => fs.external.lock().ok().and_then(|e| e.cjk.clone()),
+        FontSlot::Emoji => fs.external.lock().ok().and_then(|e| e.emoji.clone()),
+    }
+}
+
+struct ShapedGlyph {
+    glyph_id: u32,
+    x_advance: f32,
+    x_offset: f32,
+    y_offset: f32,
+}
+
+/// Shape text with rustybuzz, falling back to skrifa charmap.
+fn shape_run(text: &str, font_data: &FontData, font_size: f32) -> Vec<ShapedGlyph> {
+    let bytes = font_data.data.as_ref();
+
+    if let Some(face) = rustybuzz::Face::from_slice(bytes, 0) {
+        let scale = font_size / face.units_per_em() as f32;
+        let mut buffer = rustybuzz::UnicodeBuffer::new();
+        buffer.push_str(text);
+        let output = rustybuzz::shape(&face, &[], buffer);
+        return output.glyph_infos().iter().zip(output.glyph_positions()).map(|(info, pos)| {
+            ShapedGlyph {
+                glyph_id: info.glyph_id,
+                x_advance: pos.x_advance as f32 * scale,
+                x_offset: pos.x_offset as f32 * scale,
+                y_offset: -(pos.y_offset as f32 * scale),
+            }
+        }).collect();
+    }
+
+    if let Ok(fr) = skrifa::FontRef::new(bytes) {
+        let cm = skrifa::MetadataProvider::charmap(&fr);
+        let gm = skrifa::MetadataProvider::glyph_metrics(&fr, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
+        return text.chars().map(|ch| {
+            let gid = cm.map(ch).unwrap_or_default();
+            ShapedGlyph {
+                glyph_id: gid.to_u32(),
+                x_advance: gm.advance_width(gid).unwrap_or(font_size * 0.6),
+                x_offset: 0.0, y_offset: 0.0,
+            }
+        }).collect();
+    }
+
+    text.chars().map(|_| ShapedGlyph {
+        glyph_id: 0, x_advance: font_size * 0.6, x_offset: 0.0, y_offset: 0.0,
+    }).collect()
+}
+
 fn last_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
     let points: Vec<Point> = segments.iter().filter_map(|s| match s {
         PathSegment::MoveTo(p) | PathSegment::LineTo(p) => Some(*p),
@@ -365,98 +478,46 @@ fn last_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
 
 // ── Text rendering ──
 
-struct FontFamily {
-    regular: FontData,
-    bold: FontData,
-    italic: FontData,
-    bold_italic: FontData,
-}
-
-static FONT_FAMILY: OnceLock<FontFamily> = OnceLock::new();
-
-fn get_font_family() -> &'static FontFamily {
-    FONT_FAMILY.get_or_init(|| {
-        let load = |bytes: &[u8]| FontData::new(Blob::new(Arc::new(bytes.to_vec())), 0);
-        FontFamily {
-            regular: load(include_bytes!("../../raster/fonts/IntelOneMono-Regular.ttf")),
-            bold: load(include_bytes!("../../raster/fonts/IntelOneMono-Bold.ttf")),
-            italic: load(include_bytes!("../../raster/fonts/IntelOneMono-Italic.ttf")),
-            bold_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-BoldItalic.ttf")),
-        }
-    })
-}
-
-fn select_font(family: &FontFamily, bold: bool, italic: bool) -> &FontData {
-    match (bold, italic) {
-        (true, true) => &family.bold_italic,
-        (true, false) => &family.bold,
-        (false, true) => &family.italic,
-        (false, false) => &family.regular,
-    }
-}
-
 fn render_text(
     scene: &mut VelloScene,
     position: &Point,
     content: &str,
     anchor: TextAnchor,
     style: &rusty_mermaid_core::TextStyle,
-    theme: &Theme,
+    _theme: &Theme,
     transform: Affine,
 ) {
-    let family = if theme.custom_font.is_some() {
-        // Custom font: use it for all styles (no bold/italic variants)
-        let custom = FontData::new(Blob::new(Arc::new(theme.custom_font.as_ref().unwrap().clone())), 0);
-        // Fall through to regular for all spans
-        &*Box::leak(Box::new(FontFamily {
-            regular: custom.clone(), bold: custom.clone(),
-            italic: custom.clone(), bold_italic: custom,
-        }))
-    } else {
-        get_font_family()
-    };
-
+    let fs = get_font_set();
     let font_size = style.font_size as f32;
     let fill_color = style.fill.unwrap_or(Color::rgb(51, 51, 51));
 
-    // Use regular font for metrics (all variants share the same metrics in monospace)
-    let font_ref = skrifa::FontRef::from_index(family.regular.data.as_ref(), family.regular.index)
+    // Metrics from primary font for baseline centering
+    let font_ref = skrifa::FontRef::from_index(fs.primary.data.as_ref(), fs.primary.index)
         .expect("embedded font must be valid");
-    let charmap = skrifa::MetadataProvider::charmap(&font_ref);
     let metrics = skrifa::MetadataProvider::metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
-    let glyph_metrics = skrifa::MetadataProvider::glyph_metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
-
-    // Compute baseline position for visual centering.
-    // ascent is positive (above baseline), descent is negative (below baseline).
-    let ascent = metrics.ascent;    // e.g. +11.2 at 14px
-    let descent = metrics.descent;  // e.g. -2.8 at 14px
-    // Visual center above baseline = (ascent + descent) / 2
-    // (descent is negative, so this gives (ascent - |descent|) / 2)
-    let visual_center_above_baseline = (ascent + descent) / 2.0;
+    let primary_gm = skrifa::MetadataProvider::glyph_metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
+    let primary_cm = skrifa::MetadataProvider::charmap(&font_ref);
+    let visual_center_above_baseline = (metrics.ascent + metrics.descent) / 2.0;
 
     let lines: Vec<&str> = content.split('\n').collect();
     let line_height = font_size * 1.2;
     let block_height = (lines.len() as f32 - 1.0) * line_height;
-    // First baseline = center_y + visual_center_above_baseline - block_height/2
     let first_baseline_y = position.y as f32 + visual_center_above_baseline - block_height / 2.0;
 
     for (line_idx, line) in lines.iter().enumerate() {
-        // Parse markdown spans or treat as plain text
         let spans = parse_inline_markdown(line);
-        let plain_text: &str = line;
-
-        // First pass: measure total line width (without markers)
-        let mut line_w: f32 = 0.0;
         let text_parts: Vec<(&str, bool, bool)> = if let Some(ref spans) = spans {
             spans.iter().map(|s| (s.text.as_str(), s.bold, s.italic)).collect()
         } else {
-            vec![(plain_text, false, false)]
+            vec![(line as &str, false, false)]
         };
+
+        // Measure line width (primary font advance for all chars)
+        let mut line_w: f32 = 0.0;
         for (text, _, _) in &text_parts {
             for ch in text.chars() {
-                let gid = charmap.map(ch).unwrap_or_default();
-                let advance = glyph_metrics.advance_width(gid).unwrap_or(font_size * 0.6);
-                line_w += advance;
+                let gid = primary_cm.map(ch).unwrap_or_default();
+                line_w += primary_gm.advance_width(gid).unwrap_or(font_size * 0.6);
             }
         }
 
@@ -466,31 +527,42 @@ fn render_text(
             TextAnchor::End => position.x as f32 - line_w,
         };
         let line_y = first_baseline_y + line_idx as f32 * line_height;
-
-        // Second pass: render each span with the correct font variant
         let mut cursor_x = start_x;
+
         for (text, is_bold, is_italic) in &text_parts {
-            let font_data = select_font(family, *is_bold, *is_italic);
+            // Split text into runs by FontSlot (O(n) single pass)
+            let chars: Vec<char> = text.chars().collect();
+            let mut i = 0;
+            while i < chars.len() {
+                let slot = font_for_char(chars[i]);
+                let run_start = i;
+                while i < chars.len() && font_for_char(chars[i]) == slot {
+                    i += 1;
+                }
+                let run: String = chars[run_start..i].iter().collect();
 
-            let mut glyphs = Vec::new();
-            for ch in text.chars() {
-                let gid = charmap.map(ch).unwrap_or_default();
-                let advance = glyph_metrics.advance_width(gid).unwrap_or(font_size * 0.6);
-                glyphs.push(vello::Glyph {
-                    id: gid.to_u32(),
-                    x: cursor_x,
-                    y: line_y,
-                });
-                cursor_x += advance;
+                // Resolve font for this slot
+                let fd = font_for_slot(fs, slot, *is_bold, *is_italic);
+                if let Some(ref fd) = fd {
+                    let shaped = shape_run(&run, fd, font_size);
+                    let mut gx = cursor_x;
+                    let glyphs: Vec<_> = shaped.iter().map(|sg| {
+                        let g = vello::Glyph {
+                            id: sg.glyph_id,
+                            x: gx + sg.x_offset,
+                            y: line_y + sg.y_offset,
+                        };
+                        gx += sg.x_advance;
+                        g
+                    }).collect();
+                    scene.draw_glyphs(fd).font_size(font_size).transform(transform)
+                        .brush(to_vello_color(fill_color)).draw(Fill::NonZero, glyphs.into_iter());
+                    cursor_x = gx;
+                } else {
+                    // External font not available — skip with default advance
+                    cursor_x += (i - run_start) as f32 * font_size * 0.6;
+                }
             }
-            if glyphs.is_empty() { continue; }
-
-            scene
-                .draw_glyphs(font_data)
-                .font_size(font_size)
-                .transform(transform)
-                .brush(to_vello_color(fill_color))
-                .draw(Fill::NonZero, glyphs.into_iter());
         }
     }
 }

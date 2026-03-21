@@ -527,6 +527,7 @@ fn get_font_family() -> &'static RasterFontFamily {
             fontdue::Font::from_bytes(bytes, fontdue::FontSettings::default())
                 .expect("embedded font must be valid")
         };
+
         RasterFontFamily {
             regular: load(include_bytes!("../fonts/IntelOneMono-Regular.ttf")),
             bold: load(include_bytes!("../fonts/IntelOneMono-Bold.ttf")),
