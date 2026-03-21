@@ -66,6 +66,28 @@ impl TextMeasure for SimpleTextMeasure {
     }
 }
 
+/// Compute the baseline Y for vertically centered text.
+///
+/// Given a target center Y position, returns the Y coordinate for the
+/// **first line's baseline** so that the text block is visually centered.
+///
+/// SVG does this with `dominant-baseline: central`. Non-SVG backends
+/// (raster, gpui, vello) call this to compute the baseline position.
+///
+/// Usage: `baseline_y = center_y + text_baseline_y_offset(font_size, line_count)`
+///
+/// Based on Intel One Mono metrics: ascent ≈ 0.8em, descent ≈ 0.2em.
+/// Visual center above baseline = (ascent - |descent|) / 2 ≈ 0.3em.
+pub fn text_baseline_y_offset(font_size: f64, line_count: usize) -> f64 {
+    // For a single line, baseline should be below center by 0.3 * font_size
+    // because glyphs extend more above baseline (ascent) than below (descent).
+    let baseline_from_center = font_size * 0.3;
+    // For multi-line, shift up by half the total block height (from first to last baseline).
+    let line_height = font_size * 1.2;
+    let block_offset = (line_count as f64 - 1.0) * line_height / 2.0;
+    baseline_from_center - block_offset
+}
+
 /// Check if a character is East Asian Wide or Fullwidth per UAX #11.
 /// Covers the most common ranges; not exhaustive but sufficient for
 /// CJK, Japanese kana, Korean, and fullwidth Latin/symbols.

@@ -1,8 +1,9 @@
 use std::sync::{Mutex, OnceLock};
 
 use rusty_mermaid_core::{
-    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
-    Color, MarkerShape, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
+    marker_geometry, text_baseline_y_offset, transform_marker_circle, transform_marker_curves,
+    transform_marker_points, Color, MarkerShape, PathSegment, Point, Primitive, Style,
+    TextAnchor, Theme, Transform,
 };
 use tiny_skia::{
     FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, Stroke,
@@ -565,11 +566,10 @@ fn render_text_with_font(
     let px = style.font_size as f32;
     let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
 
-    // Handle multi-line text
     let lines: Vec<&str> = content.split('\n').collect();
     let line_height = px * 1.2;
-    let total_h = line_height * (lines.len() - 1) as f32;
-    let base_y = position.y as f32 - total_h / 2.0;
+    let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32;
+    let first_baseline_y = position.y as f32 + baseline_offset;
 
     for (line_idx, line) in lines.iter().enumerate() {
         // Measure line width for anchor alignment
@@ -584,7 +584,7 @@ fn render_text_with_font(
             TextAnchor::Middle => position.x as f32 - line_w / 2.0,
             TextAnchor::End => position.x as f32 - line_w,
         };
-        let line_y = base_y + line_idx as f32 * line_height;
+        let line_y = first_baseline_y + line_idx as f32 * line_height;
 
         let mut cursor_x = start_x;
         for ch in line.chars() {

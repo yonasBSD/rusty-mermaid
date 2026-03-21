@@ -3,9 +3,9 @@ use gpui::{
     Point as GpuiPoint, TextRun, Window,
 };
 use rusty_mermaid_core::{
-    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
-    Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme,
-    Transform,
+    marker_geometry, text_baseline_y_offset, transform_marker_circle, transform_marker_curves,
+    transform_marker_points, Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style,
+    TextAnchor, Theme, Transform,
 };
 use rusty_mermaid_viewport::ViewportState;
 
@@ -152,7 +152,8 @@ fn paint_primitive(
                 TextAnchor::Middle => x - text_w / 2.0,
                 TextAnchor::End => x - text_w,
             };
-            let text_y = y - font_size / 2.0;
+            let baseline_offset = text_baseline_y_offset(style.font_size, 1) as f32 * zoom;
+            let text_y = y + baseline_offset - font_size; // gpui paints from top, not baseline
 
             let _ = shaped.paint(
                 point(px(text_x), px(text_y)),

@@ -5,9 +5,9 @@ use vello::peniko::{Blob, Color as VelloColor, Fill, FontData};
 use vello::Scene as VelloScene;
 
 use rusty_mermaid_core::{
-    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
-    Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme,
-    Transform,
+    marker_geometry, transform_marker_circle, transform_marker_curves,
+    transform_marker_points, Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style,
+    TextAnchor, Theme, Transform,
 };
 use rusty_mermaid_viewport::ViewportState;
 
@@ -396,15 +396,24 @@ fn render_text(
     let font_ref = skrifa::FontRef::from_index(font_data.data.as_ref(), font_data.index)
         .expect("embedded font must be valid");
     let charmap = skrifa::MetadataProvider::charmap(&font_ref);
+    let metrics = skrifa::MetadataProvider::metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
     let glyph_metrics = skrifa::MetadataProvider::glyph_metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
+
+    // Compute baseline position for visual centering.
+    // ascent is positive (above baseline), descent is negative (below baseline).
+    let ascent = metrics.ascent;    // e.g. +11.2 at 14px
+    let descent = metrics.descent;  // e.g. -2.8 at 14px
+    // Visual center above baseline = (ascent + descent) / 2
+    // (descent is negative, so this gives (ascent - |descent|) / 2)
+    let visual_center_above_baseline = (ascent + descent) / 2.0;
 
     let lines: Vec<&str> = content.split('\n').collect();
     let line_height = font_size * 1.2;
-    let total_h = line_height * (lines.len() - 1) as f32;
-    let base_y = position.y as f32 - total_h / 2.0;
+    let block_height = (lines.len() as f32 - 1.0) * line_height;
+    // First baseline = center_y + visual_center_above_baseline - block_height/2
+    let first_baseline_y = position.y as f32 + visual_center_above_baseline - block_height / 2.0;
 
     for (line_idx, line) in lines.iter().enumerate() {
-        // Measure line width
         let mut line_w: f32 = 0.0;
         let mut glyphs = Vec::new();
         for ch in line.chars() {
@@ -419,7 +428,7 @@ fn render_text(
             TextAnchor::Middle => position.x as f32 - line_w / 2.0,
             TextAnchor::End => position.x as f32 - line_w,
         };
-        let line_y = base_y + line_idx as f32 * line_height;
+        let line_y = first_baseline_y + line_idx as f32 * line_height;
 
         let glyph_iter = glyphs.into_iter().map(|(gid, x_off)| vello::Glyph {
             id: gid.to_u32(),
