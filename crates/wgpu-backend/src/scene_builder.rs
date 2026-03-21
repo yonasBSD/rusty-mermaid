@@ -5,7 +5,7 @@ use vello::peniko::{Blob, Color as VelloColor, Fill, FontData};
 use vello::Scene as VelloScene;
 
 use rusty_mermaid_core::{
-    marker_geometry, transform_marker_circle, transform_marker_curves,
+    marker_geometry, parse_inline_markdown, transform_marker_circle, transform_marker_curves,
     transform_marker_points, Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style,
     TextAnchor, Theme, Transform,
 };
@@ -365,18 +365,33 @@ fn last_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
 
 // ── Text rendering ──
 
-static DEFAULT_FONT_DATA: OnceLock<FontData> = OnceLock::new();
+struct FontFamily {
+    regular: FontData,
+    bold: FontData,
+    italic: FontData,
+    bold_italic: FontData,
+}
 
-fn get_font_data(theme: &Theme) -> FontData {
-    if let Some(ref custom_bytes) = theme.custom_font {
-        FontData::new(Blob::new(Arc::new(custom_bytes.clone())), 0)
-    } else {
-        DEFAULT_FONT_DATA
-            .get_or_init(|| {
-                let bytes = include_bytes!("../../raster/fonts/IntelOneMono-Regular.ttf");
-                FontData::new(Blob::new(Arc::new(bytes.to_vec())), 0)
-            })
-            .clone()
+static FONT_FAMILY: OnceLock<FontFamily> = OnceLock::new();
+
+fn get_font_family() -> &'static FontFamily {
+    FONT_FAMILY.get_or_init(|| {
+        let load = |bytes: &[u8]| FontData::new(Blob::new(Arc::new(bytes.to_vec())), 0);
+        FontFamily {
+            regular: load(include_bytes!("../../raster/fonts/IntelOneMono-Regular.ttf")),
+            bold: load(include_bytes!("../../raster/fonts/IntelOneMono-Bold.ttf")),
+            italic: load(include_bytes!("../../raster/fonts/IntelOneMono-Italic.ttf")),
+            bold_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-BoldItalic.ttf")),
+        }
+    })
+}
+
+fn select_font(family: &FontFamily, bold: bool, italic: bool) -> &FontData {
+    match (bold, italic) {
+        (true, true) => &family.bold_italic,
+        (true, false) => &family.bold,
+        (false, true) => &family.italic,
+        (false, false) => &family.regular,
     }
 }
 
@@ -389,11 +404,23 @@ fn render_text(
     theme: &Theme,
     transform: Affine,
 ) {
-    let font_data = get_font_data(theme);
+    let family = if theme.custom_font.is_some() {
+        // Custom font: use it for all styles (no bold/italic variants)
+        let custom = FontData::new(Blob::new(Arc::new(theme.custom_font.as_ref().unwrap().clone())), 0);
+        // Fall through to regular for all spans
+        &*Box::leak(Box::new(FontFamily {
+            regular: custom.clone(), bold: custom.clone(),
+            italic: custom.clone(), bold_italic: custom,
+        }))
+    } else {
+        get_font_family()
+    };
+
     let font_size = style.font_size as f32;
     let fill_color = style.fill.unwrap_or(Color::rgb(51, 51, 51));
 
-    let font_ref = skrifa::FontRef::from_index(font_data.data.as_ref(), font_data.index)
+    // Use regular font for metrics (all variants share the same metrics in monospace)
+    let font_ref = skrifa::FontRef::from_index(family.regular.data.as_ref(), family.regular.index)
         .expect("embedded font must be valid");
     let charmap = skrifa::MetadataProvider::charmap(&font_ref);
     let metrics = skrifa::MetadataProvider::metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
@@ -414,13 +441,23 @@ fn render_text(
     let first_baseline_y = position.y as f32 + visual_center_above_baseline - block_height / 2.0;
 
     for (line_idx, line) in lines.iter().enumerate() {
+        // Parse markdown spans or treat as plain text
+        let spans = parse_inline_markdown(line);
+        let plain_text: &str = line;
+
+        // First pass: measure total line width (without markers)
         let mut line_w: f32 = 0.0;
-        let mut glyphs = Vec::new();
-        for ch in line.chars() {
-            let gid = charmap.map(ch).unwrap_or_default();
-            let advance = glyph_metrics.advance_width(gid).unwrap_or(font_size * 0.6);
-            glyphs.push((gid, line_w));
-            line_w += advance;
+        let text_parts: Vec<(&str, bool, bool)> = if let Some(ref spans) = spans {
+            spans.iter().map(|s| (s.text.as_str(), s.bold, s.italic)).collect()
+        } else {
+            vec![(plain_text, false, false)]
+        };
+        for (text, _, _) in &text_parts {
+            for ch in text.chars() {
+                let gid = charmap.map(ch).unwrap_or_default();
+                let advance = glyph_metrics.advance_width(gid).unwrap_or(font_size * 0.6);
+                line_w += advance;
+            }
         }
 
         let start_x = match anchor {
@@ -430,17 +467,30 @@ fn render_text(
         };
         let line_y = first_baseline_y + line_idx as f32 * line_height;
 
-        let glyph_iter = glyphs.into_iter().map(|(gid, x_off)| vello::Glyph {
-            id: gid.to_u32(),
-            x: start_x + x_off,
-            y: line_y,
-        });
+        // Second pass: render each span with the correct font variant
+        let mut cursor_x = start_x;
+        for (text, is_bold, is_italic) in &text_parts {
+            let font_data = select_font(family, *is_bold, *is_italic);
 
-        scene
-            .draw_glyphs(&font_data)
-            .font_size(font_size)
-            .transform(transform)
-            .brush(to_vello_color(fill_color))
-            .draw(Fill::NonZero, glyph_iter);
+            let mut glyphs = Vec::new();
+            for ch in text.chars() {
+                let gid = charmap.map(ch).unwrap_or_default();
+                let advance = glyph_metrics.advance_width(gid).unwrap_or(font_size * 0.6);
+                glyphs.push(vello::Glyph {
+                    id: gid.to_u32(),
+                    x: cursor_x,
+                    y: line_y,
+                });
+                cursor_x += advance;
+            }
+            if glyphs.is_empty() { continue; }
+
+            scene
+                .draw_glyphs(font_data)
+                .font_size(font_size)
+                .transform(transform)
+                .brush(to_vello_color(fill_color))
+                .draw(Fill::NonZero, glyphs.into_iter());
+        }
     }
 }

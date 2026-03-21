@@ -24,5 +24,5 @@ pub use marker_shapes::{
     MarkerGeometry, MarkerShape,
 };
 pub use style::{FontWeight, Style, TextStyle, Theme};
-pub use text::{text_baseline_y_offset, SimpleTextMeasure, TextMeasure};
+pub use text::{parse_inline_markdown, text_baseline_y_offset, MdSpan, SimpleTextMeasure, TextMeasure};
 pub use types::{BBox, Color, Direction, Point};

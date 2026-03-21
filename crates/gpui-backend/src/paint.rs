@@ -1,11 +1,11 @@
 use gpui::{
-    point, px, quad, font, App, Bounds, BorderStyle, Edges, Hsla, PathBuilder, Pixels,
-    Point as GpuiPoint, TextRun, Window,
+    point, px, quad, font, App, Bounds, BorderStyle, Edges, Font, FontStyle, FontWeight as GpuiFontWeight,
+    Hsla, PathBuilder, Pixels, Point as GpuiPoint, TextRun, Window,
 };
 use rusty_mermaid_core::{
-    marker_geometry, text_baseline_y_offset, transform_marker_circle, transform_marker_curves,
-    transform_marker_points, Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style,
-    TextAnchor, Theme, Transform,
+    marker_geometry, parse_inline_markdown, text_baseline_y_offset, transform_marker_circle,
+    transform_marker_curves, transform_marker_points, Color, MarkerShape, MarkerType,
+    PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
 };
 use rusty_mermaid_viewport::ViewportState;
 
@@ -127,20 +127,42 @@ fn paint_primitive(
             let y = position.y as f32 * zoom + oy;
             let font_size = style.font_size as f32 * zoom;
             let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
+            let color = to_gpui_color(fill);
 
-            let f = font("monospace");
-
-            let runs = vec![TextRun {
-                len: content.len(),
-                font: f,
-                color: to_gpui_color(fill),
-                background_color: None,
-                underline: None,
-                strikethrough: None,
-            }];
+            // Build text runs with markdown-aware font styling
+            let (display_text, runs) = if let Some(spans) = parse_inline_markdown(content) {
+                let mut text = String::new();
+                let mut runs = Vec::new();
+                for span in &spans {
+                    let f = Font {
+                        weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
+                        style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
+                        ..font("monospace")
+                    };
+                    runs.push(TextRun {
+                        len: span.text.len(),
+                        font: f,
+                        color,
+                        background_color: None,
+                        underline: None,
+                        strikethrough: None,
+                    });
+                    text.push_str(&span.text);
+                }
+                (text, runs)
+            } else {
+                (content.clone(), vec![TextRun {
+                    len: content.len(),
+                    font: font("monospace"),
+                    color,
+                    background_color: None,
+                    underline: None,
+                    strikethrough: None,
+                }])
+            };
 
             let shaped = window.text_system().shape_line(
-                content.clone().into(),
+                display_text.into(),
                 px(font_size),
                 &runs,
                 None,
@@ -153,7 +175,7 @@ fn paint_primitive(
                 TextAnchor::End => x - text_w,
             };
             let baseline_offset = text_baseline_y_offset(style.font_size, 1) as f32 * zoom;
-            let text_y = y + baseline_offset - font_size; // gpui paints from top, not baseline
+            let text_y = y + baseline_offset - font_size;
 
             let _ = shaped.paint(
                 point(px(text_x), px(text_y)),

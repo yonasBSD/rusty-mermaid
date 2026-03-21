@@ -88,6 +88,54 @@ pub fn text_baseline_y_offset(font_size: f64, line_count: usize) -> f64 {
     baseline_from_center - block_offset
 }
 
+/// A text span with inline markdown formatting.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MdSpan {
+    pub text: String,
+    pub bold: bool,
+    pub italic: bool,
+}
+
+/// Parse inline markdown (`**bold**`, `*italic*`, `***both***`) into styled spans.
+/// Returns `None` if the text contains no formatting markers.
+pub fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
+    if !text.contains('*') {
+        return None;
+    }
+
+    let mut spans = Vec::new();
+    let mut bold = false;
+    let mut italic = false;
+    let mut buf = String::new();
+    let mut chars = text.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '*' && chars.peek() == Some(&'*') {
+            chars.next();
+            if !buf.is_empty() {
+                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
+            }
+            bold = !bold;
+        } else if c == '*' {
+            if !buf.is_empty() {
+                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
+            }
+            italic = !italic;
+        } else {
+            buf.push(c);
+        }
+    }
+    if !buf.is_empty() {
+        spans.push(MdSpan { text: buf, bold, italic });
+    }
+
+    if spans.iter().any(|s| s.bold || s.italic) {
+        Some(spans)
+    } else {
+        None
+    }
+}
+
 /// Check if a character is East Asian Wide or Fullwidth per UAX #11.
 /// Covers the most common ranges; not exhaustive but sufficient for
 /// CJK, Japanese kana, Korean, and fullwidth Latin/symbols.

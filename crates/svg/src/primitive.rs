@@ -1,4 +1,4 @@
-use rusty_mermaid_core::{Element, MarkerType, Primitive, TextAnchor, Transform};
+use rusty_mermaid_core::{parse_inline_markdown, Element, MarkerType, MdSpan, Primitive, TextAnchor, Transform};
 
 use crate::SvgConfig;
 use crate::document::{fmt_f64, write_f64, SvgDocument};
@@ -313,57 +313,6 @@ fn xml_escape(s: &str) -> String {
         }
     }
     result
-}
-
-/// Inline markdown span with bold/italic styling.
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct MdSpan {
-    text: String,
-    bold: bool,
-    italic: bool,
-}
-
-/// Parse inline markdown (`**bold**`, `*italic*`) into styled spans.
-/// Returns `None` if the text contains no markdown markers.
-fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
-    if !text.contains('*') {
-        return None;
-    }
-
-    let mut spans = Vec::new();
-    let mut bold = false;
-    let mut italic = false;
-    let mut buf = String::new();
-    let mut chars = text.chars().peekable();
-
-    while let Some(c) = chars.next() {
-        if c == '*' && chars.peek() == Some(&'*') {
-            // Toggle bold
-            chars.next();
-            if !buf.is_empty() {
-                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
-            }
-            bold = !bold;
-        } else if c == '*' {
-            // Toggle italic
-            if !buf.is_empty() {
-                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
-            }
-            italic = !italic;
-        } else {
-            buf.push(c);
-        }
-    }
-    if !buf.is_empty() {
-        spans.push(MdSpan { text: buf, bold, italic });
-    }
-
-    // Only return spans if we actually found some formatting
-    if spans.iter().any(|s| s.bold || s.italic) {
-        Some(spans)
-    } else {
-        None
-    }
 }
 
 /// Render a line of text with inline markdown as styled tspans.

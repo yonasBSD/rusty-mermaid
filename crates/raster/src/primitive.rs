@@ -1,9 +1,9 @@
-use std::sync::{Mutex, OnceLock};
+use std::sync::OnceLock;
 
 use rusty_mermaid_core::{
-    marker_geometry, text_baseline_y_offset, transform_marker_circle, transform_marker_curves,
-    transform_marker_points, Color, MarkerShape, PathSegment, Point, Primitive, Style,
-    TextAnchor, Theme, Transform,
+    marker_geometry, parse_inline_markdown, text_baseline_y_offset, transform_marker_circle,
+    transform_marker_curves, transform_marker_points, Color, MarkerShape, PathSegment, Point,
+    Primitive, Style, TextAnchor, Theme, Transform,
 };
 use tiny_skia::{
     FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, Stroke,
@@ -512,18 +512,37 @@ fn render_arc(
 
 // ── Text rendering ──
 
-static DEFAULT_FONT: OnceLock<fontdue::Font> = OnceLock::new();
-static CUSTOM_FONT: Mutex<Option<fontdue::Font>> = Mutex::new(None);
+struct RasterFontFamily {
+    regular: fontdue::Font,
+    bold: fontdue::Font,
+    italic: fontdue::Font,
+    bold_italic: fontdue::Font,
+}
 
-fn default_font() -> &'static fontdue::Font {
-    DEFAULT_FONT.get_or_init(|| {
-        let bytes = include_bytes!("../fonts/IntelOneMono-Regular.ttf");
-        fontdue::Font::from_bytes(
-            bytes as &[u8],
-            fontdue::FontSettings::default(),
-        )
-        .expect("embedded font must be valid")
+static FONT_FAMILY: OnceLock<RasterFontFamily> = OnceLock::new();
+
+fn get_font_family() -> &'static RasterFontFamily {
+    FONT_FAMILY.get_or_init(|| {
+        let load = |bytes: &[u8]| {
+            fontdue::Font::from_bytes(bytes, fontdue::FontSettings::default())
+                .expect("embedded font must be valid")
+        };
+        RasterFontFamily {
+            regular: load(include_bytes!("../fonts/IntelOneMono-Regular.ttf")),
+            bold: load(include_bytes!("../fonts/IntelOneMono-Bold.ttf")),
+            italic: load(include_bytes!("../fonts/IntelOneMono-Italic.ttf")),
+            bold_italic: load(include_bytes!("../fonts/IntelOneMono-BoldItalic.ttf")),
+        }
     })
+}
+
+fn select_raster_font(family: &RasterFontFamily, bold: bool, italic: bool) -> &fontdue::Font {
+    match (bold, italic) {
+        (true, true) => &family.bold_italic,
+        (true, false) => &family.bold,
+        (false, true) => &family.italic,
+        (false, false) => &family.regular,
+    }
 }
 
 fn render_text(
@@ -533,36 +552,9 @@ fn render_text(
     anchor: TextAnchor,
     style: &rusty_mermaid_core::TextStyle,
     transform: SkTransform,
-    theme: &Theme,
+    _theme: &Theme,
 ) {
-    // Use custom font from theme if provided, otherwise embedded default
-    if let Some(ref custom_bytes) = theme.custom_font {
-        let mut guard = CUSTOM_FONT.lock().unwrap();
-        if guard.is_none() {
-            if let Ok(f) = fontdue::Font::from_bytes(
-                custom_bytes.as_slice(),
-                fontdue::FontSettings::default(),
-            ) {
-                *guard = Some(f);
-            }
-        }
-        if let Some(ref font) = *guard {
-            render_text_with_font(pixmap, position, content, anchor, style, transform, font);
-            return;
-        }
-    }
-    render_text_with_font(pixmap, position, content, anchor, style, transform, default_font());
-}
-
-fn render_text_with_font(
-    pixmap: &mut Pixmap,
-    position: &Point,
-    content: &str,
-    anchor: TextAnchor,
-    style: &rusty_mermaid_core::TextStyle,
-    transform: SkTransform,
-    font: &fontdue::Font,
-) {
+    let family = get_font_family();
     let px = style.font_size as f32;
     let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
 
@@ -572,11 +564,20 @@ fn render_text_with_font(
     let first_baseline_y = position.y as f32 + baseline_offset;
 
     for (line_idx, line) in lines.iter().enumerate() {
-        // Measure line width for anchor alignment
+        let spans = parse_inline_markdown(line);
+        let text_parts: Vec<(&str, bool, bool)> = if let Some(ref spans) = spans {
+            spans.iter().map(|s| (s.text.as_str(), s.bold, s.italic)).collect()
+        } else {
+            vec![(line as &str, false, false)]
+        };
+
+        // Measure total line width (using regular font — monospace, all same width)
         let mut line_w: f32 = 0.0;
-        for ch in line.chars() {
-            let (metrics, _) = font.rasterize(ch, px);
-            line_w += metrics.advance_width;
+        for (text, _, _) in &text_parts {
+            for ch in text.chars() {
+                let (metrics, _) = family.regular.rasterize(ch, px);
+                line_w += metrics.advance_width;
+            }
         }
 
         let start_x = match anchor {
@@ -587,21 +588,24 @@ fn render_text_with_font(
         let line_y = first_baseline_y + line_idx as f32 * line_height;
 
         let mut cursor_x = start_x;
-        for ch in line.chars() {
-            let (metrics, bitmap) = font.rasterize(ch, px);
-            if metrics.width > 0 && metrics.height > 0 {
-                blit_glyph(
-                    pixmap,
-                    &bitmap,
-                    metrics.width,
-                    metrics.height,
-                    cursor_x + metrics.xmin as f32,
-                    line_y - metrics.ymin as f32 - metrics.height as f32,
-                    fill,
-                    transform,
-                );
+        for (text, is_bold, is_italic) in &text_parts {
+            let font = select_raster_font(family, *is_bold, *is_italic);
+            for ch in text.chars() {
+                let (metrics, bitmap) = font.rasterize(ch, px);
+                if metrics.width > 0 && metrics.height > 0 {
+                    blit_glyph(
+                        pixmap,
+                        &bitmap,
+                        metrics.width,
+                        metrics.height,
+                        cursor_x + metrics.xmin as f32,
+                        line_y - metrics.ymin as f32 - metrics.height as f32,
+                        fill,
+                        transform,
+                    );
+                }
+                cursor_x += metrics.advance_width;
             }
-            cursor_x += metrics.advance_width;
         }
     }
 }
