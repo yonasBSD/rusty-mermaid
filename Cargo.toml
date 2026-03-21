@@ -6,6 +6,7 @@ members = [
     "crates/diagrams",
     "crates/svg",
     "crates/viewport",
+    "crates/raster",
 ]
 resolver = "3"
 
@@ -21,6 +22,7 @@ rusty-mermaid-dagre = { path = "crates/dagre" }
 rusty-mermaid-diagrams = { path = "crates/diagrams" }
 rusty-mermaid-svg = { path = "crates/svg" }
 rusty-mermaid-viewport = { path = "crates/viewport" }
+rusty-mermaid-raster = { path = "crates/raster" }
 thiserror = "2"
 
 # Fast debug builds - optimize for compile speed
