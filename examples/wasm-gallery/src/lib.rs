@@ -267,10 +267,15 @@ fn render_gallery(
         // Render diagram to canvas
         render_current(canvas, surface, gpu, i);
 
+        // Get CSS dimensions (before DPR scaling)
+        let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(DIAGRAMS[i].1) else { continue };
+        let theme = Theme::light();
+        let css_w = scene.width + theme.padding * 2.0;
+        let css_h = scene.height + theme.padding * 2.0;
+
         // Capture as data URL
         let data_url = canvas.to_data_url().unwrap_or_default();
 
-        // Create card with image
         let card = document.create_element("div").unwrap();
         card.set_class_name("card");
 
@@ -281,6 +286,9 @@ fn render_gallery(
         let img = document.create_element("img").unwrap();
         img.set_attribute("src", &data_url).unwrap();
         img.set_attribute("alt", name).unwrap();
+        // Set CSS dimensions to match SVG gallery sizing
+        img.set_attribute("width", &format!("{}", css_w as u32)).unwrap();
+        img.set_attribute("height", &format!("{}", css_h as u32)).unwrap();
         card.append_child(&img).unwrap();
 
         gallery_div.append_child(&card).unwrap();

@@ -8,9 +8,11 @@
 pub enum FontSlot {
     /// Intel One Mono — ASCII, Latin, Latin Extended
     Primary,
-    /// Noto Sans Mono — Greek, Cyrillic, extended Latin scripts
+    /// Noto Sans (proportional) — Greek, Cyrillic
     ExtendedText,
-    /// Noto Sans Symbols 2 — dingbats, arrows, misc symbols, box drawing
+    /// Noto Sans Mono — arrows, box drawing, technical symbols
+    Monospace,
+    /// Noto Sans Symbols 2 — dingbats (☕ ✔ ✘ ★ ☆)
     Dingbats,
     /// Noto Sans Arabic — Arabic, Persian, Urdu, Hebrew
     Arabic,
@@ -23,7 +25,7 @@ pub enum FontSlot {
 impl FontSlot {
     #[inline]
     pub const fn is_embedded(self) -> bool {
-        matches!(self, Self::Primary | Self::ExtendedText | Self::Dingbats | Self::Arabic)
+        matches!(self, Self::Primary | Self::ExtendedText | Self::Monospace | Self::Dingbats | Self::Arabic)
     }
 
     #[inline]
@@ -74,20 +76,20 @@ pub const fn font_for_char(ch: char) -> FontSlot {
         0xFE00..=0xFE0F |   // Variation Selectors
         0x200D => FontSlot::Emoji, // ZWJ
 
-        // General Punctuation, Superscripts, Currency
-        0x2000..=0x20CF => FontSlot::ExtendedText,
+        // General Punctuation, Superscripts, Currency — most monospace fonts have these
+        0x2000..=0x20CF => FontSlot::Primary,
         // Letterlike Symbols, Number Forms
-        0x2100..=0x214F => FontSlot::ExtendedText,
-        // Arrows — most monospace fonts cover these
-        0x2190..=0x21FF => FontSlot::ExtendedText,
+        0x2100..=0x214F => FontSlot::Primary,
+        // Arrows — Noto Sans Mono has these
+        0x2190..=0x21FF => FontSlot::Monospace,
         // Mathematical Operators
-        0x2200..=0x22FF => FontSlot::ExtendedText,
+        0x2200..=0x22FF => FontSlot::Monospace,
         // Misc Technical, Control Pictures, OCR
-        0x2300..=0x23FF => FontSlot::Dingbats,
+        0x2300..=0x23FF => FontSlot::Monospace,
         // Enclosed Alphanumerics
-        0x2460..=0x24FF => FontSlot::Dingbats,
+        0x2460..=0x24FF => FontSlot::Monospace,
         // Box Drawing, Block Elements, Geometric Shapes
-        0x2500..=0x25FF => FontSlot::Dingbats,
+        0x2500..=0x25FF => FontSlot::Monospace,
         // Misc Symbols + Dingbats (☕ ✔ ✘ ★ ☆ etc.)
         0x2600..=0x27BF => FontSlot::Dingbats,
         // Supplemental Arrows, Misc Math Symbols
@@ -210,7 +212,7 @@ mod tests {
     fn symbols_are_dingbats() {
         assert_eq!(font_for_char('★'), FontSlot::Dingbats);
         assert_eq!(font_for_char('☆'), FontSlot::Dingbats);
-        assert_eq!(font_for_char('→'), FontSlot::ExtendedText);
+        assert_eq!(font_for_char('→'), FontSlot::Monospace);
         assert_eq!(font_for_char('✔'), FontSlot::Dingbats);
         assert_eq!(font_for_char('✘'), FontSlot::Dingbats);
     }

@@ -361,8 +361,9 @@ struct FontSet {
     primary_bold: FontData,
     primary_italic: FontData,
     primary_bold_italic: FontData,
-    extended_text: FontData, // Noto Sans Mono (Greek, Cyrillic)
-    dingbats: FontData,      // Noto Sans Symbols 2 (☕ ✔ ★ → etc.)
+    extended_text: FontData, // Noto Sans (proportional, Greek, Cyrillic)
+    monospace: FontData,     // Noto Sans Mono (arrows, box drawing)
+    dingbats: FontData,      // Noto Sans Symbols 2 (☕ ✔ ★ etc.)
     arabic: FontData,        // Noto Sans Arabic
     external: std::sync::Mutex<ExternalFonts>,
 }
@@ -383,6 +384,7 @@ fn get_font_set() -> &'static FontSet {
             primary_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-Italic.ttf")),
             primary_bold_italic: load(include_bytes!("../../raster/fonts/IntelOneMono-BoldItalic.ttf")),
             extended_text: load(include_bytes!("../../raster/fonts/NotoSans-Regular.ttf")),
+            monospace: load(include_bytes!("../../raster/fonts/NotoSansMono-Regular.ttf")),
             dingbats: load(include_bytes!("../../raster/fonts/NotoSansSymbols2-Regular.ttf")),
             arabic: load(include_bytes!("../../raster/fonts/NotoSansArabic-Regular.ttf")),
             external: std::sync::Mutex::new(ExternalFonts { cjk: None, emoji: None }),
@@ -413,6 +415,7 @@ fn font_for_slot(fs: &FontSet, slot: FontSlot, bold: bool, italic: bool) -> Opti
             (false, false) => fs.primary.clone(),
         }),
         FontSlot::ExtendedText => Some(fs.extended_text.clone()),
+        FontSlot::Monospace => Some(fs.monospace.clone()),
         FontSlot::Dingbats => Some(fs.dingbats.clone()),
         FontSlot::Arabic => Some(fs.arabic.clone()),
         FontSlot::Cjk => fs.external.lock().ok().and_then(|e| e.cjk.clone()),
@@ -523,12 +526,33 @@ fn render_text(
         let mut runs: Vec<ShapedRun> = Vec::new();
 
         for (text, is_bold, is_italic) in &text_parts {
+            // Assign each char a FontSlot, but spaces/punctuation inherit
+            // from their neighbors to avoid splitting script runs.
             let chars: Vec<char> = text.chars().collect();
+            let slots: Vec<FontSlot> = {
+                let raw: Vec<FontSlot> = chars.iter().map(|&c| font_for_char(c)).collect();
+                let mut resolved = raw.clone();
+                // Spaces/common punctuation between same-script chars inherit that script
+                for j in 0..resolved.len() {
+                    if chars[j] == ' ' || chars[j] == ',' || chars[j] == '.' {
+                        // Look for the nearest non-Primary neighbor
+                        let prev = if j > 0 { Some(raw[j - 1]) } else { None };
+                        let next = if j + 1 < raw.len() { Some(raw[j + 1]) } else { None };
+                        if let Some(p) = prev {
+                            if p != FontSlot::Primary { resolved[j] = p; }
+                        } else if let Some(n) = next {
+                            if n != FontSlot::Primary { resolved[j] = n; }
+                        }
+                    }
+                }
+                resolved
+            };
+
             let mut i = 0;
             while i < chars.len() {
-                let slot = font_for_char(chars[i]);
+                let slot = slots[i];
                 let run_start = i;
-                while i < chars.len() && font_for_char(chars[i]) == slot {
+                while i < chars.len() && slots[i] == slot {
                     i += 1;
                 }
                 let run_text: String = chars[run_start..i].iter().collect();
