@@ -137,7 +137,7 @@ fn paint_primitive(
                     let f = Font {
                         weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
                         style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
-                        ..font("monospace")
+                        ..font(rusty_mermaid_core::font_fallback::PRIMARY_FONT)
                     };
                     runs.push(TextRun {
                         len: span.text.len(),
@@ -153,7 +153,7 @@ fn paint_primitive(
             } else {
                 (content.clone(), vec![TextRun {
                     len: content.len(),
-                    font: font("monospace"),
+                    font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
                     color,
                     background_color: None,
                     underline: None,

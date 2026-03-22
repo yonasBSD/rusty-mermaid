@@ -19,10 +19,8 @@ pub enum FontWeight {
     Bold,
 }
 
-/// CSS font-family fallback stack.
-/// "Intel One Mono" preferred, then platform monospace, then generic.
-pub const DEFAULT_FONT_FAMILY: &str =
-    "'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace";
+/// CSS font-family fallback stack for SVG rendering.
+pub use crate::font_fallback::SVG_FONT_FAMILY as DEFAULT_FONT_FAMILY;
 
 /// Diagram color theme. All rendering reads from this — no hardcoded values.
 #[derive(Debug, Clone)]

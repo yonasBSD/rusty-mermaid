@@ -3,6 +3,51 @@
 /// O(1) per character. No charmap probing, no allocation.
 /// SVG delegates to the browser — this module is for raster, gpui, and vello.
 
+// ── Canonical font family names ──
+// All backends read from here. Single source of truth.
+
+/// Primary monospace font for ASCII/Latin.
+pub const PRIMARY_FONT: &str = "Intel One Mono";
+/// Proportional fallback for Greek, Cyrillic.
+pub const EXTENDED_TEXT_FONT: &str = "Noto Sans";
+/// Monospace fallback for arrows, box drawing, math.
+pub const MONOSPACE_FONT: &str = "Noto Sans Mono";
+/// Symbol font for dingbats (☕ ✔ ✘ ★ ☆).
+pub const DINGBATS_FONT: &str = "Noto Sans Symbols 2";
+/// Arabic/Hebrew script font.
+pub const ARABIC_FONT: &str = "Noto Sans Arabic";
+
+/// CSS font-family stack for SVG rendering.
+pub const SVG_FONT_FAMILY: &str =
+    "'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace";
+
+/// Get the canonical font family name for a FontSlot.
+pub const fn font_family_for_slot(slot: FontSlot) -> &'static str {
+    match slot {
+        FontSlot::Primary => PRIMARY_FONT,
+        FontSlot::ExtendedText => EXTENDED_TEXT_FONT,
+        FontSlot::Monospace => MONOSPACE_FONT,
+        FontSlot::Dingbats => DINGBATS_FONT,
+        FontSlot::Arabic => ARABIC_FONT,
+        FontSlot::Cjk => "Noto Sans SC",
+        FontSlot::Emoji => "Noto Color Emoji",
+    }
+}
+
+/// Embedded font file paths (relative to raster/fonts/).
+/// Backends that embed fonts use these.
+pub const fn embedded_font_file(slot: FontSlot) -> Option<&'static str> {
+    match slot {
+        FontSlot::Primary => Some("IntelOneMono-Regular.ttf"),
+        FontSlot::ExtendedText => Some("NotoSans-Regular.ttf"),
+        FontSlot::Monospace => Some("NotoSansMono-Regular.ttf"),
+        FontSlot::Dingbats => Some("NotoSansSymbols2-Regular.ttf"),
+        FontSlot::Arabic => Some("NotoSansArabic-Regular.ttf"),
+        FontSlot::Cjk => None,   // CDN only
+        FontSlot::Emoji => None, // CDN only
+    }
+}
+
 /// Which font handles a given character.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FontSlot {
