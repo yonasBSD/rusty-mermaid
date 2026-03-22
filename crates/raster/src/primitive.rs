@@ -18,154 +18,150 @@ pub fn render_primitive(
 ) {
     match prim {
         Primitive::Rect { bbox, rx, ry, style } => {
-            let left = (bbox.x - bbox.width / 2.0) as f32;
-            let top = (bbox.y - bbox.height / 2.0) as f32;
-            let w = bbox.width as f32;
-            let h = bbox.height as f32;
-            let rx = *rx as f32;
-            let ry = *ry as f32;
-
-            let rect = if rx > 0.0 || ry > 0.0 {
-                rounded_rect_path(left, top, w, h, rx, ry)
-            } else {
-                let mut pb = PathBuilder::new();
-                pb.move_to(left, top);
-                pb.line_to(left + w, top);
-                pb.line_to(left + w, top + h);
-                pb.line_to(left, top + h);
-                pb.close();
-                pb.finish()
-            };
-            let Some(path) = rect else { return };
-
-            if let Some(fill) = resolve_fill(style) {
-                let mut paint = Paint::default();
-                paint.set_color(fill);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
-                let mut paint = Paint::default();
-                paint.set_color(stroke_color);
-                paint.anti_alias = true;
-                let stroke = make_stroke(width, style);
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-            }
+            render_rect(pixmap, bbox, *rx, *ry, style, transform, theme);
         }
-
         Primitive::Circle { center, radius, style } => {
-            let cx = center.x as f32;
-            let cy = center.y as f32;
-            let r = *radius as f32;
-
-            let Some(path) = circle_path(cx, cy, r) else { return };
-
-            if let Some(fill) = resolve_fill(style) {
-                let mut paint = Paint::default();
-                paint.set_color(fill);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
-                let mut paint = Paint::default();
-                paint.set_color(stroke_color);
-                paint.anti_alias = true;
-                let stroke = make_stroke(width, style);
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-            }
+            render_circle(pixmap, center, *radius, style, transform, theme);
         }
-
         Primitive::Ellipse { center, rx, ry, style } => {
-            let cx = center.x as f32;
-            let cy = center.y as f32;
-            let rx = *rx as f32;
-            let ry = *ry as f32;
-
-            // Approximate ellipse with 4 cubic beziers
-            let Some(path) = ellipse_path(cx, cy, rx, ry) else { return };
-
-            if let Some(fill) = resolve_fill(style) {
-                let mut paint = Paint::default();
-                paint.set_color(fill);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
-                let mut paint = Paint::default();
-                paint.set_color(stroke_color);
-                paint.anti_alias = true;
-                let stroke = make_stroke(width, style);
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-            }
+            render_ellipse(pixmap, center, *rx, *ry, style, transform, theme);
         }
-
         Primitive::Path { segments, style, marker_start, marker_end } => {
-            let Some(path) = segments_to_path(segments) else { return };
-
-            if let Some(fill) = resolve_fill(style) {
-                let mut paint = Paint::default();
-                paint.set_color(fill);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-
-            let (stroke_color, width) = resolve_stroke(style, theme)
-                .unwrap_or_else(|| (to_skia_color(style.resolved_stroke(theme)), style.resolved_stroke_width(theme) as f32));
-            let mut paint = Paint::default();
-            paint.set_color(stroke_color);
-            paint.anti_alias = true;
-            let stroke = make_stroke(width, style);
-            pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-
-            // Draw markers as filled geometry at endpoints
-            if let (Some(marker), Some((pt, angle))) = (marker_start, rusty_mermaid_core::path_start_tangent(segments)) {
-                draw_marker(pixmap, *marker, pt, angle, stroke_color, width, transform);
-            }
-            if let (Some(marker), Some((pt, angle))) = (marker_end, rusty_mermaid_core::path_end_tangent(segments)) {
-                draw_marker(pixmap, *marker, pt, angle, stroke_color, width, transform);
-            }
+            render_path(pixmap, segments, style, *marker_start, *marker_end, transform, theme);
         }
-
         Primitive::Text { position, content, anchor, style } => {
             render_text(pixmap, position, content, *anchor, style, transform, theme);
         }
-
         Primitive::Polygon { points, style } => {
-            if points.len() < 3 { return; }
-            let mut pb = PathBuilder::new();
-            pb.move_to(points[0].x as f32, points[0].y as f32);
-            for p in &points[1..] {
-                pb.line_to(p.x as f32, p.y as f32);
-            }
-            pb.close();
-            let Some(path) = pb.finish() else { return };
-
-            if let Some(fill) = resolve_fill(style) {
-                let mut paint = Paint::default();
-                paint.set_color(fill);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-            if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
-                let mut paint = Paint::default();
-                paint.set_color(stroke_color);
-                paint.anti_alias = true;
-                let stroke = make_stroke(width, style);
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-            }
+            render_polygon(pixmap, points, style, transform, theme);
         }
-
         Primitive::Group { transform: group_tf, children } => {
             let child_transform = compose_transform(transform, group_tf);
             for child in children {
                 render_primitive(pixmap, child, child_transform, theme);
             }
         }
-
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
             render_arc(pixmap, center, *inner_r, *outer_r, *start_angle, *end_angle, style, transform, theme);
         }
     }
+}
+
+/// Fill and/or stroke a prebuilt path based on style.
+fn fill_and_stroke(
+    pixmap: &mut Pixmap,
+    path: &tiny_skia::Path,
+    style: &Style,
+    transform: SkTransform,
+    theme: &Theme,
+) {
+    if let Some(fill) = resolve_fill(style) {
+        let mut paint = Paint::default();
+        paint.set_color(fill);
+        paint.anti_alias = true;
+        pixmap.fill_path(path, &paint, FillRule::Winding, transform, None);
+    }
+    if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
+        let mut paint = Paint::default();
+        paint.set_color(stroke_color);
+        paint.anti_alias = true;
+        let stroke = make_stroke(width, style);
+        pixmap.stroke_path(path, &paint, &stroke, transform, None);
+    }
+}
+
+fn render_rect(
+    pixmap: &mut Pixmap,
+    bbox: &rusty_mermaid_core::BBox, rx: f64, ry: f64,
+    style: &Style, transform: SkTransform, theme: &Theme,
+) {
+    let left = (bbox.x - bbox.width / 2.0) as f32;
+    let top = (bbox.y - bbox.height / 2.0) as f32;
+    let w = bbox.width as f32;
+    let h = bbox.height as f32;
+    let rx = rx as f32;
+    let ry = ry as f32;
+
+    let path = if rx > 0.0 || ry > 0.0 {
+        rounded_rect_path(left, top, w, h, rx, ry)
+    } else {
+        let mut pb = PathBuilder::new();
+        pb.move_to(left, top);
+        pb.line_to(left + w, top);
+        pb.line_to(left + w, top + h);
+        pb.line_to(left, top + h);
+        pb.close();
+        pb.finish()
+    };
+    let Some(path) = path else { return };
+    fill_and_stroke(pixmap, &path, style, transform, theme);
+}
+
+fn render_circle(
+    pixmap: &mut Pixmap,
+    center: &Point, radius: f64,
+    style: &Style, transform: SkTransform, theme: &Theme,
+) {
+    let Some(path) = circle_path(center.x as f32, center.y as f32, radius as f32) else { return };
+    fill_and_stroke(pixmap, &path, style, transform, theme);
+}
+
+fn render_ellipse(
+    pixmap: &mut Pixmap,
+    center: &Point, rx: f64, ry: f64,
+    style: &Style, transform: SkTransform, theme: &Theme,
+) {
+    let Some(path) = ellipse_path(center.x as f32, center.y as f32, rx as f32, ry as f32) else { return };
+    fill_and_stroke(pixmap, &path, style, transform, theme);
+}
+
+fn render_path(
+    pixmap: &mut Pixmap,
+    segments: &[PathSegment],
+    style: &Style,
+    marker_start: Option<rusty_mermaid_core::MarkerType>,
+    marker_end: Option<rusty_mermaid_core::MarkerType>,
+    transform: SkTransform,
+    theme: &Theme,
+) {
+    let Some(path) = segments_to_path(segments) else { return };
+
+    if let Some(fill) = resolve_fill(style) {
+        let mut paint = Paint::default();
+        paint.set_color(fill);
+        paint.anti_alias = true;
+        pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
+    }
+
+    let (stroke_color, width) = resolve_stroke(style, theme)
+        .unwrap_or_else(|| (to_skia_color(style.resolved_stroke(theme)), style.resolved_stroke_width(theme) as f32));
+    let mut paint = Paint::default();
+    paint.set_color(stroke_color);
+    paint.anti_alias = true;
+    pixmap.stroke_path(&path, &paint, &make_stroke(width, style), transform, None);
+
+    if let (Some(marker), Some((pt, angle))) = (marker_start, rusty_mermaid_core::path_start_tangent(segments)) {
+        draw_marker(pixmap, marker, pt, angle, stroke_color, width, transform);
+    }
+    if let (Some(marker), Some((pt, angle))) = (marker_end, rusty_mermaid_core::path_end_tangent(segments)) {
+        draw_marker(pixmap, marker, pt, angle, stroke_color, width, transform);
+    }
+}
+
+fn render_polygon(
+    pixmap: &mut Pixmap,
+    points: &[Point],
+    style: &Style, transform: SkTransform, theme: &Theme,
+) {
+    if points.len() < 3 { return; }
+    let mut pb = PathBuilder::new();
+    pb.move_to(points[0].x as f32, points[0].y as f32);
+    for p in &points[1..] {
+        pb.line_to(p.x as f32, p.y as f32);
+    }
+    pb.close();
+    let Some(path) = pb.finish() else { return };
+    fill_and_stroke(pixmap, &path, style, transform, theme);
 }
 
 // ── Helpers ──
@@ -380,20 +376,7 @@ fn render_arc(
         }
     }
     let Some(path) = pb.finish() else { return };
-
-    if let Some(fill) = resolve_fill(style) {
-        let mut paint = Paint::default();
-        paint.set_color(fill);
-        paint.anti_alias = true;
-        pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-    }
-    if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
-        let mut paint = Paint::default();
-        paint.set_color(stroke_color);
-        paint.anti_alias = true;
-        let stroke = make_stroke(width, style);
-        pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-    }
+    fill_and_stroke(pixmap, &path, style, transform, theme);
 }
 
 // ── Text rendering ──
