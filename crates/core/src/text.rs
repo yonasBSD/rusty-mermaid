@@ -146,10 +146,10 @@ pub fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
     }
 }
 
-/// Strip HTML tags and markdown markers from text in a single pass.
-/// Replaces <br/> variants with newlines; removes `**` and `*` markers;
-/// strips other HTML tags entirely.
-fn strip_markup(text: &str) -> String {
+/// Strip HTML tags from text in a single pass.
+/// Replaces `<br/>` variants with newlines; strips other tags.
+/// When `include_markdown` is true, also removes `**` and `*` markers.
+fn strip_tags(text: &str, include_markdown: bool) -> String {
     let mut result = String::with_capacity(text.len());
     let mut in_tag = false;
     let mut tag_buf = String::with_capacity(8);
@@ -171,8 +171,7 @@ fn strip_markup(text: &str) -> String {
         } else if ch == '<' {
             in_tag = true;
             tag_buf.clear();
-        } else if ch == '*' {
-            // Skip markdown markers (* and **)
+        } else if include_markdown && ch == '*' {
             if chars.peek() == Some(&'*') {
                 chars.next();
             }
@@ -183,33 +182,15 @@ fn strip_markup(text: &str) -> String {
     result
 }
 
-/// Strip HTML tags from text, replacing <br/> variants with newlines.
+/// Strip HTML tags and markdown markers (`*`, `**`).
+fn strip_markup(text: &str) -> String {
+    strip_tags(text, true)
+}
+
+/// Strip HTML tags only (no markdown removal).
 #[cfg(test)]
 fn strip_html_tags(text: &str) -> String {
-    let mut result = String::with_capacity(text.len());
-    let mut in_tag = false;
-    let mut tag_buf = String::with_capacity(8);
-
-    for ch in text.chars() {
-        match ch {
-            '<' => {
-                in_tag = true;
-                tag_buf.clear();
-            }
-            '>' if in_tag => {
-                in_tag = false;
-                if tag_buf.eq_ignore_ascii_case("br")
-                    || tag_buf.eq_ignore_ascii_case("br/")
-                    || tag_buf.eq_ignore_ascii_case("br /")
-                {
-                    result.push('\n');
-                }
-            }
-            _ if in_tag => tag_buf.push(ch),
-            _ => result.push(ch),
-        }
-    }
-    result
+    strip_tags(text, false)
 }
 
 #[cfg(test)]
