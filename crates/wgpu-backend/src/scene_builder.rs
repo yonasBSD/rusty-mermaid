@@ -40,111 +40,108 @@ fn paint_primitive(
 ) {
     match prim {
         Primitive::Rect { bbox, rx, ry, style } => {
-            let left = bbox.x - bbox.width / 2.0;
-            let top = bbox.y - bbox.height / 2.0;
-            let rect = Rect::new(left, top, left + bbox.width, top + bbox.height);
-            let r = rx.max(*ry);
-
-            if r > 0.0 {
-                let rrect = RoundedRect::from_rect(rect, r);
-                if let Some(fill) = style.fill {
-                    scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &rrect);
-                }
-                if let Some((color, width)) = resolve_stroke(style, theme) {
-                    let stroke = make_stroke(width, style);
-                    scene.stroke(&stroke, transform, to_vello_color(color), None, &rrect);
-                }
-            } else {
-                if let Some(fill) = style.fill {
-                    scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &rect);
-                }
-                if let Some((color, width)) = resolve_stroke(style, theme) {
-                    let stroke = make_stroke(width, style);
-                    scene.stroke(&stroke, transform, to_vello_color(color), None, &rect);
-                }
-            }
+            paint_rect(scene, bbox, *rx, *ry, style, theme, transform);
         }
-
         Primitive::Circle { center, radius, style } => {
-            let circle = kurbo::Circle::new(KPoint::new(center.x, center.y), *radius);
-
-            if let Some(fill) = style.fill {
-                scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &circle);
-            }
-            if let Some((color, width)) = resolve_stroke(style, theme) {
-                let stroke = make_stroke(width, style);
-                scene.stroke(&stroke, transform, to_vello_color(color), None, &circle);
-            }
+            let shape = kurbo::Circle::new(KPoint::new(center.x, center.y), *radius);
+            fill_and_stroke(scene, &shape, style, theme, transform);
         }
-
         Primitive::Ellipse { center, rx, ry, style } => {
-            let ellipse = kurbo::Ellipse::new(KPoint::new(center.x, center.y), Vec2::new(*rx, *ry), 0.0);
-
-            if let Some(fill) = style.fill {
-                scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &ellipse);
-            }
-            if let Some((color, width)) = resolve_stroke(style, theme) {
-                let stroke = make_stroke(width, style);
-                scene.stroke(&stroke, transform, to_vello_color(color), None, &ellipse);
-            }
+            let shape = kurbo::Ellipse::new(KPoint::new(center.x, center.y), Vec2::new(*rx, *ry), 0.0);
+            fill_and_stroke(scene, &shape, style, theme, transform);
         }
-
         Primitive::Path { segments, style, marker_start, marker_end } => {
-            let path = segments_to_bezpath(segments);
-
-            if let Some(fill) = style.fill {
-                scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &path);
-            }
-
-            let (color, width) = stroke_or_default(style, theme);
-            let stroke = make_stroke(width, style);
-            scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
-
-            if let Some(marker) = marker_start {
-                if let Some((tip, angle)) = path_start_tangent(segments) {
-                    paint_marker(scene, *marker, tip, angle, color, width, transform);
-                }
-            }
-            if let Some(marker) = marker_end {
-                if let Some((tip, angle)) = path_end_tangent(segments) {
-                    paint_marker(scene, *marker, tip, angle, color, width, transform);
-                }
-            }
+            paint_path_prim(scene, segments, style, *marker_start, *marker_end, theme, transform);
         }
-
         Primitive::Text { position, content, anchor, style } => {
             render_text(scene, position, content, *anchor, style, theme, transform);
         }
-
         Primitive::Polygon { points, style } => {
-            if points.len() < 3 { return; }
-            let mut path = BezPath::new();
-            path.move_to(to_kpoint(&points[0]));
-            for p in &points[1..] {
-                path.line_to(to_kpoint(p));
-            }
-            path.close_path();
-
-            if let Some(fill) = style.fill {
-                scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &path);
-            }
-            if let Some((color, width)) = resolve_stroke(style, theme) {
-                let stroke = make_stroke(width, style);
-                scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
-            }
+            paint_polygon(scene, points, style, theme, transform);
         }
-
         Primitive::Group { transform: group_tf, children } => {
             let child_transform = transform * compose_affine(group_tf);
             for child in children {
                 paint_primitive(scene, child, child_transform, theme);
             }
         }
-
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
             paint_arc(scene, center, *inner_r, *outer_r, *start_angle, *end_angle, style, theme, transform);
         }
     }
+}
+
+// ── Per-primitive rendering ──
+
+fn fill_and_stroke(
+    scene: &mut VelloScene,
+    shape: &impl kurbo::Shape,
+    style: &Style, theme: &Theme,
+    transform: Affine,
+) {
+    if let Some(fill) = style.fill {
+        scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, shape);
+    }
+    if let Some((color, width)) = resolve_stroke(style, theme) {
+        let stroke = make_stroke(width, style);
+        scene.stroke(&stroke, transform, to_vello_color(color), None, shape);
+    }
+}
+
+fn paint_rect(
+    scene: &mut VelloScene,
+    bbox: &rusty_mermaid_core::BBox, rx: f64, ry: f64,
+    style: &Style, theme: &Theme, transform: Affine,
+) {
+    let left = bbox.x - bbox.width / 2.0;
+    let top = bbox.y - bbox.height / 2.0;
+    let rect = Rect::new(left, top, left + bbox.width, top + bbox.height);
+    let r = rx.max(ry);
+    if r > 0.0 {
+        fill_and_stroke(scene, &RoundedRect::from_rect(rect, r), style, theme, transform);
+    } else {
+        fill_and_stroke(scene, &rect, style, theme, transform);
+    }
+}
+
+fn paint_path_prim(
+    scene: &mut VelloScene,
+    segments: &[rusty_mermaid_core::PathSegment],
+    style: &Style,
+    marker_start: Option<rusty_mermaid_core::MarkerType>,
+    marker_end: Option<rusty_mermaid_core::MarkerType>,
+    theme: &Theme, transform: Affine,
+) {
+    let path = segments_to_bezpath(segments);
+    if let Some(fill) = style.fill {
+        scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &path);
+    }
+    let (color, width) = stroke_or_default(style, theme);
+    let stroke = make_stroke(width, style);
+    scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
+
+    if let Some(marker) = marker_start {
+        if let Some((tip, angle)) = path_start_tangent(segments) {
+            paint_marker(scene, marker, tip, angle, color, width, transform);
+        }
+    }
+    if let Some(marker) = marker_end {
+        if let Some((tip, angle)) = path_end_tangent(segments) {
+            paint_marker(scene, marker, tip, angle, color, width, transform);
+        }
+    }
+}
+
+fn paint_polygon(
+    scene: &mut VelloScene,
+    points: &[Point], style: &Style, theme: &Theme, transform: Affine,
+) {
+    if points.len() < 3 { return; }
+    let mut path = BezPath::new();
+    path.move_to(to_kpoint(&points[0]));
+    for p in &points[1..] { path.line_to(to_kpoint(p)); }
+    path.close_path();
+    fill_and_stroke(scene, &path, style, theme, transform);
 }
 
 // ── Helpers ──
