@@ -52,11 +52,7 @@ pub struct FlowSubGraph {
 }
 
 /// Direct style applied to a node by ID.
-#[derive(Debug, Clone)]
-pub struct FlowStyleStmt {
-    pub ids: Vec<String>,
-    pub styles: Vec<StyleProperty>,
-}
+pub type FlowStyleStmt = crate::common::styling::StyleStmt;
 
 /// Edge style applied by declaration-order index.
 /// `linkStyle 0,1 stroke:#f00,stroke-width:3px` or `linkStyle default stroke:green`.

@@ -14,11 +14,7 @@ pub struct StateDiagram {
 }
 
 /// Direct style applied to a state by ID.
-#[derive(Debug, Clone)]
-pub struct StateStyleStmt {
-    pub ids: Vec<String>,
-    pub styles: Vec<StyleProperty>,
-}
+pub type StateStyleStmt = crate::common::styling::StyleStmt;
 
 /// A state node.
 #[derive(Debug, Clone)]

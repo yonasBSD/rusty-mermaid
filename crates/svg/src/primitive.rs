@@ -9,177 +9,206 @@ use crate::style::{push_style_attrs, push_text_style_attrs};
 /// Render a single Primitive into the SVG document.
 pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive, config: &SvgConfig) {
     match prim {
-        Primitive::Rect { bbox, rx, ry, style } => {
-            let mut attrs: Vec<(String, String)> = vec![
-                ("x".into(), fmt_f64(bbox.x - bbox.width / 2.0)),
-                ("y".into(), fmt_f64(bbox.y - bbox.height / 2.0)),
-                ("width".into(), fmt_f64(bbox.width)),
-                ("height".into(), fmt_f64(bbox.height)),
-            ];
-            if *rx > 0.0 {
-                attrs.push(("rx".into(), fmt_f64(*rx)));
-            }
-            if *ry > 0.0 {
-                attrs.push(("ry".into(), fmt_f64(*ry)));
-            }
-            push_style_attrs(&mut attrs, style);
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.empty_tag("rect", &refs);
-        }
-
-        Primitive::Circle { center, radius, style } => {
-            let mut attrs: Vec<(String, String)> = vec![
-                ("cx".into(), fmt_f64(center.x)),
-                ("cy".into(), fmt_f64(center.y)),
-                ("r".into(), fmt_f64(*radius)),
-            ];
-            push_style_attrs(&mut attrs, style);
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.empty_tag("circle", &refs);
-        }
-
-        Primitive::Ellipse { center, rx, ry, style } => {
-            let mut attrs: Vec<(String, String)> = vec![
-                ("cx".into(), fmt_f64(center.x)),
-                ("cy".into(), fmt_f64(center.y)),
-                ("rx".into(), fmt_f64(*rx)),
-                ("ry".into(), fmt_f64(*ry)),
-            ];
-            push_style_attrs(&mut attrs, style);
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.empty_tag("ellipse", &refs);
-        }
-
+        Primitive::Rect { bbox, rx, ry, style } => render_rect(doc, bbox, *rx, *ry, style),
+        Primitive::Circle { center, radius, style } => render_circle(doc, center, *radius, style),
+        Primitive::Ellipse { center, rx, ry, style } => render_ellipse(doc, center, *rx, *ry, style),
         Primitive::Path { segments, style, marker_start, marker_end } => {
-            let d = segments_to_d(segments);
-            let mut attrs: Vec<(String, String)> = vec![("d".into(), d)];
-
-            // Apply defaults for missing fill/stroke from config.
-            if style.fill.is_none() {
-                attrs.push(("fill".into(), "none".into()));
-            }
-            if style.stroke.is_none() && style.stroke_width.is_none() {
-                attrs.push(("stroke".into(), config.default_stroke.to_string()));
-                attrs.push(("stroke-width".into(), fmt_f64(config.default_stroke_width)));
-            }
-            push_style_attrs(&mut attrs, style);
-
-            // Marker references use per-color IDs.
-            let stroke_color = style
-                .stroke
-                .unwrap_or(config.default_stroke)
-                .to_string();
-            if let Some(m) = marker_start {
-                let id = marker_id(*m, &stroke_color);
-                attrs.push(("marker-start".into(), format!("url(#{id})")));
-            }
-            if let Some(m) = marker_end {
-                let id = marker_id(*m, &stroke_color);
-                attrs.push(("marker-end".into(), format!("url(#{id})")));
-            }
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.empty_tag("path", &refs);
+            render_path(doc, segments, style, *marker_start, *marker_end, config);
         }
-
         Primitive::Text { position, content, anchor, style } => {
-            let anchor_str = match anchor {
-                TextAnchor::Start => "start",
-                TextAnchor::Middle => "middle",
-                TextAnchor::End => "end",
-            };
-            let content = normalize_line_breaks(content);
-            let content: &str = &content;
-            let lines: Vec<&str> = content.split('\n').collect();
-            if lines.len() <= 1 {
-                // Single line
-                let mut attrs: Vec<(String, String)> = vec![
-                    ("x".into(), fmt_f64(position.x)),
-                    ("y".into(), fmt_f64(position.y)),
-                    ("text-anchor".into(), anchor_str.into()),
-                    ("dominant-baseline".into(), "central".into()),
-                ];
-                push_text_style_attrs(&mut attrs, style);
-                let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-                if let Some(spans) = parse_inline_markdown(content) {
-                    doc.open_tag("text", &refs);
-                    render_md_spans(doc, &spans);
-                    doc.close_tag("text");
-                } else {
-                    doc.text_element("text", &refs, &xml_escape(content));
-                }
-            } else {
-                // Multi-line — tspan elements with dy offsets
-                let line_height = style.font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
-                let total_h = line_height * (lines.len() - 1) as f64;
-                let start_y = position.y - total_h / 2.0;
-
-                let mut attrs: Vec<(String, String)> = vec![
-                    ("x".into(), fmt_f64(position.x)),
-                    ("y".into(), fmt_f64(start_y)),
-                    ("text-anchor".into(), anchor_str.into()),
-                    ("dominant-baseline".into(), "central".into()),
-                ];
-                push_text_style_attrs(&mut attrs, style);
-                let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-                doc.open_tag("text", &refs);
-
-                let x_str = fmt_f64(position.x);
-                let dy_str = fmt_f64(line_height);
-                for (i, line) in lines.iter().enumerate() {
-                    let dy: &str = if i == 0 { "0" } else { &dy_str };
-                    if let Some(spans) = parse_inline_markdown(line) {
-                        let tspan_attrs: Vec<(&str, &str)> = vec![
-                            ("x", &x_str),
-                            ("dy", dy),
-                        ];
-                        doc.open_tag("tspan", &tspan_attrs);
-                        render_md_spans(doc, &spans);
-                        doc.close_tag("tspan");
-                    } else {
-                        let tspan_attrs: Vec<(&str, &str)> = vec![
-                            ("x", &x_str),
-                            ("dy", dy),
-                        ];
-                        doc.text_element("tspan", &tspan_attrs, &xml_escape(line));
-                    }
-                }
-
-                doc.close_tag("text");
-            }
+            render_text(doc, position, content, *anchor, style);
         }
-
-        Primitive::Polygon { points, style } => {
-            let mut pts = String::with_capacity(points.len() * 16);
-            for (i, p) in points.iter().enumerate() {
-                if i > 0 { pts.push(' '); }
-                write_f64(&mut pts, p.x);
-                pts.push(',');
-                write_f64(&mut pts, p.y);
-            }
-            let mut attrs: Vec<(String, String)> = vec![("points".into(), pts)];
-            push_style_attrs(&mut attrs, style);
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.empty_tag("polygon", &refs);
-        }
-
+        Primitive::Polygon { points, style } => render_polygon(doc, points, style),
         Primitive::Group { transform, children } => {
-            let transform_str = transform_to_attr(transform);
-            let mut attrs: Vec<(String, String)> = Vec::new();
-            if !transform_str.is_empty() {
-                attrs.push(("transform".into(), transform_str));
-            }
-            let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            doc.open_tag("g", &refs);
-            for child in children {
-                render_primitive(doc, child, config);
-            }
-            doc.close_tag("g");
+            render_group(doc, transform, children, config);
         }
-
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
             render_arc(doc, center, *inner_r, *outer_r, *start_angle, *end_angle, style, config);
         }
     }
+}
+
+fn emit_tag(doc: &mut SvgDocument, tag: &str, attrs: &[(String, String)]) {
+    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    doc.empty_tag(tag, &refs);
+}
+
+fn render_rect(
+    doc: &mut SvgDocument,
+    bbox: &rusty_mermaid_core::BBox, rx: f64, ry: f64,
+    style: &rusty_mermaid_core::Style,
+) {
+    let mut attrs: Vec<(String, String)> = vec![
+        ("x".into(), fmt_f64(bbox.x - bbox.width / 2.0)),
+        ("y".into(), fmt_f64(bbox.y - bbox.height / 2.0)),
+        ("width".into(), fmt_f64(bbox.width)),
+        ("height".into(), fmt_f64(bbox.height)),
+    ];
+    if rx > 0.0 { attrs.push(("rx".into(), fmt_f64(rx))); }
+    if ry > 0.0 { attrs.push(("ry".into(), fmt_f64(ry))); }
+    push_style_attrs(&mut attrs, style);
+    emit_tag(doc, "rect", &attrs);
+}
+
+fn render_circle(
+    doc: &mut SvgDocument,
+    center: &rusty_mermaid_core::Point, radius: f64,
+    style: &rusty_mermaid_core::Style,
+) {
+    let mut attrs: Vec<(String, String)> = vec![
+        ("cx".into(), fmt_f64(center.x)),
+        ("cy".into(), fmt_f64(center.y)),
+        ("r".into(), fmt_f64(radius)),
+    ];
+    push_style_attrs(&mut attrs, style);
+    emit_tag(doc, "circle", &attrs);
+}
+
+fn render_ellipse(
+    doc: &mut SvgDocument,
+    center: &rusty_mermaid_core::Point, rx: f64, ry: f64,
+    style: &rusty_mermaid_core::Style,
+) {
+    let mut attrs: Vec<(String, String)> = vec![
+        ("cx".into(), fmt_f64(center.x)),
+        ("cy".into(), fmt_f64(center.y)),
+        ("rx".into(), fmt_f64(rx)),
+        ("ry".into(), fmt_f64(ry)),
+    ];
+    push_style_attrs(&mut attrs, style);
+    emit_tag(doc, "ellipse", &attrs);
+}
+
+fn render_path(
+    doc: &mut SvgDocument,
+    segments: &[rusty_mermaid_core::PathSegment],
+    style: &rusty_mermaid_core::Style,
+    marker_start: Option<MarkerType>,
+    marker_end: Option<MarkerType>,
+    config: &SvgConfig,
+) {
+    let d = segments_to_d(segments);
+    let mut attrs: Vec<(String, String)> = vec![("d".into(), d)];
+
+    if style.fill.is_none() {
+        attrs.push(("fill".into(), "none".into()));
+    }
+    if style.stroke.is_none() && style.stroke_width.is_none() {
+        attrs.push(("stroke".into(), config.default_stroke.to_string()));
+        attrs.push(("stroke-width".into(), fmt_f64(config.default_stroke_width)));
+    }
+    push_style_attrs(&mut attrs, style);
+
+    let stroke_color = style.stroke.unwrap_or(config.default_stroke).to_string();
+    if let Some(m) = marker_start {
+        attrs.push(("marker-start".into(), format!("url(#{})", marker_id(m, &stroke_color))));
+    }
+    if let Some(m) = marker_end {
+        attrs.push(("marker-end".into(), format!("url(#{})", marker_id(m, &stroke_color))));
+    }
+    emit_tag(doc, "path", &attrs);
+}
+
+fn render_text(
+    doc: &mut SvgDocument,
+    position: &rusty_mermaid_core::Point,
+    content: &str,
+    anchor: TextAnchor,
+    style: &rusty_mermaid_core::TextStyle,
+) {
+    let anchor_str = match anchor {
+        TextAnchor::Start => "start",
+        TextAnchor::Middle => "middle",
+        TextAnchor::End => "end",
+    };
+    let content = normalize_line_breaks(content);
+    let content: &str = &content;
+    let lines: Vec<&str> = content.split('\n').collect();
+
+    if lines.len() <= 1 {
+        let mut attrs: Vec<(String, String)> = vec![
+            ("x".into(), fmt_f64(position.x)),
+            ("y".into(), fmt_f64(position.y)),
+            ("text-anchor".into(), anchor_str.into()),
+            ("dominant-baseline".into(), "central".into()),
+        ];
+        push_text_style_attrs(&mut attrs, style);
+        let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+        if let Some(spans) = parse_inline_markdown(content) {
+            doc.open_tag("text", &refs);
+            render_md_spans(doc, &spans);
+            doc.close_tag("text");
+        } else {
+            doc.text_element("text", &refs, &xml_escape(content));
+        }
+        return;
+    }
+
+    // Multi-line — tspan elements with dy offsets
+    let line_height = style.font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
+    let total_h = line_height * (lines.len() - 1) as f64;
+    let start_y = position.y - total_h / 2.0;
+
+    let mut attrs: Vec<(String, String)> = vec![
+        ("x".into(), fmt_f64(position.x)),
+        ("y".into(), fmt_f64(start_y)),
+        ("text-anchor".into(), anchor_str.into()),
+        ("dominant-baseline".into(), "central".into()),
+    ];
+    push_text_style_attrs(&mut attrs, style);
+    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    doc.open_tag("text", &refs);
+
+    let x_str = fmt_f64(position.x);
+    let dy_str = fmt_f64(line_height);
+    for (i, line) in lines.iter().enumerate() {
+        let dy: &str = if i == 0 { "0" } else { &dy_str };
+        let tspan_attrs: Vec<(&str, &str)> = vec![("x", &x_str), ("dy", dy)];
+        if let Some(spans) = parse_inline_markdown(line) {
+            doc.open_tag("tspan", &tspan_attrs);
+            render_md_spans(doc, &spans);
+            doc.close_tag("tspan");
+        } else {
+            doc.text_element("tspan", &tspan_attrs, &xml_escape(line));
+        }
+    }
+    doc.close_tag("text");
+}
+
+fn render_polygon(
+    doc: &mut SvgDocument,
+    points: &[rusty_mermaid_core::Point],
+    style: &rusty_mermaid_core::Style,
+) {
+    let mut pts = String::with_capacity(points.len() * 16);
+    for (i, p) in points.iter().enumerate() {
+        if i > 0 { pts.push(' '); }
+        write_f64(&mut pts, p.x);
+        pts.push(',');
+        write_f64(&mut pts, p.y);
+    }
+    let mut attrs: Vec<(String, String)> = vec![("points".into(), pts)];
+    push_style_attrs(&mut attrs, style);
+    emit_tag(doc, "polygon", &attrs);
+}
+
+fn render_group(
+    doc: &mut SvgDocument,
+    transform: &Transform,
+    children: &[Primitive],
+    config: &SvgConfig,
+) {
+    let transform_str = transform_to_attr(transform);
+    let mut attrs: Vec<(String, String)> = Vec::new();
+    if !transform_str.is_empty() {
+        attrs.push(("transform".into(), transform_str));
+    }
+    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    doc.open_tag("g", &refs);
+    for child in children {
+        render_primitive(doc, child, config);
+    }
+    doc.close_tag("g");
 }
 
 /// Collect all (MarkerType, color_string) pairs from scene elements.
@@ -238,14 +267,14 @@ fn transform_to_attr(t: &Transform) -> String {
 fn render_arc(
     doc: &mut SvgDocument,
     center: &rusty_mermaid_core::Point,
-    _inner_r: f64,
+    inner_r: f64,
     outer_r: f64,
     start_angle: f64,
     end_angle: f64,
     style: &rusty_mermaid_core::Style,
     config: &SvgConfig,
 ) {
-    // Convert arc to SVG path
+    debug_assert!(inner_r == 0.0, "SVG arc rendering does not support inner radius yet");
     let x1 = center.x + outer_r * start_angle.cos();
     let y1 = center.y + outer_r * start_angle.sin();
     let x2 = center.x + outer_r * end_angle.cos();
