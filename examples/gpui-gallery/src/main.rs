@@ -79,7 +79,7 @@ impl Render for GalleryApp {
             )
             // Diagram area — scrollable, takes remaining space
             .child(
-                div().id("scroll-area").flex_1().p_4().overflow_y_scroll()
+                div().id("scroll-area").flex_1().p_4().overflow_scroll()
                     .child(
                         div()
                             .bg(rgb(0xffffff))
