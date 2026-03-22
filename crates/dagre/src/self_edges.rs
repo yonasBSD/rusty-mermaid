@@ -77,28 +77,16 @@ pub(crate) fn position_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
         let dx = node.x - sx;
         let dy = self_node.height / 2.0;
 
+        // Self-edge loop control point fractions (matches dagre.js)
+        const LOOP_INNER: f64 = 2.0 / 3.0;
+        const LOOP_OUTER: f64 = 5.0 / 6.0;
         let mut label = sed.label.clone();
         label.points = vec![
-            rusty_mermaid_core::Point {
-                x: sx + 2.0 * dx / 3.0,
-                y: sy - dy,
-            },
-            rusty_mermaid_core::Point {
-                x: sx + 5.0 * dx / 6.0,
-                y: sy - dy,
-            },
-            rusty_mermaid_core::Point {
-                x: sx + dx,
-                y: sy,
-            },
-            rusty_mermaid_core::Point {
-                x: sx + 5.0 * dx / 6.0,
-                y: sy + dy,
-            },
-            rusty_mermaid_core::Point {
-                x: sx + 2.0 * dx / 3.0,
-                y: sy + dy,
-            },
+            rusty_mermaid_core::Point { x: sx + LOOP_INNER * dx, y: sy - dy },
+            rusty_mermaid_core::Point { x: sx + LOOP_OUTER * dx, y: sy - dy },
+            rusty_mermaid_core::Point { x: sx + dx,              y: sy },
+            rusty_mermaid_core::Point { x: sx + LOOP_OUTER * dx, y: sy + dy },
+            rusty_mermaid_core::Point { x: sx + LOOP_INNER * dx, y: sy + dy },
         ];
         label.x = node.x;
         label.y = node.y;
@@ -385,13 +373,13 @@ mod tests {
         let dx = dummy_x - sx; // 50.0
         let dy = self_node_height / 2.0; // 30.0
 
-        // Verify the 5-point loop path
+        // Verify the 5-point loop path (use same constants as production code)
         let expected = vec![
-            (sx + 2.0 * dx / 3.0, sy - dy),
-            (sx + 5.0 * dx / 6.0, sy - dy),
+            (sx + LOOP_INNER * dx, sy - dy),
+            (sx + LOOP_OUTER * dx, sy - dy),
             (sx + dx, sy),
-            (sx + 5.0 * dx / 6.0, sy + dy),
-            (sx + 2.0 * dx / 3.0, sy + dy),
+            (sx + LOOP_OUTER * dx, sy + dy),
+            (sx + LOOP_INNER * dx, sy + dy),
         ];
 
         for (i, (ex, ey)) in expected.iter().enumerate() {

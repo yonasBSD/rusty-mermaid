@@ -99,11 +99,12 @@ pub fn render_edge_label_bg(
     label_size: (f64, f64),
     theme: &Theme,
 ) {
-    let pad = 4.0;
+    const EDGE_LABEL_PAD: f64 = 4.0;
+    const EDGE_LABEL_RX: f64 = 2.0;
     scene.push(Primitive::Rect {
-        bbox: BBox::new(center.x, center.y, label_size.0 + pad * 2.0, label_size.1 + pad * 2.0),
-        rx: 2.0,
-        ry: 2.0,
+        bbox: BBox::new(center.x, center.y, label_size.0 + EDGE_LABEL_PAD * 2.0, label_size.1 + EDGE_LABEL_PAD * 2.0),
+        rx: EDGE_LABEL_RX,
+        ry: EDGE_LABEL_RX,
         style: edge_label_bg_style(theme),
     });
 }
@@ -111,11 +112,13 @@ pub fn render_edge_label_bg(
 /// Pick a contrasting text color based on the node fill luminance.
 pub fn contrasting_label_style(node_fill: Option<Color>, theme: &Theme) -> TextStyle {
     let mut lstyle = label_style(theme);
+    const DARK_FILL_THRESHOLD: f64 = 0.4;
+    const LIGHT_FILL_THRESHOLD: f64 = 0.9;
     if let Some(fill) = node_fill {
         let lum = fill.luminance();
-        if lum < 0.4 {
+        if lum < DARK_FILL_THRESHOLD {
             lstyle.fill = Some(Color::WHITE);
-        } else if lum > 0.9 {
+        } else if lum > LIGHT_FILL_THRESHOLD {
             lstyle.fill = Some(Color::BLACK);
         }
     }

@@ -93,13 +93,25 @@ impl Color {
     pub const WHITE: Self = Self::rgb(255, 255, 255);
     pub const TRANSPARENT: Self = Self::rgba(0, 0, 0, 0);
 
-    /// Relative luminance (0.0 = black, 1.0 = white) per WCAG formula.
+    /// Relative luminance (0.0 = black, 1.0 = white) per WCAG 2.0 formula.
     pub fn luminance(self) -> f64 {
+        // sRGB linearization constants (IEC 61966-2-1)
+        const GAMMA_THRESHOLD: f64 = 0.04045;
+        const GAMMA_LINEAR_SCALE: f64 = 12.92;
+        const GAMMA_OFFSET: f64 = 0.055;
+        const GAMMA_DIVISOR: f64 = 1.055;
+        const GAMMA_EXPONENT: f64 = 2.4;
+        // Luminance channel weights (ITU-R BT.709)
+        const LUM_R: f64 = 0.2126;
+        const LUM_G: f64 = 0.7152;
+        const LUM_B: f64 = 0.0722;
+
         fn linearize(c: u8) -> f64 {
             let s = c as f64 / 255.0;
-            if s <= 0.04045 { s / 12.92 } else { ((s + 0.055) / 1.055).powf(2.4) }
+            if s <= GAMMA_THRESHOLD { s / GAMMA_LINEAR_SCALE }
+            else { ((s + GAMMA_OFFSET) / GAMMA_DIVISOR).powf(GAMMA_EXPONENT) }
         }
-        0.2126 * linearize(self.r) + 0.7152 * linearize(self.g) + 0.0722 * linearize(self.b)
+        LUM_R * linearize(self.r) + LUM_G * linearize(self.g) + LUM_B * linearize(self.b)
     }
 
     /// Parse a CSS color string: `#rgb`, `#rrggbb`, or a named color.

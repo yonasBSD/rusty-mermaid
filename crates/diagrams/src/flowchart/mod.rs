@@ -7,6 +7,9 @@ use rusty_mermaid_core::{
     TextStyle, Theme, interpolate,
 };
 
+const SUBGRAPH_LABEL_OFFSET_X: f64 = 8.0;
+const SUBGRAPH_LABEL_OFFSET_Y: f64 = 12.0;
+
 use bridge::LayoutResult;
 use crate::common::layout::NodeLayout;
 use ir::{ArrowEnd, StrokeType};
@@ -83,7 +86,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             let top_y = sg.y - sg.height / 2.0;
             let left_x = sg.x - sg.width / 2.0;
             scene.push(Primitive::Text {
-                position: Point::new(left_x + 8.0, top_y + 12.0),
+                position: Point::new(left_x + SUBGRAPH_LABEL_OFFSET_X, top_y + SUBGRAPH_LABEL_OFFSET_Y),
                 content: label.clone(),
                 anchor: TextAnchor::Start,
                 style: subgraph_label_style(theme),

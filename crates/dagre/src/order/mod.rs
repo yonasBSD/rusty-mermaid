@@ -34,9 +34,10 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
     // Match JS dagre loop: `for (let i=0, lastBest=0; lastBest<4; ++i, ++lastBest)`
     // lastBest is always incremented by the loop, only reset to 0 on strict improvement.
+    const MAX_SWEEPS_WITHOUT_IMPROVEMENT: u32 = 4;
     let mut last_best = 0u32;
     let mut i = 0u32;
-    while last_best < 4 {
+    while last_best < MAX_SWEEPS_WITHOUT_IMPROVEMENT {
         // Match JS dagre: i%2==1 → down sweep, i%2==0 → up sweep
         let use_down = i % 2 == 1;
         let bias_right = i % 4 >= 2;
