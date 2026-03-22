@@ -92,6 +92,52 @@ pub fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
     }
 }
 
+/// Resolve classDef + class + style statements into per-entity Style maps.
+///
+/// Generic over entity type — works for flowchart vertices, state nodes, etc.
+/// `entities` yields `(id, classes)` pairs for each entity.
+/// `style_stmts` contains inline `style nodeId fill:...` statements.
+pub fn resolve_entity_styles<'a>(
+    entities: impl Iterator<Item = (&'a str, &'a [String])>,
+    class_defs: &[super::styling::ClassDef],
+    style_stmts: &[super::styling::StyleStmt],
+) -> std::collections::BTreeMap<&'a str, Style> {
+    let class_map: std::collections::BTreeMap<&str, &[StyleProperty]> = class_defs
+        .iter()
+        .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
+        .collect();
+
+    let mut result = std::collections::BTreeMap::new();
+
+    for (id, classes) in entities {
+        let mut style = Style::default();
+        let mut has_custom = false;
+
+        if let Some(props) = class_map.get("default") {
+            apply_style_properties(&mut style, props);
+            has_custom = true;
+        }
+        for class_name in classes {
+            if let Some(props) = class_map.get(class_name.as_str()) {
+                apply_style_properties(&mut style, props);
+                has_custom = true;
+            }
+        }
+        for stmt in style_stmts {
+            if stmt.ids.iter().any(|sid| sid == id) {
+                apply_style_properties(&mut style, &stmt.styles);
+                has_custom = true;
+            }
+        }
+
+        if has_custom {
+            result.insert(id, style);
+        }
+    }
+
+    result
+}
+
 /// Render a background rect behind an edge label for readability.
 pub fn render_edge_label_bg(
     scene: &mut Scene,

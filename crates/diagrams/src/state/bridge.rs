@@ -1171,52 +1171,18 @@ fn collect_all_notes(diagram: &StateDiagram) -> Vec<&StateNote> {
 
 /// Resolve classDef + class + style into a per-state Style map.
 fn resolve_state_styles(diagram: &StateDiagram) -> BTreeMap<&str, Style> {
-    let class_map: BTreeMap<&str, &[StyleProperty]> = diagram
-        .class_defs
-        .iter()
-        .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
-        .collect();
-
-    let mut result: BTreeMap<&str, Style> = BTreeMap::new();
-
-    fn collect_states<'a>(
-        states: &'a [StateNode],
-        class_map: &BTreeMap<&str, &[StyleProperty]>,
-        style_stmts: &'a [super::ir::StateStyleStmt],
-        result: &mut BTreeMap<&'a str, Style>,
-    ) {
+    fn flatten_states(states: &[StateNode]) -> Vec<(&str, &[String])> {
+        let mut out = Vec::new();
         for s in states {
-            let mut style = Style::default();
-            let mut has_custom = false;
-
-            if let Some(props) = class_map.get("default") {
-                apply_style_properties(&mut style, props);
-                has_custom = true;
-            }
-            for class_name in &s.classes {
-                if let Some(props) = class_map.get(class_name.as_str()) {
-                    apply_style_properties(&mut style, props);
-                    has_custom = true;
-                }
-            }
-            for stmt in style_stmts {
-                if stmt.ids.iter().any(|id| id == &s.id) {
-                    apply_style_properties(&mut style, &stmt.styles);
-                    has_custom = true;
-                }
-            }
-            if has_custom {
-                result.insert(&s.id, style);
-            }
-
+            out.push((s.id.as_str(), s.classes.as_slice()));
             if let StateKind::Composite { children, .. } = &s.kind {
-                collect_states(children, class_map, style_stmts, result);
+                out.extend(flatten_states(children));
             }
         }
+        out
     }
-
-    collect_states(&diagram.states, &class_map, &diagram.style_stmts, &mut result);
-    result
+    let entities = flatten_states(&diagram.states);
+    crate::common::rendering::resolve_entity_styles(entities.into_iter(), &diagram.class_defs, &diagram.style_stmts)
 }
 
 #[cfg(test)]

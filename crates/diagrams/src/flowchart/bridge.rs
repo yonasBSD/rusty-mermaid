@@ -614,46 +614,8 @@ fn extract_directed_subgraphs(
 /// Resolve all style sources into a single `Style` per node.
 /// Priority (last wins): classDef "default" → classDef via class/:::class → style statement.
 fn resolve_node_styles(diagram: &FlowDiagram) -> BTreeMap<&str, Style> {
-    let class_map: BTreeMap<&str, &[StyleProperty]> = diagram
-        .class_defs
-        .iter()
-        .map(|cd| (cd.name.as_str(), cd.styles.as_slice()))
-        .collect();
-
-    let mut result: BTreeMap<&str, Style> = BTreeMap::new();
-
-    for v in &diagram.vertices {
-        let mut style = Style::default();
-        let mut has_custom = false;
-
-        // 1. Apply "default" classDef to all nodes
-        if let Some(props) = class_map.get("default") {
-            apply_style_properties(&mut style, props);
-            has_custom = true;
-        }
-
-        // 2. Apply classes (from `class` statement or `:::className`)
-        for class_name in &v.classes {
-            if let Some(props) = class_map.get(class_name.as_str()) {
-                apply_style_properties(&mut style, props);
-                has_custom = true;
-            }
-        }
-
-        // 3. Apply inline `style` statement (highest priority)
-        for stmt in &diagram.style_stmts {
-            if stmt.ids.iter().any(|id| id == &v.id) {
-                apply_style_properties(&mut style, &stmt.styles);
-                has_custom = true;
-            }
-        }
-
-        if has_custom {
-            result.insert(&v.id, style);
-        }
-    }
-
-    result
+    let entities = diagram.vertices.iter().map(|v| (v.id.as_str(), v.classes.as_slice()));
+    crate::common::rendering::resolve_entity_styles(entities, &diagram.class_defs, &diagram.style_stmts)
 }
 
 /// Resolve linkStyle statements into a per-edge-index Style map.
