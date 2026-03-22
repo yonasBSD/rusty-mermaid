@@ -49,7 +49,7 @@ pub const fn char_width_ratio(ch: char) -> f64 {
         FontSlot::ExtendedText => 0.85,  // Noto Sans: proportional, narrower than mono
         FontSlot::Monospace => 1.0,      // Noto Sans Mono: same width as primary
         FontSlot::Dingbats => 1.4,       // Noto Sans Symbols 2: wider symbols
-        FontSlot::Arabic => 0.8,         // Noto Sans Arabic: proportional, varies
+        FontSlot::Arabic => 0.8,         // Noto Naskh Arabic: proportional, varies
         FontSlot::Cjk => 1.8,           // CJK: wide but proportional
         FontSlot::Emoji => 2.0,          // Color emoji: ~2x Latin mono width
     }

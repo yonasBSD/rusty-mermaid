@@ -14,8 +14,8 @@ pub const EXTENDED_TEXT_FONT: &str = "Noto Sans";
 pub const MONOSPACE_FONT: &str = "Noto Sans Mono";
 /// Symbol font for dingbats (☕ ✔ ✘ ★ ☆).
 pub const DINGBATS_FONT: &str = "Noto Sans Symbols 2";
-/// Arabic/Hebrew script font.
-pub const ARABIC_FONT: &str = "Noto Sans Arabic";
+/// Arabic/Hebrew script font (Naskh style, closest to macOS Geeza Pro).
+pub const ARABIC_FONT: &str = "Noto Naskh Arabic";
 
 /// CSS font-family stack for SVG rendering.
 pub const SVG_FONT_FAMILY: &str =
@@ -42,7 +42,7 @@ pub const fn embedded_font_file(slot: FontSlot) -> Option<&'static str> {
         FontSlot::ExtendedText => Some("NotoSans-Regular.ttf"),
         FontSlot::Monospace => Some("NotoSansMono-Regular.ttf"),
         FontSlot::Dingbats => Some("NotoSansSymbols2-Regular.ttf"),
-        FontSlot::Arabic => Some("NotoSansArabic-Regular.ttf"),
+        FontSlot::Arabic => Some("NotoNaskhArabic-Regular.ttf"),
         FontSlot::Cjk => None,   // CDN only
         FontSlot::Emoji => None, // CDN only
     }
@@ -59,7 +59,7 @@ pub enum FontSlot {
     Monospace,
     /// Noto Sans Symbols 2 — dingbats (☕ ✔ ✘ ★ ☆)
     Dingbats,
-    /// Noto Sans Arabic — Arabic, Persian, Urdu, Hebrew
+    /// Noto Naskh Arabic — Arabic, Persian, Urdu, Hebrew (Naskh style)
     Arabic,
     /// Noto Sans SC — CJK (Chinese, Japanese, Korean) — CDN only
     Cjk,

@@ -378,7 +378,7 @@ struct FontSet {
     extended_text: FontData, // Noto Sans (proportional, Greek, Cyrillic)
     monospace: FontData,     // Noto Sans Mono (arrows, box drawing)
     dingbats: FontData,      // Noto Sans Symbols 2 (☕ ✔ ★ etc.)
-    arabic: FontData,        // Noto Sans Arabic
+    arabic: FontData,        // Noto Naskh Arabic
     external: std::sync::Mutex<ExternalFonts>,
 }
 
@@ -400,7 +400,7 @@ fn get_font_set() -> &'static FontSet {
             extended_text: load(include_bytes!("../../raster/fonts/NotoSans-Regular.ttf")),
             monospace: load(include_bytes!("../../raster/fonts/NotoSansMono-Regular.ttf")),
             dingbats: load(include_bytes!("../../raster/fonts/NotoSansSymbols2-Regular.ttf")),
-            arabic: load(include_bytes!("../../raster/fonts/NotoSansArabic-Regular.ttf")),
+            arabic: load(include_bytes!("../../raster/fonts/NotoNaskhArabic-Regular.ttf")),
             external: std::sync::Mutex::new(ExternalFonts { cjk: None, emoji: None }),
         }
     })
