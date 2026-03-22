@@ -727,6 +727,7 @@ mod tests {
             let eq = ((hit.x - cx) / rx).powi(2) + ((hit.y - cy) / ry).powi(2);
             prop_assert!((eq - 1.0).abs() < 1e-4, "ellipse equation = {eq}, expected 1.0");
         }
+    }
 
     // ── arc_sector_segments tests (13.14) ──
 
@@ -764,8 +765,7 @@ mod tests {
         assert!(matches!(segs.last(), Some(crate::PathSegment::Close)));
     }
 
-        // ── New property tests (13.8) ──
-
+    proptest! {
         #[test]
         fn bbox_contains_interior_points(
             cx in -100.0..100.0f64,

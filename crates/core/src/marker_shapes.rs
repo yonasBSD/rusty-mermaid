@@ -386,9 +386,9 @@ mod tests {
     }
 
     #[test]
-    fn marker_path_open_is_stroked_polyline() {
-        let mp = marker_path(MarkerType::ArrowOpen, Point::new(0.0, 0.0), 0.0, 1.5);
-        assert!(matches!(mp, MarkerPath::StrokePolyline { closed: false, .. }));
+    fn marker_path_barb_is_fill_and_stroke() {
+        let mp = marker_path(MarkerType::ArrowBarb, Point::new(0.0, 0.0), 0.0, 1.5);
+        assert!(matches!(mp, MarkerPath::FillAndStrokePolygon { .. }));
     }
 
     #[test]
