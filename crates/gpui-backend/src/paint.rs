@@ -19,8 +19,11 @@ pub fn paint_scene(
 ) {
     let padding = theme.padding;
     let zoom = viewport.zoom as f32;
-    let ox = viewport.offset.x as f32 + padding as f32;
-    let oy = viewport.offset.y as f32 + padding as f32;
+    // bounds.origin accounts for scroll offset — canvas must render relative to it
+    let bx: f32 = bounds.origin.x.into();
+    let by: f32 = bounds.origin.y.into();
+    let ox = bx + viewport.offset.x as f32 + padding as f32;
+    let oy = by + viewport.offset.y as f32 + padding as f32;
 
     for elem in scene.elements() {
         paint_primitive(&elem.primitive, theme, zoom, ox, oy, bounds, window, cx);
@@ -128,61 +131,67 @@ fn paint_primitive(
             let font_size = style.font_size as f32 * zoom;
             let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
             let color = to_gpui_color(fill);
+            let line_height = font_size * 1.2;
 
-            // Build text runs with markdown-aware font styling
-            let (display_text, runs) = if let Some(spans) = parse_inline_markdown(content) {
-                let mut text = String::new();
-                let mut runs = Vec::new();
-                for span in &spans {
-                    let f = Font {
-                        weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
-                        style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
-                        ..font(rusty_mermaid_core::font_fallback::PRIMARY_FONT)
-                    };
-                    runs.push(TextRun {
-                        len: span.text.len(),
-                        font: f,
+            let lines: Vec<&str> = content.split('\n').collect();
+            let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32 * zoom;
+
+            for (line_idx, line) in lines.iter().enumerate() {
+                if line.is_empty() { continue; }
+
+                let (display_text, runs) = if let Some(spans) = parse_inline_markdown(line) {
+                    let mut text = String::new();
+                    let mut runs = Vec::new();
+                    for span in &spans {
+                        let f = Font {
+                            weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
+                            style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
+                            ..font(rusty_mermaid_core::font_fallback::PRIMARY_FONT)
+                        };
+                        runs.push(TextRun {
+                            len: span.text.len(),
+                            font: f,
+                            color,
+                            background_color: None,
+                            underline: None,
+                            strikethrough: None,
+                        });
+                        text.push_str(&span.text);
+                    }
+                    (text, runs)
+                } else {
+                    (line.to_string(), vec![TextRun {
+                        len: line.len(),
+                        font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
                         color,
                         background_color: None,
                         underline: None,
                         strikethrough: None,
-                    });
-                    text.push_str(&span.text);
-                }
-                (text, runs)
-            } else {
-                (content.clone(), vec![TextRun {
-                    len: content.len(),
-                    font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
-                    color,
-                    background_color: None,
-                    underline: None,
-                    strikethrough: None,
-                }])
-            };
+                    }])
+                };
 
-            let shaped = window.text_system().shape_line(
-                display_text.into(),
-                px(font_size),
-                &runs,
-                None,
-            );
+                let shaped = window.text_system().shape_line(
+                    display_text.into(),
+                    px(font_size),
+                    &runs,
+                    None,
+                );
 
-            let text_w: f32 = shaped.width.into();
-            let text_x = match anchor {
-                TextAnchor::Start => x,
-                TextAnchor::Middle => x - text_w / 2.0,
-                TextAnchor::End => x - text_w,
-            };
-            let baseline_offset = text_baseline_y_offset(style.font_size, 1) as f32 * zoom;
-            let text_y = y + baseline_offset - font_size;
+                let text_w: f32 = shaped.width.into();
+                let text_x = match anchor {
+                    TextAnchor::Start => x,
+                    TextAnchor::Middle => x - text_w / 2.0,
+                    TextAnchor::End => x - text_w,
+                };
+                let text_y = y + baseline_offset - font_size + line_idx as f32 * line_height;
 
-            let _ = shaped.paint(
-                point(px(text_x), px(text_y)),
-                px(font_size * 1.2),
-                window,
-                cx,
-            );
+                let _ = shaped.paint(
+                    point(px(text_x), px(text_y)),
+                    px(line_height),
+                    window,
+                    cx,
+                );
+            }
         }
 
         Primitive::Polygon { points, style } => {

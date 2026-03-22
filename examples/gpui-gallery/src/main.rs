@@ -9,22 +9,40 @@ const FONT_FAMILY: &str = rusty_mermaid_core::font_fallback::PRIMARY_FONT;
 
 struct GalleryApp {
     current: usize,
+    cached_idx: usize,
+    cached_scene: Option<rusty_mermaid_core::Scene>,
+}
+
+impl GalleryApp {
+    fn ensure_scene(&mut self) {
+        if self.cached_scene.is_none() || self.cached_idx != self.current {
+            let (name, mmd) = DIAGRAMS[self.current];
+            eprintln!("Loading diagram {}: {name}", self.current);
+            self.cached_scene = match rusty_mermaid_diagrams::render_to_scene(mmd) {
+                Ok(s) => Some(s),
+                Err(e) => {
+                    eprintln!("  FAILED: {e}");
+                    None
+                }
+            };
+            self.cached_idx = self.current;
+        }
+    }
 }
 
 impl Render for GalleryApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let (name, mmd) = DIAGRAMS[self.current];
+        self.ensure_scene();
+
+        let (name, _) = DIAGRAMS[self.current];
         let total = DIAGRAMS.len();
         let idx = self.current;
-
-        // Parse and get scene dimensions for explicit sizing
-        let scene_result = rusty_mermaid_diagrams::render_to_scene(mmd);
         let theme = Theme::light();
         let padding = theme.padding;
 
-        let (scene_w, scene_h) = match &scene_result {
-            Ok(s) => (s.width + padding * 2.0, s.height + padding * 2.0),
-            Err(_) => (400.0, 200.0),
+        let (scene_w, scene_h) = match &self.cached_scene {
+            Some(s) => (s.width + padding * 2.0, s.height + padding * 2.0),
+            None => (400.0, 200.0),
         };
 
         div()
@@ -89,16 +107,22 @@ impl Render for GalleryApp {
                             // Explicit size from scene dimensions
                             .w(px(scene_w as f32 + 32.0)) // + padding
                             .h(px(scene_h as f32 + 32.0))
-                            .child(if let Ok(scene) = scene_result {
-                                div().child(
-                                    rusty_mermaid_gpui::render_element(
-                                        scene,
-                                        theme,
-                                        ViewportState::default(),
+                            .child({
+                                // Take scene temporarily — canvas callback moves it
+                                let scene = self.cached_scene.take();
+                                if let Some(s) = scene {
+                                    let s_clone = s.clone(); // keep for cache
+                                    self.cached_scene = Some(s_clone);
+                                    div().child(
+                                        rusty_mermaid_gpui::render_element(
+                                            s,
+                                            theme,
+                                            ViewportState::default(),
+                                        )
                                     )
-                                )
-                            } else {
-                                div().child("Failed to parse diagram")
+                                } else {
+                                    div().child("Failed to parse diagram")
+                                }
                             })
                     )
             )
@@ -117,7 +141,7 @@ fn main() {
                 }),
                 ..Default::default()
             },
-            |_, cx| cx.new(|_| GalleryApp { current: 0 }),
+            |_, cx| cx.new(|_| GalleryApp { current: 0, cached_idx: usize::MAX, cached_scene: None }),
         )
         .unwrap();
     });
