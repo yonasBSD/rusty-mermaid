@@ -66,7 +66,7 @@ fn paint_primitive(
             }
         }
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
-            paint_arc(window, center, *inner_r, *outer_r, *start_angle, *end_angle, style, theme, zoom, ox, oy);
+            paint_arc(window, center, *inner_r, *outer_r, *start_angle, *end_angle, style, zoom, ox, oy);
         }
     }
 }
@@ -469,7 +469,6 @@ fn paint_arc(
     start_angle: f64,
     end_angle: f64,
     style: &Style,
-    _theme: &Theme,
     zoom: f32,
     ox: f32,
     oy: f32,

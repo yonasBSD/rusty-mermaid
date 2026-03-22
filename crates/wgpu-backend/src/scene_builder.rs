@@ -54,7 +54,7 @@ fn paint_primitive(
             paint_path_prim(scene, segments, style, *marker_start, *marker_end, theme, transform);
         }
         Primitive::Text { position, content, anchor, style } => {
-            render_text(scene, position, content, *anchor, style, theme, transform);
+            render_text(scene, position, content, *anchor, style, transform);
         }
         Primitive::Polygon { points, style } => {
             paint_polygon(scene, points, style, theme, transform);
@@ -459,7 +459,6 @@ fn render_text(
     content: &str,
     anchor: TextAnchor,
     style: &rusty_mermaid_core::TextStyle,
-    _theme: &Theme,
     transform: Affine,
 ) {
     let fs = get_font_set();

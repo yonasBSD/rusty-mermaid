@@ -30,7 +30,7 @@ pub fn render_primitive(
             render_path(pixmap, segments, style, *marker_start, *marker_end, transform, theme);
         }
         Primitive::Text { position, content, anchor, style } => {
-            render_text(pixmap, position, content, *anchor, style, transform, theme);
+            render_text(pixmap, position, content, *anchor, style, transform);
         }
         Primitive::Polygon { points, style } => {
             render_polygon(pixmap, points, style, transform, theme);
@@ -422,7 +422,6 @@ fn render_text(
     anchor: TextAnchor,
     style: &rusty_mermaid_core::TextStyle,
     transform: SkTransform,
-    _theme: &Theme,
 ) {
     let family = get_font_family();
     let px = style.font_size as f32;

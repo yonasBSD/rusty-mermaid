@@ -146,7 +146,6 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
                 stroke_width: 1.5,
             },
         },
-        _ => marker_geometry(MarkerType::ArrowPoint),
     }
 }
 
