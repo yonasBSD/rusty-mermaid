@@ -11,6 +11,33 @@ pub struct Style {
     pub css_classes: Vec<String>,
 }
 
+impl Style {
+    /// Resolve stroke color, falling back to theme default.
+    pub fn resolved_stroke(&self, theme: &Theme) -> Color {
+        self.stroke.unwrap_or(theme.edge_stroke)
+    }
+
+    /// Resolve stroke width, falling back to theme default.
+    pub fn resolved_stroke_width(&self, theme: &Theme) -> f64 {
+        self.stroke_width.unwrap_or(theme.default_stroke_width)
+    }
+
+    /// Returns true if either stroke color or width is explicitly set.
+    pub fn has_explicit_stroke(&self) -> bool {
+        self.stroke.is_some() || self.stroke_width.is_some()
+    }
+
+    /// Resolve stroke only if explicitly set (at least one of color/width).
+    /// Returns (color, width) with theme fallback for the unset field.
+    pub fn resolve_stroke_opt(&self, theme: &Theme) -> Option<(Color, f64)> {
+        if self.has_explicit_stroke() {
+            Some((self.resolved_stroke(theme), self.resolved_stroke_width(theme)))
+        } else {
+            None
+        }
+    }
+}
+
 /// Font weight for text rendering.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum FontWeight {
@@ -266,5 +293,70 @@ mod tests {
         assert_eq!(ts.font_family, "monospace");
         assert_eq!(ts.fill, Some(Color::BLACK));
         assert_eq!(ts.font_weight, FontWeight::Bold);
+    }
+
+    // ── Style resolution tests (13.13) ──
+
+    #[test]
+    fn resolved_stroke_uses_explicit() {
+        let theme = Theme::light();
+        let s = Style { stroke: Some(Color::rgb(255, 0, 0)), ..Default::default() };
+        assert_eq!(s.resolved_stroke(&theme), Color::rgb(255, 0, 0));
+    }
+
+    #[test]
+    fn resolved_stroke_falls_back_to_theme() {
+        let theme = Theme::light();
+        let s = Style::default();
+        assert_eq!(s.resolved_stroke(&theme), theme.edge_stroke);
+    }
+
+    #[test]
+    fn resolved_stroke_width_uses_explicit() {
+        let theme = Theme::light();
+        let s = Style { stroke_width: Some(3.0), ..Default::default() };
+        assert!((s.resolved_stroke_width(&theme) - 3.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn resolved_stroke_width_falls_back_to_theme() {
+        let theme = Theme::light();
+        let s = Style::default();
+        assert!((s.resolved_stroke_width(&theme) - theme.default_stroke_width).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn has_explicit_stroke_both_none() {
+        assert!(!Style::default().has_explicit_stroke());
+    }
+
+    #[test]
+    fn has_explicit_stroke_color_only() {
+        let s = Style { stroke: Some(Color::BLACK), ..Default::default() };
+        assert!(s.has_explicit_stroke());
+    }
+
+    #[test]
+    fn resolve_stroke_opt_none_when_no_explicit() {
+        let theme = Theme::light();
+        assert!(Style::default().resolve_stroke_opt(&theme).is_none());
+    }
+
+    #[test]
+    fn resolve_stroke_opt_some_with_color_only() {
+        let theme = Theme::light();
+        let s = Style { stroke: Some(Color::rgb(0, 128, 0)), ..Default::default() };
+        let (color, width) = s.resolve_stroke_opt(&theme).unwrap();
+        assert_eq!(color, Color::rgb(0, 128, 0));
+        assert!((width - theme.default_stroke_width).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn resolve_stroke_opt_some_with_width_only() {
+        let theme = Theme::light();
+        let s = Style { stroke_width: Some(5.0), ..Default::default() };
+        let (color, width) = s.resolve_stroke_opt(&theme).unwrap();
+        assert_eq!(color, theme.edge_stroke);
+        assert!((width - 5.0).abs() < f64::EPSILON);
     }
 }

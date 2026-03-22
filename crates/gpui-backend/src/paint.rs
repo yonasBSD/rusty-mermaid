@@ -102,7 +102,7 @@ fn paint_primitive(
         }
 
         Primitive::Path { segments, style, marker_start, marker_end } => {
-            let (color, width) = stroke_or_default(style, theme);
+            let (color, width) = resolve_stroke_gpui(style, theme);
             if let Ok(path) = build_stroke_path(segments, zoom, ox, oy, width * zoom, style) {
                 window.paint_path(path, color);
             }
@@ -264,24 +264,12 @@ fn to_gpui_color(c: Color) -> Hsla {
 }
 
 fn resolve_stroke_gpui(style: &Style, theme: &Theme) -> (Hsla, f32) {
-    let color = style.stroke.unwrap_or(theme.edge_stroke);
-    let width = style.stroke_width.unwrap_or(theme.default_stroke_width) as f32;
-    (to_gpui_color(color), width)
+    (to_gpui_color(style.resolved_stroke(theme)), style.resolved_stroke_width(theme) as f32)
 }
 
 fn resolve_stroke_opt(style: &Style, theme: &Theme) -> Option<(Hsla, f32)> {
-    match (style.stroke, style.stroke_width) {
-        (Some(c), Some(w)) => Some((to_gpui_color(c), w as f32)),
-        (Some(c), None) => Some((to_gpui_color(c), theme.default_stroke_width as f32)),
-        (None, Some(w)) => Some((to_gpui_color(theme.edge_stroke), w as f32)),
-        (None, None) => None,
-    }
-}
-
-fn stroke_or_default(style: &Style, theme: &Theme) -> (Hsla, f32) {
-    let color = style.stroke.unwrap_or(theme.edge_stroke);
-    let width = style.stroke_width.unwrap_or(theme.default_stroke_width) as f32;
-    (to_gpui_color(color), width)
+    style.resolve_stroke_opt(theme)
+        .map(|(c, w)| (to_gpui_color(c), w as f32))
 }
 
 fn transform_pt(p: &Point, zoom: f32, ox: f32, oy: f32) -> GpuiPoint<Pixels> {

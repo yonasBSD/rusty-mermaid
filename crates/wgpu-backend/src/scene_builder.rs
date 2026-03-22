@@ -158,18 +158,11 @@ fn to_kpoint(p: &Point) -> KPoint {
 }
 
 fn resolve_stroke(style: &Style, theme: &Theme) -> Option<(Color, f64)> {
-    match (style.stroke, style.stroke_width) {
-        (Some(c), Some(w)) => Some((c, w)),
-        (Some(c), None) => Some((c, theme.default_stroke_width)),
-        (None, Some(w)) => Some((theme.edge_stroke, w)),
-        (None, None) => None,
-    }
+    style.resolve_stroke_opt(theme)
 }
 
 fn stroke_or_default(style: &Style, theme: &Theme) -> (Color, f64) {
-    let color = style.stroke.unwrap_or(theme.edge_stroke);
-    let width = style.stroke_width.unwrap_or(theme.default_stroke_width);
-    (color, width)
+    (style.resolved_stroke(theme), style.resolved_stroke_width(theme))
 }
 
 fn make_stroke(width: f64, style: &Style) -> Stroke {

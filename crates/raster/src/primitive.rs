@@ -109,12 +109,8 @@ pub fn render_primitive(
                 pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
             }
 
-            let (stroke_color, width) = if let Some(sw) = resolve_stroke(style, theme) {
-                sw
-            } else {
-                // Paths default to stroked
-                (to_skia_color(theme.edge_stroke), theme.default_stroke_width as f32)
-            };
+            let (stroke_color, width) = resolve_stroke(style, theme)
+                .unwrap_or_else(|| (to_skia_color(style.resolved_stroke(theme)), style.resolved_stroke_width(theme) as f32));
             let mut paint = Paint::default();
             paint.set_color(stroke_color);
             paint.anti_alias = true;
@@ -183,12 +179,8 @@ fn resolve_fill(style: &Style) -> Option<tiny_skia::Color> {
 }
 
 fn resolve_stroke(style: &Style, theme: &Theme) -> Option<(tiny_skia::Color, f32)> {
-    match (style.stroke, style.stroke_width) {
-        (Some(c), Some(w)) => Some((to_skia_color(c), w as f32)),
-        (Some(c), None) => Some((to_skia_color(c), theme.default_stroke_width as f32)),
-        (None, Some(w)) => Some((to_skia_color(theme.edge_stroke), w as f32)),
-        (None, None) => None,
-    }
+    style.resolve_stroke_opt(theme)
+        .map(|(c, w)| (to_skia_color(c), w as f32))
 }
 
 fn make_stroke(width: f32, style: &Style) -> Stroke {
