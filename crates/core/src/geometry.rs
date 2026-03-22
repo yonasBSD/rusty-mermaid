@@ -692,6 +692,107 @@ mod tests {
             prop_assert!((eq - 1.0).abs() < 1e-4, "ellipse equation = {eq}, expected 1.0");
         }
 
+        // ── New property tests (13.8) ──
+
+        #[test]
+        fn bbox_contains_interior_points(
+            cx in -100.0..100.0f64,
+            cy in -100.0..100.0f64,
+            w in 1.0..200.0f64,
+            h in 1.0..200.0f64,
+            tx in 0.01..0.99f64,
+            ty in 0.01..0.99f64,
+        ) {
+            let bbox = BBox::new(cx, cy, w, h);
+            let px = bbox.left() + tx * w;
+            let py = bbox.top() + ty * h;
+            prop_assert!(bbox.contains(Point::new(px, py)),
+                "({px},{py}) should be inside bbox centered at ({cx},{cy}) size ({w},{h})");
+        }
+
+        #[test]
+        fn bbox_excludes_exterior_points(
+            cx in -100.0..100.0f64,
+            cy in -100.0..100.0f64,
+            w in 1.0..200.0f64,
+            h in 1.0..200.0f64,
+            offset in 0.01..50.0f64,
+            side in 0u8..4,
+        ) {
+            let bbox = BBox::new(cx, cy, w, h);
+            let p = match side {
+                0 => Point::new(bbox.left() - offset, cy),   // left of box
+                1 => Point::new(bbox.right() + offset, cy),  // right
+                2 => Point::new(cx, bbox.top() - offset),    // above
+                _ => Point::new(cx, bbox.bottom() + offset), // below
+            };
+            prop_assert!(!bbox.contains(p),
+                "({},{}) should be outside bbox", p.x, p.y);
+        }
+
+        #[test]
+        fn rect_intersect_is_symmetric_in_direction(
+            cx in -50.0..50.0f64,
+            cy in -50.0..50.0f64,
+            w in 10.0..100.0f64,
+            h in 10.0..100.0f64,
+            angle in 0.0..std::f64::consts::TAU,
+        ) {
+            // Intersection from center toward angle should be same distance
+            // as intersection toward angle + PI (opposite direction), by symmetry.
+            let bbox = BBox::new(cx, cy, w, h);
+            let far = 500.0;
+            let t1 = Point::new(cx + far * angle.cos(), cy + far * angle.sin());
+            let t2 = Point::new(cx - far * angle.cos(), cy - far * angle.sin());
+            let h1 = intersect_rect(&bbox, t1);
+            let h2 = intersect_rect(&bbox, t2);
+            let d1 = ((h1.x - cx).powi(2) + (h1.y - cy).powi(2)).sqrt();
+            let d2 = ((h2.x - cx).powi(2) + (h2.y - cy).powi(2)).sqrt();
+            // For a rectangle centered at (cx,cy), opposite rays may hit
+            // different edges at different distances — but both must land ON the boundary.
+            let hw = w / 2.0;
+            let hh = h / 2.0;
+            let on_boundary = |p: Point| {
+                let dx = (p.x - cx).abs();
+                let dy = (p.y - cy).abs();
+                (dx >= hw - 1e-6 && dy <= hh + 1e-6) || (dy >= hh - 1e-6 && dx <= hw + 1e-6)
+            };
+            prop_assert!(on_boundary(h1), "h1 not on boundary");
+            prop_assert!(on_boundary(h2), "h2 not on boundary");
+            // Both distances must be > 0 (not at center)
+            prop_assert!(d1 > 1e-6, "h1 at center");
+            prop_assert!(d2 > 1e-6, "h2 at center");
+        }
+
+        #[test]
+        fn polygon_centroid_inside_convex(
+            cx in -50.0..50.0f64,
+            cy in -50.0..50.0f64,
+            r in 10.0..100.0f64,
+            n in 3u32..9,
+        ) {
+            // Regular n-gon centered at (cx,cy) with radius r.
+            // Centroid of a regular polygon equals its center.
+            let verts: Vec<Point> = (0..n).map(|i| {
+                let a = std::f64::consts::TAU * i as f64 / n as f64;
+                Point::new(cx + r * a.cos(), cy + r * a.sin())
+            }).collect();
+            let centroid = Point::new(
+                verts.iter().map(|v| v.x).sum::<f64>() / n as f64,
+                verts.iter().map(|v| v.y).sum::<f64>() / n as f64,
+            );
+            // Centroid should be at center (within floating point)
+            prop_assert!((centroid.x - cx).abs() < 1e-10, "centroid x off");
+            prop_assert!((centroid.y - cy).abs() < 1e-10, "centroid y off");
+            // Intersect from centroid outward should land between centroid and target
+            let target = Point::new(cx + r * 3.0, cy);
+            let hit = intersect_polygon(&verts, centroid, target);
+            let d_hit = centroid.distance_to(hit);
+            let d_target = centroid.distance_to(target);
+            prop_assert!(d_hit <= d_target + 1e-6, "hit beyond target");
+            prop_assert!(d_hit > 0.1, "hit at centroid");
+        }
+
         #[test]
         fn polygon_diamond_intersect_between_center_and_target(
             cx in -100.0..100.0f64,

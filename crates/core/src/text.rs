@@ -344,4 +344,45 @@ mod tests {
         assert!((char_width_ratio('→') - 1.0).abs() < f64::EPSILON);   // Monospace
         assert!((char_width_ratio('م') - 0.8).abs() < f64::EPSILON);   // Arabic
     }
+
+    // ── Text measurement property tests (13.10) ──
+
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn char_width_ratio_always_positive(c in proptest::char::any()) {
+            let r = char_width_ratio(c);
+            prop_assert!(r > 0.0, "char_width_ratio({c:?}) = {r}, must be > 0");
+        }
+
+        #[test]
+        fn measure_width_positive_for_nonempty(
+            text in "[a-zA-Z0-9]{1,20}",
+        ) {
+            let m = SimpleTextMeasure::default();
+            let (w, h) = m.measure(&text, &default_style());
+            prop_assert!(w > 0.0, "width must be > 0 for non-empty text, got {w}");
+            prop_assert!(h > 0.0, "height must be > 0, got {h}");
+        }
+
+        #[test]
+        fn measure_scales_linearly_with_font_size(
+            text in "[a-z]{1,10}",
+            scale in 0.5..4.0f64,
+        ) {
+            let m = SimpleTextMeasure::default();
+            let base_style = default_style();
+            let mut scaled_style = base_style.clone();
+            scaled_style.font_size = base_style.font_size * scale;
+
+            let (w1, h1) = m.measure(&text, &base_style);
+            let (w2, h2) = m.measure(&text, &scaled_style);
+
+            prop_assert!((w2 / w1 - scale).abs() < 1e-10,
+                "width should scale by {scale}: w1={w1}, w2={w2}");
+            prop_assert!((h2 / h1 - scale).abs() < 1e-10,
+                "height should scale by {scale}: h1={h1}, h2={h2}");
+        }
+    }
 }

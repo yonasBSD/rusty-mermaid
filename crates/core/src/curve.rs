@@ -718,4 +718,110 @@ mod tests {
             assert!(matches!(s, PathSegment::CubicTo { .. }));
         }
     }
+
+    // ── Curve property tests (13.9) ──
+
+    use proptest::prelude::*;
+
+    fn arb_points(n: usize) -> impl Strategy<Value = Vec<Point>> {
+        proptest::collection::vec((-500.0..500.0f64, -500.0..500.0f64), n)
+            .prop_map(|pairs| pairs.into_iter().map(|(x, y)| Point::new(x, y)).collect())
+    }
+
+    proptest! {
+        #[test]
+        fn all_curves_start_at_first_point(pts in arb_points(5)) {
+            for curve in [
+                CurveType::Linear, CurveType::Basis, CurveType::Cardinal,
+                CurveType::MonotoneX, CurveType::MonotoneY, CurveType::CatmullRom,
+                CurveType::Natural, CurveType::Step, CurveType::StepBefore,
+                CurveType::StepAfter, CurveType::BumpX, CurveType::BumpY,
+            ] {
+                let segs = interpolate(&pts, curve);
+                if let Some(PathSegment::MoveTo(p)) = segs.first() {
+                    prop_assert!((p.x - pts[0].x).abs() < 1e-10,
+                        "{curve:?}: first MoveTo x={} != {}", p.x, pts[0].x);
+                    prop_assert!((p.y - pts[0].y).abs() < 1e-10,
+                        "{curve:?}: first MoveTo y={} != {}", p.y, pts[0].y);
+                } else {
+                    prop_assert!(false, "{curve:?}: first segment is not MoveTo");
+                }
+            }
+        }
+
+        #[test]
+        fn all_curves_end_at_last_point(pts in arb_points(5)) {
+            for curve in [
+                CurveType::Linear, CurveType::Cardinal,
+                CurveType::MonotoneX, CurveType::MonotoneY, CurveType::CatmullRom,
+                CurveType::Natural, CurveType::Step, CurveType::StepBefore,
+                CurveType::StepAfter, CurveType::BumpX, CurveType::BumpY,
+            ] {
+                let segs = interpolate(&pts, curve);
+                let last_input = pts.last().unwrap();
+                let last_pt = segs.last().and_then(|s| s.endpoint());
+                if let Some(p) = last_pt {
+                    prop_assert!((p.x - last_input.x).abs() < 1e-6,
+                        "{curve:?}: last point x={} != {}", p.x, last_input.x);
+                    prop_assert!((p.y - last_input.y).abs() < 1e-6,
+                        "{curve:?}: last point y={} != {}", p.y, last_input.y);
+                }
+            }
+            // Basis is excluded: it doesn't pass through endpoints by design.
+        }
+
+        #[test]
+        fn all_segments_have_finite_coordinates(pts in arb_points(6)) {
+            for curve in [
+                CurveType::Linear, CurveType::Basis, CurveType::Cardinal,
+                CurveType::MonotoneX, CurveType::MonotoneY, CurveType::CatmullRom,
+                CurveType::Natural, CurveType::Step, CurveType::StepBefore,
+                CurveType::StepAfter, CurveType::BumpX, CurveType::BumpY,
+            ] {
+                let segs = interpolate(&pts, curve);
+                for (i, seg) in segs.iter().enumerate() {
+                    let finite = match seg {
+                        PathSegment::MoveTo(p) | PathSegment::LineTo(p) =>
+                            p.x.is_finite() && p.y.is_finite(),
+                        PathSegment::CubicTo { cp1, cp2, to } =>
+                            cp1.x.is_finite() && cp1.y.is_finite() &&
+                            cp2.x.is_finite() && cp2.y.is_finite() &&
+                            to.x.is_finite() && to.y.is_finite(),
+                        PathSegment::QuadTo { cp, to } =>
+                            cp.x.is_finite() && cp.y.is_finite() &&
+                            to.x.is_finite() && to.y.is_finite(),
+                        _ => true,
+                    };
+                    prop_assert!(finite, "{curve:?} segment {i} has non-finite coords: {seg:?}");
+                }
+            }
+        }
+
+        #[test]
+        fn monotone_x_preserves_monotonicity(
+            xs in proptest::collection::vec(0.0..1000.0f64, 5..10),
+        ) {
+            // Strictly increasing x values
+            let mut sorted_xs = xs;
+            sorted_xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            sorted_xs.dedup();
+            if sorted_xs.len() < 3 { return Ok(()); }
+            let pts: Vec<Point> = sorted_xs.iter().enumerate()
+                .map(|(i, &x)| Point::new(x, (i as f64 * 37.0).sin() * 100.0))
+                .collect();
+            let segs = interpolate(&pts, CurveType::MonotoneX);
+            // All segment endpoints should have non-decreasing x
+            let mut prev_x = f64::NEG_INFINITY;
+            for seg in &segs {
+                let x = match seg {
+                    PathSegment::MoveTo(p) | PathSegment::LineTo(p) => p.x,
+                    PathSegment::CubicTo { to, .. } => to.x,
+                    _ => continue,
+                };
+                prop_assert!(x >= prev_x - 1e-6,
+                    "MonotoneX: x decreased from {prev_x} to {x}");
+                prev_x = x;
+            }
+        }
+    }
 }
