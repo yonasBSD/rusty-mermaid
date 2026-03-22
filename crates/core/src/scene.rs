@@ -208,6 +208,88 @@ pub enum PathSegment {
     Close,
 }
 
+impl PathSegment {
+    /// Get the endpoint of this segment (where the pen ends up).
+    pub fn endpoint(&self) -> Option<Point> {
+        match self {
+            Self::MoveTo(p) | Self::LineTo(p) => Some(*p),
+            Self::CubicTo { to, .. } | Self::QuadTo { to, .. } | Self::ArcTo { to, .. } => Some(*to),
+            Self::Close => None,
+        }
+    }
+}
+
+/// Compute the tangent angle at the START of a path (for marker_start).
+///
+/// For a cubic bezier, the tangent at t=0 points from the start toward cp1.
+/// Returns (start_point, angle_in_radians) pointing away from the path.
+pub fn path_start_tangent(segments: &[PathSegment]) -> Option<(Point, f64)> {
+    if segments.len() < 2 { return None; }
+    let p0 = match &segments[0] {
+        PathSegment::MoveTo(p) => *p,
+        _ => return None,
+    };
+    // The tangent at the start is from p0 toward the first control/target point
+    let toward = match &segments[1] {
+        PathSegment::LineTo(p) | PathSegment::MoveTo(p) => *p,
+        PathSegment::CubicTo { cp1, .. } => *cp1,     // tangent at t=0
+        PathSegment::QuadTo { cp, .. } => *cp,         // tangent at t=0
+        PathSegment::ArcTo { to, .. } => *to,          // approximation
+        PathSegment::Close => return None,
+    };
+    // Marker points AWAY from the path (opposite to travel direction)
+    Some((p0, (p0.y - toward.y).atan2(p0.x - toward.x)))
+}
+
+/// Compute the tangent angle at the END of a path (for marker_end).
+///
+/// For a cubic bezier, the tangent at t=1 points from cp2 toward the endpoint.
+/// Returns (end_point, angle_in_radians) in the direction of travel.
+pub fn path_end_tangent(segments: &[PathSegment]) -> Option<(Point, f64)> {
+    // Walk backwards to find the last drawable segment
+    let mut endpoint: Option<Point> = None;
+    let mut prev_control_or_point: Option<Point> = None;
+
+    // Track the current point as we walk forward
+    let mut cur = Point::new(0.0, 0.0);
+    for seg in segments {
+        match seg {
+            PathSegment::MoveTo(p) => {
+                cur = *p;
+            }
+            PathSegment::LineTo(p) => {
+                prev_control_or_point = Some(cur);
+                endpoint = Some(*p);
+                cur = *p;
+            }
+            PathSegment::CubicTo { cp2, to, .. } => {
+                // Tangent at t=1 is from cp2 → to
+                prev_control_or_point = Some(*cp2);
+                endpoint = Some(*to);
+                cur = *to;
+            }
+            PathSegment::QuadTo { cp, to } => {
+                // Tangent at t=1 is from cp → to
+                prev_control_or_point = Some(*cp);
+                endpoint = Some(*to);
+                cur = *to;
+            }
+            PathSegment::ArcTo { to, .. } => {
+                // For arcs, use cur → to as approximation
+                prev_control_or_point = Some(cur);
+                endpoint = Some(*to);
+                cur = *to;
+            }
+            PathSegment::Close => {}
+        }
+    }
+
+    let end = endpoint?;
+    let prev = prev_control_or_point?;
+    // Angle in the direction of travel (from prev toward end)
+    Some((end, (end.y - prev.y).atan2(end.x - prev.x)))
+}
+
 /// 2D affine transform.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Transform {
@@ -583,5 +665,71 @@ mod tests {
         } else {
             panic!("expected Arc");
         }
+    }
+
+    #[test]
+    fn path_end_tangent_line() {
+        // Simple line: tangent is from start to end
+        let segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(100.0, 0.0)),
+        ];
+        let (pt, angle) = path_end_tangent(&segs).unwrap();
+        assert!((pt.x - 100.0).abs() < 1e-10);
+        assert!(angle.abs() < 0.01); // ~0 radians (pointing right)
+    }
+
+    #[test]
+    fn path_end_tangent_cubic_self_loop() {
+        // Self-message cubic: loops right then comes back left
+        // M(57, 96.8) C(97, 86.9, 97, 136.7, 57, 126.8)
+        let segs = vec![
+            PathSegment::MoveTo(Point::new(57.0, 96.8)),
+            PathSegment::CubicTo {
+                cp1: Point::new(97.0, 86.9),
+                cp2: Point::new(97.0, 136.7),
+                to: Point::new(57.0, 126.8),
+            },
+        ];
+        let (pt, angle) = path_end_tangent(&segs).unwrap();
+        assert!((pt.x - 57.0).abs() < 1e-10);
+        // Tangent from cp2(97,136.7) → to(57,126.8): pointing LEFT and slightly UP
+        // angle should be ~π (pointing left), not ~π/2 (pointing down)
+        assert!(angle.abs() > 2.0, "angle {angle} should point roughly left, not down");
+    }
+
+    #[test]
+    fn path_start_tangent_cubic() {
+        let segs = vec![
+            PathSegment::MoveTo(Point::new(57.0, 96.8)),
+            PathSegment::CubicTo {
+                cp1: Point::new(97.0, 86.9),
+                cp2: Point::new(97.0, 136.7),
+                to: Point::new(57.0, 126.8),
+            },
+        ];
+        let (pt, angle) = path_start_tangent(&segs).unwrap();
+        assert!((pt.x - 57.0).abs() < 1e-10);
+        // Start tangent: from (57,96.8) AWAY from cp1(97,86.9)
+        // cp1 is to the right and slightly up → away is left and slightly down
+        assert!(angle.abs() > 2.0, "start angle {angle} should point away from curve");
+    }
+
+    #[test]
+    fn path_end_tangent_multi_segment() {
+        // Line then cubic: end tangent uses the cubic's cp2
+        let segs = vec![
+            PathSegment::MoveTo(Point::new(0.0, 0.0)),
+            PathSegment::LineTo(Point::new(50.0, 0.0)),
+            PathSegment::CubicTo {
+                cp1: Point::new(80.0, 0.0),
+                cp2: Point::new(100.0, 50.0),
+                to: Point::new(100.0, 100.0),
+            },
+        ];
+        let (pt, angle) = path_end_tangent(&segs).unwrap();
+        assert!((pt.x - 100.0).abs() < 1e-10);
+        // Tangent from cp2(100,50) → to(100,100): straight down
+        assert!((angle - std::f64::consts::FRAC_PI_2).abs() < 0.01);
     }
 }

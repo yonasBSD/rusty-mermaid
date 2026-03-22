@@ -114,12 +114,12 @@ fn paint_primitive(
             }
 
             if let Some(marker) = marker_start {
-                if let Some((tip, angle)) = first_point_angle(segments) {
+                if let Some((tip, angle)) = rusty_mermaid_core::path_start_tangent(segments) {
                     paint_marker(window, *marker, tip, angle, color, width * zoom, zoom, ox, oy);
                 }
             }
             if let Some(marker) = marker_end {
-                if let Some((tip, angle)) = last_point_angle(segments) {
+                if let Some((tip, angle)) = rusty_mermaid_core::path_end_tangent(segments) {
                     paint_marker(window, *marker, tip, angle, color, width * zoom, zoom, ox, oy);
                 }
             }
@@ -512,32 +512,3 @@ fn paint_arc(
     }
 }
 
-// ── Path endpoint angles ──
-
-fn first_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
-    if segments.len() < 2 { return None; }
-    let p0 = match &segments[0] {
-        PathSegment::MoveTo(p) => *p,
-        _ => return None,
-    };
-    let p1 = match &segments[1] {
-        PathSegment::LineTo(p) | PathSegment::MoveTo(p) => *p,
-        PathSegment::CubicTo { cp1, .. } => *cp1,
-        PathSegment::QuadTo { cp, .. } => *cp,
-        PathSegment::ArcTo { to, .. } => *to,
-        PathSegment::Close => return None,
-    };
-    Some((p0, (p0.y - p1.y).atan2(p0.x - p1.x)))
-}
-
-fn last_point_angle(segments: &[PathSegment]) -> Option<(Point, f64)> {
-    let points: Vec<Point> = segments.iter().filter_map(|s| match s {
-        PathSegment::MoveTo(p) | PathSegment::LineTo(p) => Some(*p),
-        PathSegment::CubicTo { to, .. } | PathSegment::QuadTo { to, .. } | PathSegment::ArcTo { to, .. } => Some(*to),
-        PathSegment::Close => None,
-    }).collect();
-    if points.len() < 2 { return None; }
-    let last = points[points.len() - 1];
-    let prev = points[points.len() - 2];
-    Some((last, (last.y - prev.y).atan2(last.x - prev.x)))
-}

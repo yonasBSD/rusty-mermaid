@@ -122,11 +122,11 @@ pub fn render_primitive(
             pixmap.stroke_path(&path, &paint, &stroke, transform, None);
 
             // Draw markers as filled geometry at endpoints
-            if let (Some(marker), Some(pt)) = (marker_start, first_point(segments)) {
-                draw_marker(pixmap, *marker, pt, start_angle(segments), stroke_color, width, transform);
+            if let (Some(marker), Some((pt, angle))) = (marker_start, rusty_mermaid_core::path_start_tangent(segments)) {
+                draw_marker(pixmap, *marker, pt, angle, stroke_color, width, transform);
             }
-            if let (Some(marker), Some(pt)) = (marker_end, last_point(segments)) {
-                draw_marker(pixmap, *marker, pt, end_angle(segments), stroke_color, width, transform);
+            if let (Some(marker), Some((pt, angle))) = (marker_end, rusty_mermaid_core::path_end_tangent(segments)) {
+                draw_marker(pixmap, *marker, pt, angle, stroke_color, width, transform);
             }
         }
 
@@ -401,53 +401,6 @@ fn points_to_skia_path(pts: &[Point], closed: bool) -> Option<tiny_skia::Path> {
     pb.finish()
 }
 
-fn first_point(segments: &[PathSegment]) -> Option<Point> {
-    segments.first().map(|s| match s {
-        PathSegment::MoveTo(p) | PathSegment::LineTo(p) => *p,
-        PathSegment::CubicTo { to, .. } | PathSegment::QuadTo { to, .. } | PathSegment::ArcTo { to, .. } => *to,
-        PathSegment::Close => Point::new(0.0, 0.0),
-    })
-}
-
-fn last_point(segments: &[PathSegment]) -> Option<Point> {
-    for seg in segments.iter().rev() {
-        match seg {
-            PathSegment::MoveTo(p) | PathSegment::LineTo(p) => return Some(*p),
-            PathSegment::CubicTo { to, .. } | PathSegment::QuadTo { to, .. } | PathSegment::ArcTo { to, .. } => return Some(*to),
-            PathSegment::Close => continue,
-        }
-    }
-    None
-}
-
-fn start_angle(segments: &[PathSegment]) -> f64 {
-    if segments.len() < 2 { return 0.0; }
-    let p0 = match &segments[0] {
-        PathSegment::MoveTo(p) => *p,
-        _ => return 0.0,
-    };
-    let p1 = match &segments[1] {
-        PathSegment::LineTo(p) | PathSegment::MoveTo(p) => *p,
-        PathSegment::CubicTo { cp1, .. } => *cp1,
-        PathSegment::QuadTo { cp, .. } => *cp,
-        PathSegment::ArcTo { to, .. } => *to,
-        PathSegment::Close => return 0.0,
-    };
-    // Angle from p1 to p0 (marker points backwards)
-    (p0.y - p1.y).atan2(p0.x - p1.x)
-}
-
-fn end_angle(segments: &[PathSegment]) -> f64 {
-    let points: Vec<Point> = segments.iter().filter_map(|s| match s {
-        PathSegment::MoveTo(p) | PathSegment::LineTo(p) => Some(*p),
-        PathSegment::CubicTo { to, .. } | PathSegment::QuadTo { to, .. } | PathSegment::ArcTo { to, .. } => Some(*to),
-        PathSegment::Close => None,
-    }).collect();
-    if points.len() < 2 { return 0.0; }
-    let last = points[points.len() - 1];
-    let prev = points[points.len() - 2];
-    (last.y - prev.y).atan2(last.x - prev.x)
-}
 
 fn render_arc(
     pixmap: &mut Pixmap,

@@ -17,7 +17,7 @@ pub use geometry::{
 pub use renderer::Renderer;
 pub use scene::{
     Element, ElementId, ElementKind, MarkerType, PathSegment, Primitive, Scene, TextAnchor,
-    Transform,
+    Transform, path_start_tangent, path_end_tangent,
 };
 pub use shape::Shape;
 pub use marker_shapes::{
