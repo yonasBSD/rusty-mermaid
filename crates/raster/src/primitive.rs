@@ -300,82 +300,44 @@ fn draw_marker(
     stroke_width: f32,
     transform: SkTransform,
 ) {
-    let geom = marker_geometry(marker);
-    let sw = stroke_width as f64;
+    use rusty_mermaid_core::MarkerPath;
+    let mp = rusty_mermaid_core::marker_path(marker, tip, angle, stroke_width as f64);
 
-    match &geom.shape {
-        MarkerShape::FilledPath(_) => {
-            let pts = transform_marker_points(&geom, tip, angle, sw);
-            if let Some(path) = points_to_skia_path(&pts, true) {
-                let mut paint = Paint::default();
-                paint.set_color(color);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
-            }
-        }
-        MarkerShape::StrokedPath { closed, stroke_width: rel_sw, .. } => {
-            let pts = transform_marker_points(&geom, tip, angle, sw);
-            if let Some(path) = points_to_skia_path(&pts, *closed) {
-                let mut paint = Paint::default();
-                paint.set_color(color);
-                paint.anti_alias = true;
-                let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32;
-                let stroke = Stroke { width: w, ..Default::default() };
-                pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-            }
-        }
-        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: rel_sw, .. } => {
-            let pts = transform_marker_points(&geom, tip, angle, sw);
-            if let Some(path) = points_to_skia_path(&pts, true) {
-                let fill_color = if *fill_is_marker_color {
-                    color
-                } else {
-                    tiny_skia::Color::from_rgba8(255, 255, 255, 255)
-                };
-                let mut paint = Paint::default();
-                paint.set_color(fill_color);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
+    let fill_paint = |c: tiny_skia::Color| -> Paint { let mut p = Paint::default(); p.set_color(c); p.anti_alias = true; p };
 
-                let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32;
-                let mut stroke_paint = Paint::default();
-                stroke_paint.set_color(color);
-                stroke_paint.anti_alias = true;
-                let stroke = Stroke { width: w, ..Default::default() };
-                pixmap.stroke_path(&path, &stroke_paint, &stroke, transform, None);
+    match mp {
+        MarkerPath::FillPolygon { points } => {
+            if let Some(path) = points_to_skia_path(&points, true) {
+                pixmap.fill_path(&path, &fill_paint(color), FillRule::Winding, transform, None);
             }
         }
-        MarkerShape::FilledCircle { .. } => {
-            let (center, r) = transform_marker_circle(&geom, tip, angle, sw);
-            if let Some(path) = circle_path(center.x as f32, center.y as f32, r as f32) {
-                let mut paint = Paint::default();
-                paint.set_color(color);
-                paint.anti_alias = true;
-                pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
+        MarkerPath::StrokePolyline { points, width, closed } => {
+            if let Some(path) = points_to_skia_path(&points, closed) {
+                let stroke = Stroke { width: width as f32, ..Default::default() };
+                pixmap.stroke_path(&path, &fill_paint(color), &stroke, transform, None);
             }
         }
-        MarkerShape::StrokedCurves { stroke_width: rel_sw, .. } => {
-            let curves = transform_marker_curves(&geom, tip, angle, sw);
-            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32;
-            for curve in &curves {
-                if curve.len() >= 3 {
-                    let mut pb = PathBuilder::new();
-                    pb.move_to(curve[0].x as f32, curve[0].y as f32);
-                    pb.quad_to(
-                        curve[1].x as f32, curve[1].y as f32,
-                        curve[2].x as f32, curve[2].y as f32,
-                    );
-                    if let Some(path) = pb.finish() {
-                        let mut paint = Paint::default();
-                        paint.set_color(color);
-                        paint.anti_alias = true;
-                        let stroke = Stroke {
-                            width: w,
-                            line_cap: LineCap::Round,
-                            ..Default::default()
-                        };
-                        pixmap.stroke_path(&path, &paint, &stroke, transform, None);
-                    }
+        MarkerPath::FillAndStrokePolygon { points, stroke_width: sw, fill_is_marker_color } => {
+            if let Some(path) = points_to_skia_path(&points, true) {
+                let fc = if fill_is_marker_color { color } else { tiny_skia::Color::from_rgba8(255, 255, 255, 255) };
+                pixmap.fill_path(&path, &fill_paint(fc), FillRule::Winding, transform, None);
+                let stroke = Stroke { width: sw as f32, ..Default::default() };
+                pixmap.stroke_path(&path, &fill_paint(color), &stroke, transform, None);
+            }
+        }
+        MarkerPath::FillCircle { center, radius } => {
+            if let Some(path) = circle_path(center.x as f32, center.y as f32, radius as f32) {
+                pixmap.fill_path(&path, &fill_paint(color), FillRule::Winding, transform, None);
+            }
+        }
+        MarkerPath::StrokeCurves { curves, width } => {
+            for [start, cp, end] in &curves {
+                let mut pb = PathBuilder::new();
+                pb.move_to(start.x as f32, start.y as f32);
+                pb.quad_to(cp.x as f32, cp.y as f32, end.x as f32, end.y as f32);
+                if let Some(path) = pb.finish() {
+                    let stroke = Stroke { width: width as f32, line_cap: LineCap::Round, ..Default::default() };
+                    pixmap.stroke_path(&path, &fill_paint(color), &stroke, transform, None);
                 }
             }
         }

@@ -22,8 +22,8 @@ pub use scene::{
 };
 pub use shape::Shape;
 pub use marker_shapes::{
-    marker_geometry, transform_marker_circle, transform_marker_curves, transform_marker_points,
-    MarkerGeometry, MarkerShape,
+    marker_geometry, marker_path, transform_marker_circle, transform_marker_curves,
+    transform_marker_points, MarkerGeometry, MarkerPath, MarkerShape,
 };
 pub use style::{FontWeight, Style, TextStyle, Theme};
 pub use text::{parse_inline_markdown, text_baseline_y_offset, MdSpan, SimpleTextMeasure, TextMeasure};

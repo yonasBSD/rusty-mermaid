@@ -391,63 +391,53 @@ fn paint_marker(
     ox: f32,
     oy: f32,
 ) {
-    let geom = marker_geometry(marker);
-    let sw = stroke_width as f64 / zoom as f64; // undo zoom for geometry, re-applied via transform_pt
+    use rusty_mermaid_core::MarkerPath;
+    let sw = stroke_width as f64 / zoom as f64;
+    let mp = rusty_mermaid_core::marker_path(marker, tip, angle, sw);
 
-    // Transform shared geometry to scene coords, then apply zoom+offset
-    let scene_to_screen = |p: &Point| -> GpuiPoint<Pixels> {
+    let to_screen = |p: &Point| -> GpuiPoint<Pixels> {
         point(px(p.x as f32 * zoom + ox), px(p.y as f32 * zoom + oy))
     };
 
-    match &geom.shape {
-        MarkerShape::FilledPath(_) => {
-            let pts = transform_marker_points(&geom, tip, angle, sw);
+    match mp {
+        MarkerPath::FillPolygon { points } => {
             let mut pb = PathBuilder::fill();
-            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
-            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
+            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
+            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
             pb.close();
             if let Ok(path) = pb.build() { window.paint_path(path, color); }
         }
-        MarkerShape::StrokedPath { closed, stroke_width: rel_sw, .. } => {
-            let pts = transform_marker_points(&geom, tip, angle, sw);
-            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32 * zoom;
-            let mut pb = PathBuilder::stroke(px(w));
-            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
-            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
-            if *closed { pb.close(); }
+        MarkerPath::StrokePolyline { points, width, closed } => {
+            let mut pb = PathBuilder::stroke(px(width as f32 * zoom));
+            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
+            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
+            if closed { pb.close(); }
             if let Ok(path) = pb.build() { window.paint_path(path, color); }
         }
-        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: rel_sw, .. } => {
-            let pts = transform_marker_points(&geom, tip, angle, sw);
-            let fill = if *fill_is_marker_color { color } else { Hsla { h: 0.0, s: 0.0, l: 1.0, a: 1.0 } };
+        MarkerPath::FillAndStrokePolygon { points, stroke_width: sw, fill_is_marker_color } => {
+            let fill = if fill_is_marker_color { color } else { Hsla { h: 0.0, s: 0.0, l: 1.0, a: 1.0 } };
             let mut pb = PathBuilder::fill();
-            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
-            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
+            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
+            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
             pb.close();
             if let Ok(path) = pb.build() { window.paint_path(path, fill); }
-            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32 * zoom;
-            let mut pb = PathBuilder::stroke(px(w));
-            if let Some(first) = pts.first() { pb.move_to(scene_to_screen(first)); }
-            for p in pts.iter().skip(1) { pb.line_to(scene_to_screen(p)); }
+            let mut pb = PathBuilder::stroke(px(sw as f32 * zoom));
+            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
+            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
             pb.close();
             if let Ok(path) = pb.build() { window.paint_path(path, color); }
         }
-        MarkerShape::FilledCircle { .. } => {
-            let (center, r) = transform_marker_circle(&geom, tip, angle, sw);
-            if let Ok(path) = circle_fill_path(center.x as f32 * zoom + ox, center.y as f32 * zoom + oy, r as f32 * zoom) {
+        MarkerPath::FillCircle { center, radius } => {
+            if let Ok(path) = circle_fill_path(center.x as f32 * zoom + ox, center.y as f32 * zoom + oy, radius as f32 * zoom) {
                 window.paint_path(path, color);
             }
         }
-        MarkerShape::StrokedCurves { stroke_width: rel_sw, .. } => {
-            let curves = transform_marker_curves(&geom, tip, angle, sw);
-            let w = (*rel_sw * sw / geom.vb_w * geom.marker_w) as f32 * zoom;
-            for curve in &curves {
-                if curve.len() >= 3 {
-                    let mut pb = PathBuilder::stroke(px(w));
-                    pb.move_to(scene_to_screen(&curve[0]));
-                    pb.curve_to(scene_to_screen(&curve[2]), scene_to_screen(&curve[1]));
-                    if let Ok(path) = pb.build() { window.paint_path(path, color); }
-                }
+        MarkerPath::StrokeCurves { curves, width } => {
+            for [start, cp, end] in &curves {
+                let mut pb = PathBuilder::stroke(px(width as f32 * zoom));
+                pb.move_to(to_screen(start));
+                pb.curve_to(to_screen(end), to_screen(cp));
+                if let Ok(path) = pb.build() { window.paint_path(path, color); }
             }
         }
     }

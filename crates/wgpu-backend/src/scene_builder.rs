@@ -249,44 +249,36 @@ fn paint_marker(
     stroke_width: f64,
     transform: Affine,
 ) {
-    let geom = marker_geometry(marker);
+    use rusty_mermaid_core::MarkerPath;
+    let mp = rusty_mermaid_core::marker_path(marker, tip, angle, stroke_width);
+    let vc = to_vello_color(color);
 
-    match &geom.shape {
-        MarkerShape::FilledPath(_) => {
-            let pts = transform_marker_points(&geom, tip, angle, stroke_width);
-            let path = points_to_bezpath(&pts, true);
-            scene.fill(Fill::NonZero, transform, to_vello_color(color), None, &path);
+    match mp {
+        MarkerPath::FillPolygon { points } => {
+            let path = points_to_bezpath(&points, true);
+            scene.fill(Fill::NonZero, transform, vc, None, &path);
         }
-        MarkerShape::StrokedPath { closed, stroke_width: sw, .. } => {
-            let pts = transform_marker_points(&geom, tip, angle, stroke_width);
-            let path = points_to_bezpath(&pts, *closed);
-            let stroke = Stroke::new(sw * stroke_width / geom.vb_w * geom.marker_w);
-            scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
+        MarkerPath::StrokePolyline { points, width, closed } => {
+            let path = points_to_bezpath(&points, closed);
+            scene.stroke(&Stroke::new(width), transform, vc, None, &path);
         }
-        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: sw, .. } => {
-            let pts = transform_marker_points(&geom, tip, angle, stroke_width);
-            let path = points_to_bezpath(&pts, true);
-            let fill_color = if *fill_is_marker_color { color } else { Color::WHITE };
-            scene.fill(Fill::NonZero, transform, to_vello_color(fill_color), None, &path);
-            let stroke = Stroke::new(sw * stroke_width / geom.vb_w * geom.marker_w);
-            scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
+        MarkerPath::FillAndStrokePolygon { points, stroke_width: sw, fill_is_marker_color } => {
+            let path = points_to_bezpath(&points, true);
+            let fc = if fill_is_marker_color { color } else { Color::WHITE };
+            scene.fill(Fill::NonZero, transform, to_vello_color(fc), None, &path);
+            scene.stroke(&Stroke::new(sw), transform, vc, None, &path);
         }
-        MarkerShape::FilledCircle { .. } => {
-            let (center, r) = transform_marker_circle(&geom, tip, angle, stroke_width);
-            let circle = kurbo::Circle::new(KPoint::new(center.x, center.y), r);
-            scene.fill(Fill::NonZero, transform, to_vello_color(color), None, &circle);
+        MarkerPath::FillCircle { center, radius } => {
+            let circle = kurbo::Circle::new(KPoint::new(center.x, center.y), radius);
+            scene.fill(Fill::NonZero, transform, vc, None, &circle);
         }
-        MarkerShape::StrokedCurves { stroke_width: sw, .. } => {
-            let curves = transform_marker_curves(&geom, tip, angle, stroke_width);
-            let stroke = Stroke::new(sw * stroke_width / geom.vb_w * geom.marker_w)
-                .with_caps(Cap::Round);
-            for curve in &curves {
-                if curve.len() >= 3 {
-                    let mut path = BezPath::new();
-                    path.move_to(to_kpoint(&curve[0]));
-                    path.quad_to(to_kpoint(&curve[1]), to_kpoint(&curve[2]));
-                    scene.stroke(&stroke, transform, to_vello_color(color), None, &path);
-                }
+        MarkerPath::StrokeCurves { curves, width } => {
+            let stroke = Stroke::new(width).with_caps(Cap::Round);
+            for [start, cp, end] in &curves {
+                let mut path = BezPath::new();
+                path.move_to(to_kpoint(start));
+                path.quad_to(to_kpoint(cp), to_kpoint(end));
+                scene.stroke(&stroke, transform, vc, None, &path);
             }
         }
     }

@@ -242,6 +242,63 @@ pub fn transform_marker_curves(
     }
 }
 
+/// Pre-computed marker geometry in scene coordinates, ready for backend rendering.
+/// Backends match on this and build native paths — no geometry logic needed.
+pub enum MarkerPath {
+    /// Filled closed polygon.
+    FillPolygon { points: Vec<Point> },
+    /// Stroked polyline (open or closed).
+    StrokePolyline { points: Vec<Point>, width: f64, closed: bool },
+    /// Filled AND stroked closed polygon. Fill color may differ from stroke.
+    FillAndStrokePolygon { points: Vec<Point>, stroke_width: f64, fill_is_marker_color: bool },
+    /// Filled circle.
+    FillCircle { center: Point, radius: f64 },
+    /// Stroked quadratic curves (each curve is [start, control, end]).
+    StrokeCurves { curves: Vec<[Point; 3]>, width: f64 },
+}
+
+/// Compute marker geometry in scene coordinates for a given marker type,
+/// path endpoint, direction angle, and edge stroke width.
+pub fn marker_path(marker: MarkerType, tip: Point, angle: f64, stroke_width: f64) -> MarkerPath {
+    let geom = marker_geometry(marker);
+    let sw = stroke_width;
+
+    match &geom.shape {
+        MarkerShape::FilledPath(_) => {
+            MarkerPath::FillPolygon { points: transform_marker_points(&geom, tip, angle, sw) }
+        }
+        MarkerShape::StrokedPath { closed, stroke_width: rel_sw, .. } => {
+            let w = rel_sw * sw / geom.vb_w * geom.marker_w;
+            MarkerPath::StrokePolyline {
+                points: transform_marker_points(&geom, tip, angle, sw),
+                width: w,
+                closed: *closed,
+            }
+        }
+        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: rel_sw, .. } => {
+            let w = rel_sw * sw / geom.vb_w * geom.marker_w;
+            MarkerPath::FillAndStrokePolygon {
+                points: transform_marker_points(&geom, tip, angle, sw),
+                stroke_width: w,
+                fill_is_marker_color: *fill_is_marker_color,
+            }
+        }
+        MarkerShape::FilledCircle { .. } => {
+            let (center, r) = transform_marker_circle(&geom, tip, angle, sw);
+            MarkerPath::FillCircle { center, radius: r }
+        }
+        MarkerShape::StrokedCurves { stroke_width: rel_sw, .. } => {
+            let w = rel_sw * sw / geom.vb_w * geom.marker_w;
+            let raw = transform_marker_curves(&geom, tip, angle, sw);
+            let curves = raw.into_iter()
+                .filter(|c| c.len() >= 3)
+                .map(|c| [c[0], c[1], c[2]])
+                .collect();
+            MarkerPath::StrokeCurves { curves, width: w }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -297,5 +354,60 @@ mod tests {
         let curves = transform_marker_curves(&g, Point::new(0.0, 0.0), 0.0, 1.5);
         assert_eq!(curves.len(), 2);
         assert_eq!(curves[0].len(), 3); // quadratic: 3 control points
+    }
+
+    // ── marker_path tests (13.15) ──
+
+    #[test]
+    fn marker_path_arrow_point_is_fill_polygon() {
+        let mp = marker_path(MarkerType::ArrowPoint, Point::new(100.0, 50.0), 0.0, 1.5);
+        assert!(matches!(mp, MarkerPath::FillPolygon { points } if points.len() == 4));
+    }
+
+    #[test]
+    fn marker_path_circle_is_fill_circle() {
+        let mp = marker_path(MarkerType::Circle, Point::new(50.0, 50.0), 0.0, 1.5);
+        if let MarkerPath::FillCircle { radius, .. } = mp {
+            assert!(radius > 0.0);
+        } else {
+            panic!("expected FillCircle");
+        }
+    }
+
+    #[test]
+    fn marker_path_cross_is_stroke_curves() {
+        let mp = marker_path(MarkerType::Cross, Point::new(0.0, 0.0), 0.0, 1.5);
+        if let MarkerPath::StrokeCurves { curves, width } = mp {
+            assert_eq!(curves.len(), 2);
+            assert!(width > 0.0);
+        } else {
+            panic!("expected StrokeCurves");
+        }
+    }
+
+    #[test]
+    fn marker_path_open_is_stroked_polyline() {
+        let mp = marker_path(MarkerType::ArrowOpen, Point::new(0.0, 0.0), 0.0, 1.5);
+        assert!(matches!(mp, MarkerPath::StrokePolyline { closed: false, .. }));
+    }
+
+    #[test]
+    fn marker_path_all_types_produce_nonempty() {
+        let types = [
+            MarkerType::ArrowPoint, MarkerType::ArrowBarb, MarkerType::ArrowOpen,
+            MarkerType::Circle, MarkerType::Cross,
+            MarkerType::Aggregation, MarkerType::Composition, MarkerType::Dependency,
+        ];
+        for mt in types {
+            let mp = marker_path(mt, Point::new(50.0, 50.0), 0.5, 1.5);
+            let nonempty = match &mp {
+                MarkerPath::FillPolygon { points } => !points.is_empty(),
+                MarkerPath::StrokePolyline { points, .. } => !points.is_empty(),
+                MarkerPath::FillAndStrokePolygon { points, .. } => !points.is_empty(),
+                MarkerPath::FillCircle { radius, .. } => *radius > 0.0,
+                MarkerPath::StrokeCurves { curves, .. } => !curves.is_empty(),
+            };
+            assert!(nonempty, "{mt:?} produced empty marker path");
+        }
     }
 }
