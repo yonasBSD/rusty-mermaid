@@ -16,7 +16,6 @@ fn golden_dir() -> std::path::PathBuf {
 /// These are tracked as future work, not regressions.
 const KNOWN_UNSUPPORTED: &[&str] = &[
     "click_bindings",
-    "comments_directives",
     "mixed_statements",
 ];
 

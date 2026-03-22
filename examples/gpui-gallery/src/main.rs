@@ -18,11 +18,13 @@ impl GalleryApp {
         if self.cached_scene.is_none() || self.cached_idx != self.current {
             let (name, mmd) = DIAGRAMS[self.current];
             eprintln!("Loading diagram {}: {name}", self.current);
-            self.cached_scene = match rusty_mermaid_diagrams::render_to_scene(mmd) {
-                Ok(s) => Some(s),
+            match rusty_mermaid_diagrams::render_to_scene(mmd) {
+                Ok(s) => {
+                    self.cached_scene = Some(s);
+                }
                 Err(e) => {
                     eprintln!("  FAILED: {e}");
-                    None
+                    self.cached_scene = None;
                 }
             };
             self.cached_idx = self.current;
@@ -63,36 +65,43 @@ impl Render for GalleryApp {
                     .border_b_1()
                     .border_color(rgb(0xeeeeee))
                     .flex_shrink_0()
+                    // Left: Prev button
                     .child(
-                        div().flex().items_center().gap_3()
-                            .child(
-                                div().id("prev").px_3().py_1()
-                                    .bg(rgb(0xf0f0f0)).rounded_md().cursor_pointer()
-                                    .child("◀ Prev")
-                                    .on_click(cx.listener(|this, _, _, _| {
-                                        this.current = if this.current > 0 {
-                                            this.current - 1
-                                        } else {
-                                            DIAGRAMS.len() - 1
-                                        };
-                                    }))
-                            )
-                            .child(
-                                div().text_sm().text_color(rgb(0x555555))
-                                    .child(format!("{} / {}  —  {}", idx + 1, total, name))
-                            )
+                        div().id("prev").px_3().py_1().flex_shrink_0()
+                            .bg(rgb(0xf0f0f0)).rounded_md().cursor_pointer()
+                            .child("◀ Prev")
+                            .on_click(cx.listener(|this, _, _, _| {
+                                this.current = if this.current > 0 {
+                                    this.current - 1
+                                } else {
+                                    DIAGRAMS.len() - 1
+                                };
+                                this.cached_scene = None;
+                            }))
+                    )
+                    // Center: diagram info (takes remaining space)
+                    .child(
+                        div().flex_1().text_center().child(
+                            div().text_sm().text_color(rgb(0x555555))
+                                .child(format!("{} / {}  —  {}", idx + 1, total, name))
+                        )
+                    )
+                    // Right: Next button + title
+                    .child(
+                        div().flex().items_center().gap_3().flex_shrink_0()
                             .child(
                                 div().id("next").px_3().py_1()
                                     .bg(rgb(0xf0f0f0)).rounded_md().cursor_pointer()
                                     .child("Next ▶")
                                     .on_click(cx.listener(|this, _, _, _| {
                                         this.current = (this.current + 1) % DIAGRAMS.len();
+                                        this.cached_scene = None;
                                     }))
                             )
-                    )
-                    .child(
-                        div().text_sm().text_color(rgb(0x9370db))
-                            .child("rusty-mermaid gpui gallery")
+                            .child(
+                                div().text_sm().text_color(rgb(0x9370db))
+                                    .child("gpui gallery")
+                            )
                     )
             )
             // Diagram area — scrollable, takes remaining space

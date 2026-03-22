@@ -45,12 +45,57 @@ pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseEr
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
 
+/// Strip mermaid directives, accessibility metadata, and leading comments.
+///
+/// Handles:
+/// - `%%{init: ...}%%` configuration directives
+/// - `accTitle: ...` accessibility title
+/// - `accDescr: ...` or `accDescr { ... }` accessibility description
+/// - `%%` comment lines before the diagram keyword
+fn preprocess(input: &str) -> String {
+    let mut lines: Vec<&str> = Vec::new();
+    let mut in_acc_block = false;
+
+    for line in input.lines() {
+        let trimmed = line.trim();
+
+        // Skip %%{...}%% directives
+        if trimmed.starts_with("%%{") && trimmed.ends_with("}%%") {
+            continue;
+        }
+
+        // Skip accTitle / accDescr single-line
+        if trimmed.starts_with("accTitle:") || trimmed.starts_with("accDescr:") {
+            continue;
+        }
+
+        // Handle accDescr { ... } multi-line block
+        if trimmed.starts_with("accDescr") && trimmed.contains('{') {
+            in_acc_block = true;
+            continue;
+        }
+        if in_acc_block {
+            if trimmed.contains('}') {
+                in_acc_block = false;
+            }
+            continue;
+        }
+
+        lines.push(line);
+    }
+
+    lines.join("\n")
+}
+
 /// Unified entry with explicit theme: parse + layout → Scene.
 #[cfg(any(feature = "flowchart", feature = "state", feature = "sequence"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
 ) -> Result<rusty_mermaid_core::Scene, ParseError> {
+    let cleaned = preprocess(input);
+    let input = &cleaned;
+
     let kind = detect(input).ok_or_else(|| {
         ParseError::new(
             common::error::ParseErrorKind::UnexpectedToken,
