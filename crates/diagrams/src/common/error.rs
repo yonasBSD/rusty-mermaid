@@ -38,8 +38,8 @@ pub struct ParseError {
 
 impl ParseError {
     pub fn new(kind: ParseErrorKind, span: Range<usize>, input: &str) -> Self {
-        let start = span.start.min(input.len());
-        let end = (start + 40).min(input.len());
+        let start = snap_to_char_boundary(input, span.start.min(input.len()));
+        let end = snap_to_char_boundary(input, (start + 40).min(input.len()));
         let snippet = input[start..end].to_string();
         Self { kind, span, snippet }
     }
@@ -63,6 +63,14 @@ impl std::fmt::Display for ParseError {
 }
 
 impl std::error::Error for ParseError {}
+
+/// Snap a byte index to the nearest char boundary (rounding down).
+fn snap_to_char_boundary(s: &str, idx: usize) -> usize {
+    if idx >= s.len() { return s.len(); }
+    let mut i = idx;
+    while i > 0 && !s.is_char_boundary(i) { i -= 1; }
+    i
+}
 
 #[cfg(test)]
 mod tests {
@@ -96,5 +104,59 @@ mod tests {
             "[hello",
         );
         assert!(err.to_string().contains("unclosed delimiter '['"));
+    }
+
+    // ── snap_to_char_boundary ──
+
+    #[test]
+    fn snap_ascii_already_on_boundary() {
+        assert_eq!(snap_to_char_boundary("hello", 0), 0);
+        assert_eq!(snap_to_char_boundary("hello", 3), 3);
+        assert_eq!(snap_to_char_boundary("hello", 5), 5);
+    }
+
+    #[test]
+    fn snap_beyond_len_clamps() {
+        assert_eq!(snap_to_char_boundary("hi", 99), 2);
+        assert_eq!(snap_to_char_boundary("", 1), 0);
+    }
+
+    #[test]
+    fn snap_mid_2byte_char() {
+        // 'é' is 2 bytes: [0xC3, 0xA9]
+        let s = "aé";  // bytes: [a=0x61, 0xC3, 0xA9]
+        assert_eq!(snap_to_char_boundary(s, 2), 1); // byte 2 is mid-é → snaps to 1
+    }
+
+    #[test]
+    fn snap_mid_3byte_char() {
+        // '你' is 3 bytes: [0xE4, 0xBD, 0xA0]
+        let s = "a你b";  // bytes: a(1) + 你(3) + b(1) = 5
+        assert_eq!(snap_to_char_boundary(s, 2), 1); // mid-你, byte 2 → snaps to 1
+        assert_eq!(snap_to_char_boundary(s, 3), 1); // mid-你, byte 3 → snaps to 1
+        assert_eq!(snap_to_char_boundary(s, 4), 4); // 'b' start, already valid
+    }
+
+    #[test]
+    fn snap_mid_4byte_char() {
+        // '😀' is 4 bytes: [0xF0, 0x9F, 0x98, 0x80]
+        let s = "😀x";  // bytes: 😀(4) + x(1) = 5
+        assert_eq!(snap_to_char_boundary(s, 1), 0); // mid-emoji → snaps to 0
+        assert_eq!(snap_to_char_boundary(s, 2), 0);
+        assert_eq!(snap_to_char_boundary(s, 3), 0);
+        assert_eq!(snap_to_char_boundary(s, 4), 4); // 'x' start, valid
+    }
+
+    #[test]
+    fn snap_empty_string() {
+        assert_eq!(snap_to_char_boundary("", 0), 0);
+    }
+
+    #[test]
+    fn parse_error_with_multibyte_no_panic() {
+        // The original crash case: span pointing into a multi-byte char.
+        let input = "%%\n你好\n%%";
+        let _ = ParseError::new(ParseErrorKind::UnexpectedToken, 4..4, input);
+        // byte 4 is mid-'你' — must not panic
     }
 }

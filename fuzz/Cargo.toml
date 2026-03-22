@@ -12,10 +12,8 @@ libfuzzer-sys = "0.4"
 arbitrary = { version = "1", features = ["derive"] }
 rusty-mermaid-core = { path = "../crates/core" }
 rusty-mermaid-graph = { path = "../crates/graph" }
-# Uncomment as crates are implemented:
-# rusty-mermaid-dagre = { path = "../crates/dagre" }
-# rusty-mermaid-diagrams = { path = "../crates/diagrams", features = ["flowchart", "state"] }
-# rusty-mermaid-svg = { path = "../crates/svg" }
+rusty-mermaid-dagre = { path = "../crates/dagre" }
+rusty-mermaid-diagrams = { path = "../crates/diagrams" }
 
 # Prevent this from interfering with workspace builds
 [workspace]
@@ -23,6 +21,16 @@ rusty-mermaid-graph = { path = "../crates/graph" }
 [[bin]]
 name = "fuzz_flowchart_parse"
 path = "fuzz_targets/flowchart_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_state_parse"
+path = "fuzz_targets/state_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_sequence_parse"
+path = "fuzz_targets/sequence_parse.rs"
 doc = false
 
 [[bin]]
