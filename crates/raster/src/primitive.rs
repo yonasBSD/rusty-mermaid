@@ -244,7 +244,7 @@ fn circle_path(cx: f32, cy: f32, r: f32) -> Option<tiny_skia::Path> {
 
 fn ellipse_path(cx: f32, cy: f32, rx: f32, ry: f32) -> Option<tiny_skia::Path> {
     // 4-segment cubic bezier approximation (kappa = 0.5522847498)
-    let k: f32 = 0.5522848;
+    let k: f32 = rusty_mermaid_core::constants::KAPPA_F32;
     let kx = rx * k;
     let ky = ry * k;
 
@@ -261,7 +261,7 @@ fn ellipse_path(cx: f32, cy: f32, rx: f32, ry: f32) -> Option<tiny_skia::Path> {
 fn rounded_rect_path(x: f32, y: f32, w: f32, h: f32, rx: f32, ry: f32) -> Option<tiny_skia::Path> {
     let rx = rx.min(w / 2.0);
     let ry = ry.min(h / 2.0);
-    let k: f32 = 0.5522848;
+    let k: f32 = rusty_mermaid_core::constants::KAPPA_F32;
     let kx = rx * k;
     let ky = ry * k;
 
@@ -419,7 +419,7 @@ fn render_arc(
     let or = outer_r as f32;
     let ir = inner_r as f32;
 
-    let steps = 64;
+    let steps = rusty_mermaid_core::constants::ARC_APPROXIMATION_STEPS;
     let angle_span = end_angle - start_angle;
 
     let mut pb = PathBuilder::new();
@@ -513,7 +513,7 @@ fn render_text(
     let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
 
     let lines: Vec<&str> = content.split('\n').collect();
-    let line_height = px * 1.2;
+    let line_height = px * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER_F32;
     let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32;
     let first_baseline_y = position.y as f32 + baseline_offset;
 

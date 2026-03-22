@@ -328,7 +328,7 @@ fn paint_arc(
 ) {
     let cx = center.x;
     let cy = center.y;
-    let steps = 64;
+    let steps = rusty_mermaid_core::constants::ARC_APPROXIMATION_STEPS;
     let angle_span = end_angle - start_angle;
 
     let mut path = BezPath::new();
@@ -506,7 +506,7 @@ fn render_text(
     let visual_center_above_baseline = (metrics.ascent + metrics.descent) / 2.0;
 
     let lines: Vec<&str> = content.split('\n').collect();
-    let line_height = font_size * 1.2;
+    let line_height = font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER_F32;
     let block_height = (lines.len() as f32 - 1.0) * line_height;
     let first_baseline_y = position.y as f32 + visual_center_above_baseline - block_height / 2.0;
 

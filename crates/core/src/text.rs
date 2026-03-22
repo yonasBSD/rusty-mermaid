@@ -57,7 +57,7 @@ pub const fn char_width_ratio(ch: char) -> f64 {
 
 impl TextMeasure for SimpleTextMeasure {
     fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64) {
-        let scale = style.font_size / 14.0;
+        let scale = style.font_size / crate::constants::REFERENCE_FONT_SIZE;
         let stripped = strip_markup(text);
         let mut max_width: f64 = 0.0;
         let mut line_count: usize = 0;
@@ -91,9 +91,9 @@ impl TextMeasure for SimpleTextMeasure {
 pub fn text_baseline_y_offset(font_size: f64, line_count: usize) -> f64 {
     // For a single line, baseline should be below center by 0.3 * font_size
     // because glyphs extend more above baseline (ascent) than below (descent).
-    let baseline_from_center = font_size * 0.3;
+    let baseline_from_center = font_size * crate::constants::BASELINE_ASCENT_RATIO;
     // For multi-line, shift up by half the total block height (from first to last baseline).
-    let line_height = font_size * 1.2;
+    let line_height = font_size * crate::constants::LINE_HEIGHT_MULTIPLIER;
     let block_offset = (line_count as f64 - 1.0) * line_height / 2.0;
     baseline_from_center - block_offset
 }

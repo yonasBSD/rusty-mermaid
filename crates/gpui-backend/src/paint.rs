@@ -131,7 +131,7 @@ fn paint_primitive(
             let font_size = style.font_size as f32 * zoom;
             let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
             let color = to_gpui_color(fill);
-            let line_height = font_size * 1.2;
+            let line_height = font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER_F32;
 
             let lines: Vec<&str> = content.split('\n').collect();
             let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32 * zoom;
@@ -484,7 +484,7 @@ fn paint_arc(
     let cy = center.y as f32 * zoom + oy;
     let or = outer_r as f32 * zoom;
     let ir = inner_r as f32 * zoom;
-    let steps = 64;
+    let steps = rusty_mermaid_core::constants::ARC_APPROXIMATION_STEPS;
     let angle_span = end_angle - start_angle;
 
     if let Some(fill) = style.fill {

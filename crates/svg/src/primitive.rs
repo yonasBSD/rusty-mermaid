@@ -109,7 +109,7 @@ pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive, config: &SvgCon
                 }
             } else {
                 // Multi-line — tspan elements with dy offsets
-                let line_height = style.font_size * 1.2;
+                let line_height = style.font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
                 let total_h = line_height * (lines.len() - 1) as f64;
                 let start_y = position.y - total_h / 2.0;
 
