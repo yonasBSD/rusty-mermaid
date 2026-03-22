@@ -12,8 +12,8 @@ pub mod types;
 
 pub use curve::{interpolate, CurveType};
 pub use geometry::{
-    intersect_circle, intersect_ellipse, intersect_line_circle, intersect_line_ellipse,
-    intersect_polygon, intersect_rect,
+    arc_sector_segments, intersect_circle, intersect_ellipse, intersect_line_circle,
+    intersect_line_ellipse, intersect_polygon, intersect_rect,
 };
 pub use renderer::Renderer;
 pub use scene::{

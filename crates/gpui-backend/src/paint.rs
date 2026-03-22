@@ -468,32 +468,12 @@ fn paint_arc(
     ox: f32,
     oy: f32,
 ) {
-    let cx = center.x as f32 * zoom + ox;
-    let cy = center.y as f32 * zoom + oy;
-    let or = outer_r as f32 * zoom;
-    let ir = inner_r as f32 * zoom;
-    let steps = rusty_mermaid_core::constants::ARC_APPROXIMATION_STEPS;
-    let angle_span = end_angle - start_angle;
-
     if let Some(fill) = style.fill {
+        let segs = rusty_mermaid_core::arc_sector_segments(
+            *center, inner_r, outer_r, start_angle, end_angle,
+        );
         let mut pb = PathBuilder::fill();
-        for i in 0..=steps {
-            let t = start_angle + angle_span * (i as f64 / steps as f64);
-            let x = cx + or * t.cos() as f32;
-            let y = cy + or * t.sin() as f32;
-            if i == 0 { pb.move_to(point(px(x), px(y))); } else { pb.line_to(point(px(x), px(y))); }
-        }
-        if ir > 0.0 {
-            for i in (0..=steps).rev() {
-                let t = start_angle + angle_span * (i as f64 / steps as f64);
-                let x = cx + ir * t.cos() as f32;
-                let y = cy + ir * t.sin() as f32;
-                pb.line_to(point(px(x), px(y)));
-            }
-        } else {
-            pb.line_to(point(px(cx), px(cy)));
-        }
-        pb.close();
+        build_path_segments(&mut pb, &segs, zoom, ox, oy);
         if let Ok(path) = pb.build() {
             window.paint_path(path, to_gpui_color(fill));
         }

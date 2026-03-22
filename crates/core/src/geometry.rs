@@ -172,6 +172,42 @@ fn segment_ray_intersect(p1: Point, p2: Point, origin: Point, target: Point) -> 
     }
 }
 
+/// Generate path segments for an arc sector (pie slice or annular ring).
+///
+/// Traces the outer arc forward, then inner arc backward (or line to center
+/// if `inner_r` is zero), then closes. Returns a closed path suitable for filling.
+pub fn arc_sector_segments(
+    center: Point,
+    inner_r: f64,
+    outer_r: f64,
+    start_angle: f64,
+    end_angle: f64,
+) -> Vec<crate::PathSegment> {
+    use crate::PathSegment;
+    let steps = crate::constants::ARC_APPROXIMATION_STEPS;
+    let span = end_angle - start_angle;
+    let mut segs = Vec::with_capacity(steps * 2 + 4);
+
+    for i in 0..=steps {
+        let t = start_angle + span * (i as f64 / steps as f64);
+        let p = Point::new(center.x + outer_r * t.cos(), center.y + outer_r * t.sin());
+        if i == 0 { segs.push(PathSegment::MoveTo(p)); } else { segs.push(PathSegment::LineTo(p)); }
+    }
+
+    if inner_r > 0.0 {
+        for i in (0..=steps).rev() {
+            let t = start_angle + span * (i as f64 / steps as f64);
+            let p = Point::new(center.x + inner_r * t.cos(), center.y + inner_r * t.sin());
+            segs.push(PathSegment::LineTo(p));
+        }
+    } else {
+        segs.push(PathSegment::LineTo(center));
+    }
+
+    segs.push(PathSegment::Close);
+    segs
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -691,6 +727,42 @@ mod tests {
             let eq = ((hit.x - cx) / rx).powi(2) + ((hit.y - cy) / ry).powi(2);
             prop_assert!((eq - 1.0).abs() < 1e-4, "ellipse equation = {eq}, expected 1.0");
         }
+
+    // ── arc_sector_segments tests (13.14) ──
+
+    #[test]
+    fn arc_sector_full_circle_closes() {
+        use std::f64::consts::TAU;
+        let segs = arc_sector_segments(Point::new(0.0, 0.0), 0.0, 50.0, 0.0, TAU);
+        assert!(matches!(segs.first(), Some(crate::PathSegment::MoveTo(_))));
+        assert!(matches!(segs.last(), Some(crate::PathSegment::Close)));
+    }
+
+    #[test]
+    fn arc_sector_quarter_arc_segment_count() {
+        use std::f64::consts::FRAC_PI_2;
+        let segs = arc_sector_segments(Point::new(0.0, 0.0), 0.0, 30.0, 0.0, FRAC_PI_2);
+        let steps = crate::constants::ARC_APPROXIMATION_STEPS;
+        // MoveTo + steps*LineTo (outer) + LineTo(center) + Close
+        assert_eq!(segs.len(), 1 + steps + 1 + 1);
+    }
+
+    #[test]
+    fn arc_sector_annular_has_inner_arc() {
+        use std::f64::consts::FRAC_PI_2;
+        let segs = arc_sector_segments(Point::new(0.0, 0.0), 10.0, 30.0, 0.0, FRAC_PI_2);
+        let steps = crate::constants::ARC_APPROXIMATION_STEPS;
+        // MoveTo + steps*LineTo (outer) + (steps+1)*LineTo (inner) + Close
+        assert_eq!(segs.len(), 1 + steps + (steps + 1) + 1);
+    }
+
+    #[test]
+    fn arc_sector_degenerate_zero_radius() {
+        let segs = arc_sector_segments(Point::new(5.0, 5.0), 0.0, 0.0, 0.0, 1.0);
+        // All points at center — still produces valid path
+        assert!(matches!(segs.first(), Some(crate::PathSegment::MoveTo(_))));
+        assert!(matches!(segs.last(), Some(crate::PathSegment::Close)));
+    }
 
         // ── New property tests (13.8) ──
 

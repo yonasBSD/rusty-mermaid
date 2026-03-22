@@ -405,39 +405,18 @@ fn render_arc(
     transform: SkTransform,
     theme: &Theme,
 ) {
-    // Build arc wedge/annular sector as a path
-    let cx = center.x as f32;
-    let cy = center.y as f32;
-    let or = outer_r as f32;
-    let ir = inner_r as f32;
-
-    let steps = rusty_mermaid_core::constants::ARC_APPROXIMATION_STEPS;
-    let angle_span = end_angle - start_angle;
-
+    let segs = rusty_mermaid_core::arc_sector_segments(
+        *center, inner_r, outer_r, start_angle, end_angle,
+    );
     let mut pb = PathBuilder::new();
-
-    // Outer arc
-    for i in 0..=steps {
-        let t = start_angle + angle_span * (i as f64 / steps as f64);
-        let x = cx + or * t.cos() as f32;
-        let y = cy + or * t.sin() as f32;
-        if i == 0 { pb.move_to(x, y); } else { pb.line_to(x, y); }
-    }
-
-    if ir > 0.0 {
-        // Inner arc (reverse)
-        for i in (0..=steps).rev() {
-            let t = start_angle + angle_span * (i as f64 / steps as f64);
-            let x = cx + ir * t.cos() as f32;
-            let y = cy + ir * t.sin() as f32;
-            pb.line_to(x, y);
+    for seg in &segs {
+        match seg {
+            rusty_mermaid_core::PathSegment::MoveTo(p) => pb.move_to(p.x as f32, p.y as f32),
+            rusty_mermaid_core::PathSegment::LineTo(p) => pb.line_to(p.x as f32, p.y as f32),
+            rusty_mermaid_core::PathSegment::Close => pb.close(),
+            _ => {}
         }
-    } else {
-        // Pie slice: connect to center
-        pb.line_to(cx, cy);
     }
-    pb.close();
-
     let Some(path) = pb.finish() else { return };
 
     if let Some(fill) = resolve_fill(style) {

@@ -319,31 +319,18 @@ fn paint_arc(
     theme: &Theme,
     transform: Affine,
 ) {
-    let cx = center.x;
-    let cy = center.y;
-    let steps = rusty_mermaid_core::constants::ARC_APPROXIMATION_STEPS;
-    let angle_span = end_angle - start_angle;
-
+    let segs = rusty_mermaid_core::arc_sector_segments(
+        *center, inner_r, outer_r, start_angle, end_angle,
+    );
     let mut path = BezPath::new();
-
-    for i in 0..=steps {
-        let t = start_angle + angle_span * (i as f64 / steps as f64);
-        let x = cx + outer_r * t.cos();
-        let y = cy + outer_r * t.sin();
-        if i == 0 { path.move_to(KPoint::new(x, y)); } else { path.line_to(KPoint::new(x, y)); }
-    }
-
-    if inner_r > 0.0 {
-        for i in (0..=steps).rev() {
-            let t = start_angle + angle_span * (i as f64 / steps as f64);
-            let x = cx + inner_r * t.cos();
-            let y = cy + inner_r * t.sin();
-            path.line_to(KPoint::new(x, y));
+    for seg in &segs {
+        match seg {
+            rusty_mermaid_core::PathSegment::MoveTo(p) => path.move_to(KPoint::new(p.x, p.y)),
+            rusty_mermaid_core::PathSegment::LineTo(p) => path.line_to(KPoint::new(p.x, p.y)),
+            rusty_mermaid_core::PathSegment::Close => path.close_path(),
+            _ => {}
         }
-    } else {
-        path.line_to(KPoint::new(cx, cy));
     }
-    path.close_path();
 
     if let Some(fill) = style.fill {
         scene.fill(Fill::NonZero, transform, to_vello_color(fill), None, &path);
