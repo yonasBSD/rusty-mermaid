@@ -1,20 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 198 321.2" width="198" height="321.2">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 321.2" width="201" height="321.2">
   <defs>
     <marker id="arrow-point-ff0000" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#ff0000" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M79 32.8 L79 36.97 C79 41.13 79 49.47 79 57.8 C79 66.13 79 74.47 79 78" fill="none" stroke="#ff0000" stroke-width="3" opacity="1" marker-end="url(#arrow-point-ff0000)" />
-    <path d="M79 115.6 L79 119.77 C79 123.93 79 132.27 79 140.6 C79 148.93 79 157.27 79 160.8" fill="none" stroke="#ff0000" stroke-width="3" opacity="0.5" marker-end="url(#arrow-point-ff0000)" />
-    <path d="M79 198.4 L79 202.57 C79 206.73 79 215.07 79 223.4 C79 231.73 79 240.07 79 243.6" fill="none" stroke="#ff0000" stroke-width="3" opacity="0.25" marker-end="url(#arrow-point-ff0000)" />
-    <rect x="12.6" y="0" width="132.8" height="32.8" fill="#4caf50" stroke="#333333" stroke-width="1.5" opacity="1" />
-    <text x="79" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Full Opacity</text>
-    <rect x="12.6" y="82.8" width="132.8" height="32.8" fill="#4caf50" stroke="#333333" stroke-width="1.5" opacity="0.5" />
-    <text x="79" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Half Opacity</text>
-    <rect x="0" y="165.6" width="158" height="32.8" fill="#4caf50" stroke="#333333" stroke-width="1.5" opacity="0.25" />
-    <text x="79" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Quarter Opacity</text>
-    <rect x="29.4" y="248.4" width="99.2" height="32.8" fill="#f44336" stroke="#333333" stroke-width="1.5" opacity="0.75" />
-    <text x="79" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Restored</text>
+    <path d="M80.5 32.8 L80.5 36.97 C80.5 41.13 80.5 49.47 80.5 57.8 C80.5 66.13 80.5 74.47 80.5 78" fill="none" stroke="#ff0000" stroke-width="3" opacity="1" marker-end="url(#arrow-point-ff0000)" />
+    <path d="M80.5 115.6 L80.5 119.77 C80.5 123.93 80.5 132.27 80.5 140.6 C80.5 148.93 80.5 157.27 80.5 160.8" fill="none" stroke="#ff0000" stroke-width="3" opacity="0.5" marker-end="url(#arrow-point-ff0000)" />
+    <path d="M80.5 198.4 L80.5 202.57 C80.5 206.73 80.5 215.07 80.5 223.4 C80.5 231.73 80.5 240.07 80.5 243.6" fill="none" stroke="#ff0000" stroke-width="3" opacity="0.25" marker-end="url(#arrow-point-ff0000)" />
+    <rect x="12.9" y="0" width="135.2" height="32.8" fill="#4caf50" stroke="#333333" stroke-width="1.5" opacity="1" />
+    <text x="80.5" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Full Opacity</text>
+    <rect x="12.9" y="82.8" width="135.2" height="32.8" fill="#4caf50" stroke="#333333" stroke-width="1.5" opacity="0.5" />
+    <text x="80.5" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Half Opacity</text>
+    <rect x="0" y="165.6" width="161" height="32.8" fill="#4caf50" stroke="#333333" stroke-width="1.5" opacity="0.25" />
+    <text x="80.5" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Quarter Opacity</text>
+    <rect x="30.1" y="248.4" width="100.8" height="32.8" fill="#f44336" stroke="#333333" stroke-width="1.5" opacity="0.75" />
+    <text x="80.5" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">Restored</text>
   </g>
 </svg>

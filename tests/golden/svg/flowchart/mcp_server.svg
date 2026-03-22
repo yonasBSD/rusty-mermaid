@@ -1,130 +1,130 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1326.4 1543.4" width="1326.4" height="1543.4">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1346.35 1543.4" width="1346.35" height="1543.4">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="399.5" y="249.2" width="886.9" height="523" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
-    <text x="407.5" y="261.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Undertow HTTP Server</text>
-    <rect x="0" y="0" width="1192.1" height="199.2" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <rect x="405.5" y="249.2" width="900.85" height="523" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <text x="413.5" y="261.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Undertow HTTP Server</text>
+    <rect x="0" y="0" width="1210.15" height="199.2" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
     <text x="8" y="12" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Infrastructure</text>
-    <rect x="188" y="1105" width="359.4" height="282" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
-    <text x="196" y="1117" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Client Layer</text>
-    <rect x="251.4" y="822.2" width="403.8" height="232.8" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
-    <text x="259.4" y="834.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">MCP Layer</text>
-    <path d="M553.4 307 L553.4 311.17 C553.4 315.33 553.4 323.67 553.4 332 C553.4 340.33 553.4 348.67 553.4 352.83 L553.4 354.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M553.4 389.8 L553.4 393.97 C553.4 398.13 553.4 406.47 553.4 414.8 C553.4 423.13 553.4 431.47 594.03 441.06 C634.67 450.64 715.93 461.49 756.57 466.91 L794.82 472.02" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M926.6 514.4 L926.6 518.57 C926.6 522.73 926.6 531.07 926.6 539.4 C926.6 547.73 926.6 556.07 926.6 560.23 L926.6 562" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M995.79 597.2 L1019.27 602.77 C1042.76 608.33 1089.73 619.47 1113.21 633.4 C1136.7 647.33 1136.7 664.07 1136.7 672.43 L1136.7 678.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="1096.7" y="619.4" width="80" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="1136.7" y="630.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+    <rect x="191.38" y="1105" width="364.35" height="282" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <text x="199.38" y="1117" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Client Layer</text>
+    <rect x="255.73" y="822.2" width="408.95" height="232.8" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <text x="263.73" y="834.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">MCP Layer</text>
+    <path d="M561.85 307 L561.85 311.17 C561.85 315.33 561.85 323.67 561.85 332 C561.85 340.33 561.85 348.67 561.85 352.83 L561.85 354.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M561.85 389.8 L561.85 393.97 C561.85 398.13 561.85 406.47 561.85 414.8 C561.85 423.13 561.85 431.47 603.01 441.04 C644.17 450.61 726.48 461.43 767.64 466.84 L806.42 471.93" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M940.9 514.4 L940.9 518.57 C940.9 522.73 940.9 531.07 940.9 539.4 C940.9 547.73 940.9 556.07 940.9 560.23 L940.9 562" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M1011.18 597.2 L1035.03 602.77 C1058.88 608.33 1106.59 619.47 1130.45 633.4 C1154.3 647.33 1154.3 664.07 1154.3 672.43 L1154.3 678.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="1113.44" y="619.4" width="81.71" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="1154.3" y="630.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
       <tspan>&quot;/health/</tspan>
       <tspan font-style="italic">&quot;</tspan>
     </text>
-    <path d="M936.55 597.2 L939.92 602.77 C943.3 608.33 950.05 619.47 944.25 633.4 C938.46 647.33 920.12 664.07 910.95 672.43 L903.55 679.18" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="916.8" y="619.4" width="80" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="956.8" y="630.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&quot;/metrics&quot;</text>
-    <path d="M882.14 597.2 L867.05 602.77 C851.96 608.33 821.78 619.47 794.3 630.6 C766.81 641.73 742.02 652.87 729.62 658.43 L719.42 663.02" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="766" y="619.4" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="791.6" y="630.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&quot;/mcp&quot;</text>
-    <path d="M624.6 747.2 L624.6 751.37 C624.6 755.53 624.6 763.87 624.6 772.2 C624.6 780.53 624.6 788.87 624.6 797.2 C624.6 805.53 624.6 813.87 607.82 822.91 C591.03 831.96 557.47 841.72 540.68 846.6 L526.2 850.81" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M453.3 896.8 L453.3 900.97 C453.3 905.13 453.3 913.47 453.3 921.8 C453.3 930.13 453.3 938.47 453.3 942.63 L453.3 944.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M453.3 1030 L453.3 1034.17 C453.3 1038.33 453.3 1046.67 453.3 1055 C453.3 1063.33 453.3 1071.67 453.3 1080 C453.3 1088.33 453.3 1096.67 444.68 1105 C436.07 1113.33 418.84 1121.67 410.22 1125.83 L403.77 1128.96" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M367.7 1162.8 L367.7 1166.97 C367.7 1171.13 367.7 1179.47 367.7 1187.8 C367.7 1196.13 367.7 1204.47 367.7 1208.63 L367.7 1210.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M367.7 1262.4 L367.7 1266.57 C367.7 1270.73 367.7 1279.07 367.7 1287.4 C367.7 1295.73 367.7 1304.07 367.7 1308.23 L367.7 1310" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M397.8 166.75 L423.73 172.16 C449.67 177.57 501.53 188.38 527.47 197.96 C553.4 207.53 553.4 215.87 553.4 224.2 C553.4 232.53 553.4 240.87 553.4 249.2 C553.4 257.53 553.4 265.87 553.4 270.03 L553.4 271.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M343.78 174.2 L348.69 178.37 C353.59 182.53 363.39 190.87 368.3 199.2 C373.2 207.53 373.2 215.87 373.2 224.2 C373.2 232.53 373.2 240.87 373.2 251.93 C373.2 263 373.2 276.8 373.2 290.6 C373.2 304.4 373.2 318.2 373.2 332 C373.2 345.8 373.2 359.6 373.2 373.4 C373.2 387.2 373.2 401 373.2 412.07 C373.2 423.13 373.2 431.47 373.2 443.93 C373.2 456.4 373.2 473 373.2 489.6 C373.2 506.2 373.2 522.8 373.2 538 C373.2 553.2 373.2 567 373.2 582.2 C373.2 597.4 373.2 614 373.2 634.8 C373.2 655.6 373.2 680.6 373.2 704.2 C373.2 727.8 373.2 750 373.2 765.27 C373.2 780.53 373.2 788.87 373.2 797.2 C373.2 805.53 373.2 813.87 379.9 822.2 C386.6 830.53 400.01 838.87 406.71 843.03 L411.37 845.93" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M293.39 174.2 L289.82 178.37 C286.26 182.53 279.13 190.87 275.56 199.2 C272 207.53 272 215.87 272 224.2 C272 232.53 272 240.87 272 251.93 C272 263 272 276.8 272 290.6 C272 304.4 272 318.2 272 332 C272 345.8 272 359.6 272 373.4 C272 387.2 272 401 272 412.07 C272 423.13 272 431.47 272 443.93 C272 456.4 272 473 272 489.6 C272 506.2 272 522.8 272 538 C272 553.2 272 567 272 582.2 C272 597.4 272 614 272 634.8 C272 655.6 272 680.6 272 704.2 C272 727.8 272 750 272 765.27 C272 780.53 272 788.87 272 797.2 C272 805.53 272 813.87 272 826.33 C272 838.8 272 855.4 272 872 C272 888.6 272 905.2 272 924.6 C272 944 272 966.2 272 988.4 C272 1010.6 272 1032.8 272 1048.07 C272 1063.33 272 1071.67 272 1080 C272 1088.33 272 1096.67 281.63 1105 C291.26 1113.33 310.53 1121.67 320.16 1125.83 L327.59 1129.05" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M172.8 74.6 L172.8 78.77 C172.8 82.93 172.8 91.27 184.66 99.6 C196.53 107.93 220.26 116.27 232.12 120.43 L241.72 123.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M872.94 174.2 L881.88 178.37 C890.82 182.53 908.71 190.87 917.66 199.2 C926.6 207.53 926.6 215.87 926.6 224.2 C926.6 232.53 926.6 240.87 926.6 251.93 C926.6 263 926.6 276.8 926.6 290.6 C926.6 304.4 926.6 318.2 926.6 332 C926.6 345.8 926.6 359.6 926.6 373.4 C926.6 387.2 926.6 401 926.6 412.07 C926.6 423.13 926.6 431.47 926.6 439.8 C926.6 448.13 926.6 456.47 926.6 460.63 L926.6 462.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M760.59 174.2 L750.66 178.37 C740.73 182.53 720.86 190.87 710.93 199.2 C701 207.53 701 215.87 701 224.2 C701 232.53 701 240.87 701 251.93 C701 263 701 276.8 701 290.6 C701 304.4 701 318.2 701 332 C701 345.8 701 359.6 701 373.4 C701 387.2 701 401 701 412.07 C701 423.13 701 431.47 701 443.93 C701 456.4 701 473 701 489.6 C701 506.2 701 522.8 701 538 C701 553.2 701 567 701 582.2 C701 597.4 701 614 720.37 630.67 C739.73 647.33 778.46 664.07 797.83 672.43 L814.99 679.85" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M664.2 74.6 L664.2 78.77 C664.2 82.93 664.2 91.27 619.8 101.76 C575.4 112.25 486.6 124.9 442.2 131.22 L400.18 137.21" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M1069.7 174.2 L1069.7 178.37 C1069.7 182.53 1069.7 190.87 1069.7 199.2 C1069.7 207.53 1069.7 215.87 1069.7 224.2 C1069.7 232.53 1069.7 240.87 1069.7 251.93 C1069.7 263 1069.7 276.8 1069.7 290.6 C1069.7 304.4 1069.7 318.2 1069.7 332 C1069.7 345.8 1069.7 359.6 1069.7 373.4 C1069.7 387.2 1069.7 401 1069.7 412.07 C1069.7 423.13 1069.7 431.47 1057.73 439.8 C1045.75 448.13 1021.81 456.47 1009.84 460.63 L1000.13 464.01" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M367.7 1362 L367.7 1366.17 C367.7 1370.33 367.7 1378.67 367.7 1388.4 C367.7 1398.13 367.7 1409.27 367.7 1420.4 C367.7 1431.53 367.7 1442.67 367.7 1448.23 L367.7 1451.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="345.7" y="1409.2" width="44" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="367.7" y="1420.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">HTTPS</text>
-    <rect x="440.8" y="274.2" width="225.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="553.4" y="290.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Virtual Thread Dispatch</text>
-    <rect x="491.2" y="357" width="124.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="553.4" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">CorsHandler</text>
-    <rect x="797.2" y="464.8" width="258.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="926.6" y="481.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="926.6" dy="0">TracingHandler</tspan>
-      <tspan x="926.6" dy="16.8">OTel spans + correlation ID</tspan>
+    <path d="M950.96 597.2 L954.38 602.77 C957.79 608.33 964.62 619.47 958.71 633.4 C952.81 647.33 934.17 664.07 924.85 672.43 L917.31 679.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="930.59" y="619.4" width="81.71" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="971.45" y="630.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&quot;/metrics&quot;</text>
+    <path d="M895.7 597.2 L880.36 602.77 C865.02 608.33 834.33 619.47 806.39 630.6 C778.45 641.73 753.25 652.87 740.65 658.43 L730.25 663.03" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="777.54" y="619.4" width="52.23" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="803.65" y="630.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&quot;/mcp&quot;</text>
+    <path d="M633.9 747.2 L633.9 751.37 C633.9 755.53 633.9 763.87 633.9 772.2 C633.9 780.53 633.9 788.87 633.9 797.2 C633.9 805.53 633.9 813.87 616.93 822.9 C599.97 831.93 566.03 841.66 549.07 846.52 L534.41 850.72" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M460.2 896.8 L460.2 900.97 C460.2 905.13 460.2 913.47 460.2 921.8 C460.2 930.13 460.2 938.47 460.2 942.63 L460.2 944.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M460.2 1030 L460.2 1034.17 C460.2 1038.33 460.2 1046.67 460.2 1055 C460.2 1063.33 460.2 1071.67 460.2 1080 C460.2 1088.33 460.2 1096.67 451.48 1105 C442.76 1113.33 425.32 1121.67 416.6 1125.83 L410.04 1128.97" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M373.55 1162.8 L373.55 1166.97 C373.55 1171.13 373.55 1179.47 373.55 1187.8 C373.55 1196.13 373.55 1204.47 373.55 1208.63 L373.55 1210.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M373.55 1262.4 L373.55 1266.57 C373.55 1270.73 373.55 1279.07 373.55 1287.4 C373.55 1295.73 373.55 1304.07 373.55 1308.23 L373.55 1310" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M404.7 166.85 L430.89 172.25 C457.08 177.64 509.47 188.42 535.66 197.98 C561.85 207.53 561.85 215.87 561.85 224.2 C561.85 232.53 561.85 240.87 561.85 249.2 C561.85 257.53 561.85 265.87 561.85 270.03 L561.85 271.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M349.36 174.2 L354.31 178.37 C359.25 182.53 369.15 190.87 374.1 199.2 C379.05 207.53 379.05 215.87 379.05 224.2 C379.05 232.53 379.05 240.87 379.05 251.93 C379.05 263 379.05 276.8 379.05 290.6 C379.05 304.4 379.05 318.2 379.05 332 C379.05 345.8 379.05 359.6 379.05 373.4 C379.05 387.2 379.05 401 379.05 412.07 C379.05 423.13 379.05 431.47 379.05 443.93 C379.05 456.4 379.05 473 379.05 489.6 C379.05 506.2 379.05 522.8 379.05 538 C379.05 553.2 379.05 567 379.05 582.2 C379.05 597.4 379.05 614 379.05 634.8 C379.05 655.6 379.05 680.6 379.05 704.2 C379.05 727.8 379.05 750 379.05 765.27 C379.05 780.53 379.05 788.87 379.05 797.2 C379.05 805.53 379.05 813.87 385.84 822.2 C392.63 830.53 406.21 838.87 413 843.03 L417.74 845.94" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M298.54 174.2 L294.95 178.37 C291.36 182.53 284.18 190.87 280.59 199.2 C277 207.53 277 215.87 277 224.2 C277 232.53 277 240.87 277 251.93 C277 263 277 276.8 277 290.6 C277 304.4 277 318.2 277 332 C277 345.8 277 359.6 277 373.4 C277 387.2 277 401 277 412.07 C277 423.13 277 431.47 277 443.93 C277 456.4 277 473 277 489.6 C277 506.2 277 522.8 277 538 C277 553.2 277 567 277 582.2 C277 597.4 277 614 277 634.8 C277 655.6 277 680.6 277 704.2 C277 727.8 277 750 277 765.27 C277 780.53 277 788.87 277 797.2 C277 805.53 277 813.87 277 826.33 C277 838.8 277 855.4 277 872 C277 888.6 277 905.2 277 924.6 C277 944 277 966.2 277 988.4 C277 1010.6 277 1032.8 277 1048.07 C277 1063.33 277 1071.67 277 1080 C277 1088.33 277 1096.67 286.72 1105 C296.43 1113.33 315.87 1121.67 325.59 1125.83 L333.1 1129.05" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M175.7 74.6 L175.7 78.77 C175.7 82.93 175.7 91.27 187.76 99.6 C199.83 107.93 223.96 116.27 236.02 120.43 L245.82 123.82" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M886.26 174.2 L895.36 178.37 C904.47 182.53 922.69 190.87 931.79 199.2 C940.9 207.53 940.9 215.87 940.9 224.2 C940.9 232.53 940.9 240.87 940.9 251.93 C940.9 263 940.9 276.8 940.9 290.6 C940.9 304.4 940.9 318.2 940.9 332 C940.9 345.8 940.9 359.6 940.9 373.4 C940.9 387.2 940.9 401 940.9 412.07 C940.9 423.13 940.9 431.47 940.9 439.8 C940.9 448.13 940.9 456.47 940.9 460.63 L940.9 462.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M772.14 174.2 L762.08 178.37 C752.01 182.53 731.88 190.87 721.82 199.2 C711.75 207.53 711.75 215.87 711.75 224.2 C711.75 232.53 711.75 240.87 711.75 251.93 C711.75 263 711.75 276.8 711.75 290.6 C711.75 304.4 711.75 318.2 711.75 332 C711.75 345.8 711.75 359.6 711.75 373.4 C711.75 387.2 711.75 401 711.75 412.07 C711.75 423.13 711.75 431.47 711.75 443.93 C711.75 456.4 711.75 473 711.75 489.6 C711.75 506.2 711.75 522.8 711.75 538 C711.75 553.2 711.75 567 711.75 582.2 C711.75 597.4 711.75 614 731.4 630.67 C751.05 647.33 790.35 664.07 810 672.43 L827.44 679.86" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M674.55 74.6 L674.55 78.77 C674.55 82.93 674.55 91.27 629.58 101.75 C584.6 112.23 494.65 124.86 449.68 131.18 L407.08 137.16" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M1086.05 174.2 L1086.05 178.37 C1086.05 182.53 1086.05 190.87 1086.05 199.2 C1086.05 207.53 1086.05 215.87 1086.05 224.2 C1086.05 232.53 1086.05 240.87 1086.05 251.93 C1086.05 263 1086.05 276.8 1086.05 290.6 C1086.05 304.4 1086.05 318.2 1086.05 332 C1086.05 345.8 1086.05 359.6 1086.05 373.4 C1086.05 387.2 1086.05 401 1086.05 412.07 C1086.05 423.13 1086.05 431.47 1073.91 439.8 C1061.76 448.13 1037.47 456.47 1025.33 460.63 L1015.45 464.02" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M373.55 1362 L373.55 1366.17 C373.55 1370.33 373.55 1378.67 373.55 1388.4 C373.55 1398.13 373.55 1409.27 373.55 1420.4 C373.55 1431.53 373.55 1442.67 373.55 1448.23 L373.55 1451.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="351.12" y="1409.2" width="44.86" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="373.55" y="1420.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">HTTPS</text>
+    <rect x="446.95" y="274.2" width="229.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="561.85" y="290.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Virtual Thread Dispatch</text>
+    <rect x="498.55" y="357" width="126.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="561.85" y="373.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">CorsHandler</text>
+    <rect x="808.8" y="464.8" width="264.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="940.9" y="481.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="940.9" dy="0">TracingHandler</tspan>
+      <tspan x="940.9" dy="16.8">OTel spans + correlation ID</tspan>
     </text>
-    <rect x="851.8" y="564.4" width="149.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="926.6" y="580.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">RoutingHandler</text>
-    <rect x="1028.3" y="680.8" width="216.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1136.7" y="697.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="1136.7" dy="0">HealthHandler</tspan>
-      <tspan x="1136.7" dy="16.8">live / ready / started</tspan>
+    <rect x="864.7" y="564.4" width="152.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="940.9" y="580.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">RoutingHandler</text>
+    <rect x="1043.7" y="680.8" width="221.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1154.3" y="697.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="1154.3" dy="0">HealthHandler</tspan>
+      <tspan x="1154.3" dy="16.8">live / ready / started</tspan>
     </text>
-    <rect x="787.2" y="680.8" width="174.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="874.6" y="697.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="874.6" dy="0">MetricsHandler</tspan>
-      <tspan x="874.6" dy="16.8">Prometheus format</tspan>
+    <rect x="798.8" y="680.8" width="178.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="887.9" y="697.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="887.9" dy="0">MetricsHandler</tspan>
+      <tspan x="887.9" dy="16.8">Prometheus format</tspan>
     </text>
-    <rect x="512" y="664" width="225.2" height="83.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="624.6" y="680.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="624.6" dy="0">UndertowMcpTransport</tspan>
-      <tspan x="624.6" dy="16.8">POST: JSON-RPC</tspan>
-      <tspan x="624.6" dy="16.8">GET: SSE stream</tspan>
-      <tspan x="624.6" dy="16.8">DELETE: session cleanup</tspan>
+    <rect x="519" y="664" width="229.8" height="83.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="633.9" y="680.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="633.9" dy="0">UndertowMcpTransport</tspan>
+      <tspan x="633.9" dy="16.8">POST: JSON-RPC</tspan>
+      <tspan x="633.9" dy="16.8">GET: SSE stream</tspan>
+      <tspan x="633.9" dy="16.8">DELETE: session cleanup</tspan>
     </text>
-    <rect x="382.7" y="847.2" width="141.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="453.3" y="863.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="453.3" dy="0">MCP Java SDK</tspan>
-      <tspan x="453.3" dy="16.8">McpSyncServer</tspan>
+    <rect x="388.3" y="847.2" width="143.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="460.2" y="863.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="460.2" dy="0">MCP Java SDK</tspan>
+      <tspan x="460.2" dy="16.8">McpSyncServer</tspan>
     </text>
-    <rect x="365.9" y="946.8" width="174.8" height="83.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="453.3" y="963.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="453.3" dy="0">WeatherTools</tspan>
-      <tspan x="453.3" dy="16.8">getCurrentWeather</tspan>
-      <tspan x="453.3" dy="16.8">getForecast</tspan>
-      <tspan x="453.3" dy="16.8">searchLocations</tspan>
+    <rect x="371.1" y="946.8" width="178.2" height="83.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="460.2" y="963.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="460.2" dy="0">WeatherTools</tspan>
+      <tspan x="460.2" dy="16.8">getCurrentWeather</tspan>
+      <tspan x="460.2" dy="16.8">getForecast</tspan>
+      <tspan x="460.2" dy="16.8">searchLocations</tspan>
     </text>
-    <rect x="284.5" y="1130" width="166.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="367.7" y="1146.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">WeatherApiClient</text>
-    <rect x="255.1" y="1212.8" width="225.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="367.7" y="1229.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="367.7" dy="0">Failsafe</tspan>
-      <tspan x="367.7" dy="16.8">retry + circuit breaker</tspan>
+    <rect x="288.75" y="1130" width="169.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="373.55" y="1146.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">WeatherApiClient</text>
+    <rect x="258.65" y="1212.8" width="229.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="373.55" y="1229.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="373.55" dy="0">Failsafe</tspan>
+      <tspan x="373.55" dy="16.8">retry + circuit breaker</tspan>
     </text>
-    <rect x="271.9" y="1312.4" width="191.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="367.7" y="1328.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="367.7" dy="0">Apache HttpClient 5</tspan>
-      <tspan x="367.7" dy="16.8">connection pooling</tspan>
+    <rect x="275.85" y="1312.4" width="195.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="373.55" y="1328.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="373.55" dy="0">Apache HttpClient 5</tspan>
+      <tspan x="373.55" dy="16.8">connection pooling</tspan>
     </text>
-    <rect x="231.4" y="124.6" width="166.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="314.6" y="141" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="314.6" dy="0">Main.java</tspan>
-      <tspan x="314.6" dy="16.8">composition root</tspan>
+    <rect x="235.1" y="124.6" width="169.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="319.9" y="141" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="319.9" dy="0">Main.java</tspan>
+      <tspan x="319.9" dy="16.8">composition root</tspan>
     </text>
-    <rect x="35" y="25" width="275.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="172.8" y="41.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="172.8" dy="0">ConfigLoader → Config</tspan>
-      <tspan x="172.8" dy="16.8">config.toml + .env + env vars</tspan>
+    <rect x="35" y="25" width="281.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="175.7" y="41.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="175.7" dy="0">ConfigLoader → Config</tspan>
+      <tspan x="175.7" dy="16.8">config.toml + .env + env vars</tspan>
     </text>
-    <rect x="707.1" y="124.6" width="225.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="819.7" y="141" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="819.7" dy="0">Telemetry</tspan>
-      <tspan x="819.7" dy="16.8">OTel SDK (real or noop)</tspan>
+    <rect x="717.15" y="124.6" width="229.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="832.05" y="141" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="832.05" dy="0">Telemetry</tspan>
+      <tspan x="832.05" dy="16.8">OTel SDK (real or noop)</tspan>
     </text>
-    <rect x="568.4" y="25" width="191.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="664.2" y="41.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="664.2" dy="0">GracefulShutdown</tspan>
-      <tspan x="664.2" dy="16.8">LIFO hooks, timeout</tspan>
+    <rect x="576.85" y="25" width="195.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="674.55" y="41.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="674.55" dy="0">GracefulShutdown</tspan>
+      <tspan x="674.55" dy="16.8">LIFO hooks, timeout</tspan>
     </text>
-    <rect x="982.3" y="124.6" width="174.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1069.7" y="141" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="1069.7" dy="0">CorrelationId</tspan>
-      <tspan x="1069.7" dy="16.8">ScopedValue + MDC</tspan>
+    <rect x="996.95" y="124.6" width="178.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1086.05" y="141" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="1086.05" dy="0">CorrelationId</tspan>
+      <tspan x="1086.05" dy="16.8">ScopedValue + MDC</tspan>
     </text>
-    <rect x="292.9" y="1453.8" width="149.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="367.7" y="1470.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="367.7" dy="0">External APIs</tspan>
-      <tspan x="367.7" dy="16.8">weatherapi.com</tspan>
+    <rect x="297.35" y="1453.8" width="152.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="373.55" y="1470.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="373.55" dy="0">External APIs</tspan>
+      <tspan x="373.55" dy="16.8">weatherapi.com</tspan>
     </text>
   </g>
 </svg>

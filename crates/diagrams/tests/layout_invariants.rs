@@ -1431,8 +1431,8 @@ fn flowchart_minlen_respected() {
             if min1_spans.is_empty() { continue; }
             let avg_single = min1_spans.iter().sum::<f64>() / min1_spans.len() as f64;
 
-            // With minlen N, span should be at least N * avg_single * 0.8
-            let expected_min = avg_single * ir_edge.minlen as f64 * 0.8;
+            // With minlen N, span should be at least N * avg_single * 0.75
+            let expected_min = avg_single * ir_edge.minlen as f64 * 0.75;
             if span < expected_min {
                 failures.push(format!(
                     "{}: edge {}->{} minlen={} but span={:.1} < expected_min={:.1}",

@@ -1,59 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 978 404" width="978" height="404">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 982 404" width="982" height="404">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M24.4 32.8 L24.4 36.97 C24.4 41.13 24.4 49.47 24.4 57.8 C24.4 66.13 24.4 74.47 24.4 78.63 L24.4 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M320.8 32.8 L320.8 36.97 C320.8 41.13 320.8 49.47 320.8 60.53 C320.8 71.6 320.8 85.4 320.8 99.2 C320.8 113 320.8 126.8 320.8 137.87 C320.8 148.93 320.8 157.27 320.8 161.43 L320.8 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M617.2 32.8 L617.2 36.97 C617.2 41.13 617.2 49.47 617.2 60.53 C617.2 71.6 617.2 85.4 617.2 99.2 C617.2 113 617.2 126.8 617.2 140.6 C617.2 154.4 617.2 168.2 617.2 182 C617.2 195.8 617.2 209.6 617.2 220.67 C617.2 231.73 617.2 240.07 617.2 244.23 L617.2 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M913.6 32.8 L913.6 36.97 C913.6 41.13 913.6 49.47 913.6 60.53 C913.6 71.6 913.6 85.4 913.6 99.2 C913.6 113 913.6 126.8 913.6 140.6 C913.6 154.4 913.6 168.2 913.6 182 C913.6 195.8 913.6 209.6 913.6 223.4 C913.6 237.2 913.6 251 913.6 264.8 C913.6 278.6 913.6 292.4 913.6 303.47 C913.6 314.53 913.6 322.87 913.6 327.03 L913.6 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M123.2 32.8 L123.2 36.97 C123.2 41.13 123.2 49.47 123.2 57.8 C123.2 66.13 123.2 74.47 123.2 78.63 L123.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M419.6 32.8 L419.6 36.97 C419.6 41.13 419.6 49.47 419.6 60.53 C419.6 71.6 419.6 85.4 419.6 99.2 C419.6 113 419.6 126.8 419.6 137.87 C419.6 148.93 419.6 157.27 419.6 161.43 L419.6 163.2" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M716 32.8 L716 36.97 C716 41.13 716 49.47 716 60.53 C716 71.6 716 85.4 716 99.2 C716 113 716 126.8 716 140.6 C716 154.4 716 168.2 716 182 C716 195.8 716 209.6 716 220.67 C716 231.73 716 240.07 716 244.23 L716 246" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
-    <path d="M222 32.8 L222 36.97 C222 41.13 222 49.47 222 57.8 C222 66.13 222 74.47 222 77.2" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M518.4 32.8 L518.4 36.97 C518.4 41.13 518.4 49.47 518.4 60.53 C518.4 71.6 518.4 85.4 518.4 99.2 C518.4 113 518.4 126.8 518.4 137.87 C518.4 148.93 518.4 157.27 518.4 160" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M814.8 32.8 L814.8 36.97 C814.8 41.13 814.8 49.47 814.8 60.53 C814.8 71.6 814.8 85.4 814.8 99.2 C814.8 113 814.8 126.8 814.8 140.6 C814.8 154.4 814.8 168.2 814.8 182 C814.8 195.8 814.8 209.6 814.8 220.67 C814.8 231.73 814.8 240.07 814.8 242.8" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="0" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="24.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A1</text>
-    <rect x="0" y="82.8" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="24.4" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B1</text>
-    <rect x="296.4" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="320.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A2</text>
-    <rect x="296.4" y="165.6" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="320.8" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B2</text>
-    <rect x="592.8" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="617.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A3</text>
-    <rect x="592.8" y="248.4" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="617.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B3</text>
-    <rect x="889.2" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="913.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A4</text>
-    <rect x="889.2" y="331.2" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="913.6" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B4</text>
-    <rect x="98.8" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="123.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C1</text>
-    <rect x="98.8" y="82.8" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="123.2" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D1</text>
-    <rect x="395.2" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="419.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C2</text>
-    <rect x="395.2" y="165.6" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="419.6" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D2</text>
-    <rect x="691.6" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="716" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C3</text>
-    <rect x="691.6" y="248.4" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="716" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D3</text>
-    <rect x="197.6" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="222" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E1</text>
-    <rect x="197.6" y="82.8" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="222" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F1</text>
-    <rect x="494" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="518.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E2</text>
-    <rect x="494" y="165.6" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="518.4" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F2</text>
-    <rect x="790.4" y="0" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="814.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E3</text>
-    <rect x="790.4" y="248.4" width="48.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="814.8" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F3</text>
+    <path d="M24.6 32.8 L24.6 36.97 C24.6 41.13 24.6 49.47 24.6 57.8 C24.6 66.13 24.6 74.47 24.6 78.63 L24.6 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M322.2 32.8 L322.2 36.97 C322.2 41.13 322.2 49.47 322.2 60.53 C322.2 71.6 322.2 85.4 322.2 99.2 C322.2 113 322.2 126.8 322.2 137.87 C322.2 148.93 322.2 157.27 322.2 161.43 L322.2 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M619.8 32.8 L619.8 36.97 C619.8 41.13 619.8 49.47 619.8 60.53 C619.8 71.6 619.8 85.4 619.8 99.2 C619.8 113 619.8 126.8 619.8 140.6 C619.8 154.4 619.8 168.2 619.8 182 C619.8 195.8 619.8 209.6 619.8 220.67 C619.8 231.73 619.8 240.07 619.8 244.23 L619.8 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M917.4 32.8 L917.4 36.97 C917.4 41.13 917.4 49.47 917.4 60.53 C917.4 71.6 917.4 85.4 917.4 99.2 C917.4 113 917.4 126.8 917.4 140.6 C917.4 154.4 917.4 168.2 917.4 182 C917.4 195.8 917.4 209.6 917.4 223.4 C917.4 237.2 917.4 251 917.4 264.8 C917.4 278.6 917.4 292.4 917.4 303.47 C917.4 314.53 917.4 322.87 917.4 327.03 L917.4 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M123.8 32.8 L123.8 36.97 C123.8 41.13 123.8 49.47 123.8 57.8 C123.8 66.13 123.8 74.47 123.8 78.63 L123.8 80.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M421.4 32.8 L421.4 36.97 C421.4 41.13 421.4 49.47 421.4 60.53 C421.4 71.6 421.4 85.4 421.4 99.2 C421.4 113 421.4 126.8 421.4 137.87 C421.4 148.93 421.4 157.27 421.4 161.43 L421.4 163.2" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M719 32.8 L719 36.97 C719 41.13 719 49.47 719 60.53 C719 71.6 719 85.4 719 99.2 C719 113 719 126.8 719 140.6 C719 154.4 719 168.2 719 182 C719 195.8 719 209.6 719 220.67 C719 231.73 719 240.07 719 244.23 L719 246" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-point-333333)" />
+    <path d="M223 32.8 L223 36.97 C223 41.13 223 49.47 223 57.8 C223 66.13 223 74.47 223 77.2" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M520.6 32.8 L520.6 36.97 C520.6 41.13 520.6 49.47 520.6 60.53 C520.6 71.6 520.6 85.4 520.6 99.2 C520.6 113 520.6 126.8 520.6 137.87 C520.6 148.93 520.6 157.27 520.6 160" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M818.2 32.8 L818.2 36.97 C818.2 41.13 818.2 49.47 818.2 60.53 C818.2 71.6 818.2 85.4 818.2 99.2 C818.2 113 818.2 126.8 818.2 140.6 C818.2 154.4 818.2 168.2 818.2 182 C818.2 195.8 818.2 209.6 818.2 220.67 C818.2 231.73 818.2 240.07 818.2 242.8" fill="none" stroke="#333333" stroke-width="3.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="0" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="24.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A1</text>
+    <rect x="0" y="82.8" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="24.6" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B1</text>
+    <rect x="297.6" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="322.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A2</text>
+    <rect x="297.6" y="165.6" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="322.2" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B2</text>
+    <rect x="595.2" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="619.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A3</text>
+    <rect x="595.2" y="248.4" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="619.8" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B3</text>
+    <rect x="892.8" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="917.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A4</text>
+    <rect x="892.8" y="331.2" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="917.4" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B4</text>
+    <rect x="99.2" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="123.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C1</text>
+    <rect x="99.2" y="82.8" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="123.8" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D1</text>
+    <rect x="396.8" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="421.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C2</text>
+    <rect x="396.8" y="165.6" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="421.4" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D2</text>
+    <rect x="694.4" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="719" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C3</text>
+    <rect x="694.4" y="248.4" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="719" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D3</text>
+    <rect x="198.4" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="223" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E1</text>
+    <rect x="198.4" y="82.8" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="223" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F1</text>
+    <rect x="496" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="520.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E2</text>
+    <rect x="496" y="165.6" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="520.6" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F2</text>
+    <rect x="793.6" y="0" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="818.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E3</text>
+    <rect x="793.6" y="248.4" width="49.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="818.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">F3</text>
   </g>
 </svg>

@@ -7,9 +7,9 @@ pub trait TextMeasure {
 }
 
 /// Monospace character width at the reference font size (14px).
-/// Derived from typical monospace advance width ratio: 0.6 * em.
-/// Applies to Intel One Mono, Cascadia Code, JetBrains Mono, Fira Code, etc.
-const MONOSPACE_CHAR_WIDTH_14PX: f64 = 8.4;
+/// Measured from Intel One Mono Regular: 8.596px at 14px.
+/// Rounded up to ensure node boxes never undersize the text.
+const MONOSPACE_CHAR_WIDTH_14PX: f64 = 8.6;
 const MONOSPACE_LINE_HEIGHT_14PX: f64 = 16.8;
 
 /// Monospace text measurer using fixed character advance width.
@@ -215,6 +215,9 @@ fn strip_html_tags(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    const W: f64 = MONOSPACE_CHAR_WIDTH_14PX;
+    const LH: f64 = MONOSPACE_LINE_HEIGHT_14PX;
+
     fn default_style() -> TextStyle {
         TextStyle::default()
     }
@@ -223,8 +226,8 @@ mod tests {
     fn simple_measure_basic() {
         let m = SimpleTextMeasure::default();
         let (w, h) = m.measure("hello", &default_style());
-        assert!((w - 42.0).abs() < f64::EPSILON); // 5 chars * 8.4
-        assert!((h - 16.8).abs() < f64::EPSILON); // 1 line * 16.8
+        assert!((w - 5.0 * W).abs() < f64::EPSILON);
+        assert!((h - LH).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -232,22 +235,21 @@ mod tests {
         let m = SimpleTextMeasure::default();
         let (w, h) = m.measure("", &default_style());
         assert!((w - 0.0).abs() < f64::EPSILON);
-        assert!((h - 16.8).abs() < f64::EPSILON); // 1 line minimum
+        assert!((h - LH).abs() < f64::EPSILON);
     }
 
     #[test]
     fn simple_measure_strips_html() {
         let m = SimpleTextMeasure::default();
         let (w, _) = m.measure("<b>bold</b>", &default_style());
-        // "bold" = 4 chars * 8.4
-        assert!((w - 33.6).abs() < f64::EPSILON);
+        assert!((w - 4.0 * W).abs() < f64::EPSILON);
     }
 
     #[test]
     fn simple_measure_br_adds_lines() {
         let m = SimpleTextMeasure::default();
         let (_, h) = m.measure("line1<br/>line2", &default_style());
-        assert!((h - 33.6).abs() < f64::EPSILON); // 2 lines * 16.8
+        assert!((h - 2.0 * LH).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -256,8 +258,8 @@ mod tests {
         let mut style = default_style();
         style.font_size = 28.0; // 2x default
         let (w, h) = m.measure("ab", &style);
-        assert!((w - 33.6).abs() < f64::EPSILON); // 2 * 8.4 * 2.0
-        assert!((h - 33.6).abs() < f64::EPSILON); // 1 * 16.8 * 2.0
+        assert!((w - 2.0 * W * 2.0).abs() < f64::EPSILON);
+        assert!((h - LH * 2.0).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -299,32 +301,29 @@ mod tests {
     #[test]
     fn default_trait() {
         let m = SimpleTextMeasure::default();
-        assert!((m.avg_char_width - 8.4).abs() < f64::EPSILON);
-        assert!((m.line_height - 16.8).abs() < f64::EPSILON);
+        assert!((m.avg_char_width - W).abs() < f64::EPSILON);
+        assert!((m.line_height - LH).abs() < f64::EPSILON);
     }
 
     #[test]
     fn cjk_chars_wider_than_latin() {
         let m = SimpleTextMeasure::default();
-        // "你好世界" = 4 CJK chars × 1.8 × 8.4 = 60.48
         let (w, _) = m.measure("你好世界", &default_style());
-        assert!((w - 4.0 * 1.8 * 8.4).abs() < 1e-10);
+        assert!((w - 4.0 * 1.8 * W).abs() < 1e-10);
     }
 
     #[test]
     fn japanese_kana_wider_than_latin() {
         let m = SimpleTextMeasure::default();
-        // "こんにちは世界" = 7 wide chars × 1.8 × 8.4
         let (w, _) = m.measure("こんにちは世界", &default_style());
-        assert!((w - 7.0 * 1.8 * 8.4).abs() < 1e-10);
+        assert!((w - 7.0 * 1.8 * W).abs() < 1e-10);
     }
 
     #[test]
     fn mixed_latin_cjk() {
         let m = SimpleTextMeasure::default();
-        // "Hi你好" = 2×1.0 + 2×1.8 = 5.6 units × 8.4 = 47.04
         let (w, _) = m.measure("Hi你好", &default_style());
-        assert!((w - (2.0 + 2.0 * 1.8) * 8.4).abs() < 1e-10);
+        assert!((w - (2.0 + 2.0 * 1.8) * W).abs() < 1e-10);
     }
 
     #[test]
@@ -332,10 +331,8 @@ mod tests {
         let m = SimpleTextMeasure::default();
         let (w_latin, _) = m.measure("hello", &default_style());
         let (w_cyrillic, _) = m.measure("приве", &default_style());
-        // Latin: 5 chars × 1.0 × 8.4 = 42.0
-        assert!((w_latin - 42.0).abs() < 1e-10);
-        // Cyrillic: 5 chars × 0.85 (ExtendedText ratio) × 8.4 = 35.7
-        assert!((w_cyrillic - 35.7).abs() < 1e-10);
+        assert!((w_latin - 5.0 * W).abs() < 1e-10);
+        assert!((w_cyrillic - 5.0 * 0.85 * W).abs() < 1e-10);
     }
 
     #[test]

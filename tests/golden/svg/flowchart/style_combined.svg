@@ -1,23 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 206.4 404" width="206.4" height="404">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 209.6 404" width="209.6" height="404">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M83.2 32.8 L83.2 36.97 C83.2 41.13 83.2 49.47 83.2 57.8 C83.2 66.13 83.2 74.47 83.2 78.63 L83.2 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M83.2 115.6 L83.2 119.77 C83.2 123.93 83.2 132.27 83.2 140.6 C83.2 148.93 83.2 157.27 83.2 161.43 L83.2 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M83.2 198.4 L83.2 202.57 C83.2 206.73 83.2 215.07 83.2 223.4 C83.2 231.73 83.2 240.07 83.2 244.23 L83.2 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M83.2 281.2 L83.2 285.37 C83.2 289.53 83.2 297.87 83.2 306.2 C83.2 314.53 83.2 322.87 83.2 327.03 L83.2 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="0" y="0" width="166.4" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
-    <text x="83.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ClassDef Applied</text>
-    <rect x="12.6" y="82.8" width="141.2" height="32.8" fill="#bbbbff" stroke="#0000ff" stroke-width="2" />
-    <text x="83.2" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inline Styled</text>
-    <rect x="4.2" y="165.6" width="158" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
-    <text x="83.2" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Class Statement</text>
-    <rect x="12.6" y="248.4" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="83.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Unstyled Node</text>
-    <rect x="46.2" y="331.2" width="74" height="32.8" fill="#ffffaa" stroke="#aaaa00" stroke-width="1.5" />
-    <text x="83.2" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#000000">Mixed</text>
+    <path d="M84.8 32.8 L84.8 36.97 C84.8 41.13 84.8 49.47 84.8 57.8 C84.8 66.13 84.8 74.47 84.8 78.63 L84.8 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M84.8 115.6 L84.8 119.77 C84.8 123.93 84.8 132.27 84.8 140.6 C84.8 148.93 84.8 157.27 84.8 161.43 L84.8 163.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M84.8 198.4 L84.8 202.57 C84.8 206.73 84.8 215.07 84.8 223.4 C84.8 231.73 84.8 240.07 84.8 244.23 L84.8 246" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M84.8 281.2 L84.8 285.37 C84.8 289.53 84.8 297.87 84.8 306.2 C84.8 314.53 84.8 322.87 84.8 327.03 L84.8 328.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="0" y="0" width="169.6" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
+    <text x="84.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ClassDef Applied</text>
+    <rect x="12.9" y="82.8" width="143.8" height="32.8" fill="#bbbbff" stroke="#0000ff" stroke-width="2" />
+    <text x="84.8" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inline Styled</text>
+    <rect x="4.3" y="165.6" width="161" height="32.8" fill="#ff99ff" stroke="#333333" stroke-width="4" />
+    <text x="84.8" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Class Statement</text>
+    <rect x="12.9" y="248.4" width="143.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="84.8" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Unstyled Node</text>
+    <rect x="47.3" y="331.2" width="75" height="32.8" fill="#ffffaa" stroke="#aaaa00" stroke-width="1.5" />
+    <text x="84.8" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#000000">Mixed</text>
   </g>
 </svg>

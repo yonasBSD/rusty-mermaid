@@ -1,30 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470.7 261.53" width="470.7" height="261.53">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 476.05 261.74" width="476.05" height="261.74">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M381.1 60.96 L381.1 64.29 C381.1 67.61 381.1 74.27 372.37 81.77 C363.65 89.26 346.2 97.6 337.47 101.76 L330.91 104.9" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M210.9 61.71 L210.9 64.92 C210.9 68.12 210.9 74.52 200.48 81.89 C190.07 89.26 169.23 97.6 158.82 101.76 L150.63 105.04" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M74 48.92 L83.42 54.26 C92.83 59.59 111.67 70.26 137.58 79.76 C163.49 89.26 196.48 97.6 212.98 101.76 L227.15 105.34" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M31.29 58.2 L30.58 61.99 C29.86 65.78 28.43 73.35 35.81 81.31 C43.18 89.26 59.37 97.6 67.46 101.76 L73.42 104.83" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M294.4 138.73 L294.4 142.9 C294.4 147.06 294.4 155.4 284.99 163.73 C275.58 172.06 256.76 180.4 247.35 184.56 L240.13 187.76" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M107.4 138.73 L107.4 142.9 C107.4 147.06 107.4 155.4 116.81 163.73 C126.22 172.06 145.04 180.4 154.45 184.56 L161.67 187.76" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M331.5 6.03 L331.5 49.9 A49.6 11.06 0 0 0 430.7 49.9 L430.7 6.03 A49.6 11.06 0 0 1 331.5 6.03" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <path d="M331.5 6.03 A49.6 11.06 0 0 1 430.7 6.03 A49.6 11.06 0 0 1 331.5 6.03" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="381.1" y="33.5" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Users DB</text>
-    <rect x="228" y="105.93" width="132.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="294.4" y="122.33" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth Service</text>
-    <path d="M157.1 5.78 L157.1 50.15 A53.8 11.56 0 0 0 264.7 50.15 L264.7 5.78 A53.8 11.56 0 0 1 157.1 5.78" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <path d="M157.1 5.78 A53.8 11.56 0 0 1 264.7 5.78 A53.8 11.56 0 0 1 157.1 5.78" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="210.9" y="33.75" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Orders DB</text>
-    <rect x="36.8" y="105.93" width="141.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="107.4" y="122.33" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Order Service</text>
-    <path d="M0 6.92 L0 49.01 A37 9.3 0 0 0 74 49.01 L74 6.92 A37 9.3 0 0 1 0 6.92" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <path d="M0 6.92 A37 9.3 0 0 1 74 6.92 A37 9.3 0 0 1 0 6.92" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="37" y="32.61" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cache</text>
-    <rect x="138.7" y="188.73" width="124.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="200.9" y="205.13" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API Gateway</text>
+    <path d="M385.65 61.21 L385.65 64.53 C385.65 67.85 385.65 74.49 376.84 81.98 C368.03 89.47 350.4 97.8 341.59 101.97 L334.95 105.11" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M213.35 61.97 L213.35 65.16 C213.35 68.36 213.35 74.75 202.81 82.11 C192.27 89.47 171.18 97.8 160.64 101.97 L152.33 105.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M75 49.07 L84.54 54.42 C94.08 59.76 113.17 70.45 139.4 79.96 C165.63 89.47 199.02 97.8 215.71 101.97 L230.07 105.55" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M31.78 58.42 L31.07 62.21 C30.35 65.99 28.93 73.56 36.38 81.52 C43.82 89.47 60.15 97.8 68.31 101.97 L74.34 105.04" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M298.1 138.94 L298.1 143.1 C298.1 147.27 298.1 155.6 288.56 163.94 C279.03 172.27 259.96 180.6 250.42 184.77 L243.08 187.98" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M108.6 138.94 L108.6 143.1 C108.6 147.27 108.6 155.6 118.14 163.94 C127.67 172.27 146.74 180.6 156.28 184.77 L163.62 187.98" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M335.25 6.09 L335.25 50.05 A50.4 11.16 0 0 0 436.05 50.05 L436.05 6.09 A50.4 11.16 0 0 1 335.25 6.09" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <path d="M335.25 6.09 A50.4 11.16 0 0 1 436.05 6.09 A50.4 11.16 0 0 1 335.25 6.09" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="385.65" y="33.65" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Users DB</text>
+    <rect x="230.5" y="106.14" width="135.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="298.1" y="122.54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth Service</text>
+    <path d="M158.65 5.83 L158.65 50.3 A54.7 11.67 0 0 0 268.05 50.3 L268.05 5.83 A54.7 11.67 0 0 1 158.65 5.83" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <path d="M158.65 5.83 A54.7 11.67 0 0 1 268.05 5.83 A54.7 11.67 0 0 1 158.65 5.83" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="213.35" y="33.9" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Orders DB</text>
+    <rect x="36.7" y="106.14" width="143.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="108.6" y="122.54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Order Service</text>
+    <path d="M0 6.98 L0 49.16 A37.5 9.38 0 0 0 75 49.16 L75 6.98 A37.5 9.38 0 0 1 0 6.98" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <path d="M0 6.98 A37.5 9.38 0 0 1 75 6.98 A37.5 9.38 0 0 1 0 6.98" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="37.5" y="32.76" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cache</text>
+    <rect x="140.05" y="188.94" width="126.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="203.35" y="205.34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API Gateway</text>
   </g>
 </svg>

@@ -1,45 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618.4 586" width="618.4" height="586">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 629.1 586" width="629.1" height="586">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="156.8" y="66" width="215.2" height="414" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="264.4" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Workflow</text>
-    <path d="M156.8 90 L372 90" fill="none" stroke="#9370db" stroke-width="1" />
-    <path d="M264.4 107 L264.4 111.17 C264.4 115.33 264.4 123.67 264.4 132 C264.4 140.33 264.4 148.67 264.4 152.83 L264.4 154.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M277.64 189.8 L282.13 195.37 C286.63 200.93 295.61 212.07 295.61 223.2 C295.61 234.33 286.63 245.47 282.13 251.03 L279.15 254.73" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="270.01" y="212" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="295.61" y="223.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">submit</text>
-    <path d="M264.4 289.4 L264.4 294.97 C264.4 300.53 264.4 311.67 264.4 322.8 C264.4 333.93 264.4 345.07 264.4 350.63 L264.4 353.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="238.8" y="311.6" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="264.4" y="322.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">accept</text>
-    <path d="M264.4 389 L264.4 393.17 C264.4 397.33 264.4 405.67 264.4 414 C264.4 422.33 264.4 430.67 264.4 434.83 L264.4 436.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M264.4 16 L264.4 20.17 C264.4 24.33 264.4 32.67 264.4 41 C264.4 49.33 264.4 57.67 264.4 63.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M264.4 480 C264.4 480 264.4 480 264.4 480 C264.4 488.33 264.4 496.67 264.4 505 C264.4 513.33 264.4 521.67 264.4 525.83 L264.4 527.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M251.16 256.6 L246.67 251.03 C242.17 245.47 233.19 234.33 233.19 223.2 C233.19 212.07 242.17 200.93 246.67 195.37 L249.65 191.67" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="207.59" y="212" width="51.2" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
-    <text x="233.19" y="223.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">revise</text>
-    <rect x="214.8" y="356.2" width="99.2" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="264.4" y="372.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Approved</text>
-    <rect x="227.4" y="157" width="74" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="264.4" y="173.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Draft</text>
-    <rect x="223.2" y="256.6" width="82.4" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="264.4" y="273" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Review</text>
-    <circle cx="264.4" cy="447" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
-    <circle cx="264.4" cy="447" r="4" fill="#9370db" />
-    <circle cx="264.4" cy="99" r="8" fill="#333333" stroke="#333333" />
-    <circle cx="264.4" cy="538" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
-    <circle cx="264.4" cy="538" r="4" fill="#9370db" />
-    <circle cx="264.4" cy="8" r="8" fill="#333333" stroke="#333333" />
-    <rect x="382" y="254.6" width="196.4" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
-    <text x="480.2" y="273" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Main editing pipeline</text>
-    <rect x="311.4" y="155" width="188" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
-    <text x="405.4" y="173.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Author edits content</text>
-    <rect x="-0" y="254.6" width="213.2" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
-    <text x="106.6" y="273" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Reviewer checks quality</text>
-    <rect x="324" y="354.2" width="162.8" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
-    <text x="405.4" y="372.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ready for publish</text>
+    <rect x="160.7" y="66" width="217.8" height="414" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="269.6" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Workflow</text>
+    <path d="M160.7 90 L378.5 90" fill="none" stroke="#9370db" stroke-width="1" />
+    <path d="M269.6 107 L269.6 111.17 C269.6 115.33 269.6 123.67 269.6 132 C269.6 140.33 269.6 148.67 269.6 152.83 L269.6 154.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M283.04 189.8 L287.6 195.37 C292.16 200.93 301.28 212.07 301.28 223.2 C301.28 234.33 292.16 245.47 287.6 251.03 L284.56 254.74" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="275.16" y="212" width="52.23" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="301.28" y="223.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">submit</text>
+    <path d="M269.6 289.4 L269.6 294.97 C269.6 300.53 269.6 311.67 269.6 322.8 C269.6 333.93 269.6 345.07 269.6 350.63 L269.6 353.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="243.49" y="311.6" width="52.23" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="269.6" y="322.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">accept</text>
+    <path d="M269.6 389 L269.6 393.17 C269.6 397.33 269.6 405.67 269.6 414 C269.6 422.33 269.6 430.67 269.6 434.83 L269.6 436.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M269.6 16 L269.6 20.17 C269.6 24.33 269.6 32.67 269.6 41 C269.6 49.33 269.6 57.67 269.6 63.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M269.6 480 C269.6 480 269.6 480 269.6 480 C269.6 488.33 269.6 496.67 269.6 505 C269.6 513.33 269.6 521.67 269.6 525.83 L269.6 527.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M256.16 256.6 L251.6 251.03 C247.04 245.47 237.92 234.33 237.92 223.2 C237.92 212.07 247.04 200.93 251.6 195.37 L254.64 191.66" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="211.81" y="212" width="52.23" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="237.92" y="223.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">revise</text>
+    <rect x="219.2" y="356.2" width="100.8" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="269.6" y="372.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Approved</text>
+    <rect x="232.1" y="157" width="75" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="269.6" y="173.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Draft</text>
+    <rect x="227.8" y="256.6" width="83.6" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="269.6" y="273" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Review</text>
+    <circle cx="269.6" cy="447" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="269.6" cy="447" r="4" fill="#9370db" />
+    <circle cx="269.6" cy="99" r="8" fill="#333333" stroke="#333333" />
+    <circle cx="269.6" cy="538" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="269.6" cy="538" r="4" fill="#9370db" />
+    <circle cx="269.6" cy="8" r="8" fill="#333333" stroke="#333333" />
+    <rect x="388.5" y="254.6" width="200.6" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="488.8" y="273" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Main editing pipeline</text>
+    <rect x="317.1" y="155" width="192" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="413.1" y="173.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Author edits content</text>
+    <rect x="0" y="254.6" width="217.8" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="108.9" y="273" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Reviewer checks quality</text>
+    <rect x="330" y="354.2" width="166.2" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="413.1" y="372.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ready for publish</text>
   </g>
 </svg>

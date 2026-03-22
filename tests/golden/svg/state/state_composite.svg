@@ -1,25 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200.8 469.6" width="200.8" height="469.6">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 202.2 469.6" width="202.2" height="469.6">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="0" y="66" width="160.8" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
-    <text x="80.4" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Active</text>
-    <path d="M0 90 L160.8 90" fill="none" stroke="#9370db" stroke-width="1" />
-    <path d="M80.4 107 L80.4 111.17 C80.4 115.33 80.4 123.67 80.4 132 C80.4 140.33 80.4 148.67 80.4 152.83 L80.4 154.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M92.36 189.8 L95.4 193.97 C98.44 198.13 104.52 206.47 104.52 214.8 C104.52 223.13 98.44 231.47 95.4 235.63 L93.78 237.86" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M80.4 16 L80.4 20.17 C80.4 24.33 80.4 32.67 80.4 41 C80.4 49.33 80.4 57.67 80.4 63.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M80.4 363.6 C80.4 371.93 80.4 380.27 80.4 388.6 C80.4 396.93 80.4 405.27 80.4 409.43 L80.4 411.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M68.44 239.8 L65.4 235.63 C62.36 231.47 56.28 223.13 56.28 214.8 C56.28 206.47 62.36 198.13 65.4 193.97 L67.02 191.74" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <circle cx="80.4" cy="99" r="8" fill="#333333" stroke="#333333" />
-    <rect x="47.6" y="157" width="65.6" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="80.4" y="173.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Idle</text>
-    <rect x="35" y="239.8" width="90.8" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="80.4" y="256.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Running</text>
-    <circle cx="80.4" cy="421.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
-    <circle cx="80.4" cy="421.6" r="4" fill="#9370db" />
-    <circle cx="80.4" cy="8" r="8" fill="#333333" stroke="#333333" />
+    <rect x="0" y="66" width="162.2" height="297.6" rx="5" ry="5" fill="#ffffffcc" stroke="#9370db" stroke-width="1.5" />
+    <text x="81.1" y="78" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Active</text>
+    <path d="M0 90 L162.2 90" fill="none" stroke="#9370db" stroke-width="1" />
+    <path d="M81.1 107 L81.1 111.17 C81.1 115.33 81.1 123.67 81.1 132 C81.1 140.33 81.1 148.67 81.1 152.83 L81.1 154.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M93.2 189.8 L96.28 193.97 C99.35 198.13 105.5 206.47 105.5 214.8 C105.5 223.13 99.35 231.47 96.28 235.63 L94.63 237.87" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M81.1 16 L81.1 20.17 C81.1 24.33 81.1 32.67 81.1 41 C81.1 49.33 81.1 57.67 81.1 63.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M81.1 363.6 C81.1 371.93 81.1 380.27 81.1 388.6 C81.1 396.93 81.1 405.27 81.1 409.43 L81.1 411.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M69 239.8 L65.92 235.63 C62.85 231.47 56.7 223.13 56.7 214.8 C56.7 206.47 62.85 198.13 65.92 193.97 L67.57 191.73" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <circle cx="81.1" cy="99" r="8" fill="#333333" stroke="#333333" />
+    <rect x="47.9" y="157" width="66.4" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="81.1" y="173.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Idle</text>
+    <rect x="35" y="239.8" width="92.2" height="32.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="81.1" y="256.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Running</text>
+    <circle cx="81.1" cy="421.6" r="8" fill="none" stroke="#9370db" stroke-width="1.5" />
+    <circle cx="81.1" cy="421.6" r="4" fill="#9370db" />
+    <circle cx="81.1" cy="8" r="8" fill="#333333" stroke="#333333" />
   </g>
 </svg>

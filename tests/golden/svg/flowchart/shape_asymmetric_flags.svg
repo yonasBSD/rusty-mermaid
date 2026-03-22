@@ -1,29 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 992.4 72.8" width="992.4" height="72.8">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1002.6 72.8" width="1002.6" height="72.8">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M116 16.4 L120.17 16.4 C124.33 16.4 132.67 16.4 141 16.4 C149.33 16.4 157.67 16.4 161.83 16.4 L163.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M248.4 16.4 L252.57 16.4 C256.73 16.4 265.07 16.4 274.77 16.4 C284.47 16.4 295.53 16.4 301.07 16.4 L304.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M406 16.4 L410.17 16.4 C414.33 16.4 422.67 16.4 431 16.4 C439.33 16.4 447.67 16.4 451.83 16.4 L453.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M538.4 16.4 L542.57 16.4 C546.73 16.4 555.07 16.4 564.77 16.4 C574.47 16.4 585.53 16.4 591.07 16.4 L594.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M704.4 16.4 L708.57 16.4 C712.73 16.4 721.07 16.4 729.4 16.4 C737.73 16.4 746.07 16.4 750.23 16.4 L752 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M836.8 16.4 L840.97 16.4 C845.13 16.4 853.47 16.4 863.17 16.4 C872.87 16.4 883.93 16.4 889.47 16.4 L892.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <polygon points="0,0 116,0 116,32.8 0,32.8 8.2,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="58" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start Flag</text>
-    <rect x="166" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="207.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 1</text>
-    <polygon points="298.4,0 406,0 406,32.8 298.4,32.8 306.6,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="352.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Milestone</text>
-    <rect x="456" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="497.2" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 2</text>
-    <polygon points="588.4,0 704.4,0 704.4,32.8 588.4,32.8 596.6,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="646.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Checkpoint</text>
-    <rect x="754.4" y="0" width="82.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="795.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 3</text>
-    <polygon points="886.8,0 952.4,0 952.4,32.8 886.8,32.8 895,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="919.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
+    <path d="M118 16.4 L122.17 16.4 C126.33 16.4 134.67 16.4 143 16.4 C151.33 16.4 159.67 16.4 163.83 16.4 L165.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M251.6 16.4 L255.77 16.4 C259.93 16.4 268.27 16.4 277.97 16.4 C287.67 16.4 298.73 16.4 304.27 16.4 L307.4 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M411 16.4 L415.17 16.4 C419.33 16.4 427.67 16.4 436 16.4 C444.33 16.4 452.67 16.4 456.83 16.4 L458.6 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M544.6 16.4 L548.77 16.4 C552.93 16.4 561.27 16.4 570.97 16.4 C580.67 16.4 591.73 16.4 597.27 16.4 L600.4 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M712.6 16.4 L716.77 16.4 C720.93 16.4 729.27 16.4 737.6 16.4 C745.93 16.4 754.27 16.4 758.43 16.4 L760.2 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M846.2 16.4 L850.37 16.4 C854.53 16.4 862.87 16.4 872.57 16.4 C882.27 16.4 893.33 16.4 898.87 16.4 L902 16.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <polygon points="0,0 118,0 118,32.8 0,32.8 8.2,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="59" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start Flag</text>
+    <rect x="168" y="0" width="83.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="209.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 1</text>
+    <polygon points="301.6,0 411,0 411,32.8 301.6,32.8 309.8,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="356.3" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Milestone</text>
+    <rect x="461" y="0" width="83.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="502.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 2</text>
+    <polygon points="594.6,0 712.6,0 712.6,32.8 594.6,32.8 602.8,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="653.6" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Checkpoint</text>
+    <rect x="762.6" y="0" width="83.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="804.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step 3</text>
+    <polygon points="896.2,0 962.6,0 962.6,32.8 896.2,32.8 904.4,16.4" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="929.4" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
   </g>
 </svg>
