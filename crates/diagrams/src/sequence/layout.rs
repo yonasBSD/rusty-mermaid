@@ -444,7 +444,7 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
             self.cursor_y += SELF_MSG_HEIGHT;
             if let Some(label) = &msg.label {
                 let (lw, _) = self.text.measure(label, &self.style);
-                let right = from_x + SELF_MSG_WIDTH + 6.0 + lw;
+                let right = from_x + SELF_MSG_WIDTH + 1.0 + lw;
                 self.max_self_label_right = self.max_self_label_right.max(right);
             }
         }

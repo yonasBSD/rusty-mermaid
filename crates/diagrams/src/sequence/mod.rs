@@ -225,7 +225,7 @@ fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme)
     if let Some(label) = &msg.label {
         let mid_x = (msg.from_x + msg.to_x) / 2.0;
         scene.push(Primitive::Text {
-            position: Point::new(mid_x, msg.y - 8.0),
+            position: Point::new(mid_x, msg.y - 12.0),
             content: label.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -272,7 +272,7 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
 
     if let Some(label) = &msg.label {
         scene.push(Primitive::Text {
-            position: Point::new(x + w + 6.0, msg.y + h / 2.0),
+            position: Point::new(x + w + 1.0, msg.y + h / 2.0),
             content: label.clone(),
             anchor: TextAnchor::Start,
             style: TextStyle {

@@ -9,9 +9,9 @@
     <path d="M271.2 56.8 L271.2 464" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M426.4 56.8 L426.4 464" fill="none" stroke="#afa5c8" stroke-width="1" />
     <path d="M124.6 96.8 L268.8 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <text x="197.9" y="88.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <text x="197.9" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
     <path d="M271.2 290.4 L424 290.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <text x="348.8" y="282.4" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Forward</text>
+    <text x="348.8" y="278.4" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Forward</text>
     <rect x="0" y="136.8" width="114.6" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
     <text x="57.3" y="155.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sender note</text>
     <rect x="281.2" y="213.6" width="131.8" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
