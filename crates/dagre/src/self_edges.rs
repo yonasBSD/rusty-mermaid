@@ -3,6 +3,10 @@ use rusty_mermaid_graph::Graph;
 use crate::labels::{DummyKind, EdgeLabel, NodeLabel, SelfEdge};
 use crate::util;
 
+/// Self-edge loop control point fractions (matches dagre.js).
+const LOOP_INNER: f64 = 2.0 / 3.0;
+const LOOP_OUTER: f64 = 5.0 / 6.0;
+
 /// Remove self-edges from the graph, storing them on their source node.
 pub(crate) fn remove_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
     let self_eids: Vec<_> = g
@@ -77,9 +81,6 @@ pub(crate) fn position_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
         let dx = node.x - sx;
         let dy = self_node.height / 2.0;
 
-        // Self-edge loop control point fractions (matches dagre.js)
-        const LOOP_INNER: f64 = 2.0 / 3.0;
-        const LOOP_OUTER: f64 = 5.0 / 6.0;
         let mut label = sed.label.clone();
         label.points = vec![
             rusty_mermaid_core::Point { x: sx + LOOP_INNER * dx, y: sy - dy },
