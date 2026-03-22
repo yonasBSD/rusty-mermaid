@@ -10,6 +10,16 @@ use crate::common::tokens::{identifier, skip, unescape_unicode, ws};
 
 use super::ir::*;
 
+/// Accumulates parsed statements during recursive descent.
+struct ParseCtx {
+    states: Vec<StateNode>,
+    transitions: Vec<StateTransition>,
+    notes: Vec<StateNote>,
+    class_defs: Vec<ClassDef>,
+    style_stmts: Vec<StateStyleStmt>,
+    direction: Direction,
+}
+
 /// Parse a mermaid state diagram string into IR.
 pub fn parse(input: &str) -> Result<StateDiagram, ParseError> {
     let mut rest = input;
@@ -24,17 +34,24 @@ fn parse_state_diagram(input: &mut &str) -> ModalResult<StateDiagram> {
     header.parse_next(input)?;
     skip.parse_next(input)?;
 
-    let mut diagram = StateDiagram::new(Direction::TB);
-    parse_body(
-        input,
-        &mut diagram.states,
-        &mut diagram.transitions,
-        &mut diagram.notes,
-        &mut diagram.class_defs,
-        &mut diagram.style_stmts,
-        Some(&mut diagram.direction),
-    )?;
-    Ok(diagram)
+    let mut ctx = ParseCtx {
+        states: Vec::new(),
+        transitions: Vec::new(),
+        notes: Vec::new(),
+        class_defs: Vec::new(),
+        style_stmts: Vec::new(),
+        direction: Direction::TB,
+    };
+    parse_body(input, &mut ctx, true)?;
+
+    Ok(StateDiagram {
+        states: ctx.states,
+        transitions: ctx.transitions,
+        notes: ctx.notes,
+        class_defs: ctx.class_defs,
+        style_stmts: ctx.style_stmts,
+        direction: ctx.direction,
+    })
 }
 
 fn header(input: &mut &str) -> ModalResult<()> {
@@ -46,22 +63,13 @@ fn header(input: &mut &str) -> ModalResult<()> {
 }
 
 /// Parse statements in the current scope (top-level or inside a composite state).
-fn parse_body(
-    input: &mut &str,
-    states: &mut Vec<StateNode>,
-    transitions: &mut Vec<StateTransition>,
-    notes: &mut Vec<StateNote>,
-    class_defs: &mut Vec<ClassDef>,
-    style_stmts: &mut Vec<StateStyleStmt>,
-    mut direction: Option<&mut Direction>,
-) -> ModalResult<()> {
+fn parse_body(input: &mut &str, ctx: &mut ParseCtx, is_top_level: bool) -> ModalResult<()> {
     loop {
         skip.parse_next(input)?;
         if input.is_empty() || input.starts_with('}') {
             break;
         }
-        if !try_parse_statement(input, states, transitions, notes, class_defs, style_stmts, direction.as_deref_mut())? {
-            // Skip unrecognized character
+        if !try_parse_statement(input, ctx, is_top_level)? {
             if !input.is_empty() {
                 *input = &input[1..];
             }
@@ -73,45 +81,35 @@ fn parse_body(
 /// Try to parse a single statement. Returns true if something was parsed.
 fn try_parse_statement(
     input: &mut &str,
-    states: &mut Vec<StateNode>,
-    transitions: &mut Vec<StateTransition>,
-    notes: &mut Vec<StateNote>,
-    class_defs: &mut Vec<ClassDef>,
-    style_stmts: &mut Vec<StateStyleStmt>,
-    direction: Option<&mut Direction>,
+    ctx: &mut ParseCtx,
+    update_direction: bool,
 ) -> ModalResult<bool> {
-    // Try classDef
     if input.starts_with("classDef") {
         let checkpoint = *input;
         *input = &input[8..];
         if let Ok(cd) = class_def_body.parse_next(input) {
-            class_defs.push(cd);
+            ctx.class_defs.push(cd);
             return Ok(true);
         }
         *input = checkpoint;
     }
 
-    // Try style statement
     if input.starts_with("style ") {
         let checkpoint = *input;
         *input = &input[5..];
         if let Ok(ss) = style_stmt_body.parse_next(input) {
-            style_stmts.push(StateStyleStmt {
-                ids: ss.ids,
-                styles: ss.styles,
-            });
+            ctx.style_stmts.push(ss);
             return Ok(true);
         }
         *input = checkpoint;
     }
 
-    // Try class apply
     if input.starts_with("class ") {
         let checkpoint = *input;
         *input = &input[5..];
         if let Ok(ca) = class_apply_body.parse_next(input) {
             for id in &ca.ids {
-                if let Some(s) = states.iter_mut().find(|s| s.id == *id) {
+                if let Some(s) = ctx.states.iter_mut().find(|s| s.id == *id) {
                     s.classes.push(ca.class_name.clone());
                 }
             }
@@ -120,47 +118,41 @@ fn try_parse_statement(
         *input = checkpoint;
     }
 
-    // Try direction statement
     if let Some(dir) = opt(parse_direction_stmt).parse_next(input)? {
-        if let Some(d) = direction {
-            *d = dir;
+        if update_direction {
+            ctx.direction = dir;
         }
         return Ok(true);
     }
 
-    // Try note
     if let Some(note) = opt(parse_note).parse_next(input)? {
-        notes.push(note);
+        ctx.notes.push(note);
         return Ok(true);
     }
 
-    // Try composite state: `state "Label" as Name {` or `state Name {`
     {
         let checkpoint = *input;
-        if let Ok(node) = parse_composite_state(input, class_defs, style_stmts) {
-            upsert_state_full(states, node);
+        if let Ok(node) = parse_composite_state(input, ctx) {
+            upsert_state_full(&mut ctx.states, node);
             return Ok(true);
         }
         *input = checkpoint;
     }
 
-    // Try state declaration with stereotype: `state Name <<fork>>`
     if let Some(node) = opt(parse_state_decl).parse_next(input)? {
-        upsert_state_full(states, node);
+        upsert_state_full(&mut ctx.states, node);
         return Ok(true);
     }
 
-    // Try transition: `A --> B` or `A --> B : label`
     if let Some(trans) = opt(parse_transition).parse_next(input)? {
-        ensure_state(states, &trans.src);
-        ensure_state(states, &trans.dst);
-        transitions.push(trans);
+        ensure_state(&mut ctx.states, &trans.src);
+        ensure_state(&mut ctx.states, &trans.dst);
+        ctx.transitions.push(trans);
         return Ok(true);
     }
 
-    // Try state with label: `Name : description`
     if let Some(node) = opt(parse_state_label).parse_next(input)? {
-        upsert_state(states, node);
+        upsert_state(&mut ctx.states, node);
         return Ok(true);
     }
 
@@ -277,13 +269,11 @@ fn parse_multiline_note_body(input: &mut &str) -> ModalResult<String> {
 /// Parse `state "Label" as Name {` or `state Name {`.
 fn parse_composite_state(
     input: &mut &str,
-    class_defs: &mut Vec<ClassDef>,
-    style_stmts: &mut Vec<StateStyleStmt>,
+    outer_ctx: &mut ParseCtx,
 ) -> ModalResult<StateNode> {
     "state".parse_next(input)?;
     ws.parse_next(input)?;
 
-    // Optional quoted label + "as"
     let (label, id) = if input.starts_with('"') {
         '"'.parse_next(input)?;
         let label = take_while(1.., |c: char| c != '"').parse_next(input)?;
@@ -301,30 +291,30 @@ fn parse_composite_state(
     ws.parse_next(input)?;
     '{'.parse_next(input)?;
 
-    let mut children = Vec::new();
-    let mut trans = Vec::new();
-    let mut notes = Vec::new();
-    let mut direction = None;
+    // Child context shares class_defs/style_stmts with outer, but has own states/transitions
+    let mut inner_ctx = ParseCtx {
+        states: Vec::new(),
+        transitions: Vec::new(),
+        notes: Vec::new(),
+        class_defs: std::mem::take(&mut outer_ctx.class_defs),
+        style_stmts: std::mem::take(&mut outer_ctx.style_stmts),
+        direction: Direction::TB,
+    };
+
     let mut regions: Vec<ConcurrentRegion> = Vec::new();
     let mut region_children: Vec<StateNode> = Vec::new();
     let mut region_trans: Vec<StateTransition> = Vec::new();
     let mut has_divider = false;
+    let mut composite_direction = None;
 
-    // Parse body
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() {
-            break;
-        }
-        if opt('}').parse_next(input)?.is_some() {
-            break;
-        }
+        if input.is_empty() { break; }
+        if opt('}').parse_next(input)?.is_some() { break; }
 
-        // Check for concurrency divider `--`
         if input.starts_with("--") && !input.starts_with("-->") {
             "--".parse_next(input)?;
             take_while(0.., |c: char| c == '-').parse_next(input)?;
-            // Flush current region
             regions.push(ConcurrentRegion {
                 children: std::mem::take(&mut region_children),
                 transitions: std::mem::take(&mut region_trans),
@@ -333,39 +323,52 @@ fn parse_composite_state(
             continue;
         }
 
-        // Check for direction
         if let Some(dir) = opt(parse_direction_stmt).parse_next(input)? {
-            direction = Some(dir);
+            composite_direction = Some(dir);
             continue;
         }
 
-        if !try_parse_statement(input, &mut region_children, &mut region_trans, &mut notes, class_defs, style_stmts, None)?
+        // Parse into region buffers via inner ctx
+        inner_ctx.states = std::mem::take(&mut region_children);
+        inner_ctx.transitions = std::mem::take(&mut region_trans);
+        if !try_parse_statement(input, &mut inner_ctx, false)?
             && !input.is_empty()
         {
             *input = &input[1..];
         }
+        region_children = std::mem::take(&mut inner_ctx.states);
+        region_trans = std::mem::take(&mut inner_ctx.transitions);
     }
 
-    // Flush remaining content
+    // Restore shared collections to outer ctx
+    outer_ctx.class_defs = std::mem::take(&mut inner_ctx.class_defs);
+    outer_ctx.style_stmts = std::mem::take(&mut inner_ctx.style_stmts);
+
+    let (children, trans, notes);
     if has_divider {
         regions.push(ConcurrentRegion {
             children: std::mem::take(&mut region_children),
             transitions: std::mem::take(&mut region_trans),
         });
-        // Flatten into children/trans for backward compat
+        let mut c = Vec::new();
+        let mut t = Vec::new();
         for r in &regions {
-            children.extend(r.children.clone());
-            trans.extend(r.transitions.clone());
+            c.extend(r.children.clone());
+            t.extend(r.transitions.clone());
         }
+        children = c;
+        trans = t;
+        notes = inner_ctx.notes;
     } else {
         children = region_children;
         trans = region_trans;
+        notes = inner_ctx.notes;
     }
 
     let node = StateNode {
         label,
         ..StateNode::new(id, StateKind::Composite {
-            direction,
+            direction: composite_direction,
             children,
             transitions: trans,
             notes,

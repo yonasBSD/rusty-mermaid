@@ -11,42 +11,11 @@ pub(crate) struct BaryEntry {
 }
 
 /// Compute barycenters for nodes in `movable` based on their in-edges.
-///
-/// The barycenter of a node is the weighted average order of its predecessors.
-/// Nodes with no in-edges get `barycenter: None`.
 pub(crate) fn barycenter(
     g: &Graph<NodeLabel, EdgeLabel>,
     movable: &[NodeId],
 ) -> Vec<BaryEntry> {
-    movable
-        .iter()
-        .map(|&v| {
-            let in_edges: Vec<_> = g.in_edges(v).collect();
-            if in_edges.is_empty() {
-                return BaryEntry {
-                    v,
-                    barycenter: None,
-                    weight: 0.0,
-                };
-            }
-
-            let mut sum = 0.0;
-            let mut weight = 0.0;
-            for eid in in_edges {
-                let Some((src, _)) = g.edge_endpoints(eid) else { continue };
-                let edge_weight = g.edge(eid).map_or(1.0, |l| l.weight);
-                let src_order = g.node(src).map_or(0, |n| n.order) as f64;
-                sum += edge_weight * src_order;
-                weight += edge_weight;
-            }
-
-            BaryEntry {
-                v,
-                barycenter: Some(sum / weight),
-                weight,
-            }
-        })
-        .collect()
+    compute_barycenters(g, movable, true)
 }
 
 /// Compute barycenters based on out-edges (for upward sweeps).
@@ -54,33 +23,38 @@ pub(crate) fn barycenter_out(
     g: &Graph<NodeLabel, EdgeLabel>,
     movable: &[NodeId],
 ) -> Vec<BaryEntry> {
+    compute_barycenters(g, movable, false)
+}
+
+fn compute_barycenters(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    movable: &[NodeId],
+    use_in_edges: bool,
+) -> Vec<BaryEntry> {
     movable
         .iter()
         .map(|&v| {
-            let out_edges: Vec<_> = g.out_edges(v).collect();
-            if out_edges.is_empty() {
-                return BaryEntry {
-                    v,
-                    barycenter: None,
-                    weight: 0.0,
-                };
+            let edges: Vec<_> = if use_in_edges {
+                g.in_edges(v).collect()
+            } else {
+                g.out_edges(v).collect()
+            };
+            if edges.is_empty() {
+                return BaryEntry { v, barycenter: None, weight: 0.0 };
             }
 
             let mut sum = 0.0;
             let mut weight = 0.0;
-            for eid in out_edges {
-                let Some((_, dst)) = g.edge_endpoints(eid) else { continue };
+            for eid in edges {
+                let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+                let neighbor = if use_in_edges { src } else { dst };
                 let edge_weight = g.edge(eid).map_or(1.0, |l| l.weight);
-                let dst_order = g.node(dst).map_or(0, |n| n.order) as f64;
-                sum += edge_weight * dst_order;
+                let order = g.node(neighbor).map_or(0, |n| n.order) as f64;
+                sum += edge_weight * order;
                 weight += edge_weight;
             }
 
-            BaryEntry {
-                v,
-                barycenter: Some(sum / weight),
-                weight,
-            }
+            BaryEntry { v, barycenter: Some(sum / weight), weight }
         })
         .collect()
 }
