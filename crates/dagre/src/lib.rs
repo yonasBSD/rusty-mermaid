@@ -1,6 +1,3 @@
-// Internal APIs are used by tests and the pipeline (Phase 1d).
-#![allow(dead_code)]
-
 pub mod config;
 pub mod labels;
 
