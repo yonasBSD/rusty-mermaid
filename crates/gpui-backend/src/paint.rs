@@ -42,195 +42,211 @@ fn paint_primitive(
 ) {
     match prim {
         Primitive::Rect { bbox, rx, style, .. } => {
-            let left = (bbox.x - bbox.width / 2.0) as f32 * zoom + ox;
-            let top = (bbox.y - bbox.height / 2.0) as f32 * zoom + oy;
-            let w = bbox.width as f32 * zoom;
-            let h = bbox.height as f32 * zoom;
-            let r = *rx as f32 * zoom;
-
-            let rect_bounds = Bounds {
-                origin: point(px(left), px(top)),
-                size: gpui::size(px(w), px(h)),
-            };
-
-            let bg = style.fill.map(to_gpui_color).unwrap_or(gpui::transparent_black());
-            let (border_color, border_width) = resolve_stroke_gpui(style, theme);
-
-            window.paint_quad(quad(
-                rect_bounds,
-                px(r),
-                bg,
-                Edges::all(px(border_width * zoom)),
-                border_color,
-                BorderStyle::Solid,
-            ));
+            paint_rect(window, bbox, *rx, style, theme, zoom, ox, oy);
         }
-
         Primitive::Circle { center, radius, style } => {
-            let cx = center.x as f32 * zoom + ox;
-            let cy = center.y as f32 * zoom + oy;
-            let r = *radius as f32 * zoom;
-
-            if let Some(fill) = style.fill {
-                if let Ok(path) = circle_fill_path(cx, cy, r) {
-                    window.paint_path(path, to_gpui_color(fill));
-                }
-            }
-            if let Some((color, width)) = resolve_stroke_opt(style, theme) {
-                if let Ok(path) = circle_stroke_path(cx, cy, r, width * zoom) {
-                    window.paint_path(path, color);
-                }
-            }
+            paint_circle(window, center, *radius, style, theme, zoom, ox, oy);
         }
-
         Primitive::Ellipse { center, rx, ry, style } => {
-            let ecx = center.x as f32 * zoom + ox;
-            let ecy = center.y as f32 * zoom + oy;
-            let erx = *rx as f32 * zoom;
-            let ery = *ry as f32 * zoom;
-
-            if let Some(fill) = style.fill {
-                if let Ok(path) = ellipse_fill_path(ecx, ecy, erx, ery) {
-                    window.paint_path(path, to_gpui_color(fill));
-                }
-            }
-            if let Some((color, width)) = resolve_stroke_opt(style, theme) {
-                if let Ok(path) = ellipse_stroke_path(ecx, ecy, erx, ery, width * zoom) {
-                    window.paint_path(path, color);
-                }
-            }
+            paint_ellipse(window, center, *rx, *ry, style, theme, zoom, ox, oy);
         }
-
         Primitive::Path { segments, style, marker_start, marker_end } => {
-            let (color, width) = resolve_stroke_gpui(style, theme);
-            if let Ok(path) = build_stroke_path(segments, zoom, ox, oy, width * zoom, style) {
-                window.paint_path(path, color);
-            }
-
-            if let Some(fill) = style.fill {
-                if let Ok(path) = build_fill_path(segments, zoom, ox, oy) {
-                    window.paint_path(path, to_gpui_color(fill));
-                }
-            }
-
-            if let Some(marker) = marker_start {
-                if let Some((tip, angle)) = rusty_mermaid_core::path_start_tangent(segments) {
-                    paint_marker(window, *marker, tip, angle, color, width * zoom, zoom, ox, oy);
-                }
-            }
-            if let Some(marker) = marker_end {
-                if let Some((tip, angle)) = rusty_mermaid_core::path_end_tangent(segments) {
-                    paint_marker(window, *marker, tip, angle, color, width * zoom, zoom, ox, oy);
-                }
-            }
+            paint_path(window, segments, style, *marker_start, *marker_end, theme, zoom, ox, oy);
         }
-
         Primitive::Text { position, content, anchor, style } => {
-            let x = position.x as f32 * zoom + ox;
-            let y = position.y as f32 * zoom + oy;
-            let font_size = style.font_size as f32 * zoom;
-            let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
-            let color = to_gpui_color(fill);
-            let line_height = font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER_F32;
-
-            let lines: Vec<&str> = content.split('\n').collect();
-            let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32 * zoom;
-
-            for (line_idx, line) in lines.iter().enumerate() {
-                if line.is_empty() { continue; }
-
-                let (display_text, runs) = if let Some(spans) = parse_inline_markdown(line) {
-                    let mut text = String::new();
-                    let mut runs = Vec::new();
-                    for span in &spans {
-                        let f = Font {
-                            weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
-                            style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
-                            ..font(rusty_mermaid_core::font_fallback::PRIMARY_FONT)
-                        };
-                        runs.push(TextRun {
-                            len: span.text.len(),
-                            font: f,
-                            color,
-                            background_color: None,
-                            underline: None,
-                            strikethrough: None,
-                        });
-                        text.push_str(&span.text);
-                    }
-                    (text, runs)
-                } else {
-                    (line.to_string(), vec![TextRun {
-                        len: line.len(),
-                        font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
-                        color,
-                        background_color: None,
-                        underline: None,
-                        strikethrough: None,
-                    }])
-                };
-
-                let shaped = window.text_system().shape_line(
-                    display_text.into(),
-                    px(font_size),
-                    &runs,
-                    None,
-                );
-
-                let text_w: f32 = shaped.width.into();
-                let text_x = match anchor {
-                    TextAnchor::Start => x,
-                    TextAnchor::Middle => x - text_w / 2.0,
-                    TextAnchor::End => x - text_w,
-                };
-                let text_y = y + baseline_offset - font_size + line_idx as f32 * line_height;
-
-                let _ = shaped.paint(
-                    point(px(text_x), px(text_y)),
-                    px(line_height),
-                    window,
-                    cx,
-                );
-            }
+            paint_text(window, cx, position, content, *anchor, style, zoom, ox, oy);
         }
-
         Primitive::Polygon { points, style } => {
-            if points.len() < 3 { return; }
-
-            if let Some(fill) = style.fill {
-                let mut pb = PathBuilder::fill();
-                pb.move_to(transform_pt(&points[0], zoom, ox, oy));
-                for p in &points[1..] {
-                    pb.line_to(transform_pt(p, zoom, ox, oy));
-                }
-                pb.close();
-                if let Ok(path) = pb.build() {
-                    window.paint_path(path, to_gpui_color(fill));
-                }
-            }
-            if let Some((color, width)) = resolve_stroke_opt(style, theme) {
-                let mut pb = PathBuilder::stroke(px(width * zoom));
-                pb.move_to(transform_pt(&points[0], zoom, ox, oy));
-                for p in &points[1..] {
-                    pb.line_to(transform_pt(p, zoom, ox, oy));
-                }
-                pb.close();
-                if let Ok(path) = pb.build() {
-                    window.paint_path(path, color);
-                }
-            }
+            paint_polygon(window, points, style, theme, zoom, ox, oy);
         }
-
         Primitive::Group { transform, children } => {
             let (nzoom, nox, noy) = apply_transform(transform, zoom, ox, oy);
             for child in children {
                 paint_primitive(child, theme, nzoom, nox, noy, bounds, window, cx);
             }
         }
-
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
             paint_arc(window, center, *inner_r, *outer_r, *start_angle, *end_angle, style, theme, zoom, ox, oy);
         }
+    }
+}
+
+// ── Per-primitive rendering ──
+
+fn paint_rect(
+    window: &mut Window,
+    bbox: &rusty_mermaid_core::BBox, rx: f64,
+    style: &Style, theme: &Theme,
+    zoom: f32, ox: f32, oy: f32,
+) {
+    let left = (bbox.x - bbox.width / 2.0) as f32 * zoom + ox;
+    let top = (bbox.y - bbox.height / 2.0) as f32 * zoom + oy;
+    let w = bbox.width as f32 * zoom;
+    let h = bbox.height as f32 * zoom;
+    let r = rx as f32 * zoom;
+
+    let rect_bounds = Bounds {
+        origin: point(px(left), px(top)),
+        size: gpui::size(px(w), px(h)),
+    };
+    let bg = style.fill.map(to_gpui_color).unwrap_or(gpui::transparent_black());
+    let (border_color, border_width) = resolve_stroke_gpui(style, theme);
+    window.paint_quad(quad(
+        rect_bounds, px(r), bg,
+        Edges::all(px(border_width * zoom)),
+        border_color, BorderStyle::Solid,
+    ));
+}
+
+fn paint_circle(
+    window: &mut Window,
+    center: &Point, radius: f64,
+    style: &Style, theme: &Theme,
+    zoom: f32, ox: f32, oy: f32,
+) {
+    let cx = center.x as f32 * zoom + ox;
+    let cy = center.y as f32 * zoom + oy;
+    let r = radius as f32 * zoom;
+    if let Some(fill) = style.fill {
+        if let Ok(path) = circle_fill_path(cx, cy, r) {
+            window.paint_path(path, to_gpui_color(fill));
+        }
+    }
+    if let Some((color, width)) = resolve_stroke_opt(style, theme) {
+        if let Ok(path) = circle_stroke_path(cx, cy, r, width * zoom) {
+            window.paint_path(path, color);
+        }
+    }
+}
+
+fn paint_ellipse(
+    window: &mut Window,
+    center: &Point, rx: f64, ry: f64,
+    style: &Style, theme: &Theme,
+    zoom: f32, ox: f32, oy: f32,
+) {
+    let ecx = center.x as f32 * zoom + ox;
+    let ecy = center.y as f32 * zoom + oy;
+    let erx = rx as f32 * zoom;
+    let ery = ry as f32 * zoom;
+    if let Some(fill) = style.fill {
+        if let Ok(path) = ellipse_fill_path(ecx, ecy, erx, ery) {
+            window.paint_path(path, to_gpui_color(fill));
+        }
+    }
+    if let Some((color, width)) = resolve_stroke_opt(style, theme) {
+        if let Ok(path) = ellipse_stroke_path(ecx, ecy, erx, ery, width * zoom) {
+            window.paint_path(path, color);
+        }
+    }
+}
+
+fn paint_path(
+    window: &mut Window,
+    segments: &[rusty_mermaid_core::PathSegment],
+    style: &Style,
+    marker_start: Option<rusty_mermaid_core::MarkerType>,
+    marker_end: Option<rusty_mermaid_core::MarkerType>,
+    theme: &Theme,
+    zoom: f32, ox: f32, oy: f32,
+) {
+    let (color, width) = resolve_stroke_gpui(style, theme);
+    if let Ok(path) = build_stroke_path(segments, zoom, ox, oy, width * zoom, style) {
+        window.paint_path(path, color);
+    }
+    if let Some(fill) = style.fill {
+        if let Ok(path) = build_fill_path(segments, zoom, ox, oy) {
+            window.paint_path(path, to_gpui_color(fill));
+        }
+    }
+    if let Some(marker) = marker_start {
+        if let Some((tip, angle)) = rusty_mermaid_core::path_start_tangent(segments) {
+            paint_marker(window, marker, tip, angle, color, width * zoom, zoom, ox, oy);
+        }
+    }
+    if let Some(marker) = marker_end {
+        if let Some((tip, angle)) = rusty_mermaid_core::path_end_tangent(segments) {
+            paint_marker(window, marker, tip, angle, color, width * zoom, zoom, ox, oy);
+        }
+    }
+}
+
+fn paint_text(
+    window: &mut Window, cx: &mut App,
+    position: &Point, content: &str, anchor: TextAnchor,
+    style: &rusty_mermaid_core::TextStyle,
+    zoom: f32, ox: f32, oy: f32,
+) {
+    let x = position.x as f32 * zoom + ox;
+    let y = position.y as f32 * zoom + oy;
+    let font_size = style.font_size as f32 * zoom;
+    let fill = style.fill.unwrap_or(Color::rgb(51, 51, 51));
+    let color = to_gpui_color(fill);
+    let line_height = font_size * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER_F32;
+
+    let lines: Vec<&str> = content.split('\n').collect();
+    let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32 * zoom;
+
+    for (line_idx, line) in lines.iter().enumerate() {
+        if line.is_empty() { continue; }
+
+        let (display_text, runs) = if let Some(spans) = parse_inline_markdown(line) {
+            let mut text = String::new();
+            let mut runs = Vec::new();
+            for span in &spans {
+                let f = Font {
+                    weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
+                    style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
+                    ..font(rusty_mermaid_core::font_fallback::PRIMARY_FONT)
+                };
+                runs.push(TextRun {
+                    len: span.text.len(), font: f, color,
+                    background_color: None, underline: None, strikethrough: None,
+                });
+                text.push_str(&span.text);
+            }
+            (text, runs)
+        } else {
+            (line.to_string(), vec![TextRun {
+                len: line.len(),
+                font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
+                color, background_color: None, underline: None, strikethrough: None,
+            }])
+        };
+
+        let shaped = window.text_system().shape_line(
+            display_text.into(), px(font_size), &runs, None,
+        );
+        let text_w: f32 = shaped.width.into();
+        let text_x = match anchor {
+            TextAnchor::Start => x,
+            TextAnchor::Middle => x - text_w / 2.0,
+            TextAnchor::End => x - text_w,
+        };
+        let text_y = y + baseline_offset - font_size + line_idx as f32 * line_height;
+        let _ = shaped.paint(point(px(text_x), px(text_y)), px(line_height), window, cx);
+    }
+}
+
+fn paint_polygon(
+    window: &mut Window,
+    points: &[Point], style: &Style, theme: &Theme,
+    zoom: f32, ox: f32, oy: f32,
+) {
+    if points.len() < 3 { return; }
+    if let Some(fill) = style.fill {
+        let mut pb = PathBuilder::fill();
+        pb.move_to(transform_pt(&points[0], zoom, ox, oy));
+        for p in &points[1..] { pb.line_to(transform_pt(p, zoom, ox, oy)); }
+        pb.close();
+        if let Ok(path) = pb.build() { window.paint_path(path, to_gpui_color(fill)); }
+    }
+    if let Some((color, width)) = resolve_stroke_opt(style, theme) {
+        let mut pb = PathBuilder::stroke(px(width * zoom));
+        pb.move_to(transform_pt(&points[0], zoom, ox, oy));
+        for p in &points[1..] { pb.line_to(transform_pt(p, zoom, ox, oy)); }
+        pb.close();
+        if let Ok(path) = pb.build() { window.paint_path(path, color); }
     }
 }
 
