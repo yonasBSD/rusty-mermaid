@@ -149,7 +149,7 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
         // Extension: empty triangle (stroked, closed) for inheritance <|--
         MarkerType::Extension => MarkerGeometry {
             vb_w: 12.0, vb_h: 12.0,
-            ref_x: 10.0, ref_y: 6.0,
+            ref_x: 11.0, ref_y: 6.0,
             marker_w: 8.0, marker_h: 8.0,
             shape: MarkerShape::FilledStrokedPath {
                 points: vec![

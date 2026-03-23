@@ -21,6 +21,7 @@ pub enum DiagramKind {
     Flowchart,
     State,
     Sequence,
+    Class,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -39,11 +40,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("sequenceDiagram") {
         return Some(DiagramKind::Sequence);
     }
+    if line.starts_with("classDiagram") {
+        return Some(DiagramKind::Class);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -91,7 +95,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -128,6 +132,12 @@ pub fn render_to_scene_themed(
                 &rusty_mermaid_core::SimpleTextMeasure::default(),
             );
             Ok(sequence::to_scene_themed(&layout, theme))
+        }
+        #[cfg(feature = "class")]
+        DiagramKind::Class => {
+            let diagram = class::parser::parse(input)?;
+            let layout = class::bridge::layout(&diagram);
+            Ok(class::to_scene_themed(&layout, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
@@ -184,6 +194,16 @@ mod tests {
     }
 
     #[test]
+    fn detect_class_diagram() {
+        assert_eq!(detect("classDiagram\n    class Foo"), Some(DiagramKind::Class));
+    }
+
+    #[test]
+    fn detect_class_diagram_v2() {
+        assert_eq!(detect("classDiagram-v2\n    class Foo"), Some(DiagramKind::Class));
+    }
+
+    #[test]
     fn detect_unknown() {
         assert_eq!(detect("pie\n    title Chart"), None);
     }
@@ -200,6 +220,14 @@ mod tests {
     #[test]
     fn render_state_to_scene() {
         let scene = render_to_scene("stateDiagram-v2\n    [*] --> Still\n    Still --> [*]").unwrap();
+        assert!(scene.width > 0.0);
+        assert!(!scene.is_empty());
+    }
+
+    #[cfg(feature = "class")]
+    #[test]
+    fn render_class_to_scene() {
+        let scene = render_to_scene("classDiagram\n    class Animal {\n        +String name\n        +makeSound()\n    }\n    Animal <|-- Dog").unwrap();
         assert!(scene.width > 0.0);
         assert!(!scene.is_empty());
     }

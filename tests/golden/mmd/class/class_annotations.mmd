@@ -1,0 +1,22 @@
+classDiagram
+    class Shape {
+        <<interface>>
+        +area() double
+        +perimeter() double
+    }
+    class Color {
+        <<enumeration>>
+        RED
+        GREEN
+        BLUE
+    }
+    class AbstractRenderer {
+        <<abstract>>
+        +render()*
+        #setup()
+    }
+    class UserService {
+        <<service>>
+        +getUser(id int) User
+    }
+    Shape <|.. AbstractRenderer : implements

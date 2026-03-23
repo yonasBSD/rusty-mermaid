@@ -1,0 +1,13 @@
+classDiagram
+    class Vehicle
+    class Car
+    class Engine
+    class Fleet
+    class Driver
+    class InsurancePolicy
+
+    Vehicle <|-- Car : inheritance
+    Car *-- Engine : composition
+    Fleet o-- Car : aggregation
+    Driver --> Car : dependency
+    Car -- InsurancePolicy : association

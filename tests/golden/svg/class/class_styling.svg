@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 209.6 324.8" width="209.6" height="324.8">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M84.8 61.6 L84.8 65.77 C84.8 69.93 84.8 78.27 84.8 86.6 C84.8 94.93 84.8 103.27 84.8 107.43 L84.8 109.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M84.8 173.2 L84.8 177.37 C84.8 181.53 84.8 189.87 84.8 198.2 C84.8 206.53 84.8 214.87 84.8 219.03 L84.8 220.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="0" y="0" width="169.6" height="61.6" rx="3" ry="3" fill="#ff99ff" stroke="#333333" stroke-width="2" />
+    <text x="84.8" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Controller</text>
+    <path d="M0 18.2 L169.6 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M0 22.2 L169.6 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+handleRequest()</text>
+    <rect x="25.8" y="111.6" width="118" height="61.6" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="84.8" y="122.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Service</text>
+    <path d="M25.8 129.8 L143.8 129.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M25.8 133.8 L143.8 133.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="33.8" y="149.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+process()</text>
+    <rect x="25.8" y="223.2" width="118" height="61.6" rx="3" ry="3" fill="#ddffdd" stroke="#339933" />
+    <text x="84.8" y="234.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Repository</text>
+    <path d="M25.8 241.4 L143.8 241.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M25.8 245.4 L143.8 245.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="33.8" y="261.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+findAll()</text>
+  </g>
+</svg>

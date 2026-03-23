@@ -179,7 +179,10 @@ impl Classifier {
 pub struct ClassRelation {
     pub from_id: String,
     pub to_id: String,
-    pub relation_type: RelationType,
+    /// Marker type at the from (left) end.
+    pub from_type: Option<RelationType>,
+    /// Marker type at the to (right) end.
+    pub to_type: Option<RelationType>,
     pub line_type: LineType,
     pub label: Option<String>,
     pub cardinality_from: Option<String>,
@@ -294,13 +297,14 @@ mod tests {
         let r = ClassRelation {
             from_id: "A".into(),
             to_id: "B".into(),
-            relation_type: RelationType::Extension,
+            from_type: Some(RelationType::Extension),
+            to_type: None,
             line_type: LineType::Solid,
             label: Some("extends".into()),
             cardinality_from: None,
             cardinality_to: None,
         };
-        assert_eq!(r.relation_type, RelationType::Extension);
+        assert_eq!(r.from_type, Some(RelationType::Extension));
         assert_eq!(r.line_type, LineType::Solid);
     }
 

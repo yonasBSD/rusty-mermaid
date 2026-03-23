@@ -73,8 +73,9 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 
         let mut segments = interpolate(&edge.points, CurveType::Basis);
 
-        // Map relation type to markers
-        let (marker_start, marker_end) = relation_markers(edge_layout.relation_type);
+        // Map per-side relation types to markers
+        let marker_start = edge_layout.from_type.and_then(relation_to_marker);
+        let marker_end = edge_layout.to_type.and_then(relation_to_marker);
         let sw = theme.default_stroke_width;
         shorten_path_for_markers(&mut segments, marker_start, marker_end, sw);
 
@@ -111,21 +112,21 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     }
 }
 
-fn relation_markers(rt: RelationType) -> (Option<MarkerType>, Option<MarkerType>) {
+fn relation_to_marker(rt: RelationType) -> Option<MarkerType> {
     match rt {
-        RelationType::Extension => (None, Some(MarkerType::Extension)),
-        RelationType::Composition => (Some(MarkerType::Composition), None),
-        RelationType::Aggregation => (Some(MarkerType::Aggregation), None),
-        RelationType::Dependency => (None, Some(MarkerType::Dependency)),
-        RelationType::Lollipop => (None, Some(MarkerType::Circle)),
-        RelationType::Association => (None, None),
+        RelationType::Extension => Some(MarkerType::ArrowBarb),
+        RelationType::Composition => Some(MarkerType::Composition),
+        RelationType::Aggregation => Some(MarkerType::Aggregation),
+        RelationType::Dependency => Some(MarkerType::ArrowPoint),
+        RelationType::Lollipop => Some(MarkerType::Circle),
+        RelationType::Association => None,
     }
 }
 
-/// Offset along the edge from the endpoint (scene units).
-const CARDINALITY_ALONG: f64 = 10.0;
-/// Perpendicular offset from the edge line (scene units).
-const CARDINALITY_PERP: f64 = 8.0;
+/// Offset along the edge from the endpoint (clears marker arrowhead).
+const CARDINALITY_ALONG: f64 = 20.0;
+/// Perpendicular offset from the edge line.
+const CARDINALITY_PERP: f64 = 10.0;
 
 fn render_cardinality(scene: &mut Scene, endpoint: Point, neighbor: Point, text: &str, theme: &Theme) {
     // Edge direction from endpoint toward interior
@@ -370,10 +371,10 @@ mod tests {
     fn extension_marker_on_edge() {
         let scene = render("classDiagram\n    A <|-- B");
         let has_extension = scene.elements().iter().any(|e| {
-            if let Primitive::Path { marker_end, .. } = &e.primitive {
-                *marker_end == Some(MarkerType::Extension)
+            if let Primitive::Path { marker_start, .. } = &e.primitive {
+                *marker_start == Some(MarkerType::ArrowBarb)
             } else { false }
         });
-        assert!(has_extension, "extension relationship should use Extension marker");
+        assert!(has_extension, "<|-- should place open arrow marker at from (left) end");
     }
 }

@@ -50,7 +50,8 @@ pub struct ClassLayout {
 #[derive(Debug)]
 pub struct ClassEdgeLayout {
     pub edge: EdgeLayout,
-    pub relation_type: RelationType,
+    pub from_type: Option<RelationType>,
+    pub to_type: Option<RelationType>,
     pub cardinality_from: Option<String>,
     pub cardinality_to: Option<String>,
 }
@@ -144,8 +145,8 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
             methods: c.methods.clone(),
             x: n.x,
             y: n.y,
-            width: n.width,
-            height: n.height,
+            width: n.width.max(dims.width),
+            height: n.height.max(dims.height),
             title_height: dims.title_height,
             members_height: dims.members_height,
             methods_height: dims.methods_height,
@@ -157,7 +158,7 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
 
     // Extract edges with intersection routing
     // Note: start_arrow/end_arrow are None — class relationship markers are
-    // handled by the renderer via ClassEdgeLayout.relation_type → MarkerType.
+    // handled by the renderer via ClassEdgeLayout.from_type/to_type → MarkerType.
     let mut edges = Vec::new();
     for rel in &diagram.relationships {
         let Some(&src_nid) = id_map.get(&rel.from_id) else { continue };
@@ -211,7 +212,8 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
                 end_arrow: crate::common::layout::ArrowEnd::None,
                 custom_style: None,
             },
-            relation_type: rel.relation_type,
+            from_type: rel.from_type,
+            to_type: rel.to_type,
             cardinality_from: rel.cardinality_from.clone(),
             cardinality_to: rel.cardinality_to.clone(),
         });
@@ -297,8 +299,17 @@ fn compute_class_dims(
     let method_widths = class.methods.iter()
         .map(|m| measurer.measure(&m.display_text(), style).0)
         .fold(0.0f64, f64::max);
+    // Measure annotation at its actual render size (font_size_small = 11px),
+    // not the default 14px. Bypass measurer.measure() which strips <<>> as HTML.
+    let char_w = rusty_mermaid_core::SimpleTextMeasure::default().avg_char_width;
+    let small_scale = 11.0 / rusty_mermaid_core::constants::REFERENCE_FONT_SIZE;
     let annotation_w = class.annotations.first()
-        .map(|a| measurer.measure(&format!("<<{a}>>"), style).0)
+        .map(|a| {
+            let display = format!("<<{a}>>");
+            display.chars()
+                .map(|c| rusty_mermaid_core::text::char_width_ratio(c) * char_w * small_scale)
+                .sum::<f64>()
+        })
         .unwrap_or(0.0);
 
     let content_w = title_w.max(member_widths).max(method_widths).max(annotation_w);
@@ -331,7 +342,7 @@ mod tests {
         let r = parse_and_layout("classDiagram\n    Animal <|-- Dog");
         assert_eq!(r.classes.len(), 2);
         assert_eq!(r.edges.len(), 1);
-        assert_eq!(r.edges[0].relation_type, RelationType::Extension);
+        assert_eq!(r.edges[0].from_type, Some(RelationType::Extension));
     }
 
     #[test]
@@ -384,6 +395,17 @@ mod tests {
         assert!(c.methods_height > 0.0);
         let total = c.title_height + c.members_height + c.methods_height;
         assert!((total - c.height).abs() < 1.0, "section heights should sum to total height");
+    }
+
+    #[test]
+    fn annotation_widens_box() {
+        let r = parse_and_layout("classDiagram\n    class Color {\n        <<enumeration>>\n        RED\n    }");
+        let c = &r.classes[0];
+        // <<enumeration>> (17 chars) should force box wider than just "Color" (5 chars) + "RED" (3 chars)
+        let measurer = SimpleTextMeasure::default();
+        let style = TextStyle::default();
+        let ann_w = measurer.measure("<<enumeration>>", &style).0;
+        assert!(c.width >= ann_w, "box width {} should contain annotation width {ann_w}", c.width);
     }
 
     #[test]

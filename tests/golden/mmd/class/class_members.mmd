@@ -1,0 +1,13 @@
+classDiagram
+    class BankAccount {
+        +String owner
+        +BigDecimal balance
+        -String accountNumber
+        #String bankCode
+        ~int pin
+        +deposit(amount BigDecimal) void
+        +withdraw(amount BigDecimal) boolean
+        -validatePin(pin int) boolean
+        #getStatement() String$
+        ~transferInternal(to BankAccount)*
+    }

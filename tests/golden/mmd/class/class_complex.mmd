@@ -1,0 +1,39 @@
+classDiagram
+    class Animal {
+        <<abstract>>
+        +String name
+        +int age
+        +makeSound()* void
+        +move() void
+    }
+    class Dog {
+        +String breed
+        +bark() void
+        +fetch() void
+    }
+    class Cat {
+        +String color
+        +boolean indoor
+        +purr() void
+        +scratch() void
+    }
+    class Owner {
+        +String firstName
+        +String lastName
+        +getFullName() String
+    }
+    class Veterinarian {
+        +String license
+        +examine(animal Animal) Report
+    }
+    class Report {
+        +Date date
+        +String diagnosis
+        +boolean healthy
+    }
+    Animal <|-- Dog : extends
+    Animal <|-- Cat : extends
+    Owner "1" o-- "0..*" Animal : owns
+    Veterinarian ..> Animal : examines
+    Veterinarian --> Report : creates
+    note for Animal "Base class for all animals"

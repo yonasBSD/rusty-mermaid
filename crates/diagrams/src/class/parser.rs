@@ -393,13 +393,11 @@ fn parse_relationship(input: &mut &str) -> ModalResult<ClassRelation> {
         None
     };
 
-    // Determine relation type from left/right markers
-    let relation_type = left_type.or(right_type).unwrap_or(RelationType::Association);
-
     Ok(ClassRelation {
         from_id: from_id.to_string(),
         to_id: to_id.to_string(),
-        relation_type,
+        from_type: left_type,
+        to_type: right_type,
         line_type,
         label,
         cardinality_from: card_from,
@@ -722,39 +720,39 @@ mod tests {
         assert_eq!(d.relationships.len(), 1);
         assert_eq!(d.relationships[0].from_id, "Animal");
         assert_eq!(d.relationships[0].to_id, "Dog");
-        assert_eq!(d.relationships[0].relation_type, RelationType::Extension);
+        assert_eq!(d.relationships[0].from_type, Some(RelationType::Extension));
         assert_eq!(d.relationships[0].line_type, LineType::Solid);
     }
 
     #[test]
     fn parse_composition_relationship() {
         let d = parse("classDiagram\n    Car *-- Wheel").unwrap();
-        assert_eq!(d.relationships[0].relation_type, RelationType::Composition);
+        assert_eq!(d.relationships[0].from_type, Some(RelationType::Composition));
     }
 
     #[test]
     fn parse_aggregation_relationship() {
         let d = parse("classDiagram\n    Fleet o-- Car").unwrap();
-        assert_eq!(d.relationships[0].relation_type, RelationType::Aggregation);
+        assert_eq!(d.relationships[0].from_type, Some(RelationType::Aggregation));
     }
 
     #[test]
     fn parse_dependency_relationship() {
         let d = parse("classDiagram\n    Class1 --> Class2").unwrap();
-        assert_eq!(d.relationships[0].relation_type, RelationType::Dependency);
+        assert_eq!(d.relationships[0].to_type, Some(RelationType::Dependency));
     }
 
     #[test]
     fn parse_dotted_extension() {
         let d = parse("classDiagram\n    Shape ..|> Circle").unwrap();
-        assert_eq!(d.relationships[0].relation_type, RelationType::Extension);
+        assert_eq!(d.relationships[0].to_type, Some(RelationType::Extension));
         assert_eq!(d.relationships[0].line_type, LineType::Dotted);
     }
 
     #[test]
     fn parse_plain_association() {
         let d = parse("classDiagram\n    A -- B").unwrap();
-        assert_eq!(d.relationships[0].relation_type, RelationType::Association);
+        assert!(d.relationships[0].from_type.is_none() && d.relationships[0].to_type.is_none());
         assert_eq!(d.relationships[0].line_type, LineType::Solid);
     }
 

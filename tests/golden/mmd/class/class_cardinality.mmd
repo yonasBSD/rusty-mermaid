@@ -1,0 +1,16 @@
+classDiagram
+    class Customer {
+        +String name
+        +String email
+    }
+    class Order {
+        +int orderId
+        +Date orderDate
+    }
+    class OrderItem {
+        +String product
+        +int quantity
+        +double price
+    }
+    Customer "1" --> "0..*" Order : places
+    Order "1" *-- "1..*" OrderItem : contains

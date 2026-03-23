@@ -89,7 +89,7 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
 "##
         ),
         MarkerType::Extension => format!(
-            r##"<marker id="{id}" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            r##"<marker id="{id}" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
   <path d="M0 0 L12 6 L0 12 Z" fill="white" stroke="{color}" stroke-width="1" />
 </marker>
 "##

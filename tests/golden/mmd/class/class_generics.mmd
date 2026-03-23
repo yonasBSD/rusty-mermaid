@@ -1,0 +1,16 @@
+classDiagram
+    class List~T~ {
+        +add(item T) void
+        +get(index int) T
+        +size() int
+    }
+    class Map~K, V~ {
+        +put(key K, value V) void
+        +get(key K) V
+        +containsKey(key K) boolean
+    }
+    class Comparable~T~ {
+        <<interface>>
+        +compareTo(other T) int
+    }
+    List~T~ ..> Comparable~T~ : uses

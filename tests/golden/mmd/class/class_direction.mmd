@@ -1,0 +1,13 @@
+classDiagram
+    direction LR
+    class Input {
+        +read() String
+    }
+    class Processor {
+        +process(data String) Result
+    }
+    class Output {
+        +write(result Result) void
+    }
+    Input --> Processor : feeds
+    Processor --> Output : produces

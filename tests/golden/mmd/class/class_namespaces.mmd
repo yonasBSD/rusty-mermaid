@@ -1,0 +1,23 @@
+classDiagram
+    namespace Domain {
+        class User {
+            +String name
+            +String email
+        }
+        class Order {
+            +int orderId
+            +Date createdAt
+        }
+    }
+    namespace Service {
+        class UserService {
+            +getUser(id int) User
+            +createUser(name String) User
+        }
+        class OrderService {
+            +placeOrder(userId int) Order
+        }
+    }
+    UserService --> User
+    OrderService --> Order
+    OrderService ..> UserService : depends on
