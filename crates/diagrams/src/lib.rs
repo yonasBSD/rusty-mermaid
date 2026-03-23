@@ -21,6 +21,9 @@ pub mod requirement;
 #[cfg(feature = "pie")]
 pub mod pie;
 
+#[cfg(feature = "timeline")]
+pub mod timeline;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -34,6 +37,7 @@ pub enum DiagramKind {
     Er,
     Requirement,
     Pie,
+    Timeline,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -64,11 +68,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("pie") {
         return Some(DiagramKind::Pie);
     }
+    if line.starts_with("timeline") {
+        return Some(DiagramKind::Timeline);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -116,7 +123,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -176,6 +183,11 @@ pub fn render_to_scene_themed(
         DiagramKind::Pie => {
             let chart = pie::parser::parse(input)?;
             Ok(pie::to_scene_themed(&chart, theme))
+        }
+        #[cfg(feature = "timeline")]
+        DiagramKind::Timeline => {
+            let diagram = timeline::parser::parse(input)?;
+            Ok(timeline::to_scene_themed(&diagram, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(

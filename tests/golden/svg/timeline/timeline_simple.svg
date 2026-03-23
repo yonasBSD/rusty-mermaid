@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 324" width="380" height="324">
+  <g transform="translate(20, 20)">
+    <path d="M160 10 L160 274" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="10" width="320" height="264" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="20" y="36" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Morning</text>
+    <circle cx="160" cy="54" r="4" fill="#4e79a7" />
+    <path d="M165 54 L180 35" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="20" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="35" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wake up</text>
+    <path d="M165 54 L180 69" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="54" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="69" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Breakfast</text>
+    <rect x="20" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Afternoon</text>
+    <circle cx="160" cy="142" r="4" fill="#4e79a7" />
+    <path d="M165 142 L180 123" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="108" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="123" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Work</text>
+    <path d="M165 142 L180 157" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="142" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="157" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Lunch</text>
+    <rect x="20" y="212" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="230" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Evening</text>
+    <circle cx="160" cy="230" r="4" fill="#4e79a7" />
+    <path d="M165 230 L180 211" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="196" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="211" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dinner</text>
+    <path d="M165 230 L180 245" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="230" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="245" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Relax</text>
+  </g>
+</svg>

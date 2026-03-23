@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 536" width="380" height="536">
+  <g transform="translate(20, 20)">
+    <text x="170" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">History of Computing</text>
+    <path d="M160 46 L160 486" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="46" width="320" height="440" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="20" y="72" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1940s</text>
+    <circle cx="160" cy="90" r="4" fill="#4e79a7" />
+    <path d="M165 90 L180 71" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="56" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="71" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ENIAC</text>
+    <path d="M165 90 L180 105" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="90" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="105" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Colossus</text>
+    <rect x="20" y="160" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="178" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1950s</text>
+    <circle cx="160" cy="178" r="4" fill="#4e79a7" />
+    <path d="M165 178 L180 159" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="144" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="159" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">FORTRAN</text>
+    <path d="M165 178 L180 193" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="178" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="193" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">LISP</text>
+    <rect x="20" y="248" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="266" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1960s</text>
+    <circle cx="160" cy="266" r="4" fill="#4e79a7" />
+    <path d="M165 266 L180 247" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="232" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="247" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ARPANET</text>
+    <path d="M165 266 L180 281" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="266" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="281" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Unix</text>
+    <rect x="20" y="336" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="354" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1970s</text>
+    <circle cx="160" cy="354" r="4" fill="#4e79a7" />
+    <path d="M165 354 L180 335" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="320" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="335" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C Language</text>
+    <path d="M165 354 L180 369" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="354" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="369" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ethernet</text>
+    <rect x="20" y="424" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="442" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1980s</text>
+    <circle cx="160" cy="442" r="4" fill="#4e79a7" />
+    <path d="M165 442 L180 423" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="408" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="423" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">IBM PC</text>
+    <path d="M165 442 L180 457" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="442" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="457" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Macintosh</text>
+  </g>
+</svg>
