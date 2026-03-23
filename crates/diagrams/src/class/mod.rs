@@ -101,13 +101,17 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             render_edge_label(scene, mid, label, edge.label_size, theme);
         }
 
-        // Cardinality text near endpoints, offset perpendicular to edge direction
+        // Cardinality text near endpoints. Both use the forward edge
+        // direction for perpendicular offset (same side). The "to" end
+        // reverses the along-offset to move inward from its endpoint.
+        let fwd_dx = edge.points.last().unwrap().x - edge.points[0].x;
+        let fwd_dy = edge.points.last().unwrap().y - edge.points[0].y;
         if let Some(card) = &edge_layout.cardinality_from {
-            render_cardinality(scene, edge.points[0], edge.points[1], card, theme);
+            render_cardinality(scene, edge.points[0], fwd_dx, fwd_dy, 1.0, card, theme);
         }
         if let Some(card) = &edge_layout.cardinality_to {
             let n = edge.points.len();
-            render_cardinality(scene, edge.points[n - 1], edge.points[n - 2], card, theme);
+            render_cardinality(scene, edge.points[n - 1], fwd_dx, fwd_dy, -1.0, card, theme);
         }
     }
 }
@@ -123,33 +127,30 @@ fn relation_to_marker(rt: RelationType) -> Option<MarkerType> {
     }
 }
 
-/// Offset along the edge from the endpoint (clears marker arrowhead).
-const CARDINALITY_ALONG: f64 = 20.0;
-/// Perpendicular offset from the edge line.
-const CARDINALITY_PERP: f64 = 10.0;
+/// Perpendicular offset from the edge line (right side of forward direction).
+const CARDINALITY_PERP: f64 = 12.0;
+/// Offset along the edge toward midpoint (pulls label away from node boundary).
+const CARDINALITY_INWARD: f64 = 14.0;
 
-fn render_cardinality(scene: &mut Scene, endpoint: Point, neighbor: Point, text: &str, theme: &Theme) {
-    // Edge direction from endpoint toward interior
-    let dx = neighbor.x - endpoint.x;
-    let dy = neighbor.y - endpoint.y;
-    let len = (dx * dx + dy * dy).sqrt();
+fn render_cardinality(scene: &mut Scene, endpoint: Point, fwd_dx: f64, fwd_dy: f64, inward_sign: f64, text: &str, theme: &Theme) {
+    let len = (fwd_dx * fwd_dx + fwd_dy * fwd_dy).sqrt();
     if len < 1e-6 { return; }
 
-    // Unit tangent (along edge) and normal (perpendicular, left side)
-    let tx = dx / len;
-    let ty = dy / len;
-    let nx = -ty;
-    let ny = tx;
+    let tx = fwd_dx / len;
+    let ty = fwd_dy / len;
+    let nx = fwd_dy / len;
+    let ny = -fwd_dx / len;
 
+    // Along-edge: "from" goes forward (+1), "to" goes backward (-1) — both toward midpoint
     let pos = Point::new(
-        endpoint.x + tx * CARDINALITY_ALONG + nx * CARDINALITY_PERP,
-        endpoint.y + ty * CARDINALITY_ALONG + ny * CARDINALITY_PERP,
+        endpoint.x + tx * CARDINALITY_INWARD * inward_sign + nx * CARDINALITY_PERP,
+        endpoint.y + ty * CARDINALITY_INWARD * inward_sign + ny * CARDINALITY_PERP,
     );
 
     scene.push(Primitive::Text {
         position: pos,
         content: text.to_string(),
-        anchor: TextAnchor::Middle,
+        anchor: TextAnchor::Start,
         style: TextStyle {
             font_size: theme.font_size_small,
             fill: Some(theme.edge_label_text),
