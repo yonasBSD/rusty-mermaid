@@ -1,0 +1,17 @@
+requirementDiagram
+
+    requirement REQ_001 {
+        id: SYS_001
+        text: "System shall process data in real-time"
+        risk: high
+        verifymethod: test
+    }
+
+    functionalRequirement REQ_002 {
+        id: SYS_002
+        text: "UI must respond within 100ms"
+        risk: medium
+        verifymethod: analysis
+    }
+
+    REQ_001 - contains -> REQ_002

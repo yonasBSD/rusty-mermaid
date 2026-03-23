@@ -1,0 +1,16 @@
+requirementDiagram
+    direction LR
+
+    requirement REQ {
+        id: R1
+        text: "Horizontal layout"
+        risk: medium
+        verifymethod: test
+    }
+
+    element COMP {
+        type: Service
+        docref: "api_spec.md"
+    }
+
+    REQ - traces -> COMP

@@ -1,0 +1,25 @@
+requirementDiagram
+
+    requirement A {
+        id: A
+        text: "Source"
+    }
+    requirement B {
+        id: B
+        text: "Target"
+    }
+    requirement C {
+        id: C
+        text: "Another"
+    }
+    element E {
+        type: Component
+    }
+
+    A - contains -> B
+    A - copies -> C
+    B - derives -> C
+    C - satisfies -> A
+    E <- verifies - B
+    A - refines -> E
+    C - traces -> E

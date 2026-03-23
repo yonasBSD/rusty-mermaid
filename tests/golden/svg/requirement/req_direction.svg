@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 498 180.8" width="498" height="180.8">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M229.8 70.4 L234.68 70.4 C239.57 70.4 249.33 70.4 259.1 70.4 C268.87 70.4 278.63 70.4 283.52 70.4 L286 70.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <rect x="250.8" y="58" width="16.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="259.1" y="70.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;traces&gt;&gt;</text>
+    <rect x="288.4" y="20.8" width="169.6" height="99.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="373.2" y="40.56" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">COMP</text>
+    <text x="373.2" y="57.36" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;Element&gt;&gt;</text>
+    <text x="373.2" y="71.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Type: Service</text>
+    <text x="373.2" y="85.92" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Doc: api_spec.md</text>
+    <rect x="0" y="0" width="229.8" height="140.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="114.9" y="19.76" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">REQ</text>
+    <text x="114.9" y="36.56" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;Requirement&gt;&gt;</text>
+    <text x="114.9" y="50.84" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Id: R1</text>
+    <text x="114.9" y="65.12" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Text: Horizontal layout</text>
+    <text x="114.9" y="79.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Risk: Medium</text>
+    <text x="114.9" y="93.68" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Verify: Test</text>
+  </g>
+</svg>

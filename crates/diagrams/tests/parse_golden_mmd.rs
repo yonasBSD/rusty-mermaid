@@ -5,6 +5,7 @@ use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
 use rusty_mermaid_diagrams::state::parser as state_parser;
 use rusty_mermaid_diagrams::class::parser as class_parser;
 use rusty_mermaid_diagrams::er::parser as er_parser;
+use rusty_mermaid_diagrams::requirement::parser as req_parser;
 
 fn golden_dir() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -141,3 +142,23 @@ parse_er!(er_cardinality);
 parse_er!(er_non_identifying);
 parse_er!(er_complex);
 parse_er!(er_direction);
+
+macro_rules! parse_requirement {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("requirement").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            let diagram = req_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            assert!(!diagram.requirements.is_empty() || !diagram.elements.is_empty(),
+                "{} should have requirements or elements", stringify!($name));
+        }
+    };
+}
+
+parse_requirement!(req_basic);
+parse_requirement!(req_all_types);
+parse_requirement!(req_relationships);
+parse_requirement!(req_direction);

@@ -4,6 +4,7 @@
 use rusty_mermaid_core::Shape;
 use rusty_mermaid_diagrams::class::parser as class_parser;
 use rusty_mermaid_diagrams::er::parser as er_parser;
+use rusty_mermaid_diagrams::requirement::parser as req_parser;
 use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
 use rusty_mermaid_diagrams::sequence::parser as sequence_parser;
 use rusty_mermaid_diagrams::state::parser as state_parser;
@@ -369,4 +370,37 @@ fn er_complex_entity_count() {
     let d = er_parser::parse(&read_golden("er", "er_complex")).unwrap();
     assert_eq!(d.entities.len(), 5, "CUSTOMER, ORDER, LINE-ITEM, PRODUCT, CATEGORY");
     assert_eq!(d.relationships.len(), 4);
+}
+
+// ── Requirement IR assertions ───────────────────────────────────────
+
+#[test]
+fn req_basic_structure() {
+    let d = req_parser::parse(&read_golden("requirement", "req_basic")).unwrap();
+    assert_eq!(d.requirements.len(), 2);
+    assert_eq!(d.relationships.len(), 1);
+    assert_eq!(d.requirements[0].risk, Some(rusty_mermaid_diagrams::requirement::ir::RiskLevel::High));
+}
+
+#[test]
+fn req_all_types_coverage() {
+    let d = req_parser::parse(&read_golden("requirement", "req_all_types")).unwrap();
+    assert!(d.requirements.len() >= 4, "should have multiple requirement types");
+    assert_eq!(d.elements.len(), 1, "should have one element");
+    assert!(d.relationships.len() >= 5, "should have multiple relationship types");
+}
+
+#[test]
+fn req_all_relationship_types() {
+    let d = req_parser::parse(&read_golden("requirement", "req_relationships")).unwrap();
+    assert_eq!(d.relationships.len(), 7, "all 7 relationship types");
+    use rusty_mermaid_diagrams::requirement::ir::RelationshipType;
+    let types: Vec<_> = d.relationships.iter().map(|r| r.rel_type).collect();
+    assert!(types.contains(&RelationshipType::Contains));
+    assert!(types.contains(&RelationshipType::Copies));
+    assert!(types.contains(&RelationshipType::Derives));
+    assert!(types.contains(&RelationshipType::Satisfies));
+    assert!(types.contains(&RelationshipType::Verifies));
+    assert!(types.contains(&RelationshipType::Refines));
+    assert!(types.contains(&RelationshipType::Traces));
 }

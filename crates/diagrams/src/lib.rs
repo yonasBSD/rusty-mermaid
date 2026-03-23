@@ -15,6 +15,9 @@ pub mod class;
 #[cfg(feature = "er")]
 pub mod er;
 
+#[cfg(feature = "requirement")]
+pub mod requirement;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -26,6 +29,7 @@ pub enum DiagramKind {
     Sequence,
     Class,
     Er,
+    Requirement,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -50,11 +54,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("erDiagram") {
         return Some(DiagramKind::Er);
     }
+    if line.starts_with("requirementDiagram") {
+        return Some(DiagramKind::Requirement);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -102,7 +109,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -151,6 +158,12 @@ pub fn render_to_scene_themed(
             let diagram = er::parser::parse(input)?;
             let layout = er::bridge::layout(&diagram);
             Ok(er::to_scene_themed(&layout, theme))
+        }
+        #[cfg(feature = "requirement")]
+        DiagramKind::Requirement => {
+            let diagram = requirement::parser::parse(input)?;
+            let layout = requirement::bridge::layout(&diagram);
+            Ok(requirement::to_scene_themed(&layout, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(

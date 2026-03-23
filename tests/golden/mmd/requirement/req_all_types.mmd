@@ -1,0 +1,40 @@
+requirementDiagram
+
+    requirement REQ_01 {
+        id: R01
+        text: "Base requirement"
+        risk: low
+        verifymethod: inspection
+    }
+
+    functionalRequirement FREQ_01 {
+        id: FR01
+        text: "Functional spec"
+        risk: medium
+        verifymethod: test
+    }
+
+    performanceRequirement PREQ_01 {
+        id: PR01
+        text: "Performance target"
+        risk: high
+        verifymethod: demonstration
+    }
+
+    designConstraint DC_01 {
+        id: DC01
+        text: "Budget constraint"
+        risk: low
+        verifymethod: analysis
+    }
+
+    element COMP_01 {
+        type: Module
+        docref: "arch_spec.pdf"
+    }
+
+    REQ_01 - contains -> FREQ_01
+    FREQ_01 - derives -> PREQ_01
+    DC_01 - satisfies -> REQ_01
+    COMP_01 <- traces - FREQ_01
+    PREQ_01 - verifies -> COMP_01
