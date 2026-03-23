@@ -18,6 +18,9 @@ pub mod er;
 #[cfg(feature = "requirement")]
 pub mod requirement;
 
+#[cfg(feature = "pie")]
+pub mod pie;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -30,6 +33,7 @@ pub enum DiagramKind {
     Class,
     Er,
     Requirement,
+    Pie,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -57,11 +61,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("requirementDiagram") {
         return Some(DiagramKind::Requirement);
     }
+    if line.starts_with("pie") {
+        return Some(DiagramKind::Pie);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -109,7 +116,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -164,6 +171,11 @@ pub fn render_to_scene_themed(
             let diagram = requirement::parser::parse(input)?;
             let layout = requirement::bridge::layout(&diagram);
             Ok(requirement::to_scene_themed(&layout, theme))
+        }
+        #[cfg(feature = "pie")]
+        DiagramKind::Pie => {
+            let chart = pie::parser::parse(input)?;
+            Ok(pie::to_scene_themed(&chart, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
@@ -230,8 +242,13 @@ mod tests {
     }
 
     #[test]
+    fn detect_pie() {
+        assert_eq!(detect("pie\n    \"A\" : 50"), Some(DiagramKind::Pie));
+    }
+
+    #[test]
     fn detect_unknown() {
-        assert_eq!(detect("pie\n    title Chart"), None);
+        assert_eq!(detect("unknownDiagram\n    stuff"), None);
     }
 
     #[cfg(feature = "flowchart")]

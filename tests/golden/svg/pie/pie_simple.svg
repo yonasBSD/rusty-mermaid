@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" width="620" height="420">
+  <g transform="translate(20, 20)">
+    <path d="M180 200 L180 60 A140 140 0 1 1 46.85 243.26 Z" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <text x="253.62" y="253.49" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">70%</text>
+    <path d="M180 200 L46.85 243.26 A140 140 0 0 1 180 60 Z" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <text x="106.38" y="146.51" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">30%</text>
+    <rect x="360" y="180" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="380" y="186" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Yes</text>
+    <rect x="360" y="200" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="380" y="206" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No</text>
+  </g>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" width="620" height="420">
+  <g transform="translate(20, 20)">
+    <text x="180" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Pet Adoption</text>
+    <path d="M180 200 L180 60 A140 140 0 1 1 41.47 220.22 Z" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <text x="248.84" y="259.52" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">73%</text>
+    <path d="M180 200 L41.47 220.22 A140 140 0 0 1 88.75 93.83 Z" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <text x="94.77" y="168.12" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">16%</text>
+    <path d="M180 200 L88.75 93.83 A140 140 0 0 1 108.93 79.38 Z" fill="#e15759" stroke="#ffffff" stroke-width="2" />
+    <text x="127.04" y="126" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">3%</text>
+    <path d="M180 200 L108.93 79.38 A140 140 0 0 1 163.47 60.98 Z" fill="#76b7b2" stroke="#ffffff" stroke-width="2" />
+    <text x="150.91" y="113.78" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">7%</text>
+    <path d="M180 200 L163.47 60.98 A140 140 0 0 1 180 60 Z" fill="#59a14f" stroke="#ffffff" stroke-width="2" />
+    <text x="174.62" y="109.16" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">2%</text>
+    <rect x="360" y="150" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="380" y="156" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dogs</text>
+    <rect x="360" y="170" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="380" y="176" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cats</text>
+    <rect x="360" y="190" width="12" height="12" rx="2" ry="2" fill="#e15759" />
+    <text x="380" y="196" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Birds</text>
+    <rect x="360" y="210" width="12" height="12" rx="2" ry="2" fill="#76b7b2" />
+    <text x="380" y="216" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Fish</text>
+    <rect x="360" y="230" width="12" height="12" rx="2" ry="2" fill="#59a14f" />
+    <text x="380" y="236" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Reptiles</text>
+  </g>
+</svg>
