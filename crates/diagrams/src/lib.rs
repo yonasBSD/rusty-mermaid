@@ -27,6 +27,9 @@ pub mod timeline;
 #[cfg(feature = "kanban")]
 pub mod kanban;
 
+#[cfg(feature = "gantt")]
+pub mod gantt;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -42,6 +45,7 @@ pub enum DiagramKind {
     Pie,
     Timeline,
     Kanban,
+    Gantt,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -51,38 +55,23 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
         .map(str::trim)
         .find(|l| !l.is_empty() && !l.starts_with("%%"))?;
 
-    if line.starts_with("graph") || line.starts_with("flowchart") {
-        return Some(DiagramKind::Flowchart);
+    match line {
+        l if l.starts_with("graph") || l.starts_with("flowchart") => Some(DiagramKind::Flowchart),
+        l if l.starts_with("stateDiagram") => Some(DiagramKind::State),
+        l if l.starts_with("sequenceDiagram") => Some(DiagramKind::Sequence),
+        l if l.starts_with("classDiagram") => Some(DiagramKind::Class),
+        l if l.starts_with("erDiagram") => Some(DiagramKind::Er),
+        l if l.starts_with("requirementDiagram") => Some(DiagramKind::Requirement),
+        l if l.starts_with("pie") => Some(DiagramKind::Pie),
+        l if l.starts_with("timeline") => Some(DiagramKind::Timeline),
+        l if l.starts_with("kanban") => Some(DiagramKind::Kanban),
+        l if l.starts_with("gantt") => Some(DiagramKind::Gantt),
+        _ => None,
     }
-    if line.starts_with("stateDiagram") {
-        return Some(DiagramKind::State);
-    }
-    if line.starts_with("sequenceDiagram") {
-        return Some(DiagramKind::Sequence);
-    }
-    if line.starts_with("classDiagram") {
-        return Some(DiagramKind::Class);
-    }
-    if line.starts_with("erDiagram") {
-        return Some(DiagramKind::Er);
-    }
-    if line.starts_with("requirementDiagram") {
-        return Some(DiagramKind::Requirement);
-    }
-    if line.starts_with("pie") {
-        return Some(DiagramKind::Pie);
-    }
-    if line.starts_with("timeline") {
-        return Some(DiagramKind::Timeline);
-    }
-    if line.starts_with("kanban") {
-        return Some(DiagramKind::Kanban);
-    }
-    None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -130,7 +119,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -200,6 +189,11 @@ pub fn render_to_scene_themed(
         DiagramKind::Kanban => {
             let board = kanban::parser::parse(input)?;
             Ok(kanban::to_scene_themed(&board, theme))
+        }
+        #[cfg(feature = "gantt")]
+        DiagramKind::Gantt => {
+            let chart = gantt::parser::parse(input)?;
+            Ok(gantt::to_scene_themed(&chart, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
