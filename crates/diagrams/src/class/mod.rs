@@ -128,9 +128,9 @@ fn relation_to_marker(rt: RelationType) -> Option<MarkerType> {
 }
 
 /// Perpendicular offset from the edge line (right side of forward direction).
-const CARDINALITY_PERP: f64 = 12.0;
+const CARDINALITY_PERP: f64 = 9.0;
 /// Offset along the edge toward midpoint (pulls label away from node boundary).
-const CARDINALITY_INWARD: f64 = 14.0;
+const CARDINALITY_INWARD: f64 = 9.0;
 
 fn render_cardinality(scene: &mut Scene, endpoint: Point, fwd_dx: f64, fwd_dy: f64, inward_sign: f64, text: &str, theme: &Theme) {
     let len = (fwd_dx * fwd_dx + fwd_dy * fwd_dy).sqrt();
