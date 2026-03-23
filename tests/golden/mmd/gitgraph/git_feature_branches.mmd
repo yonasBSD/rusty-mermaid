@@ -1,0 +1,13 @@
+gitGraph
+    commit id: "init"
+    commit id: "setup"
+    branch feature-auth
+    commit id: "auth-1"
+    commit id: "auth-2"
+    checkout main
+    branch feature-api
+    commit id: "api-1"
+    checkout main
+    merge feature-auth tag: "v0.2"
+    merge feature-api
+    commit tag: "v1.0"

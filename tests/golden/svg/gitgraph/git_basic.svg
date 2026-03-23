@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 557.3 200" width="557.3" height="200">
+  <g transform="translate(20, 20)">
+    <rect x="20" y="90" width="67.3" height="20" rx="4" ry="4" fill="#f28e2c" />
+    <text x="53.65" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">develop</text>
+    <rect x="20" y="50" width="47.03" height="20" rx="4" ry="4" fill="#4e79a7" />
+    <text x="43.51" y="60" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">main</text>
+    <path d="M212.3 100 L262.3 100" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <path d="M112.3 60 L162.3 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M162.3 60 L312.3 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M312.3 60 L362.3 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M362.3 60 L412.3 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M162.3 60 C187.3 60 187.3 100 212.3 100" fill="none" stroke="#f28e2c" stroke-width="2" stroke-dasharray="5 3" />
+    <path d="M262.3 100 C312.3 100 312.3 60 362.3 60" fill="none" stroke="#4e79a7" stroke-width="2" stroke-dasharray="5 3" />
+    <circle cx="112.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <circle cx="162.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <circle cx="212.3" cy="100" r="8" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <circle cx="262.3" cy="100" r="8" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <circle cx="312.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <circle cx="362.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <circle cx="362.3" cy="60" r="2.8" fill="#ffffff" />
+    <circle cx="412.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <rect x="392.79" y="25" width="39.03" height="18" rx="3" ry="3" fill="#ffffc8dc" stroke="#4e79a7" stroke-width="1" />
+    <text x="412.3" y="34" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">v1.0</text>
+  </g>
+</svg>
