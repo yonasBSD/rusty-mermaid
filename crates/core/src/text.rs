@@ -55,6 +55,25 @@ pub const fn char_width_ratio(ch: char) -> f64 {
     }
 }
 
+impl SimpleTextMeasure {
+    /// Measure text width/height WITHOUT stripping HTML/markdown markup.
+    /// Use for text that contains literal `<` `>` characters (e.g. `<<interface>>`).
+    pub fn measure_raw(text: &str, style: &TextStyle) -> (f64, f64) {
+        let defaults = Self::default();
+        let scale = style.font_size / crate::constants::REFERENCE_FONT_SIZE;
+        let mut max_width: f64 = 0.0;
+        let mut line_count: usize = 0;
+        for line in text.split('\n') {
+            line_count += 1;
+            let w: f64 = line.chars().map(|c| char_width_ratio(c)).sum();
+            max_width = max_width.max(w);
+        }
+        let width = max_width * defaults.avg_char_width * scale;
+        let height = line_count as f64 * defaults.line_height * scale;
+        (width, height)
+    }
+}
+
 impl TextMeasure for SimpleTextMeasure {
     fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64) {
         let scale = style.font_size / crate::constants::REFERENCE_FONT_SIZE;

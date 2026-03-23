@@ -6,7 +6,7 @@
   </defs>
   <g transform="translate(20, 20)">
     <path d="M229.8 70.4 L234.68 70.4 C239.57 70.4 249.33 70.4 259.1 70.4 C268.87 70.4 278.63 70.4 283.52 70.4 L286 70.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
-    <rect x="250.8" y="58" width="16.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <rect x="218.24" y="59.2" width="81.71" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="259.1" y="70.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;traces&gt;&gt;</text>
     <rect x="288.4" y="20.8" width="169.6" height="99.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="373.2" y="40.56" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">COMP</text>

@@ -299,17 +299,11 @@ fn compute_class_dims(
     let method_widths = class.methods.iter()
         .map(|m| measurer.measure(&m.display_text(), style).0)
         .fold(0.0f64, f64::max);
-    // Measure annotation at its actual render size (font_size_small = 11px),
-    // not the default 14px. Bypass measurer.measure() which strips <<>> as HTML.
-    let char_w = rusty_mermaid_core::SimpleTextMeasure::default().avg_char_width;
-    let small_scale = 11.0 / rusty_mermaid_core::constants::REFERENCE_FONT_SIZE;
+    // Measure annotation at its actual render size (font_size_small = 11px).
+    // Uses measure_raw to avoid strip_markup eating <<>> as HTML tags.
+    let small_style = TextStyle { font_size: 11.0, ..style.clone() };
     let annotation_w = class.annotations.first()
-        .map(|a| {
-            let display = format!("<<{a}>>");
-            display.chars()
-                .map(|c| rusty_mermaid_core::text::char_width_ratio(c) * char_w * small_scale)
-                .sum::<f64>()
-        })
+        .map(|a| SimpleTextMeasure::measure_raw(&format!("<<{a}>>"), &small_style).0)
         .unwrap_or(0.0);
 
     let content_w = title_w.max(member_widths).max(method_widths).max(annotation_w);

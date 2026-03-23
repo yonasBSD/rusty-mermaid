@@ -6,7 +6,7 @@
   </defs>
   <g transform="translate(20, 20)">
     <path d="M205.2 140.8 L205.2 146.37 C205.2 151.93 205.2 163.07 205.2 174.2 C205.2 185.33 205.2 196.47 205.2 202.03 L205.2 205.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="196.9" y="161.8" width="16.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <rect x="156.97" y="163" width="96.46" height="22.4" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
     <text x="205.2" y="174.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;contains&gt;&gt;</text>
     <rect x="0" y="0" width="410.4" height="140.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
     <text x="205.2" y="19.76" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">REQ_001</text>

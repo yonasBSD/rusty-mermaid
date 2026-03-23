@@ -65,9 +65,9 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         if let Some(vm) = &req.verify_method { lines.push(format!("Verify: {}", verify_label(*vm))); }
 
         let max_line_w = lines.iter()
-            .map(|l| measurer.measure(l, &style).0)
+            .map(|l| SimpleTextMeasure::measure_raw(l, &style).0)
             .fold(0.0f64, f64::max);
-        let name_w = measurer.measure(&req.name, &style).0;
+        let name_w = SimpleTextMeasure::measure_raw(&req.name, &style).0;
         let content_w = max_line_w.max(name_w);
         let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
         let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
@@ -85,9 +85,9 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         if let Some(d) = &elem.docref { lines.push(format!("Doc: {d}")); }
 
         let max_line_w = lines.iter()
-            .map(|l| measurer.measure(l, &style).0)
+            .map(|l| SimpleTextMeasure::measure_raw(l, &style).0)
             .fold(0.0f64, f64::max);
-        let name_w = measurer.measure(&elem.name, &style).0;
+        let name_w = SimpleTextMeasure::measure_raw(&elem.name, &style).0;
         let content_w = max_line_w.max(name_w);
         let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
         let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
@@ -166,7 +166,8 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         }
 
         let label_text = format!("<<{}>>", rel.rel_type.label());
-        let label_size = Some(measurer.measure(&label_text, &style));
+        let label_style = TextStyle { font_size: rusty_mermaid_core::Theme::default().font_size_edge_label, ..style.clone() };
+        let label_size = Some(SimpleTextMeasure::measure_raw(&label_text, &label_style));
 
         edges.push(ReqEdgeLayout {
             edge: EdgeLayout {
