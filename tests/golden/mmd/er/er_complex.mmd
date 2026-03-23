@@ -1,0 +1,35 @@
+erDiagram
+    CUSTOMER {
+        int id PK
+        string firstName
+        string lastName
+        string email UK
+    }
+    ORDER {
+        int id PK
+        date orderDate
+        string status
+        int customerId FK
+    }
+    LINE-ITEM {
+        int id PK
+        int orderId FK
+        int productId FK
+        int quantity
+        float unitPrice
+    }
+    PRODUCT {
+        int id PK
+        string name
+        string description
+        float price
+        int categoryId FK
+    }
+    CATEGORY {
+        int id PK
+        string name
+    }
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--|{ LINE-ITEM : contains
+    PRODUCT ||--o{ LINE-ITEM : "appears in"
+    CATEGORY ||--o{ PRODUCT : groups

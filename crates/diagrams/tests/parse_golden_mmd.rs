@@ -3,6 +3,8 @@ use std::path::Path;
 
 use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
 use rusty_mermaid_diagrams::state::parser as state_parser;
+use rusty_mermaid_diagrams::class::parser as class_parser;
+use rusty_mermaid_diagrams::er::parser as er_parser;
 
 fn golden_dir() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -93,3 +95,49 @@ parse_state!(state_simple);
 parse_state!(state_fork_join);
 parse_state!(state_composite);
 parse_state!(state_choice);
+
+macro_rules! parse_class {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("class").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            let diagram = class_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            assert!(!diagram.classes.is_empty(), "{} should have classes", stringify!($name));
+        }
+    };
+}
+
+parse_class!(class_basic);
+parse_class!(class_members);
+parse_class!(class_relationships);
+parse_class!(class_annotations);
+parse_class!(class_generics);
+parse_class!(class_namespaces);
+parse_class!(class_cardinality);
+parse_class!(class_styling);
+parse_class!(class_direction);
+parse_class!(class_complex);
+
+macro_rules! parse_er {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("er").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            let diagram = er_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            assert!(!diagram.entities.is_empty(), "{} should have entities", stringify!($name));
+        }
+    };
+}
+
+parse_er!(er_basic);
+parse_er!(er_attributes);
+parse_er!(er_cardinality);
+parse_er!(er_non_identifying);
+parse_er!(er_complex);
+parse_er!(er_direction);

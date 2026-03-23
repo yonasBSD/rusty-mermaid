@@ -2,6 +2,8 @@
 //! node counts, edge counts, shapes, and connectivity.
 
 use rusty_mermaid_core::Shape;
+use rusty_mermaid_diagrams::class::parser as class_parser;
+use rusty_mermaid_diagrams::er::parser as er_parser;
 use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
 use rusty_mermaid_diagrams::sequence::parser as sequence_parser;
 use rusty_mermaid_diagrams::state::parser as state_parser;
@@ -293,4 +295,78 @@ fn sequence_autonumber() {
     let text = &read_golden("sequence", "seq_autonumber");
     let d = sequence_parser::parse(text).unwrap();
     assert!(d.autonumber.is_some(), "autonumber should be enabled");
+}
+
+// ── Class IR assertions ─────────────────────────────────────────────
+
+#[test]
+fn class_basic_structure() {
+    let d = class_parser::parse(&read_golden("class", "class_basic")).unwrap();
+    assert_eq!(d.classes.len(), 2, "Animal + Dog");
+    assert_eq!(d.relationships.len(), 1);
+    assert!(!d.classes[0].members.is_empty());
+    assert!(!d.classes[0].methods.is_empty());
+}
+
+#[test]
+fn class_all_relationship_types() {
+    let d = class_parser::parse(&read_golden("class", "class_relationships")).unwrap();
+    assert!(d.relationships.len() >= 5, "should have all relationship types");
+}
+
+#[test]
+fn class_generics_parsed() {
+    let d = class_parser::parse(&read_golden("class", "class_generics")).unwrap();
+    let list = d.class("List").unwrap();
+    assert!(list.generic_type.is_some(), "List should have generic type");
+}
+
+#[test]
+fn class_namespaces_parsed() {
+    let d = class_parser::parse(&read_golden("class", "class_namespaces")).unwrap();
+    assert!(!d.namespaces.is_empty(), "should have namespaces");
+}
+
+// ── ER IR assertions ────────────────────────────────────────────────
+
+#[test]
+fn er_basic_structure() {
+    let d = er_parser::parse(&read_golden("er", "er_basic")).unwrap();
+    assert_eq!(d.entities.len(), 2, "CUSTOMER + ORDER");
+    assert_eq!(d.relationships.len(), 1);
+    assert!(!d.entities[0].attributes.is_empty());
+}
+
+#[test]
+fn er_all_cardinality_types() {
+    let d = er_parser::parse(&read_golden("er", "er_cardinality")).unwrap();
+    assert_eq!(d.relationships.len(), 4);
+    use rusty_mermaid_diagrams::er::ir::Cardinality;
+    let cards: Vec<_> = d.relationships.iter()
+        .flat_map(|r| [r.cardinality_a, r.cardinality_b])
+        .collect();
+    assert!(cards.contains(&Cardinality::ExactlyOne));
+    assert!(cards.contains(&Cardinality::ZeroOrMore));
+    assert!(cards.contains(&Cardinality::OneOrMore));
+    assert!(cards.contains(&Cardinality::ZeroOrOne));
+}
+
+#[test]
+fn er_attributes_with_keys() {
+    let d = er_parser::parse(&read_golden("er", "er_attributes")).unwrap();
+    let product = d.entity("PRODUCT").unwrap();
+    use rusty_mermaid_diagrams::er::ir::KeyType;
+    let has_pk = product.attributes.iter().any(|a| a.keys.contains(&KeyType::PrimaryKey));
+    let has_fk = product.attributes.iter().any(|a| a.keys.contains(&KeyType::ForeignKey));
+    let has_uk = product.attributes.iter().any(|a| a.keys.contains(&KeyType::UniqueKey));
+    assert!(has_pk, "should have PK attribute");
+    assert!(has_fk, "should have FK attribute");
+    assert!(has_uk, "should have UK attribute");
+}
+
+#[test]
+fn er_complex_entity_count() {
+    let d = er_parser::parse(&read_golden("er", "er_complex")).unwrap();
+    assert_eq!(d.entities.len(), 5, "CUSTOMER, ORDER, LINE-ITEM, PRODUCT, CATEGORY");
+    assert_eq!(d.relationships.len(), 4);
 }

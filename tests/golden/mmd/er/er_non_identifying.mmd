@@ -1,0 +1,11 @@
+erDiagram
+    PERSON {
+        int id PK
+        string name
+    }
+    ADDRESS {
+        int id PK
+        string street
+        string city
+    }
+    PERSON }|..|{ ADDRESS : "lives at"

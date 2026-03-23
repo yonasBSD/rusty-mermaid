@@ -1,0 +1,10 @@
+erDiagram
+    PRODUCT {
+        int productId PK "Auto-incremented"
+        string name
+        float price
+        string category FK
+        string sku UK "Stock keeping unit"
+        int quantity
+        boolean active
+    }

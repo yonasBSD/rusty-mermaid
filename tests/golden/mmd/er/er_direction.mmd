@@ -1,0 +1,12 @@
+erDiagram
+    direction LR
+    USER {
+        int id PK
+        string name
+    }
+    PROFILE {
+        int id PK
+        string bio
+        int userId FK
+    }
+    USER ||--|| PROFILE : has

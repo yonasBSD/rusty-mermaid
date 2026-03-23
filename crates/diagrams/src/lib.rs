@@ -12,6 +12,9 @@ pub mod sequence;
 #[cfg(feature = "class")]
 pub mod class;
 
+#[cfg(feature = "er")]
+pub mod er;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -22,6 +25,7 @@ pub enum DiagramKind {
     State,
     Sequence,
     Class,
+    Er,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -43,11 +47,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("classDiagram") {
         return Some(DiagramKind::Class);
     }
+    if line.starts_with("erDiagram") {
+        return Some(DiagramKind::Er);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -95,7 +102,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -138,6 +145,12 @@ pub fn render_to_scene_themed(
             let diagram = class::parser::parse(input)?;
             let layout = class::bridge::layout(&diagram);
             Ok(class::to_scene_themed(&layout, theme))
+        }
+        #[cfg(feature = "er")]
+        DiagramKind::Er => {
+            let diagram = er::parser::parse(input)?;
+            let layout = er::bridge::layout(&diagram);
+            Ok(er::to_scene_themed(&layout, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
