@@ -35,8 +35,8 @@ pub fn to_scene(diagram: &TimelineDiagram) -> Scene {
 
 pub fn to_scene_themed(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     match diagram.direction {
-        Direction::TB => render_tb(diagram, theme),
-        _ => render_lr(diagram, theme),
+        Direction::TB => render_horizontal(diagram, theme), // TB = vertical axis (tasks top-to-bottom)
+        _ => render_vertical(diagram, theme),               // LR default = horizontal axis (time left-to-right)
     }
 }
 
@@ -56,7 +56,7 @@ fn title_width(title: &str, theme: &Theme) -> f64 {
 
 // ── LR layout: vertical axis, tasks left, events right ──
 
-fn render_lr(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     let axis_x = MARGIN + TASK_BOX_W + GAP;
     let mut y = MARGIN;
 
@@ -141,7 +141,7 @@ fn render_lr(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
 
 // ── TB layout: horizontal axis, tasks above, events below ──
 
-fn render_tb(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     let title_offset = if diagram.title.is_some() { theme.font_size_title + GAP * 2.0 } else { 0.0 };
     let has_sections = diagram.sections.iter().any(|s| s.name.is_some());
     let section_label_h = if has_sections { SECTION_HEADER_H + GAP } else { 0.0 };
