@@ -109,12 +109,13 @@ fn render_lr(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     render_axis_line(&mut scene, Point::new(axis_x, axis_start), Point::new(axis_x, axis_end), theme);
 
     // Sections
+    let label_x = MARGIN + 8.0; // left-aligned, away from axis
     for (start, end, name, si) in &section_ranges {
         let sec_cy = (*start + *end) / 2.0;
         let sec_h = *end - *start + GAP;
         render_section_bg(&mut scene, width / 2.0, sec_cy, width - MARGIN, sec_h, *si);
         if let Some(name) = name {
-            render_section_label(&mut scene, axis_x, *start + SECTION_HEADER_H * 0.5, name, *si, theme);
+            render_section_label_left(&mut scene, label_x, *start + SECTION_HEADER_H * 0.4, name, *si, theme);
         }
     }
 
@@ -275,6 +276,21 @@ fn render_section_bg(scene: &mut Scene, cx: f64, cy: f64, w: f64, h: f64, idx: u
         bbox: BBox::new(cx, cy, w, h),
         rx: 4.0, ry: 4.0,
         style: Style { fill: Some(Color::rgba(color.r, color.g, color.b, 30)), ..Default::default() },
+    });
+}
+
+fn render_section_label_left(scene: &mut Scene, x: f64, y: f64, name: &str, idx: usize, theme: &Theme) {
+    let color = SECTION_COLORS[idx % SECTION_COLORS.len()];
+    scene.push(Primitive::Text {
+        position: Point::new(x, y),
+        content: name.to_string(),
+        anchor: TextAnchor::Start,
+        style: TextStyle {
+            font_size: theme.font_size_label,
+            fill: Some(color),
+            font_weight: rusty_mermaid_core::FontWeight::Bold,
+            ..Default::default()
+        },
     });
 }
 
