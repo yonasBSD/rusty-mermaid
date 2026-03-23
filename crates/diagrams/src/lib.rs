@@ -9,6 +9,9 @@ pub mod state;
 #[cfg(feature = "sequence")]
 pub mod sequence;
 
+#[cfg(feature = "class")]
+pub mod class;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
