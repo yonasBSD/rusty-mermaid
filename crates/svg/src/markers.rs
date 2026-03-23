@@ -11,6 +11,7 @@ fn marker_base_id(marker: MarkerType) -> &'static str {
         MarkerType::Aggregation => "marker-aggregation",
         MarkerType::Composition => "marker-composition",
         MarkerType::Dependency => "marker-dependency",
+        MarkerType::Extension => "marker-extension",
         _ => "arrow-point",
     }
 }
@@ -84,6 +85,12 @@ fn marker_def(marker: MarkerType, color: &str) -> String {
         MarkerType::Dependency => format!(
             r##"<marker id="{id}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
   <path d="M0 0 L10 5 L0 10" fill="none" stroke="{color}" stroke-width="1.5" />
+</marker>
+"##
+        ),
+        MarkerType::Extension => format!(
+            r##"<marker id="{id}" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M0 0 L12 6 L0 12 Z" fill="white" stroke="{color}" stroke-width="1" />
 </marker>
 "##
         ),

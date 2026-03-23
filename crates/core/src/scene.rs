@@ -325,6 +325,7 @@ pub enum MarkerType {
     Aggregation,
     Composition,
     Dependency,
+    Extension,
 }
 
 #[cfg(test)]

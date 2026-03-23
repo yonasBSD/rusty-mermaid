@@ -146,6 +146,21 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
                 stroke_width: 1.5,
             },
         },
+        // Extension: empty triangle (stroked, closed) for inheritance <|--
+        MarkerType::Extension => MarkerGeometry {
+            vb_w: 12.0, vb_h: 12.0,
+            ref_x: 10.0, ref_y: 6.0,
+            marker_w: 8.0, marker_h: 8.0,
+            shape: MarkerShape::FilledStrokedPath {
+                points: vec![
+                    Point::new(0.0, 0.0),
+                    Point::new(12.0, 6.0),
+                    Point::new(0.0, 12.0),
+                ],
+                fill_is_marker_color: false,
+                stroke_width: 1.0,
+            },
+        },
     }
 }
 
@@ -339,6 +354,7 @@ mod tests {
             MarkerType::ArrowPoint, MarkerType::ArrowBarb, MarkerType::ArrowOpen,
             MarkerType::Circle, MarkerType::Cross,
             MarkerType::Aggregation, MarkerType::Composition, MarkerType::Dependency,
+            MarkerType::Extension,
         ];
         for mt in types {
             let g = marker_geometry(mt);
@@ -391,11 +407,23 @@ mod tests {
     }
 
     #[test]
+    fn marker_path_extension_is_fill_and_stroke() {
+        let mp = marker_path(MarkerType::Extension, Point::new(0.0, 0.0), 0.0, 1.5);
+        if let MarkerPath::FillAndStrokePolygon { points, fill_is_marker_color, .. } = mp {
+            assert_eq!(points.len(), 3, "extension triangle has 3 points");
+            assert!(!fill_is_marker_color, "extension triangle has white fill");
+        } else {
+            panic!("expected FillAndStrokePolygon for Extension");
+        }
+    }
+
+    #[test]
     fn marker_path_all_types_produce_nonempty() {
         let types = [
             MarkerType::ArrowPoint, MarkerType::ArrowBarb, MarkerType::ArrowOpen,
             MarkerType::Circle, MarkerType::Cross,
             MarkerType::Aggregation, MarkerType::Composition, MarkerType::Dependency,
+            MarkerType::Extension,
         ];
         for mt in types {
             let mp = marker_path(mt, Point::new(50.0, 50.0), 0.5, 1.5);
