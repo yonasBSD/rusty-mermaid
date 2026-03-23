@@ -161,7 +161,7 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
     let title_height = diagram
         .title
         .as_deref()
-        .map(|t| text.measure(t, &style).1 + 10.0)
+        .map(|t| text.measure(t, &style).height + 10.0)
         .unwrap_or(0.0);
     let actor_top_y = DIAGRAM_MARGIN + title_height;
 
@@ -291,17 +291,17 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
 // ---------------------------------------------------------------------------
 
 fn measure_actor(p: &Participant, text: &impl TextMeasure, style: &TextStyle) -> (f64, f64) {
-    let (tw, th) = text.measure(&p.label, style);
-    let w = (tw + 2.0 * ACTOR_PADDING_X)
+    let ts = text.measure(&p.label, style);
+    let w = (ts.width + 2.0 * ACTOR_PADDING_X)
         .max(MIN_ACTOR_WIDTH)
         .max(STICK_ARM_SPAN + 2.0 * ACTOR_PADDING_X);
     match p.kind {
         ParticipantKind::Box => {
-            let h = th + 2.0 * ACTOR_PADDING_Y;
+            let h = ts.height + 2.0 * ACTOR_PADDING_Y;
             (w, h)
         }
         ParticipantKind::Actor => {
-            let h = STICK_FIGURE_H + STICK_TEXT_GAP + th;
+            let h = STICK_FIGURE_H + STICK_TEXT_GAP + ts.height;
             (w, h)
         }
     }
@@ -339,7 +339,7 @@ fn widen_gaps_for_labels(
                 };
                 let (lo, hi) = if fi < ti { (fi, ti) } else { (ti, fi) };
                 if let Some(label) = &msg.label {
-                    let (lw, _) = text.measure(label, style);
+                    let lw = text.measure(label, style).width;
                     let needed = lw + 20.0;
                     // Distribute needed width across spanned gaps.
                     let span = hi - lo;
@@ -443,7 +443,7 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
         if is_self {
             self.cursor_y += SELF_MSG_HEIGHT;
             if let Some(label) = &msg.label {
-                let (lw, _) = self.text.measure(label, &self.style);
+                let lw = self.text.measure(label, &self.style).width;
                 let right = from_x + SELF_MSG_WIDTH + 1.0 + lw;
                 self.max_self_label_right = self.max_self_label_right.max(right);
             }
@@ -462,9 +462,9 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
 
     fn layout_note(&mut self, note: &Note) {
         self.cursor_y += MESSAGE_MARGIN;
-        let (tw, th) = self.text.measure(&note.text, &self.style);
-        let note_w = (tw + 2.0 * NOTE_PADDING).min(NOTE_MAX_WIDTH);
-        let note_h = th + 2.0 * NOTE_PADDING;
+        let ts = self.text.measure(&note.text, &self.style);
+        let note_w = (ts.width + 2.0 * NOTE_PADDING).min(NOTE_MAX_WIDTH);
+        let note_h = ts.height + 2.0 * NOTE_PADDING;
 
         let note_x = match &note.position {
             NotePosition::LeftOf(id) => {

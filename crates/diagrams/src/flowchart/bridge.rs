@@ -247,9 +247,9 @@ fn build_flow_graph<'a>(
 
     for v in &diagram.vertices {
         let text = strip_html_tags(&v.label);
-        let (tw, th) = measurer.measure(&text, &style);
-        let text_w = tw + PADDING_X * 2.0;
-        let text_h = th + PADDING_Y * 2.0;
+        let ts = measurer.measure(&text, &style);
+        let text_w = ts.width + PADDING_X * 2.0;
+        let text_h = ts.height + PADDING_Y * 2.0;
 
         let (width, height) = match v.shape {
             Shape::Circle => {
@@ -310,9 +310,9 @@ fn build_flow_graph<'a>(
         let mut label = EdgeLabel::default();
         label.minlen = e.minlen.min(10);
         if let Some(text) = &e.label {
-            let (tw, th) = measurer.measure(text, &style);
-            label.width = tw;
-            label.height = th;
+            let ts = measurer.measure(text, &style);
+            label.width = ts.width;
+            label.height = ts.height;
         }
         g.add_edge(src, dst, label);
     }
@@ -375,7 +375,8 @@ fn extract_edge_layouts(
         let label = flow_edge.and_then(|fe| fe.label.clone());
         let label_size = label.as_ref().map(|text| {
             let edge_style = TextStyle { font_size: 12.0, ..Default::default() };
-            measurer.measure(text, &edge_style)
+            let ts = measurer.measure(text, &edge_style);
+            (ts.width, ts.height)
         });
         let stroke = flow_edge.map_or(StrokeType::Normal, |fe| fe.stroke);
         let start_arrow = flow_edge.map_or(ArrowEnd::None, |fe| fe.start_arrow);
@@ -532,7 +533,7 @@ fn extract_directed_subgraphs(
         // Padding: border + label space (matching dagre compound style).
         let pad = 16.0;
         let label_h = if sg.label.is_some() {
-            let (_, lh) = measurer.measure(sg.label.as_deref().unwrap_or(""), &style);
+            let lh = measurer.measure(sg.label.as_deref().unwrap_or(""), &style).height;
             lh + 8.0
         } else {
             0.0

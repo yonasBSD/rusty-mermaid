@@ -74,7 +74,7 @@ pub fn layout(diagram: &ClassDiagram) -> LayoutResult {
 /// Layout with custom text measurer.
 pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let style = TextStyle::default();
-    let line_height = measurer.measure("X", &style).1;
+    let line_height = measurer.measure("X", &style).height;
     let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
 
@@ -104,9 +104,9 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
         let Some(&dst) = id_map.get(&rel.to_id) else { continue };
         let mut label = EdgeLabel::default();
         if let Some(text) = &rel.label {
-            let (tw, th) = measurer.measure(text, &style);
-            label.width = tw;
-            label.height = th;
+            let ts = measurer.measure(text, &style);
+            label.width = ts.width;
+            label.height = ts.height;
         }
         g.add_edge(src, dst, label);
     }
@@ -195,7 +195,10 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
             }
         }
 
-        let label_size = rel.label.as_ref().map(|l| measurer.measure(l, &style));
+        let label_size = rel.label.as_ref().map(|l| {
+            let ts = measurer.measure(l, &style);
+            (ts.width, ts.height)
+        });
 
         edges.push(ClassEdgeLayout {
             edge: EdgeLayout {
@@ -265,9 +268,9 @@ fn compute_class_dims(
 ) -> ClassDims {
     // Title: class name + optional generic + optional annotation
     let title_text = class.label.as_deref().unwrap_or(&class.id);
-    let mut title_w = measurer.measure(title_text, style).0;
+    let mut title_w = measurer.measure(title_text, style).width;
     if let Some(g) = &class.generic_type {
-        title_w += measurer.measure(&format!("<{g}>"), style).0;
+        title_w += measurer.measure(&format!("<{g}>"), style).width;
     }
     let title_height = line_height + TITLE_PADDING_Y * 2.0;
 
@@ -294,16 +297,16 @@ fn compute_class_dims(
 
     // Width: max of all sections
     let member_widths = class.members.iter()
-        .map(|m| measurer.measure(&m.display_text(), style).0)
+        .map(|m| measurer.measure(&m.display_text(), style).width)
         .fold(0.0f64, f64::max);
     let method_widths = class.methods.iter()
-        .map(|m| measurer.measure(&m.display_text(), style).0)
+        .map(|m| measurer.measure(&m.display_text(), style).width)
         .fold(0.0f64, f64::max);
     // Measure annotation at its actual render size (font_size_small = 11px).
     // Uses measure_raw to avoid strip_markup eating <<>> as HTML tags.
     let small_style = TextStyle { font_size: 11.0, ..style.clone() };
     let annotation_w = class.annotations.first()
-        .map(|a| SimpleTextMeasure::measure_raw(&format!("<<{a}>>"), &small_style).0)
+        .map(|a| SimpleTextMeasure::measure_raw(&format!("<<{a}>>"), &small_style).width)
         .unwrap_or(0.0);
 
     let content_w = title_w.max(member_widths).max(method_widths).max(annotation_w);
@@ -398,7 +401,7 @@ mod tests {
         // <<enumeration>> (17 chars) should force box wider than just "Color" (5 chars) + "RED" (3 chars)
         let measurer = SimpleTextMeasure::default();
         let style = TextStyle::default();
-        let ann_w = measurer.measure("<<enumeration>>", &style).0;
+        let ann_w = measurer.measure("<<enumeration>>", &style).width;
         assert!(c.width >= ann_w, "box width {} should contain annotation width {ann_w}", c.width);
     }
 

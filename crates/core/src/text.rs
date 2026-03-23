@@ -1,9 +1,16 @@
 use crate::TextStyle;
 
+/// Measured text dimensions.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TextSize {
+    pub width: f64,
+    pub height: f64,
+}
+
 /// Measure text dimensions for layout purposes.
 /// Generic parameter on dagre::layout — no vtable overhead.
 pub trait TextMeasure {
-    fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64);
+    fn measure(&self, text: &str, style: &TextStyle) -> TextSize;
 }
 
 /// Monospace character width at the reference font size (14px).
@@ -58,7 +65,7 @@ pub const fn char_width_ratio(ch: char) -> f64 {
 impl SimpleTextMeasure {
     /// Measure text width/height WITHOUT stripping HTML/markdown markup.
     /// Use for text that contains literal `<` `>` characters (e.g. `<<interface>>`).
-    pub fn measure_raw(text: &str, style: &TextStyle) -> (f64, f64) {
+    pub fn measure_raw(text: &str, style: &TextStyle) -> TextSize {
         let defaults = Self::default();
         let scale = style.font_size / crate::constants::REFERENCE_FONT_SIZE;
         let mut max_width: f64 = 0.0;
@@ -68,14 +75,15 @@ impl SimpleTextMeasure {
             let w: f64 = line.chars().map(|c| char_width_ratio(c)).sum();
             max_width = max_width.max(w);
         }
-        let width = max_width * defaults.avg_char_width * scale;
-        let height = line_count as f64 * defaults.line_height * scale;
-        (width, height)
+        TextSize {
+            width: max_width * defaults.avg_char_width * scale,
+            height: line_count as f64 * defaults.line_height * scale,
+        }
     }
 }
 
 impl TextMeasure for SimpleTextMeasure {
-    fn measure(&self, text: &str, style: &TextStyle) -> (f64, f64) {
+    fn measure(&self, text: &str, style: &TextStyle) -> TextSize {
         let scale = style.font_size / crate::constants::REFERENCE_FONT_SIZE;
         let stripped = strip_markup(text);
         let mut max_width: f64 = 0.0;
@@ -89,9 +97,10 @@ impl TextMeasure for SimpleTextMeasure {
             max_width = max_width.max(w);
         }
 
-        let width = max_width * self.avg_char_width * scale;
-        let height = line_count as f64 * self.line_height * scale;
-        (width, height)
+        TextSize {
+            width: max_width * self.avg_char_width * scale,
+            height: line_count as f64 * self.line_height * scale,
+        }
     }
 }
 
@@ -225,31 +234,31 @@ mod tests {
     #[test]
     fn simple_measure_basic() {
         let m = SimpleTextMeasure::default();
-        let (w, h) = m.measure("hello", &default_style());
-        assert!((w - 5.0 * W).abs() < f64::EPSILON);
-        assert!((h - LH).abs() < f64::EPSILON);
+        let s = m.measure("hello", &default_style());
+        assert!((s.width - 5.0 * W).abs() < f64::EPSILON);
+        assert!((s.height - LH).abs() < f64::EPSILON);
     }
 
     #[test]
     fn simple_measure_empty() {
         let m = SimpleTextMeasure::default();
-        let (w, h) = m.measure("", &default_style());
-        assert!((w - 0.0).abs() < f64::EPSILON);
-        assert!((h - LH).abs() < f64::EPSILON);
+        let s = m.measure("", &default_style());
+        assert!((s.width - 0.0).abs() < f64::EPSILON);
+        assert!((s.height - LH).abs() < f64::EPSILON);
     }
 
     #[test]
     fn simple_measure_strips_html() {
         let m = SimpleTextMeasure::default();
-        let (w, _) = m.measure("<b>bold</b>", &default_style());
-        assert!((w - 4.0 * W).abs() < f64::EPSILON);
+        let s = m.measure("<b>bold</b>", &default_style());
+        assert!((s.width - 4.0 * W).abs() < f64::EPSILON);
     }
 
     #[test]
     fn simple_measure_br_adds_lines() {
         let m = SimpleTextMeasure::default();
-        let (_, h) = m.measure("line1<br/>line2", &default_style());
-        assert!((h - 2.0 * LH).abs() < f64::EPSILON);
+        let s = m.measure("line1<br/>line2", &default_style());
+        assert!((s.height - 2.0 * LH).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -257,24 +266,24 @@ mod tests {
         let m = SimpleTextMeasure::default();
         let mut style = default_style();
         style.font_size = 28.0; // 2x default
-        let (w, h) = m.measure("ab", &style);
-        assert!((w - 2.0 * W * 2.0).abs() < f64::EPSILON);
-        assert!((h - LH * 2.0).abs() < f64::EPSILON);
+        let s = m.measure("ab", &style);
+        assert!((s.width - 2.0 * W * 2.0).abs() < f64::EPSILON);
+        assert!((s.height - LH * 2.0).abs() < f64::EPSILON);
     }
 
     #[test]
     fn simple_measure_custom_char_width() {
         let m = SimpleTextMeasure::new(10.0, 20.0);
-        let (w, h) = m.measure("abc", &default_style());
-        assert!((w - 30.0).abs() < f64::EPSILON);
-        assert!((h - 20.0).abs() < f64::EPSILON);
+        let s = m.measure("abc", &default_style());
+        assert!((s.width - 30.0).abs() < f64::EPSILON);
+        assert!((s.height - 20.0).abs() < f64::EPSILON);
     }
 
     #[test]
     fn measure_strips_markdown() {
         let m = SimpleTextMeasure::default();
-        let (w_plain, _) = m.measure("bold", &default_style());
-        let (w_md, _) = m.measure("**bold**", &default_style());
+        let w_plain = m.measure("bold", &default_style()).width;
+        let w_md = m.measure("**bold**", &default_style()).width;
         assert!((w_plain - w_md).abs() < f64::EPSILON,
             "markdown markers should be stripped: plain={w_plain} md={w_md}");
     }
@@ -308,29 +317,29 @@ mod tests {
     #[test]
     fn cjk_chars_wider_than_latin() {
         let m = SimpleTextMeasure::default();
-        let (w, _) = m.measure("你好世界", &default_style());
+        let w = m.measure("你好世界", &default_style()).width;
         assert!((w - 4.0 * 1.8 * W).abs() < 1e-10);
     }
 
     #[test]
     fn japanese_kana_wider_than_latin() {
         let m = SimpleTextMeasure::default();
-        let (w, _) = m.measure("こんにちは世界", &default_style());
+        let w = m.measure("こんにちは世界", &default_style()).width;
         assert!((w - 7.0 * 1.8 * W).abs() < 1e-10);
     }
 
     #[test]
     fn mixed_latin_cjk() {
         let m = SimpleTextMeasure::default();
-        let (w, _) = m.measure("Hi你好", &default_style());
+        let w = m.measure("Hi你好", &default_style()).width;
         assert!((w - (2.0 + 2.0 * 1.8) * W).abs() < 1e-10);
     }
 
     #[test]
     fn latin_and_cyrillic_widths() {
         let m = SimpleTextMeasure::default();
-        let (w_latin, _) = m.measure("hello", &default_style());
-        let (w_cyrillic, _) = m.measure("приве", &default_style());
+        let w_latin = m.measure("hello", &default_style()).width;
+        let w_cyrillic = m.measure("приве", &default_style()).width;
         assert!((w_latin - 5.0 * W).abs() < 1e-10);
         assert!((w_cyrillic - 5.0 * 0.85 * W).abs() < 1e-10);
     }
@@ -361,9 +370,9 @@ mod tests {
             text in "[a-zA-Z0-9]{1,20}",
         ) {
             let m = SimpleTextMeasure::default();
-            let (w, h) = m.measure(&text, &default_style());
-            prop_assert!(w > 0.0, "width must be > 0 for non-empty text, got {w}");
-            prop_assert!(h > 0.0, "height must be > 0, got {h}");
+            let s = m.measure(&text, &default_style());
+            prop_assert!(s.width > 0.0, "width must be > 0 for non-empty text, got {}", s.width);
+            prop_assert!(s.height > 0.0, "height must be > 0, got {}", s.height);
         }
 
         #[test]
@@ -376,13 +385,13 @@ mod tests {
             let mut scaled_style = base_style.clone();
             scaled_style.font_size = base_style.font_size * scale;
 
-            let (w1, h1) = m.measure(&text, &base_style);
-            let (w2, h2) = m.measure(&text, &scaled_style);
+            let s1 = m.measure(&text, &base_style);
+            let s2 = m.measure(&text, &scaled_style);
 
-            prop_assert!((w2 / w1 - scale).abs() < 1e-10,
-                "width should scale by {scale}: w1={w1}, w2={w2}");
-            prop_assert!((h2 / h1 - scale).abs() < 1e-10,
-                "height should scale by {scale}: h1={h1}, h2={h2}");
+            prop_assert!((s2.width / s1.width - scale).abs() < 1e-10,
+                "width should scale by {scale}: w1={}, w2={}", s1.width, s2.width);
+            prop_assert!((s2.height / s1.height - scale).abs() < 1e-10,
+                "height should scale by {scale}: h1={}, h2={}", s1.height, s2.height);
         }
     }
 }

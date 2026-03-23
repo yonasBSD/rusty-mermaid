@@ -127,9 +127,9 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     let all_notes = collect_all_notes(diagram);
     for note in &all_notes {
         let Some(state_node) = nodes.iter().find(|n| n.id == note.state_id) else { continue };
-        let (tw, th) = measurer.measure(&note.text, &style);
-        let note_w = tw + NOTE_PADDING * 2.0;
-        let note_h = th + NOTE_PADDING * 2.0;
+        let ts = measurer.measure(&note.text, &style);
+        let note_w = ts.width + NOTE_PADDING * 2.0;
+        let note_h = ts.height + NOTE_PADDING * 2.0;
         let gap = 10.0;
 
         let note_x = match note.position {
@@ -163,7 +163,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             node.height += COMPOUND_HEADER_HEIGHT;
             node.y -= COMPOUND_HEADER_HEIGHT / 2.0;
 
-            let (label_w, _) = measurer.measure(&node.label, &style);
+            let label_w = measurer.measure(&node.label, &style).width;
             let min_width = label_w + 20.0; // 10px padding each side
             if node.width < min_width {
                 node.width = min_width;
@@ -241,7 +241,8 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 
             let label_size = transition.label.as_ref().map(|l| {
                 let edge_style = TextStyle { font_size: 12.0, ..style.clone() };
-                measurer.measure(l, &edge_style)
+                let ts = measurer.measure(l, &edge_style);
+                (ts.width, ts.height)
             });
             edges.push(EdgeLayout {
                 src: src_id.to_string(),
@@ -966,8 +967,8 @@ fn add_state_nodes<'a, M: TextMeasure>(
             StateKind::History => (START_END_SIZE, START_END_SIZE),
             StateKind::Normal => {
                 let text = s.label.as_deref().unwrap_or(&s.id);
-                let (tw, th) = ctx.measurer.measure(text, ctx.style);
-                (tw + PADDING_X * 2.0, th + PADDING_Y * 2.0)
+                let ts = ctx.measurer.measure(text, ctx.style);
+                (ts.width + PADDING_X * 2.0, ts.height + PADDING_Y * 2.0)
             }
             StateKind::Composite { children, transitions: inner_trans, regions, .. } => {
                 add_composite_state(s, children, inner_trans, regions, transitions, parent, ctx, all_transitions);
@@ -1118,9 +1119,9 @@ fn wire_edges<'a, M: TextMeasure>(
 
         let mut label = EdgeLabel::default();
         if let Some(text) = &t.label {
-            let (tw, th) = ctx.measurer.measure(text, ctx.style);
-            label.width = tw;
-            label.height = th;
+            let ts = ctx.measurer.measure(text, ctx.style);
+            label.width = ts.width;
+            label.height = ts.height;
         }
         ctx.g.add_edge(src, dst, label);
         all_transitions.push(t);

@@ -50,7 +50,7 @@ pub fn layout(diagram: &RequirementDiagram) -> LayoutResult {
 
 pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let style = TextStyle::default();
-    let line_height = measurer.measure("X", &style).1;
+    let line_height = measurer.measure("X", &style).height;
     let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut node_infos: BTreeMap<String, (String, Vec<String>)> = BTreeMap::new();
@@ -65,9 +65,9 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         if let Some(vm) = &req.verify_method { lines.push(format!("Verify: {}", verify_label(*vm))); }
 
         let max_line_w = lines.iter()
-            .map(|l| SimpleTextMeasure::measure_raw(l, &style).0)
+            .map(|l| SimpleTextMeasure::measure_raw(l, &style).width)
             .fold(0.0f64, f64::max);
-        let name_w = SimpleTextMeasure::measure_raw(&req.name, &style).0;
+        let name_w = SimpleTextMeasure::measure_raw(&req.name, &style).width;
         let content_w = max_line_w.max(name_w);
         let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
         let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
@@ -85,9 +85,9 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         if let Some(d) = &elem.docref { lines.push(format!("Doc: {d}")); }
 
         let max_line_w = lines.iter()
-            .map(|l| SimpleTextMeasure::measure_raw(l, &style).0)
+            .map(|l| SimpleTextMeasure::measure_raw(l, &style).width)
             .fold(0.0f64, f64::max);
-        let name_w = SimpleTextMeasure::measure_raw(&elem.name, &style).0;
+        let name_w = SimpleTextMeasure::measure_raw(&elem.name, &style).width;
         let content_w = max_line_w.max(name_w);
         let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
         let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
@@ -103,9 +103,9 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         let Some(&dst) = id_map.get(&rel.dst) else { continue };
         let mut label = EdgeLabel::default();
         let label_text = format!("<<{}>>", rel.rel_type.label());
-        let (tw, th) = measurer.measure(&label_text, &style);
-        label.width = tw;
-        label.height = th;
+        let ts = measurer.measure(&label_text, &style);
+        label.width = ts.width;
+        label.height = ts.height;
         g.add_edge(src, dst, label);
     }
 
@@ -167,7 +167,8 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
 
         let label_text = format!("<<{}>>", rel.rel_type.label());
         let label_style = TextStyle { font_size: rusty_mermaid_core::Theme::default().font_size_edge_label, ..style.clone() };
-        let label_size = Some(SimpleTextMeasure::measure_raw(&label_text, &label_style));
+        let ts = SimpleTextMeasure::measure_raw(&label_text, &label_style);
+        let label_size = Some((ts.width, ts.height));
 
         edges.push(ReqEdgeLayout {
             edge: EdgeLayout {

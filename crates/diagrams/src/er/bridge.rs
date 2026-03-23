@@ -59,7 +59,7 @@ pub fn layout(diagram: &ErDiagram) -> LayoutResult {
 /// Layout with custom text measurer.
 pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let style = TextStyle::default();
-    let line_height = measurer.measure("X", &style).1;
+    let line_height = measurer.measure("X", &style).height;
     let row_height = line_height * ATTR_FONT_SCALE + ROW_PADDING * 2.0;
     let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
@@ -79,9 +79,9 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
         let Some(&dst) = id_map.get(&rel.entity_b) else { continue };
         let mut label = EdgeLabel::default();
         if let Some(text) = &rel.label {
-            let (tw, th) = measurer.measure(text, &style);
-            label.width = tw;
-            label.height = th;
+            let ts = measurer.measure(text, &style);
+            label.width = ts.width;
+            label.height = ts.height;
         }
         g.add_edge(src, dst, label);
     }
@@ -156,7 +156,10 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
             }
         }
 
-        let label_size = rel.label.as_ref().map(|l| measurer.measure(l, &style));
+        let label_size = rel.label.as_ref().map(|l| {
+            let ts = measurer.measure(l, &style);
+            (ts.width, ts.height)
+        });
 
         edges.push(ErEdgeLayout {
             edge: EdgeLayout {
@@ -200,7 +203,7 @@ fn compute_entity_dims(
     line_height: f64,
     row_height: f64,
 ) -> EntityDims {
-    let title_w = measurer.measure(entity.display_name(), style).0;
+    let title_w = measurer.measure(entity.display_name(), style).width;
     let title_height = line_height + TITLE_PADDING_Y * 2.0;
 
     // Attribute row widths: type + name + keys + comment
@@ -218,7 +221,7 @@ fn compute_entity_dims(
             if let Some(c) = &a.comment {
                 text.push_str(&format!(" \"{}\"", c));
             }
-            measurer.measure(&text, &attr_style).0
+            measurer.measure(&text, &attr_style).width
         })
         .fold(0.0f64, f64::max);
 
