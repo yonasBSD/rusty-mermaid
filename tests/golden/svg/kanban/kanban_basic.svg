@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 243.2" width="920" height="243.2">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="171.2" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Backlog</text>
+    <rect x="26" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design homepage</text>
+    <rect x="26" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write API docs</text>
+    <rect x="26" y="144.8" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="162" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Research competitors</text>
+    <rect x="232" y="16" width="200" height="171.2" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">In Progress</text>
+    <rect x="242" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Build login page</text>
+    <rect x="242" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Set up CI/CD</text>
+    <rect x="448" y="16" width="200" height="171.2" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Review</text>
+    <rect x="458" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code review PR #42</text>
+    <rect x="664" y="16" width="200" height="171.2" rx="8" ry="8" fill="#e1575914" stroke="#e157593c" stroke-width="1" />
+    <rect x="664" y="16" width="200" height="36" rx="8" ry="8" fill="#e1575932" />
+    <text x="764" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Done</text>
+    <rect x="674" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#e1575950" stroke-width="1" />
+    <text x="764" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Deploy staging</text>
+    <rect x="674" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#e1575950" stroke-width="1" />
+    <text x="764" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Database migration</text>
+  </g>
+</svg>

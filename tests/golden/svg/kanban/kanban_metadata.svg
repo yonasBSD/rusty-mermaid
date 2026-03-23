@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 277.76" width="704" height="277.76">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="205.76" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Todo</text>
+    <rect x="26" y="60" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="78.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Fix login bug</text>
+    <text x="116" y="90.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#8c8c8c">High · @alice · BUG-101</text>
+    <rect x="26" y="113.92" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="132.56" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Add dark mode</text>
+    <text x="116" y="144.08" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#8c8c8c">Medium · @bob</text>
+    <rect x="26" y="167.84" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="186.48" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Update deps</text>
+    <text x="116" y="198" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#8c8c8c">Low</text>
+    <rect x="232" y="16" width="200" height="205.76" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">In Progress</text>
+    <rect x="242" y="60" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="78.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API refactor</text>
+    <text x="332" y="90.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#8c8c8c">High · @charlie · FEAT-202</text>
+    <rect x="448" y="16" width="200" height="205.76" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Done</text>
+    <rect x="458" y="60" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="78.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Release v1.0</text>
+    <text x="548" y="90.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#8c8c8c">REL-001</text>
+  </g>
+</svg>

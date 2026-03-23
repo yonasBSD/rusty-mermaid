@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 243.2" width="704" height="243.2">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="171.2" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">To Do</text>
+    <rect x="26" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Buy groceries</text>
+    <rect x="26" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Clean house</text>
+    <rect x="26" y="144.8" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="162" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Walk the dog</text>
+    <rect x="232" y="16" width="200" height="171.2" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Doing</text>
+    <rect x="242" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cook dinner</text>
+    <rect x="448" y="16" width="200" height="171.2" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Done</text>
+    <rect x="458" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Laundry</text>
+    <rect x="458" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dishes</text>
+  </g>
+</svg>

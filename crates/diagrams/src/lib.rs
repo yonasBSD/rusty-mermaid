@@ -24,6 +24,9 @@ pub mod pie;
 #[cfg(feature = "timeline")]
 pub mod timeline;
 
+#[cfg(feature = "kanban")]
+pub mod kanban;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -38,6 +41,7 @@ pub enum DiagramKind {
     Requirement,
     Pie,
     Timeline,
+    Kanban,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -71,11 +75,14 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     if line.starts_with("timeline") {
         return Some(DiagramKind::Timeline);
     }
+    if line.starts_with("kanban") {
+        return Some(DiagramKind::Kanban);
+    }
     None
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -123,7 +130,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -188,6 +195,11 @@ pub fn render_to_scene_themed(
         DiagramKind::Timeline => {
             let diagram = timeline::parser::parse(input)?;
             Ok(timeline::to_scene_themed(&diagram, theme))
+        }
+        #[cfg(feature = "kanban")]
+        DiagramKind::Kanban => {
+            let board = kanban::parser::parse(input)?;
+            Ok(kanban::to_scene_themed(&board, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(

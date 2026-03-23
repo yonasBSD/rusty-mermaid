@@ -6,7 +6,7 @@ license.workspace = true
 description = "All diagram types: parse + layout → Scene"
 
 [features]
-default = ["flowchart", "state", "sequence", "class", "er", "requirement", "pie", "timeline"]
+default = ["flowchart", "state", "sequence", "class", "er", "requirement", "pie", "timeline", "kanban"]
 # Graph-based (use dagre)
 flowchart = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
 state = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
