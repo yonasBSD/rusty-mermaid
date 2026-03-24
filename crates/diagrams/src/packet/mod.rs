@@ -13,8 +13,19 @@ const PAD_X: f64 = 5.0;
 const PAD_Y: f64 = 5.0;
 const BIT_FONT_SIZE: f64 = 10.0;
 const SCENE_PAD: f64 = 20.0;
-const BLOCK_FILL: Color = Color::rgb(239, 239, 239);
-const BLOCK_STROKE: Color = Color::rgb(51, 51, 51);
+// Shared palette blue at 12% tint — same translucent look as other diagrams
+const BLOCK_BASE: Color = Color::rgb(78, 121, 167);
+const BLOCK_TINT: f64 = 0.12;
+const BLOCK_FILL: Color = Color::rgb(
+    (255.0 * (1.0 - BLOCK_TINT) + BLOCK_BASE.r as f64 * BLOCK_TINT) as u8,
+    (255.0 * (1.0 - BLOCK_TINT) + BLOCK_BASE.g as f64 * BLOCK_TINT) as u8,
+    (255.0 * (1.0 - BLOCK_TINT) + BLOCK_BASE.b as f64 * BLOCK_TINT) as u8,
+);
+const BLOCK_STROKE: Color = Color::rgb(
+    (BLOCK_BASE.r as f64 * 0.6) as u8,
+    (BLOCK_BASE.g as f64 * 0.6) as u8,
+    (BLOCK_BASE.b as f64 * 0.6) as u8,
+);
 
 pub fn to_scene(diagram: &PacketDiagram) -> Scene {
     to_scene_themed(diagram, &Theme::default())
