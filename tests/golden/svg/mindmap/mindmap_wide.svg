@@ -10,21 +10,21 @@
     <path d="M354.75 157.19 C455.2 157.19 455.2 107.82 555.65 107.82" fill="none" stroke="#ff9da796" stroke-width="2" />
     <rect x="261.35" y="140.79" width="186.8" height="32.8" rx="16.4" ry="16.4" fill="#9370db" stroke="#9370db" stroke-width="1.5" />
     <text x="354.75" y="157.19" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Project Management</text>
-    <rect x="507.32" y="189.31" width="100.8" height="32.8" rx="16.4" ry="16.4" fill="#4e79a746" stroke="#4e79a7" stroke-width="1.5" />
+    <rect x="507.32" y="189.31" width="100.8" height="32.8" rx="16.4" ry="16.4" fill="#d2dde9" stroke="#4e79a7" stroke-width="1.5" />
     <text x="557.72" y="205.71" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Planning</text>
-    <rect x="376.92" y="240.68" width="109.4" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c46" stroke="#f28e2c" stroke-width="1.5" />
+    <rect x="376.92" y="240.68" width="109.4" height="32.8" rx="16.4" ry="16.4" fill="#fbe2ca" stroke="#f28e2c" stroke-width="1.5" />
     <text x="431.62" y="257.08" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Execution</text>
-    <rect x="216.17" y="238.97" width="118" height="32.8" rx="16.4" ry="16.4" fill="#e1575946" stroke="#e15759" stroke-width="1.5" />
+    <rect x="216.17" y="238.97" width="118" height="32.8" rx="16.4" ry="16.4" fill="#f7d5d5" stroke="#e15759" stroke-width="1.5" />
     <text x="275.17" y="255.37" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Monitoring</text>
-    <rect x="40" y="192.07" width="161" height="32.8" rx="16.4" ry="16.4" fill="#76b7b246" stroke="#76b7b2" stroke-width="1.5" />
+    <rect x="40" y="192.07" width="161" height="32.8" rx="16.4" ry="16.4" fill="#dcedeb" stroke="#76b7b2" stroke-width="1.5" />
     <text x="120.5" y="208.47" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Risk Management</text>
-    <rect x="54.16" y="89.19" width="143.8" height="32.8" rx="16.4" ry="16.4" fill="#59a14f46" stroke="#59a14f" stroke-width="1.5" />
+    <rect x="54.16" y="89.19" width="143.8" height="32.8" rx="16.4" ry="16.4" fill="#d5e7d3" stroke="#59a14f" stroke-width="1.5" />
     <text x="126.06" y="105.59" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Communication</text>
-    <rect x="209.27" y="41.87" width="135.2" height="32.8" rx="16.4" ry="16.4" fill="#edc94946" stroke="#edc949" stroke-width="1.5" />
+    <rect x="209.27" y="41.87" width="135.2" height="32.8" rx="16.4" ry="16.4" fill="#faf1d1" stroke="#edc949" stroke-width="1.5" />
     <text x="276.87" y="58.27" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Stakeholders</text>
-    <rect x="387.51" y="40" width="83.6" height="32.8" rx="16.4" ry="16.4" fill="#af7aa146" stroke="#af7aa1" stroke-width="1.5" />
+    <rect x="387.51" y="40" width="83.6" height="32.8" rx="16.4" ry="16.4" fill="#ebdde7" stroke="#af7aa1" stroke-width="1.5" />
     <text x="429.31" y="56.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Budget</text>
-    <rect x="505.25" y="91.42" width="100.8" height="32.8" rx="16.4" ry="16.4" fill="#ff9da746" stroke="#ff9da7" stroke-width="1.5" />
+    <rect x="505.25" y="91.42" width="100.8" height="32.8" rx="16.4" ry="16.4" fill="#ffe6e9" stroke="#ff9da7" stroke-width="1.5" />
     <text x="555.65" y="107.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Timeline</text>
   </g>
 </svg>

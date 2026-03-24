@@ -89,7 +89,7 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
     let height = max_y - min_y + SCENE_MARGIN * 2.0;
     let mut scene = Scene::new(width, height);
 
-    // Render edges (curved lines from parent to child)
+    // Render edges first (nodes drawn on top will occlude the center portions)
     for &(parent_idx, child_idx) in &edges {
         let p = &flat_nodes[parent_idx];
         let c = &flat_nodes[child_idx];
@@ -97,7 +97,6 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
         let alpha_color = Color::rgba(color.r, color.g, color.b, 150);
 
         let mid_x = (p.x + c.x) / 2.0;
-        let mid_y = (p.y + c.y) / 2.0;
         scene.push(Primitive::Path {
             segments: vec![
                 PathSegment::MoveTo(Point::new(p.x, p.y)),
@@ -117,15 +116,24 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
         });
     }
 
-    // Render nodes
+    // Render nodes (opaque fills cover the edges underneath)
     for node in &flat_nodes {
         let color = section_color(node.section);
         let is_root = node.depth == 0;
+        let is_parent = node.has_children;
 
         let (fill, stroke, text_color, font_weight) = if is_root {
             (theme.node_stroke, theme.node_stroke, Color::WHITE, rusty_mermaid_core::FontWeight::Bold)
+        } else if is_parent {
+            (color, color, Color::WHITE, rusty_mermaid_core::FontWeight::Bold)
         } else {
-            let fill = Color::rgba(color.r, color.g, color.b, 40 + (node.depth as u8).min(3) * 30);
+            // Leaf nodes: light opaque tint (blended with white background)
+            let t = 0.15 + (node.depth as f64).min(3.0) * 0.1;
+            let fill = Color::rgb(
+                (255.0 * (1.0 - t) + color.r as f64 * t) as u8,
+                (255.0 * (1.0 - t) + color.g as f64 * t) as u8,
+                (255.0 * (1.0 - t) + color.b as f64 * t) as u8,
+            );
             (fill, color, theme.node_text, rusty_mermaid_core::FontWeight::Normal)
         };
 
@@ -153,7 +161,8 @@ struct FlatNode {
     text: String,
     shape: MindmapShape,
     depth: usize,
-    section: usize, // root child index for coloring
+    section: usize,
+    has_children: bool,
     x: f64,
     y: f64,
     width: f64,
@@ -174,6 +183,7 @@ fn flatten(
         shape: node.shape,
         depth,
         section,
+        has_children: !node.children.is_empty(),
         x: 0.0, y: 0.0,
         width: 0.0, height: 0.0,
     });
@@ -242,6 +252,7 @@ fn seed_tree_positions(fg: &mut ForceGraph, edges: &[(usize, usize)], nodes: &[F
 fn section_color(section: usize) -> Color {
     SECTION_COLORS[section % SECTION_COLORS.len()]
 }
+
 
 // ── Shape rendering ──
 
@@ -336,6 +347,23 @@ mod tests {
             } else { false }
         });
         assert!(has_bold, "root should be bold");
+    }
+
+    #[test]
+    fn parent_nodes_are_bold() {
+        let scene = render("mindmap\n    Root\n        Parent\n            Leaf");
+        let parent_bold = scene.elements().iter().any(|e| {
+            if let Primitive::Text { style, content, .. } = &e.primitive {
+                content == "Parent" && style.font_weight == rusty_mermaid_core::FontWeight::Bold
+            } else { false }
+        });
+        let leaf_normal = scene.elements().iter().any(|e| {
+            if let Primitive::Text { style, content, .. } = &e.primitive {
+                content == "Leaf" && style.font_weight == rusty_mermaid_core::FontWeight::Normal
+            } else { false }
+        });
+        assert!(parent_bold, "parent nodes should be bold");
+        assert!(leaf_normal, "leaf nodes should be normal weight");
     }
 
     #[test]
