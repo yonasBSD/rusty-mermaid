@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 496" width="630" height="496">
+  <g transform="translate(20, 20)">
+    <text x="295" y="23" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Sales vs Target</text>
+    <rect x="60" y="96" width="500" height="300" fill="#f5f5fac8" />
+    <path d="M60 96 L60 396" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M55 396 L60 396" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M60 396 L560 396" fill="none" stroke="#c8c8c850" stroke-width="0.5" stroke-dasharray="4 3" />
+    <text x="51" y="396" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">0</text>
+    <path d="M55 321 L60 321" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M60 321 L560 321" fill="none" stroke="#c8c8c850" stroke-width="0.5" stroke-dasharray="4 3" />
+    <text x="51" y="321" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">50</text>
+    <path d="M55 246 L60 246" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M60 246 L560 246" fill="none" stroke="#c8c8c850" stroke-width="0.5" stroke-dasharray="4 3" />
+    <text x="51" y="246" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">100</text>
+    <path d="M55 171 L60 171" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M60 171 L560 171" fill="none" stroke="#c8c8c850" stroke-width="0.5" stroke-dasharray="4 3" />
+    <text x="51" y="171" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">150</text>
+    <path d="M55 96 L60 96" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M60 96 L560 96" fill="none" stroke="#c8c8c850" stroke-width="0.5" stroke-dasharray="4 3" />
+    <text x="51" y="96" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">200</text>
+    <g transform="rotate(-90, 15, 246)">
+      <text x="15" y="246" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Amount ($K)</text>
+    </g>
+    <path d="M60 396 L560 396" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M122.5 396 L122.5 401" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="122.5" y="413" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Q1</text>
+    <path d="M247.5 396 L247.5 401" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="247.5" y="413" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Q2</text>
+    <path d="M372.5 396 L372.5 401" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="372.5" y="413" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Q3</text>
+    <path d="M497.5 396 L497.5 401" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="497.5" y="413" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Q4</text>
+    <rect x="83.12" y="276" width="78.75" height="120" rx="1" ry="1" fill="#4e79a7" />
+    <rect x="208.12" y="216" width="78.75" height="180" rx="1" ry="1" fill="#4e79a7" />
+    <rect x="333.12" y="253.5" width="78.75" height="142.5" rx="1" ry="1" fill="#4e79a7" />
+    <rect x="458.12" y="156" width="78.75" height="240" rx="1" ry="1" fill="#4e79a7" />
+    <path d="M122.5 246 L247.5 246 L372.5 246 L497.5 246" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <circle cx="122.5" cy="246" r="3.5" fill="#f28e2c" stroke="#ffffff" stroke-width="1.5" />
+    <circle cx="247.5" cy="246" r="3.5" fill="#f28e2c" stroke="#ffffff" stroke-width="1.5" />
+    <circle cx="372.5" cy="246" r="3.5" fill="#f28e2c" stroke="#ffffff" stroke-width="1.5" />
+    <circle cx="497.5" cy="246" r="3.5" fill="#f28e2c" stroke="#ffffff" stroke-width="1.5" />
+  </g>
+</svg>

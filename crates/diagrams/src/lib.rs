@@ -33,6 +33,9 @@ pub mod gantt;
 #[cfg(feature = "gitgraph")]
 pub mod gitgraph;
 
+#[cfg(feature = "xychart")]
+pub mod xychart;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -50,6 +53,7 @@ pub enum DiagramKind {
     Kanban,
     Gantt,
     GitGraph,
+    XyChart,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -71,12 +75,13 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
         l if l.starts_with("kanban") => Some(DiagramKind::Kanban),
         l if l.starts_with("gantt") => Some(DiagramKind::Gantt),
         l if l.starts_with("gitGraph") => Some(DiagramKind::GitGraph),
+        l if l.starts_with("xychart") => Some(DiagramKind::XyChart),
         _ => None,
     }
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -124,7 +129,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -204,6 +209,11 @@ pub fn render_to_scene_themed(
         DiagramKind::GitGraph => {
             let graph = gitgraph::parser::parse(input)?;
             Ok(gitgraph::to_scene_themed(&graph, theme))
+        }
+        #[cfg(feature = "xychart")]
+        DiagramKind::XyChart => {
+            let chart = xychart::parser::parse(input)?;
+            Ok(xychart::to_scene_themed(&chart, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
