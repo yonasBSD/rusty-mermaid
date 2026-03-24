@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 830.08 574.69" width="830.08" height="574.69">
+  <g transform="translate(20, 20)">
+    <path d="M420.72 274.98 C463.81 274.98 463.81 373.66 506.89 373.66" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M506.89 373.66 C603.32 373.66 603.32 368.96 699.75 368.96" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M506.89 373.66 C560.25 373.66 560.25 459 613.61 459" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M506.89 373.66 C475.74 373.66 475.74 478.29 444.58 478.29" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M420.72 274.98 C345.82 274.98 345.82 344.3 270.92 344.3" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M270.92 344.3 C263.46 344.3 263.46 459.41 256 459.41" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M270.92 344.3 C182.81 344.3 182.81 401.82 94.7 401.82" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M270.92 344.3 C202.03 344.3 202.03 273.84 133.14 273.84" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M420.72 274.98 C387.86 274.98 387.86 169.39 355 169.39" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M355 169.39 C285.72 169.39 285.72 98.74 216.44 98.74" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M355 169.39 C370.65 169.39 370.65 56.4 386.3 56.4" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M420.72 274.98 C481.55 274.98 481.55 194.94 542.38 194.94" fill="none" stroke="#76b7b296" stroke-width="2" />
+    <path d="M542.38 194.94 C561.8 194.94 561.8 83.75 581.22 83.75" fill="none" stroke="#76b7b296" stroke-width="2" />
+    <path d="M542.38 194.94 C623.18 194.94 623.18 170.33 703.98 170.33" fill="none" stroke="#76b7b296" stroke-width="2" />
+    <rect x="361.72" y="258.58" width="118" height="32.8" rx="16.4" ry="16.4" fill="#9370db" stroke="#9370db" stroke-width="1.5" />
+    <text x="420.72" y="274.98" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Study Plan</text>
+    <rect x="443.59" y="357.26" width="126.6" height="32.8" rx="16.4" ry="16.4" fill="#4e79a746" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="506.89" y="373.66" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mathematics</text>
+    <rect x="653.65" y="352.56" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#4e79a764" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="699.75" y="368.96" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Algebra</text>
+    <rect x="563.21" y="442.6" width="100.8" height="32.8" rx="16.4" ry="16.4" fill="#4e79a764" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="613.61" y="459" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Calculus</text>
+    <rect x="385.58" y="461.89" width="118" height="32.8" rx="16.4" ry="16.4" fill="#4e79a764" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="444.58" y="478.29" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Statistics</text>
+    <rect x="224.82" y="327.9" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c46" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="270.92" y="344.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Science</text>
+    <rect x="209.9" y="443.01" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c64" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="256" y="459.41" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Physics</text>
+    <rect x="40" y="385.42" width="109.4" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c64" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="94.7" y="401.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Chemistry</text>
+    <rect x="87.04" y="257.44" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c64" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="133.14" y="273.84" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Biology</text>
+    <rect x="300.3" y="152.99" width="109.4" height="32.8" rx="16.4" ry="16.4" fill="#e1575946" stroke="#e15759" stroke-width="1.5" />
+    <text x="355" y="169.39" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Languages</text>
+    <rect x="170.34" y="82.34" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#e1575964" stroke="#e15759" stroke-width="1.5" />
+    <text x="216.44" y="98.74" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">English</text>
+    <rect x="340.2" y="40" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#e1575964" stroke="#e15759" stroke-width="1.5" />
+    <text x="386.3" y="56.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Spanish</text>
+    <rect x="509.18" y="178.54" width="66.4" height="32.8" rx="16.4" ry="16.4" fill="#76b7b246" stroke="#76b7b2" stroke-width="1.5" />
+    <text x="542.38" y="194.94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Arts</text>
+    <rect x="543.72" y="67.35" width="75" height="32.8" rx="16.4" ry="16.4" fill="#76b7b264" stroke="#76b7b2" stroke-width="1.5" />
+    <text x="581.22" y="83.75" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Music</text>
+    <rect x="657.88" y="153.93" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#76b7b264" stroke="#76b7b2" stroke-width="1.5" />
+    <text x="703.98" y="170.33" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Drawing</text>
+  </g>
+</svg>

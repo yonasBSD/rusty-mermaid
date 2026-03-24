@@ -6,14 +6,14 @@ license.workspace = true
 description = "All diagram types: parse + layout → Scene"
 
 [features]
-default = ["flowchart", "state", "sequence", "class", "er", "requirement", "pie", "timeline", "kanban", "gantt", "gitgraph", "xychart"]
+default = ["flowchart", "state", "sequence", "class", "er", "requirement", "pie", "timeline", "kanban", "gantt", "gitgraph", "xychart", "mindmap"]
 # Graph-based (use dagre)
 flowchart = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
 state = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
 class = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
 er = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
 requirement = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
-mindmap = ["dep:rusty-mermaid-graph", "dep:rusty-mermaid-dagre"]
+mindmap = []
 # Non-graph (custom layout, no dagre dependency)
 sequence = []
 gantt = []

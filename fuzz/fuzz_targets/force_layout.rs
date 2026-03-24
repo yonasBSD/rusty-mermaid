@@ -29,9 +29,9 @@ fuzz_target!(|input: FuzzInput| {
     }
 
     let config = ForceConfig {
-        iterations: 50, // fewer for fuzzing speed
+        max_iterations: 50, // fewer for fuzzing speed
         repulsion: (input.repulsion % 10000) as f64 + 1.0,
-        attraction: (input.attraction % 100) as f64 / 1000.0 + 0.001,
+        attraction: (input.attraction % 100) as f64 / 100.0 + 0.01,
         ..ForceConfig::default()
     };
 

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 886.76 567.2" width="886.76" height="567.2">
+  <g transform="translate(20, 20)">
+    <path d="M541.28 265.48 C571.85 265.48 571.85 372.91 602.43 372.91" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M602.43 372.91 C688 372.91 688 375.19 773.56 375.19" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M602.43 372.91 C641.89 372.91 641.89 470.8 681.35 470.8" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M602.43 372.91 C554.75 372.91 554.75 462.9 507.07 462.9" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M541.28 265.48 C439.94 265.48 439.94 265.26 338.6 265.26" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M338.6 265.26 C311.2 265.26 311.2 371.25 283.8 371.25" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M338.6 265.26 C229.55 265.26 229.55 265.08 120.5 265.08" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M338.6 265.26 C312.84 265.26 312.84 158.23 287.09 158.23" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M541.28 265.48 C572.29 265.48 572.29 158.44 603.3 158.44" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M603.3 158.44 C561.52 158.44 561.52 63.15 519.73 63.15" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M603.3 158.44 C637.65 158.44 637.65 56.4 671.99 56.4" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M603.3 158.44 C682.4 158.44 682.4 154.96 761.5 154.96" fill="none" stroke="#e1575996" stroke-width="2" />
+    <rect x="477.98" y="249.08" width="126.6" height="32.8" rx="16.4" ry="16.4" fill="#9370db" stroke="#9370db" stroke-width="1.5" />
+    <text x="541.28" y="265.48" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Programming</text>
+    <rect x="547.73" y="356.51" width="109.4" height="32.8" rx="16.4" ry="16.4" fill="#4e79a746" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="602.43" y="372.91" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Languages</text>
+    <rect x="740.36" y="358.79" width="66.4" height="32.8" rx="16.4" ry="16.4" fill="#4e79a764" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="773.56" y="375.19" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rust</text>
+    <rect x="639.55" y="454.4" width="83.6" height="32.8" rx="16.4" ry="16.4" fill="#4e79a764" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="681.35" y="470.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Python</text>
+    <rect x="448.07" y="446.5" width="118" height="32.8" rx="16.4" ry="16.4" fill="#4e79a764" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="507.07" y="462.9" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">JavaScript</text>
+    <rect x="283.9" y="248.86" width="109.4" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c46" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="338.6" y="265.26" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Paradigms</text>
+    <rect x="224.8" y="354.85" width="118" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c64" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="283.8" y="371.25" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Functional</text>
+    <rect x="40" y="248.68" width="161" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c64" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="120.5" y="265.08" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Object-Oriented</text>
+    <rect x="228.09" y="141.83" width="118" height="32.8" rx="16.4" ry="16.4" fill="#f28e2c64" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="287.09" y="158.23" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Procedural</text>
+    <rect x="565.8" y="142.04" width="75" height="32.8" rx="16.4" ry="16.4" fill="#e1575946" stroke="#e15759" stroke-width="1.5" />
+    <text x="603.3" y="158.44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Tools</text>
+    <rect x="489.73" y="46.75" width="60" height="32.8" rx="16.4" ry="16.4" fill="#e1575964" stroke="#e15759" stroke-width="1.5" />
+    <text x="519.73" y="63.15" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Git</text>
+    <rect x="630.19" y="40" width="83.6" height="32.8" rx="16.4" ry="16.4" fill="#e1575964" stroke="#e15759" stroke-width="1.5" />
+    <text x="671.99" y="56.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Docker</text>
+    <rect x="724" y="138.56" width="75" height="32.8" rx="16.4" ry="16.4" fill="#e1575964" stroke="#e15759" stroke-width="1.5" />
+    <text x="761.5" y="154.96" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">CI/CD</text>
+  </g>
+</svg>
