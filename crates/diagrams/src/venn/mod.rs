@@ -115,10 +115,7 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
         });
     }
 
-    // Union labels at intersection midpoints, offset vertically to avoid overlap
-    let union_line_h = theme.font_size_node + 2.0;
-    let mut union_count_at: std::collections::HashMap<(i32, i32), usize> = std::collections::HashMap::new();
-
+    // Union labels at the geometric center of the intersection region.
     for union in &diagram.unions {
         if let Some(label) = &union.label {
             let indices: Vec<usize> = union
@@ -131,17 +128,22 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
                 continue;
             }
 
-            let mid_x: f64 = indices.iter().map(|&i| centers[i].0).sum::<f64>() / indices.len() as f64;
-            let mid_y: f64 = indices.iter().map(|&i| centers[i].1).sum::<f64>() / indices.len() as f64;
+            let (mut lx, mut ly) = intersection_center(&indices, &centers, &radii);
 
-            // Offset to avoid stacking at same position
-            let key = ((mid_x * 10.0) as i32, (mid_y * 10.0) as i32);
-            let slot = union_count_at.entry(key).or_insert(0);
-            let y_offset = *slot as f64 * union_line_h;
-            *slot += 1;
+            // For pairwise unions with other sets present, push away from non-members
+            let non_members: Vec<usize> = (0..n).filter(|i| !indices.contains(i)).collect();
+            if !non_members.is_empty() {
+                let non_cx: f64 = non_members.iter().map(|&i| centers[i].0).sum::<f64>() / non_members.len() as f64;
+                let non_cy: f64 = non_members.iter().map(|&i| centers[i].1).sum::<f64>() / non_members.len() as f64;
+                let dx = lx - non_cx;
+                let dy = ly - non_cy;
+                let dist = (dx * dx + dy * dy).sqrt().max(1.0);
+                lx += 20.0 * dx / dist;
+                ly += 20.0 * dy / dist;
+            }
 
             scene.push(Primitive::Text {
-                position: Point::new(mid_x + ox, mid_y + oy + y_offset),
+                position: Point::new(lx + ox, ly + oy),
                 content: label.clone(),
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
@@ -179,9 +181,42 @@ fn compute_centers(n: usize, radii: &[f64]) -> Vec<(f64, f64)> {
     }
 }
 
-/// Position label away from other circles (toward the outer edge).
+/// Geometric center of the intersection region for a set of circles.
+///
+/// For 2 circles: uses the radical axis point (exact lens center).
+/// For 3+: weighted centroid favoring smaller circles.
+fn intersection_center(
+    indices: &[usize],
+    centers: &[(f64, f64)],
+    radii: &[f64],
+) -> (f64, f64) {
+    if indices.len() == 2 {
+        let (i, j) = (indices[0], indices[1]);
+        let (c1x, c1y) = centers[i];
+        let (c2x, c2y) = centers[j];
+        let r1 = radii[i];
+        let r2 = radii[j];
+        let dx = c2x - c1x;
+        let dy = c2y - c1y;
+        let d_sq = dx * dx + dy * dy;
+        if d_sq < 1e-10 {
+            return (c1x, c1y);
+        }
+        // Radical axis parameter: t where the perpendicular chord crosses c1→c2
+        let t = (d_sq + r1 * r1 - r2 * r2) / (2.0 * d_sq);
+        (c1x + t * dx, c1y + t * dy)
+    } else {
+        // Weighted centroid: weight by 1/r² (favors smaller circles)
+        let total_w: f64 = indices.iter().map(|&i| 1.0 / (radii[i] * radii[i])).sum();
+        let wx: f64 = indices.iter().map(|&i| centers[i].0 / (radii[i] * radii[i])).sum();
+        let wy: f64 = indices.iter().map(|&i| centers[i].1 / (radii[i] * radii[i])).sum();
+        (wx / total_w, wy / total_w)
+    }
+}
+
+/// Position label away from other circles but well inside the circle border.
+/// Places at 35% of radius toward the outer edge (away from other circles).
 fn label_position(cx: f64, cy: f64, r: f64, centers: &[(f64, f64)], idx: usize) -> (f64, f64) {
-    // Direction: away from centroid of other circles
     let other_cx: f64 = centers.iter().enumerate()
         .filter(|&(i, _)| i != idx)
         .map(|(_, &(x, _))| x)
@@ -195,7 +230,8 @@ fn label_position(cx: f64, cy: f64, r: f64, centers: &[(f64, f64)], idx: usize) 
     let dy = cy - other_cy;
     let dist = (dx * dx + dy * dy).sqrt().max(1.0);
 
-    let label_r = r * 0.55;
+    // 35% of radius keeps label comfortably inside the circle
+    let label_r = r * 0.35;
     (cx + label_r * dx / dist, cy + label_r * dy / dist)
 }
 
