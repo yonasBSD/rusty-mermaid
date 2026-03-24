@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 537.61 410" width="537.61" height="410">
+  <g transform="translate(20, 20)">
+    <text x="248.81" y="40" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Skills</text>
+    <circle cx="170" cy="200" r="140" fill="#4e79a732" stroke="#4e79a7" stroke-width="2" />
+    <text x="93" y="200" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Frontend</text>
+    <circle cx="342.39" cy="200" r="125.22" fill="#f28e2c32" stroke="#f28e2c" stroke-width="2" />
+    <text x="411.26" y="200" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Backend</text>
+    <text x="256.2" y="200" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Full-Stack</text>
+  </g>
+</svg>

@@ -48,6 +48,9 @@ pub mod packet;
 #[cfg(feature = "quadrant")]
 pub mod quadrant;
 
+#[cfg(feature = "venn")]
+pub mod venn;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -70,6 +73,7 @@ pub enum DiagramKind {
     Sankey,
     Packet,
     Quadrant,
+    Venn,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -96,12 +100,13 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
         l if l.starts_with("sankey") => Some(DiagramKind::Sankey),
         l if l.starts_with("packet") => Some(DiagramKind::Packet),
         l if l.starts_with("quadrantChart") => Some(DiagramKind::Quadrant),
+        l if l.starts_with("venn") => Some(DiagramKind::Venn),
         _ => None,
     }
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -149,7 +154,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -254,6 +259,11 @@ pub fn render_to_scene_themed(
         DiagramKind::Quadrant => {
             let chart = quadrant::parser::parse(input)?;
             Ok(quadrant::to_scene_themed(&chart, theme))
+        }
+        #[cfg(feature = "venn")]
+        DiagramKind::Venn => {
+            let diagram = venn::parser::parse(input)?;
+            Ok(venn::to_scene_themed(&diagram, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
