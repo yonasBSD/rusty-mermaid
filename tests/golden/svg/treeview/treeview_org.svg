@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 270" width="344" height="270">
+  <g transform="translate(20, 20)">
+    <path d="M24 38 L24 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 60 L48 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 148 L48 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 71 L62 71" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 93 L62 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 115 L62 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 137 L38 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 159 L62 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 181 L62 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 203 L38 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Company</text>
+    <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Engineering</text>
+    <text x="64" y="71" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Backend</text>
+    <text x="64" y="93" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Frontend</text>
+    <text x="64" y="115" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">DevOps</text>
+    <text x="40" y="137" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Product</text>
+    <text x="64" y="159" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design</text>
+    <text x="64" y="181" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Research</text>
+    <text x="40" y="203" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Marketing</text>
+  </g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 380" width="368" height="380">
+  <g transform="translate(20, 20)">
+    <path d="M24 38 L24 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 104 L48 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 170 L72 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 236 L24 269" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 71 L38 71" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 93 L38 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 115 L62 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 137 L62 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 159 L62 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 181 L86 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 203 L86 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 247 L38 247" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 269 L38 269" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">src</text>
+    <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">main.rs</text>
+    <text x="40" y="71" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">lib.rs</text>
+    <text x="40" y="93" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">modules</text>
+    <text x="64" y="115" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">auth.rs</text>
+    <text x="64" y="137" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">db.rs</text>
+    <text x="64" y="159" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">api</text>
+    <text x="88" y="181" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">routes.rs</text>
+    <text x="88" y="203" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">handlers.rs</text>
+    <text x="16" y="225" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">tests</text>
+    <text x="40" y="247" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">integration.rs</text>
+    <text x="40" y="269" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">unit.rs</text>
+    <text x="16" y="291" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cargo.toml</text>
+    <text x="16" y="313" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">README.md</text>
+  </g>
+</svg>
