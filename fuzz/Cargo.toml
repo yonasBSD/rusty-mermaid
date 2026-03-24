@@ -42,3 +42,8 @@ doc = false
 name = "fuzz_dagre_layout"
 path = "fuzz_targets/dagre_layout.rs"
 doc = false
+
+[[bin]]
+name = "fuzz_force_layout"
+path = "fuzz_targets/force_layout.rs"
+doc = false

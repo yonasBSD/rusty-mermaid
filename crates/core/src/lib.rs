@@ -1,5 +1,6 @@
 pub mod constants;
 pub mod curve;
+pub mod force_layout;
 pub mod font_fallback;
 pub mod geometry;
 pub mod marker_shapes;
