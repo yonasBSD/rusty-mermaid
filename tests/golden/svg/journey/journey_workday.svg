@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 376" width="760" height="376">
+  <g transform="translate(20, 20)">
+    <text x="360" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">My Working Day</text>
+    <rect x="30" y="50" width="380" height="28" rx="4" ry="4" fill="#e9eef4" />
+    <text x="220" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Go to work</text>
+    <rect x="30" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Make tea</text>
+    <path d="M90 154 L90 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="90" cy="166" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="86.5" cy="163" r="1.5" fill="#505050" />
+    <circle cx="93.5" cy="163" r="1.5" fill="#505050" />
+    <path d="M86 169 C88 173 92 173 94 169" fill="none" stroke="#505050" stroke-width="1.5" />
+    <circle cx="90" cy="138" r="5" fill="#4e79a7" />
+    <rect x="160" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
+    <text x="220" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go upstairs</text>
+    <path d="M220 154 L220 214" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="220" cy="214" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="216.5" cy="211" r="1.5" fill="#505050" />
+    <circle cx="223.5" cy="211" r="1.5" fill="#505050" />
+    <path d="M216 218 L224 218" fill="none" stroke="#505050" stroke-width="1.5" />
+    <circle cx="220" cy="138" r="5" fill="#4e79a7" />
+    <rect x="290" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
+    <text x="350" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Do work</text>
+    <path d="M350 154 L350 262" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="350" cy="262" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="346.5" cy="259" r="1.5" fill="#505050" />
+    <circle cx="353.5" cy="259" r="1.5" fill="#505050" />
+    <path d="M346 268 C348 264 352 264 354 268" fill="none" stroke="#505050" stroke-width="1.5" />
+    <circle cx="343" cy="138" r="5" fill="#4e79a7" />
+    <circle cx="357" cy="138" r="5" fill="#f28e2c" />
+    <rect x="440" y="50" width="250" height="28" rx="4" ry="4" fill="#fdf1e5" />
+    <text x="565" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Go home</text>
+    <rect x="440" y="86" width="120" height="32" rx="4" ry="4" fill="#fdf5ed" stroke="#f28e2c" stroke-width="1" />
+    <text x="500" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go downstairs</text>
+    <path d="M500 154 L500 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="500" cy="166" r="12" fill="#fff8dc" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="496.5" cy="163" r="1.5" fill="#505050" />
+    <circle cx="503.5" cy="163" r="1.5" fill="#505050" />
+    <path d="M496 169 C498 173 502 173 504 169" fill="none" stroke="#505050" stroke-width="1.5" />
+    <circle cx="500" cy="138" r="5" fill="#4e79a7" />
+    <rect x="570" y="86" width="120" height="32" rx="4" ry="4" fill="#fdf5ed" stroke="#f28e2c" stroke-width="1" />
+    <text x="630" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sit down</text>
+    <path d="M630 154 L630 214" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="630" cy="214" r="12" fill="#fff8dc" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="626.5" cy="211" r="1.5" fill="#505050" />
+    <circle cx="633.5" cy="211" r="1.5" fill="#505050" />
+    <path d="M626 218 L634 218" fill="none" stroke="#505050" stroke-width="1.5" />
+    <circle cx="630" cy="138" r="5" fill="#4e79a7" />
+    <circle cx="35" cy="326" r="5" fill="#4e79a7" />
+    <text x="44" y="326" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Me</text>
+    <circle cx="74.51" cy="326" r="5" fill="#f28e2c" />
+    <text x="83.51" y="326" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cat</text>
+  </g>
+</svg>
