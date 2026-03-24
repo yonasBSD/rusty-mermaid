@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 878.4 440" width="878.4" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M122 89.67 C254.5 89.67 254.5 113.67 387 113.67" fill="none" stroke="#4e79a764" stroke-width="139.34" />
+    <path d="M122 212.23 C254.5 212.23 254.5 224.23 387 224.23" fill="none" stroke="#e1575964" stroke-width="81.79" />
+    <path d="M122 292.39 C254.5 292.39 254.5 292.39 387 292.39" fill="none" stroke="#76b7b264" stroke-width="54.52" />
+    <path d="M122 343.77 C254.5 343.77 254.5 331.77 387 331.77" fill="none" stroke="#59a14f64" stroke-width="24.23" />
+    <path d="M122 373.94 C254.5 373.94 254.5 349.94 387 349.94" fill="none" stroke="#edc94964" stroke-width="12.12" />
+    <path d="M397 97.01 C529.5 97.01 529.5 79.01 662 79.01" fill="none" stroke="#f28e2c64" stroke-width="106.02" />
+    <path d="M397 192.43 C529.5 192.43 529.5 186.43 662 186.43" fill="none" stroke="#f28e2c64" stroke-width="84.82" />
+    <path d="M397 272.7 C529.5 272.7 529.5 278.7 662 278.7" fill="none" stroke="#f28e2c64" stroke-width="75.73" />
+    <path d="M397 333.28 C529.5 333.28 529.5 351.28 662 351.28" fill="none" stroke="#f28e2c64" stroke-width="45.44" />
+    <rect x="112" y="20" width="10" height="139.34" fill="#4e79a7" />
+    <text x="106" y="89.67" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Coal 46</text>
+    <rect x="387" y="44" width="10" height="312" fill="#f28e2c" />
+    <text x="403" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Electricity 103</text>
+    <rect x="112" y="171.34" width="10" height="81.79" fill="#e15759" />
+    <text x="106" y="212.23" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Gas 27</text>
+    <rect x="112" y="265.13" width="10" height="54.52" fill="#76b7b2" />
+    <text x="106" y="292.39" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Nuclear 18</text>
+    <rect x="112" y="331.65" width="10" height="24.23" fill="#59a14f" />
+    <text x="106" y="343.77" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wind 8</text>
+    <rect x="112" y="367.88" width="10" height="12.12" fill="#edc949" />
+    <text x="106" y="373.94" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solar 4</text>
+    <rect x="662" y="26" width="10" height="106.02" fill="#af7aa1" />
+    <text x="678" y="79.01" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Residential 35</text>
+    <rect x="662" y="144.02" width="10" height="84.82" fill="#ff9da7" />
+    <text x="678" y="186.43" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Commercial 28</text>
+    <rect x="662" y="240.83" width="10" height="75.73" fill="#bab0ac" />
+    <text x="678" y="278.7" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Industrial 25</text>
+    <rect x="662" y="328.56" width="10" height="45.44" fill="#8c564b" />
+    <text x="678" y="351.28" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Transport 15</text>
+  </g>
+</svg>

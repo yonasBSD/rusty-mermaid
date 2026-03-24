@@ -39,6 +39,9 @@ pub mod xychart;
 #[cfg(feature = "mindmap")]
 pub mod mindmap;
 
+#[cfg(feature = "sankey")]
+pub mod sankey;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -58,6 +61,7 @@ pub enum DiagramKind {
     GitGraph,
     XyChart,
     Mindmap,
+    Sankey,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -81,12 +85,13 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
         l if l.starts_with("gitGraph") => Some(DiagramKind::GitGraph),
         l if l.starts_with("xychart") => Some(DiagramKind::XyChart),
         l if l.starts_with("mindmap") => Some(DiagramKind::Mindmap),
+        l if l.starts_with("sankey") => Some(DiagramKind::Sankey),
         _ => None,
     }
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -134,7 +139,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -224,6 +229,11 @@ pub fn render_to_scene_themed(
         DiagramKind::Mindmap => {
             let diagram = mindmap::parser::parse(input)?;
             Ok(mindmap::to_scene_themed(&diagram, theme))
+        }
+        #[cfg(feature = "sankey")]
+        DiagramKind::Sankey => {
+            let diagram = sankey::parser::parse(input)?;
+            Ok(sankey::to_scene_themed(&diagram, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(
