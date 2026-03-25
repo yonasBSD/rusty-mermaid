@@ -16,7 +16,7 @@ const GAP: f64 = 30.0;
 const COLS: usize = 3;
 const SCENE_PAD: f64 = 30.0;
 const BOUNDARY_PAD: f64 = 16.0;
-const TINT: f64 = 0.15;
+const TINT: f64 = 0.10;
 
 const INTERNAL_COLOR: Color = Color::rgb(68, 114, 196);
 const EXTERNAL_COLOR: Color = Color::rgb(128, 128, 128);
@@ -130,22 +130,28 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         }
     }
 
+    // Compute visual widths per element (Database is narrower than its grid cell)
+    let visual_widths: HashMap<String, f64> = diagram.elements.iter().map(|e| {
+        let &(_, _, ew, _) = positions.get(&e.alias).unwrap_or(&(0.0, 0.0, MIN_ELEM_W, ELEM_H));
+        let vw = if e.shape == C4Shape::Database { ew * 0.7 } else { ew };
+        (e.alias.clone(), vw)
+    }).collect();
+
     // Edge lines (behind elements), labels collected for on-top rendering
     let mut edge_labels: Vec<(f64, f64, String)> = Vec::new();
 
     for rel in &diagram.relationships {
-        let Some(&(x1, y1, w1, h1)) = positions.get(&rel.from) else { continue };
-        let Some(&(x2, y2, w2, h2)) = positions.get(&rel.to) else { continue };
+        let Some(&(x1, y1, _, h1)) = positions.get(&rel.from) else { continue };
+        let Some(&(x2, y2, _, h2)) = positions.get(&rel.to) else { continue };
+        let vw1 = visual_widths.get(&rel.from).copied().unwrap_or(MIN_ELEM_W);
+        let vw2 = visual_widths.get(&rel.to).copied().unwrap_or(MIN_ELEM_W);
 
-        // Clip to borders, then pull end back so arrow tip touches border
-        let raw_start = clip_border(x1, y1, w1, h1, x2, y2);
-        let raw_end = clip_border(x2, y2, w2, h2, x1, y1);
-        let dx = raw_end.x - raw_start.x;
-        let dy = raw_end.y - raw_start.y;
+        let start = clip_border(x1, y1, vw1, h1, x2, y2);
+        let raw_end = clip_border(x2, y2, vw2, h2, x1, y1);
+        let dx = raw_end.x - start.x;
+        let dy = raw_end.y - start.y;
         let len = (dx * dx + dy * dy).sqrt().max(1.0);
-        let arrow_inset = 2.0;
-        let start = raw_start;
-        let end = Point::new(raw_end.x - arrow_inset * dx / len, raw_end.y - arrow_inset * dy / len);
+        let end = Point::new(raw_end.x - 2.0 * dx / len, raw_end.y - 2.0 * dy / len);
 
         scene.push(Primitive::Path {
             segments: vec![
@@ -153,7 +159,7 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
                 PathSegment::LineTo(end),
             ],
             style: Style {
-                stroke: Some(Color::rgb(120, 120, 120)),
+                stroke: Some(Color::rgb(140, 140, 140)),
                 stroke_width: Some(1.2),
                 ..Default::default()
             },
@@ -161,22 +167,16 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
             marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
         });
 
-        // Label near the source element, well above the line
+        // Label near source, above the line
         let label = if let Some(tech) = &rel.technology {
             format!("{} [{}]", rel.label, tech)
         } else {
             rel.label.clone()
         };
-        // For horizontal edges: place label above the source endpoint
-        // For vertical edges: place label beside the source endpoint
-        let dx = end.x - start.x;
-        let dy = end.y - start.y;
         let is_horizontal = dx.abs() > dy.abs();
         let (lx, ly) = if is_horizontal {
-            // Above the line, near source
             (start.x + dx * 0.15, start.y - 14.0)
         } else {
-            // Beside the line, near source
             (start.x - 10.0, start.y + dy * 0.2)
         };
         edge_labels.push((lx, ly, label));
@@ -188,11 +188,20 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         render_element(&mut scene, elem, cx, cy, ew, theme);
     }
 
-    // Edge labels ON TOP of everything
-    for (lx, ly, label) in edge_labels {
+    // Edge labels ON TOP with translucent background
+    let label_bg = Color::rgba(255, 255, 255, 200);
+    for (lx, ly, label) in &edge_labels {
+        let label_style = TextStyle { font_size: 10.0, ..Default::default() };
+        let tw = SimpleTextMeasure::measure_raw(label, &label_style).width;
+        // Background rect
+        scene.push(Primitive::Rect {
+            bbox: BBox::new(*lx, *ly, tw + 8.0, 14.0),
+            rx: 3.0, ry: 3.0,
+            style: Style { fill: Some(label_bg), ..Default::default() },
+        });
         scene.push(Primitive::Text {
-            position: Point::new(lx, ly),
-            content: label,
+            position: Point::new(*lx, *ly),
+            content: label.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
                 font_size: 10.0,
