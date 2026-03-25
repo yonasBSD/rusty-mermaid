@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 465.1" width="1140" height="465.1">
+  <g transform="translate(20, 20)">
+    <rect x="881.2" y="194.55" width="178.8" height="36" rx="4" ry="4" fill="#9370db" />
+    <text x="970.6" y="212.55" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Low Quality Output</text>
+    <path d="M160 212.55 L881.2 212.55" fill="none" stroke="#333333" stroke-width="2.5" />
+    <path d="M273.53 212.55 L237.3 77.32" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <text x="237.3" y="63.32" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">People</text>
+    <path d="M264.47 178.74 L194.47 178.74" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="190.47" y="178.74" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Lack of training</text>
+    <path d="M255.42 144.93 L185.42 144.93" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="181.42" y="144.93" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High turnover</text>
+    <path d="M246.36 111.13 L176.36 111.13" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="172.36" y="111.13" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Fatigue</text>
+    <path d="M387.07 212.55 L356.01 328.46" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <text x="356.01" y="342.46" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Process</text>
+    <path d="M376.71 251.19 L306.71 251.19" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="302.71" y="251.19" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No standard procedures</text>
+    <path d="M366.36 289.82 L296.36 289.82" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="292.36" y="289.82" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Poor communication</text>
+    <path d="M500.6 212.55 L459.19 58" fill="none" stroke="#e15759" stroke-width="2" />
+    <text x="459.19" y="44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Equipment</text>
+    <path d="M486.8 161.03 L416.8 161.03" fill="none" stroke="#e15759" stroke-width="1.2" />
+    <text x="412.8" y="161.03" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outdated tools</text>
+    <path d="M472.99 109.52 L382.99 109.52" fill="none" stroke="#e15759" stroke-width="1.2" />
+    <text x="378.99" y="109.52" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Calibration drift</text>
+    <path d="M442.99 109.52 L438.79 81.52" fill="none" stroke="#e15759" stroke-width="0.8" />
+    <text x="435.79" y="71.52" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">Sensor age</text>
+    <path d="M412.99 109.52 L409.99 89.52" fill="none" stroke="#e15759" stroke-width="0.8" />
+    <text x="406.99" y="79.52" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">No maintenance</text>
+    <path d="M614.13 212.55 L583.08 328.46" fill="none" stroke="#76b7b2" stroke-width="2" />
+    <text x="583.08" y="342.46" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2" font-weight="bold">Materials</text>
+    <path d="M603.78 251.19 L533.78 251.19" fill="none" stroke="#76b7b2" stroke-width="1.2" />
+    <text x="529.78" y="251.19" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inconsistent supply</text>
+    <path d="M593.43 289.82 L523.43 289.82" fill="none" stroke="#76b7b2" stroke-width="1.2" />
+    <text x="519.43" y="289.82" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wrong specifications</text>
+    <path d="M727.67 212.55 L696.61 96.64" fill="none" stroke="#59a14f" stroke-width="2" />
+    <text x="696.61" y="82.64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Environment</text>
+    <path d="M717.31 173.91 L647.31 173.91" fill="none" stroke="#59a14f" stroke-width="1.2" />
+    <text x="643.31" y="173.91" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Temperature variation</text>
+    <path d="M706.96 135.27 L636.96 135.27" fill="none" stroke="#59a14f" stroke-width="1.2" />
+    <text x="632.96" y="135.27" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Humidity</text>
+  </g>
+</svg>

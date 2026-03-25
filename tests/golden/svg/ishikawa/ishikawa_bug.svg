@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 387.82" width="900" height="387.82">
+  <g transform="translate(20, 20)">
+    <rect x="675.6" y="155.91" width="144.4" height="36" rx="4" ry="4" fill="#9370db" />
+    <text x="747.8" y="173.91" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Production Bug</text>
+    <path d="M160 173.91 L675.6 173.91" fill="none" stroke="#333333" stroke-width="2.5" />
+    <path d="M278.9 173.91 L247.84 58" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <text x="247.84" y="44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Code</text>
+    <path d="M268.55 135.27 L198.55 135.27" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="194.55" y="135.27" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Missing null check</text>
+    <path d="M258.19 96.64 L188.19 96.64" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="184.19" y="96.64" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Race condition</text>
+    <path d="M397.8 173.91 L366.74 289.82" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <text x="366.74" y="303.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Testing</text>
+    <path d="M387.45 212.55 L317.45 212.55" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="313.45" y="212.55" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No integration tests</text>
+    <path d="M377.09 251.19 L307.09 251.19" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="303.09" y="251.19" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Flaky CI</text>
+    <path d="M516.7 173.91 L485.64 58" fill="none" stroke="#e15759" stroke-width="2" />
+    <text x="485.64" y="44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Deploy</text>
+    <path d="M506.35 135.27 L436.35 135.27" fill="none" stroke="#e15759" stroke-width="1.2" />
+    <text x="432.35" y="135.27" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wrong config</text>
+    <path d="M495.99 96.64 L425.99 96.64" fill="none" stroke="#e15759" stroke-width="1.2" />
+    <text x="421.99" y="96.64" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No rollback plan</text>
+  </g>
+</svg>
