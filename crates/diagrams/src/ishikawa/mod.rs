@@ -123,14 +123,17 @@ pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
         let attach_x = spine_left + cat_spacing * (ci as f64 + 1.0);
         let bone_len = bone_lengths[ci];
 
-        // Bone tip: angled line from spine
+        // Bone tip: angled line from spine edge (not center)
+        let spine_half = 1.5; // half of spine stroke width, so bone starts at boundary
+        let start_x = attach_x - cos_a * spine_half;
+        let start_y = spine_y + direction * sin_a * spine_half;
         let tip_x = attach_x - bone_len * cos_a;
         let tip_y = spine_y + direction * bone_len * sin_a;
 
         // Category bone line
         scene.push(Primitive::Path {
             segments: vec![
-                PathSegment::MoveTo(Point::new(attach_x, spine_y)),
+                PathSegment::MoveTo(Point::new(start_x, start_y)),
                 PathSegment::LineTo(Point::new(tip_x, tip_y)),
             ],
             style: Style {
