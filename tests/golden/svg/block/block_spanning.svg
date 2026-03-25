@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <g transform="translate(20, 20)">
+    <rect x="24" y="24" width="392" height="60" rx="3" ry="3" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="220" y="54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Header</text>
+    <rect x="24" y="100" width="120" height="60" rx="3" ry="3" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="84" y="130" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Left</text>
+    <rect x="160" y="100" width="120" height="60" rx="3" ry="3" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <text x="220" y="130" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Center</text>
+    <rect x="296" y="100" width="120" height="60" rx="3" ry="3" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <text x="356" y="130" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Right</text>
+    <rect x="24" y="176" width="256" height="60" rx="3" ry="3" fill="#ebf3e9" stroke="#59a14f" stroke-width="1.5" />
+    <text x="152" y="206" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Footer</text>
+    <rect x="296" y="176" width="120" height="60" rx="3" ry="3" fill="#fcf8e9" stroke="#edc949" stroke-width="1.5" />
+    <text x="356" y="206" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Side</text>
+  </g>
+</svg>

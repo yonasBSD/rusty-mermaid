@@ -66,6 +66,9 @@ pub mod ishikawa;
 #[cfg(feature = "treemap")]
 pub mod treemap;
 
+#[cfg(feature = "block")]
+pub mod block;
+
 use common::error::ParseError;
 
 /// Supported diagram types.
@@ -94,6 +97,7 @@ pub enum DiagramKind {
     TreeView,
     Ishikawa,
     Treemap,
+    Block,
 }
 
 /// Detect the diagram type from the first non-empty, non-comment line.
@@ -126,12 +130,13 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
         l if l.starts_with("treeView") => Some(DiagramKind::TreeView),
         l if l.starts_with("ishikawa") => Some(DiagramKind::Ishikawa),
         l if l.starts_with("treemap") => Some(DiagramKind::Treemap),
+        l if l.starts_with("block") => Some(DiagramKind::Block),
         _ => None,
     }
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn", feature = "radar", feature = "user-journey", feature = "treeview", feature = "ishikawa", feature = "treemap"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn", feature = "radar", feature = "user-journey", feature = "treeview", feature = "ishikawa", feature = "treemap", feature = "block"))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -179,7 +184,7 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn", feature = "radar", feature = "user-journey", feature = "treeview", feature = "ishikawa", feature = "treemap"))]
+#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn", feature = "radar", feature = "user-journey", feature = "treeview", feature = "ishikawa", feature = "treemap", feature = "block"))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -314,6 +319,11 @@ pub fn render_to_scene_themed(
         DiagramKind::Treemap => {
             let diagram = treemap::parser::parse(input)?;
             Ok(treemap::to_scene_themed(&diagram, theme))
+        }
+        #[cfg(feature = "block")]
+        DiagramKind::Block => {
+            let diagram = block::parser::parse(input)?;
+            Ok(block::to_scene_themed(&diagram, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(

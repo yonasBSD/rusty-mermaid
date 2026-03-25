@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 224" width="480" height="224">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M144 54 L157 54" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M280 54 L293 54" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M166.32 84 L140.3 98.54" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M144 130 L293 130" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="24" y="24" width="120" height="60" rx="3" ry="3" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="84" y="54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Frontend</text>
+    <rect x="160" y="24" width="120" height="60" rx="3" ry="3" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="220" y="54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API Gateway</text>
+    <rect x="296" y="24" width="120" height="60" rx="3" ry="3" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <text x="356" y="54" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Auth Service</text>
+    <rect x="24" y="100" width="120" height="60" rx="3" ry="3" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <text x="84" y="130" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Database</text>
+    <rect x="296" y="100" width="120" height="60" rx="3" ry="3" fill="#fcf8e9" stroke="#edc949" stroke-width="1.5" />
+    <text x="356" y="130" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cache</text>
+  </g>
+</svg>
