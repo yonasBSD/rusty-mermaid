@@ -60,15 +60,19 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         let is_junction = diagram.junctions.iter().any(|j| j.id == *id);
         let (w, h) = if is_junction { (JUNCTION_SIZE, JUNCTION_SIZE) } else { (SERVICE_W, SERVICE_H) };
 
-        // Seed position near group center with small random-like offset
+        // Seed position near group center, spread horizontally
         let group_id = diagram.node_group(id);
         let (seed_x, seed_y) = group_id
             .and_then(|g| group_centers.get(g))
             .copied()
             .unwrap_or((0.0, 0.0));
-        let offset_x = (i as f64 * 97.0) % 160.0 - 80.0; // wider deterministic spread
-        let offset = offset_x;
-        fg.add_node(ForceNode::new(i).with_size(w, h).with_position(seed_x + offset, seed_y + offset * 0.7));
+        // Count how many nodes in this group already placed, spread LR
+        let group_idx = group_id.map(|g| {
+            node_ids[..i].iter().filter(|prev| diagram.node_group(prev) == Some(g)).count()
+        }).unwrap_or(i);
+        let offset_x = (group_idx as f64 - 1.5) * (w + 30.0);
+        let offset_y = ((group_idx % 2) as f64 - 0.5) * 20.0; // slight vertical stagger
+        fg.add_node(ForceNode::new(i).with_size(w, h).with_position(seed_x + offset_x, seed_y + offset_y));
     }
 
     // Add explicit edges as springs
@@ -78,11 +82,9 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         }
     }
 
-    // Scale layout params by node count — fewer nodes need less spacing
-    let n_nodes = node_ids.len();
-    let ideal = if n_nodes <= 4 { 80.0 } else { 120.0 + n_nodes as f64 * 5.0 };
+    // ideal_length must exceed node size so CoSE clip-point distance works
     force_layout(&mut fg, &ForceConfig {
-        ideal_length: ideal,
+        ideal_length: 120.0,
         repulsion: 6000.0,
         ..ForceConfig::default()
     });
@@ -166,47 +168,26 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         let Some(&(x1, y1, w1, h1)) = positions.get(&edge.from) else { continue };
         let Some(&(x2, y2, w2, h2)) = positions.get(&edge.to) else { continue };
 
-        // Use directional anchors for start/end points
-        let start = dir_anchor(x1, y1, w1, h1, edge.from_dir);
-        let end = dir_anchor(x2, y2, w2, h2, edge.to_dir);
+        // Connect border-to-border (force layout determines actual positions)
+        let start = clip_border(x1, y1, w1, h1, x2, y2);
+        let end = clip_border(x2, y2, w2, h2, x1, y1);
 
         let marker_start = if edge.arrow_left { Some(rusty_mermaid_core::MarkerType::ArrowPoint) } else { None };
         let marker_end = if edge.arrow_right { Some(rusty_mermaid_core::MarkerType::ArrowPoint) } else { None };
 
-        // Determine if we need a bend (L-shaped path)
-        let needs_bend = !same_axis(edge.from_dir, edge.to_dir);
-
-        if needs_bend {
-            let mid = bend_point(start, end, edge.from_dir);
-            scene.push(Primitive::Path {
-                segments: vec![
-                    PathSegment::MoveTo(start),
-                    PathSegment::LineTo(mid),
-                    PathSegment::LineTo(end),
-                ],
-                style: Style {
-                    stroke: Some(Color::rgb(140, 140, 140)),
-                    stroke_width: Some(1.5),
-                    ..Default::default()
-                },
-                marker_start,
-                marker_end,
-            });
-        } else {
-            scene.push(Primitive::Path {
-                segments: vec![
-                    PathSegment::MoveTo(start),
-                    PathSegment::LineTo(end),
-                ],
-                style: Style {
-                    stroke: Some(Color::rgb(140, 140, 140)),
-                    stroke_width: Some(1.5),
-                    ..Default::default()
-                },
-                marker_start,
-                marker_end,
-            });
-        }
+        scene.push(Primitive::Path {
+            segments: vec![
+                PathSegment::MoveTo(start),
+                PathSegment::LineTo(end),
+            ],
+            style: Style {
+                stroke: Some(Color::rgb(140, 140, 140)),
+                stroke_width: Some(1.5),
+                ..Default::default()
+            },
+            marker_start,
+            marker_end,
+        });
     }
 
     // Render services (on top)
@@ -232,30 +213,23 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     scene
 }
 
-/// Anchor point on a node's border at the given direction.
-fn dir_anchor(cx: f64, cy: f64, w: f64, h: f64, dir: Dir) -> Point {
-    match dir {
-        Dir::T => Point::new(cx, cy - h / 2.0),
-        Dir::B => Point::new(cx, cy + h / 2.0),
-        Dir::L => Point::new(cx - w / 2.0, cy),
-        Dir::R => Point::new(cx + w / 2.0, cy),
-    }
-}
-
-/// Whether two directions are on the same axis (both horizontal or both vertical).
-fn same_axis(a: Dir, b: Dir) -> bool {
-    matches!((a, b),
-        (Dir::L, Dir::R) | (Dir::R, Dir::L) |
-        (Dir::T, Dir::B) | (Dir::B, Dir::T) |
-        (Dir::L, Dir::L) | (Dir::R, Dir::R) |
-        (Dir::T, Dir::T) | (Dir::B, Dir::B))
-}
-
-/// Compute the bend point for an L-shaped edge.
-fn bend_point(start: Point, end: Point, from_dir: Dir) -> Point {
-    match from_dir {
-        Dir::T | Dir::B => Point::new(start.x, end.y),
-        Dir::L | Dir::R => Point::new(end.x, start.y),
+/// Clip point: where the line from (cx,cy) toward (tx,ty) exits the rect.
+fn clip_border(cx: f64, cy: f64, w: f64, h: f64, tx: f64, ty: f64) -> Point {
+    let dx = tx - cx;
+    let dy = ty - cy;
+    let hw = w / 2.0;
+    let hh = h / 2.0;
+    if dx.abs() < 1e-10 && dy.abs() < 1e-10 { return Point::new(cx + hw, cy); }
+    if dx.abs() < 1e-10 { return Point::new(cx, cy + dy.signum() * hh); }
+    if dy.abs() < 1e-10 { return Point::new(cx + dx.signum() * hw, cy); }
+    let slope = dy / dx;
+    let diag = hh / hw;
+    if slope.abs() <= diag {
+        let sx = dx.signum();
+        Point::new(cx + sx * hw, cy + sx * hw * slope)
+    } else {
+        let sy = dy.signum();
+        Point::new(cx + sy * hh / slope, cy + sy * hh)
     }
 }
 

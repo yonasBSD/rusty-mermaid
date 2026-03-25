@@ -1,38 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 691.4 387.6" width="691.4" height="387.6">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 668.93 495.26" width="668.93" height="495.26">
   <defs>
     <marker id="arrow-point-8c8c8c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#8c8c8c" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="227.88" y="10" width="413.52" height="293.39" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
-    <text x="237.88" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Cloud Platform</text>
-    <rect x="10" y="133.82" width="401.58" height="231.78" rx="6" ry="6" fill="none" stroke="#f28e2c" stroke-width="1.5" stroke-dasharray="7 5" />
-    <text x="20" y="147.82" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Internal Network</text>
-    <path d="M307.88 183.16 L561.4 165.39" fill="none" stroke="#8c8c8c" stroke-width="1.5" marker-end="url(#arrow-point-8c8c8c)" />
-    <path d="M307.88 183.16 L536.7 40" fill="none" stroke="#8c8c8c" stroke-width="1.5" marker-end="url(#arrow-point-8c8c8c)" />
-    <path d="M611.4 205.39 L281.58 267.6" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M586.7 80 L281.58 267.6" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M331.58 307.6 L90 163.82" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <rect x="257.88" y="103.16" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
-    <circle cx="307.88" cy="131.16" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
-    <text x="307.88" y="131.16" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
-    <text x="307.88" y="163.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Load Balancer</text>
-    <rect x="511.4" y="165.39" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
-    <circle cx="561.4" cy="193.39" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
-    <text x="561.4" y="193.39" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">SRV</text>
-    <text x="561.4" y="225.39" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">App Server 1</text>
-    <rect x="486.7" y="40" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
-    <circle cx="536.7" cy="68" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
-    <text x="536.7" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">SRV</text>
-    <text x="536.7" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">App Server 2</text>
-    <rect x="281.58" y="227.6" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
-    <circle cx="331.58" cy="255.6" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
-    <text x="331.58" y="255.6" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DB</text>
-    <text x="331.58" y="287.6" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
-    <rect x="40" y="163.82" width="100" height="80" rx="6" ry="6" fill="#ebf3e9" stroke="#59a14f" stroke-width="1.5" />
-    <circle cx="90" cy="191.82" r="12" fill="#59a14f3c" stroke="#59a14f" stroke-width="1" />
-    <text x="90" y="191.82" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f">DB</text>
-    <text x="90" y="223.82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Primary DB</text>
+    <rect x="248.51" y="10" width="370.42" height="368.37" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="258.51" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Cloud Platform</text>
+    <rect x="10" y="207.4" width="370.29" height="265.86" rx="6" ry="6" fill="none" stroke="#f28e2c" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="20" y="221.4" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Internal Network</text>
+    <path d="M533.46 120 L517.01 240.37" fill="none" stroke="#8c8c8c" stroke-width="1.5" marker-end="url(#arrow-point-8c8c8c)" />
+    <path d="M488.93 102.65 L378.51 152.68" fill="none" stroke="#8c8c8c" stroke-width="1.5" marker-end="url(#arrow-point-8c8c8c)" />
+    <path d="M461.54 302.83 L350.29 352.8" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
+    <path d="M322.87 215.33 L305.93 335.26" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
+    <path d="M250.29 351.99 L140 300.67" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
+    <rect x="488.93" y="40" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="538.93" cy="68" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="538.93" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
+    <text x="538.93" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Load Balancer</text>
+    <rect x="461.54" y="240.37" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="511.54" cy="268.37" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
+    <text x="511.54" y="268.37" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">SRV</text>
+    <text x="511.54" y="300.37" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">App Server 1</text>
+    <rect x="278.51" y="135.33" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <circle cx="328.51" cy="163.33" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
+    <text x="328.51" y="163.33" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">SRV</text>
+    <text x="328.51" y="195.33" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">App Server 2</text>
+    <rect x="250.29" y="335.26" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <circle cx="300.29" cy="363.26" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
+    <text x="300.29" y="363.26" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DB</text>
+    <text x="300.29" y="395.26" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
+    <rect x="40" y="237.4" width="100" height="80" rx="6" ry="6" fill="#ebf3e9" stroke="#59a14f" stroke-width="1.5" />
+    <circle cx="90" cy="265.4" r="12" fill="#59a14f3c" stroke="#59a14f" stroke-width="1" />
+    <text x="90" y="265.4" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f">DB</text>
+    <text x="90" y="297.4" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Primary DB</text>
   </g>
 </svg>
