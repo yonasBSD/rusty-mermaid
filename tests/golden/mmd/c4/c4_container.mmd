@@ -1,0 +1,11 @@
+C4Container
+  title Container Diagram
+  Person(user, "User", "Interacts with system")
+  System_Boundary(bank, "Banking System") {
+    Container(web, "Web App", "Spring Boot", "Serves web pages")
+    ContainerDb(db, "Database", "PostgreSQL", "Stores data")
+    Container(api, "API", "Node.js", "REST API")
+  }
+  Rel(user, web, "Visits", "HTTPS")
+  Rel(web, api, "Calls", "JSON")
+  Rel(api, db, "Reads/Writes", "SQL")

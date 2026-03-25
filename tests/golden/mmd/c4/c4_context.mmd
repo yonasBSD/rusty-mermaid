@@ -1,0 +1,9 @@
+C4Context
+  title Internet Banking System
+  Person(customer, "Banking Customer", "A customer of the bank")
+  System(banking, "Internet Banking System", "Allows customers to view accounts")
+  System_Ext(email, "E-mail System", "Sends emails to customers")
+  System_Ext(core, "Core Banking System", "Stores account data")
+  Rel(customer, banking, "Uses", "HTTPS")
+  Rel(banking, email, "Sends emails", "SMTP")
+  Rel(banking, core, "Gets account data", "API")
