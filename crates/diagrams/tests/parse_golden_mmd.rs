@@ -6,6 +6,25 @@ use rusty_mermaid_diagrams::state::parser as state_parser;
 use rusty_mermaid_diagrams::class::parser as class_parser;
 use rusty_mermaid_diagrams::er::parser as er_parser;
 use rusty_mermaid_diagrams::requirement::parser as req_parser;
+use rusty_mermaid_diagrams::pie::parser as pie_parser;
+use rusty_mermaid_diagrams::timeline::parser as timeline_parser;
+use rusty_mermaid_diagrams::kanban::parser as kanban_parser;
+use rusty_mermaid_diagrams::gantt::parser as gantt_parser;
+use rusty_mermaid_diagrams::gitgraph::parser as gitgraph_parser;
+use rusty_mermaid_diagrams::xychart::parser as xychart_parser;
+use rusty_mermaid_diagrams::mindmap::parser as mindmap_parser;
+use rusty_mermaid_diagrams::sankey::parser as sankey_parser;
+use rusty_mermaid_diagrams::packet::parser as packet_parser;
+use rusty_mermaid_diagrams::quadrant::parser as quadrant_parser;
+use rusty_mermaid_diagrams::venn::parser as venn_parser;
+use rusty_mermaid_diagrams::radar::parser as radar_parser;
+use rusty_mermaid_diagrams::journey::parser as journey_parser;
+use rusty_mermaid_diagrams::treeview::parser as treeview_parser;
+use rusty_mermaid_diagrams::ishikawa::parser as ishikawa_parser;
+use rusty_mermaid_diagrams::treemap::parser as treemap_parser;
+use rusty_mermaid_diagrams::block::parser as block_parser;
+use rusty_mermaid_diagrams::c4::parser as c4_parser;
+use rusty_mermaid_diagrams::architecture::parser as arch_parser;
 
 fn golden_dir() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -162,3 +181,361 @@ parse_requirement!(req_basic);
 parse_requirement!(req_all_types);
 parse_requirement!(req_relationships);
 parse_requirement!(req_direction);
+
+// --- Pie ---
+
+macro_rules! parse_pie {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("pie").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            pie_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_pie!(pie_basic);
+parse_pie!(pie_show_data);
+parse_pie!(pie_simple);
+
+// --- Timeline ---
+
+macro_rules! parse_timeline {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("timeline").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            timeline_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_timeline!(timeline_basic);
+parse_timeline!(timeline_sections);
+parse_timeline!(timeline_simple);
+parse_timeline!(timeline_tb);
+
+// --- Kanban ---
+
+macro_rules! parse_kanban {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("kanban").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            kanban_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_kanban!(kanban_basic);
+parse_kanban!(kanban_metadata);
+parse_kanban!(kanban_simple);
+
+// --- Gantt ---
+
+macro_rules! parse_gantt {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("gantt").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            gantt_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_gantt!(gantt_basic);
+parse_gantt!(gantt_dependencies);
+parse_gantt!(gantt_simple);
+
+// --- Gitgraph ---
+
+macro_rules! parse_gitgraph {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("gitgraph").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            gitgraph_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_gitgraph!(git_basic);
+parse_gitgraph!(git_feature_branches);
+parse_gitgraph!(git_commit_types);
+
+// --- XY Chart ---
+
+macro_rules! parse_xychart {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("xychart").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            xychart_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_xychart!(xychart_bar);
+parse_xychart!(xychart_line);
+parse_xychart!(xychart_mixed);
+
+// --- Mindmap ---
+
+macro_rules! parse_mindmap {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("mindmap").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            mindmap_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_mindmap!(mindmap_basic);
+parse_mindmap!(mindmap_shapes);
+parse_mindmap!(mindmap_deep);
+parse_mindmap!(mindmap_wide);
+parse_mindmap!(mindmap_study);
+parse_mindmap!(mindmap_single);
+parse_mindmap!(mindmap_asymmetric);
+
+// --- Sankey ---
+
+macro_rules! parse_sankey {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("sankey").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            sankey_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_sankey!(sankey_basic);
+parse_sankey!(sankey_energy);
+parse_sankey!(sankey_multi);
+parse_sankey!(sankey_quoted);
+
+// --- Packet ---
+
+macro_rules! parse_packet {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("packet").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            packet_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_packet!(packet_tcp);
+parse_packet!(packet_udp);
+parse_packet!(packet_ipv4);
+
+// --- Quadrant ---
+
+macro_rules! parse_quadrant {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("quadrant").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            quadrant_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_quadrant!(quadrant_priority);
+parse_quadrant!(quadrant_gartner);
+
+// --- Venn ---
+
+macro_rules! parse_venn {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("venn").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            venn_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_venn!(venn_two_sets);
+parse_venn!(venn_three_sets);
+
+// --- Radar ---
+
+macro_rules! parse_radar {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("radar").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            radar_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_radar!(radar_skills);
+parse_radar!(radar_performance);
+
+// --- Journey ---
+
+macro_rules! parse_journey {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("journey").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            journey_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_journey!(journey_workday);
+parse_journey!(journey_ecommerce);
+
+// --- Treeview ---
+
+macro_rules! parse_treeview {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("treeview").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            treeview_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_treeview!(treeview_project);
+parse_treeview!(treeview_org);
+
+// --- Ishikawa ---
+
+macro_rules! parse_ishikawa {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("ishikawa").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            ishikawa_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_ishikawa!(ishikawa_quality);
+parse_ishikawa!(ishikawa_bug);
+
+// --- Treemap ---
+
+macro_rules! parse_treemap {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("treemap").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            treemap_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_treemap!(treemap_budget);
+parse_treemap!(treemap_disk);
+
+// --- Block ---
+
+macro_rules! parse_block {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("block").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            block_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_block!(block_grid);
+parse_block!(block_shapes);
+parse_block!(block_spanning);
+
+// --- C4 ---
+
+macro_rules! parse_c4 {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("c4").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            c4_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_c4!(c4_context);
+parse_c4!(c4_container);
+
+// --- Architecture ---
+
+macro_rules! parse_architecture {
+    ($name:ident) => {
+        #[test]
+        fn $name() {
+            let path = golden_dir().join("architecture").join(concat!(stringify!($name), ".mmd"));
+            let text = fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+            arch_parser::parse(&text)
+                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+        }
+    };
+}
+
+parse_architecture!(arch_api_gateway);
+parse_architecture!(arch_network);

@@ -47,3 +47,113 @@ doc = false
 name = "fuzz_force_layout"
 path = "fuzz_targets/force_layout.rs"
 doc = false
+
+[[bin]]
+name = "fuzz_class_parse"
+path = "fuzz_targets/class_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_er_parse"
+path = "fuzz_targets/er_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_requirement_parse"
+path = "fuzz_targets/requirement_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_pie_parse"
+path = "fuzz_targets/pie_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_timeline_parse"
+path = "fuzz_targets/timeline_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_kanban_parse"
+path = "fuzz_targets/kanban_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_gantt_parse"
+path = "fuzz_targets/gantt_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_gitgraph_parse"
+path = "fuzz_targets/gitgraph_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_xychart_parse"
+path = "fuzz_targets/xychart_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_mindmap_parse"
+path = "fuzz_targets/mindmap_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_sankey_parse"
+path = "fuzz_targets/sankey_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_packet_parse"
+path = "fuzz_targets/packet_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_quadrant_parse"
+path = "fuzz_targets/quadrant_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_venn_parse"
+path = "fuzz_targets/venn_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_radar_parse"
+path = "fuzz_targets/radar_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_journey_parse"
+path = "fuzz_targets/journey_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_treeview_parse"
+path = "fuzz_targets/treeview_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_ishikawa_parse"
+path = "fuzz_targets/ishikawa_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_treemap_parse"
+path = "fuzz_targets/treemap_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_block_parse"
+path = "fuzz_targets/block_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_c4_parse"
+path = "fuzz_targets/c4_parse.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_architecture_parse"
+path = "fuzz_targets/architecture_parse.rs"
+doc = false

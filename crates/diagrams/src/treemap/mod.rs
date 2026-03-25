@@ -192,6 +192,7 @@ fn worst_aspect(
 }
 
 fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Color, theme: &Theme) {
+    if r.w < 1.0 || r.h < 1.0 { return; } // skip degenerate rects
     let fill = Color::rgb(
         (255.0 * (1.0 - TINT) + color.r as f64 * TINT) as u8,
         (255.0 * (1.0 - TINT) + color.g as f64 * TINT) as u8,
@@ -199,7 +200,7 @@ fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Colo
     );
 
     scene.push(Primitive::Rect {
-        bbox: BBox::new(r.x + r.w / 2.0, r.y + r.h / 2.0, r.w - INNER_PAD, r.h - INNER_PAD),
+        bbox: BBox::new(r.x + r.w / 2.0, r.y + r.h / 2.0, (r.w - INNER_PAD).max(1.0), (r.h - INNER_PAD).max(1.0)),
         rx: 3.0,
         ry: 3.0,
         style: Style {
@@ -249,6 +250,7 @@ fn render_section(
     depth: usize,
     theme: &Theme,
 ) {
+    if r.w < 1.0 || r.h < 1.0 { return; }
     let fill = Color::rgb(
         (255.0 * (1.0 - TINT * 0.5) + color.r as f64 * TINT * 0.5) as u8,
         (255.0 * (1.0 - TINT * 0.5) + color.g as f64 * TINT * 0.5) as u8,
