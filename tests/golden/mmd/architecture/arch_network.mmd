@@ -1,0 +1,15 @@
+architecture-beta
+    group cloud(cloud)[Cloud Platform]
+    group internal(server)[Internal Network]
+
+    service lb(server)[Load Balancer] in cloud
+    service app1(server)[App Server 1] in cloud
+    service app2(server)[App Server 2] in cloud
+    service cache(database)[Cache] in internal
+    service db(database)[Primary DB] in internal
+
+    lb:B --> T:app1
+    lb:B --> T:app2
+    app1:R -- L:cache
+    app2:R -- L:cache
+    cache:B -- T:db
