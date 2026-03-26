@@ -27,6 +27,25 @@ const RADAR_COLORS: [Color; 8] = [
     Color::rgb(255, 157, 167),
 ];
 
+/// Precomputed radar geometry shared across drawing helpers.
+struct RadarArea {
+    cx: f64,
+    cy: f64,
+    n_axes: usize,
+    min_val: f64,
+    max_val: f64,
+}
+
+impl RadarArea {
+    fn angle(&self, i: usize) -> f64 {
+        TAU * i as f64 / self.n_axes as f64 - FRAC_PI_2
+    }
+
+    fn polar(&self, a: f64, r: f64) -> Point {
+        Point::new(self.cx + r * a.cos(), self.cy + r * a.sin())
+    }
+}
+
 pub fn to_scene(chart: &RadarChart) -> Scene {
     to_scene_themed(chart, &Theme::default())
 }
@@ -45,10 +64,14 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
     let scene_h = cy + RADIUS + SCENE_PAD;
     let mut scene = Scene::new(scene_w, scene_h);
 
-    let max_val = chart.effective_max().max(chart.min + 1.0);
-    let min_val = chart.min;
+    let area = RadarArea {
+        cx,
+        cy,
+        n_axes,
+        min_val: chart.min,
+        max_val: chart.effective_max().max(chart.min + 1.0),
+    };
 
-    // Title
     if let Some(title) = &chart.title {
         scene.push(Primitive::Text {
             position: Point::new(cx, SCENE_PAD + 10.0),
@@ -63,12 +86,15 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
         });
     }
 
-    // Helper: angle for axis i (start north, clockwise)
-    let angle = |i: usize| -> f64 { TAU * i as f64 / n_axes as f64 - FRAC_PI_2 };
+    draw_graticule(&mut scene, chart, &area);
+    draw_axes(&mut scene, chart, &area, theme);
+    draw_curves(&mut scene, chart, &area);
+    draw_legend(&mut scene, chart, &area, theme);
 
-    // Helper: polar to cartesian
-    let polar = |a: f64, r: f64| -> Point { Point::new(cx + r * a.cos(), cy + r * a.sin()) };
+    scene
+}
 
+fn draw_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
     let grid_color = Color::rgb(200, 200, 200);
     let grid_style = Style {
         stroke: Some(grid_color),
@@ -77,20 +103,21 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
         ..Default::default()
     };
 
-    // Graticule rings
     for tick in 1..=chart.ticks {
         let r = RADIUS * tick as f64 / chart.ticks as f64;
 
         match chart.graticule {
             Graticule::Circle => {
                 scene.push(Primitive::Circle {
-                    center: Point::new(cx, cy),
+                    center: Point::new(area.cx, area.cy),
                     radius: r,
                     style: grid_style.clone(),
                 });
             }
             Graticule::Polygon => {
-                let pts: Vec<Point> = (0..n_axes).map(|i| polar(angle(i), r)).collect();
+                let pts: Vec<Point> = (0..area.n_axes)
+                    .map(|i| area.polar(area.angle(i), r))
+                    .collect();
                 scene.push(Primitive::Polygon {
                     points: pts,
                     style: grid_style.clone(),
@@ -98,16 +125,18 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
             }
         }
     }
+}
 
-    // Axis lines + labels
+fn draw_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
+    let grid_color = Color::rgb(200, 200, 200);
+
     for (i, axis) in chart.axes.iter().enumerate() {
-        let a = angle(i);
-        let edge = polar(a, RADIUS);
+        let a = area.angle(i);
+        let edge = area.polar(a, RADIUS);
 
-        // Axis line
         scene.push(Primitive::Path {
             segments: vec![
-                PathSegment::MoveTo(Point::new(cx, cy)),
+                PathSegment::MoveTo(Point::new(area.cx, area.cy)),
                 PathSegment::LineTo(edge),
             ],
             style: Style {
@@ -119,8 +148,7 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
             marker_end: None,
         });
 
-        // Label
-        let label_pt = polar(a, RADIUS + LABEL_PAD);
+        let label_pt = area.polar(a, RADIUS + LABEL_PAD);
         let anchor = if a.cos().abs() < 0.1 {
             TextAnchor::Middle
         } else if a.cos() > 0.0 {
@@ -141,12 +169,12 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
         });
     }
 
-    // Tick value labels — placed just right of north axis to avoid label collision
-    let tick_angle = angle(0) + 0.15; // slight clockwise offset
+    // Tick value labels — placed just right of north axis
+    let tick_angle = area.angle(0) + 0.15;
     for tick in 1..=chart.ticks {
         let r = RADIUS * tick as f64 / chart.ticks as f64;
-        let val = min_val + (max_val - min_val) * tick as f64 / chart.ticks as f64;
-        let pt = polar(tick_angle, r);
+        let val = area.min_val + (area.max_val - area.min_val) * tick as f64 / chart.ticks as f64;
+        let pt = area.polar(tick_angle, r);
 
         scene.push(Primitive::Text {
             position: Point::new(pt.x + 3.0, pt.y),
@@ -159,8 +187,9 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Data curves
+fn draw_curves(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
     for (ci, curve) in chart.curves.iter().enumerate() {
         let color = RADAR_COLORS[ci % RADAR_COLORS.len()];
         let fill = Color::rgba(color.r, color.g, color.b, 40);
@@ -170,12 +199,11 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
             .iter()
             .enumerate()
             .map(|(i, &v)| {
-                let ratio = ((v - min_val) / (max_val - min_val)).clamp(0.0, 1.0);
-                polar(angle(i), RADIUS * ratio)
+                let ratio = ((v - area.min_val) / (area.max_val - area.min_val)).clamp(0.0, 1.0);
+                area.polar(area.angle(i), RADIUS * ratio)
             })
             .collect();
 
-        // Filled polygon
         scene.push(Primitive::Polygon {
             points: pts.clone(),
             style: Style {
@@ -186,7 +214,6 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
             },
         });
 
-        // Vertex dots
         for pt in &pts {
             scene.push(Primitive::Circle {
                 center: *pt,
@@ -198,45 +225,46 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Legend (if multiple curves)
-    if chart.curves.len() > 1 {
-        let lx = cx + RADIUS + LEGEND_GAP;
-        let ly = cy - RADIUS;
-
-        for (ci, curve) in chart.curves.iter().enumerate() {
-            let color = RADAR_COLORS[ci % RADAR_COLORS.len()];
-            let y = ly + ci as f64 * LEGEND_LINE_H;
-
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(
-                    lx + LEGEND_SWATCH / 2.0,
-                    y + LEGEND_SWATCH / 2.0,
-                    LEGEND_SWATCH,
-                    LEGEND_SWATCH,
-                ),
-                rx: 2.0,
-                ry: 2.0,
-                style: Style {
-                    fill: Some(color),
-                    ..Default::default()
-                },
-            });
-
-            scene.push(Primitive::Text {
-                position: Point::new(lx + LEGEND_SWATCH + 6.0, y + LEGEND_SWATCH / 2.0),
-                content: curve.label.clone(),
-                anchor: TextAnchor::Start,
-                style: TextStyle {
-                    font_size: 11.0,
-                    fill: Some(theme.node_text),
-                    ..Default::default()
-                },
-            });
-        }
+fn draw_legend(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
+    if chart.curves.len() <= 1 {
+        return;
     }
 
-    scene
+    let lx = area.cx + RADIUS + LEGEND_GAP;
+    let ly = area.cy - RADIUS;
+
+    for (ci, curve) in chart.curves.iter().enumerate() {
+        let color = RADAR_COLORS[ci % RADAR_COLORS.len()];
+        let y = ly + ci as f64 * LEGEND_LINE_H;
+
+        scene.push(Primitive::Rect {
+            bbox: BBox::new(
+                lx + LEGEND_SWATCH / 2.0,
+                y + LEGEND_SWATCH / 2.0,
+                LEGEND_SWATCH,
+                LEGEND_SWATCH,
+            ),
+            rx: 2.0,
+            ry: 2.0,
+            style: Style {
+                fill: Some(color),
+                ..Default::default()
+            },
+        });
+
+        scene.push(Primitive::Text {
+            position: Point::new(lx + LEGEND_SWATCH + 6.0, y + LEGEND_SWATCH / 2.0),
+            content: curve.label.clone(),
+            anchor: TextAnchor::Start,
+            style: TextStyle {
+                font_size: 11.0,
+                fill: Some(theme.node_text),
+                ..Default::default()
+            },
+        });
+    }
 }
 
 #[cfg(test)]

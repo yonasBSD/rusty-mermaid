@@ -23,6 +23,45 @@ const SECTION_COLORS: [Color; 4] = [
     Color::rgb(225, 87, 89),
 ];
 
+/// Precomputed chart geometry shared across drawing helpers.
+struct ChartArea {
+    chart_left: f64,
+    chart_right: f64,
+    full_left: f64,
+    full_right: f64,
+    min_day: i32,
+    total_days: f64,
+    axis_y: f64,
+    width: f64,
+    height: f64,
+}
+
+impl ChartArea {
+    fn day_to_x(&self, day: i32) -> f64 {
+        self.chart_left + (day - self.min_day) as f64 / self.total_days * CHART_WIDTH
+    }
+
+    fn axis_line_y(&self) -> f64 {
+        self.axis_y + AXIS_HEIGHT
+    }
+}
+
+struct BarPos {
+    name: String,
+    x1: f64,
+    x2: f64,
+    y: f64,
+    tags: Vec<TaskTag>,
+    section_idx: usize,
+}
+
+struct SectionRange {
+    start: f64,
+    end: f64,
+    name: Option<String>,
+    idx: usize,
+}
+
 pub fn to_scene(chart: &GanttChart) -> Scene {
     to_scene_themed(chart, &Theme::default())
 }
@@ -39,59 +78,34 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
 
     let chart_left = MARGIN + LABEL_WIDTH;
     let chart_right = MARGIN + LABEL_WIDTH + CHART_WIDTH;
-    let full_left = MARGIN;
     let full_right = chart_right + MARGIN;
-    let day_to_x = |day: i32| -> f64 {
-        chart_left + (day - min_day) as f64 / total_days * CHART_WIDTH
-    };
 
     let mut y = MARGIN;
-
-    // Title
     if chart.title.is_some() {
         y += theme.font_size_title + MARGIN / 2.0;
     }
-
-    // Axis area
     let axis_y = y;
     y += AXIS_HEIGHT;
 
-    // Compute bar positions
-    struct BarPos { name: String, x1: f64, x2: f64, y: f64, tags: Vec<TaskTag>, section_idx: usize }
-    let mut bars: Vec<BarPos> = Vec::new();
-    let mut section_ranges: Vec<(f64, f64, Option<String>, usize)> = Vec::new();
+    let (bars, section_ranges) = compute_bar_layout(chart, &resolved, min_day, total_days, chart_left, &mut y);
 
-    for (si, section) in chart.sections.iter().enumerate() {
-        let section_start = y;
-        if section.name.is_some() {
-            y += SECTION_HEADER_H;
-        }
-        for task in &section.tasks {
-            if let Some(rt) = resolved.iter().find(|r| r.name == task.name) {
-                bars.push(BarPos {
-                    name: task.name.clone(),
-                    x1: day_to_x(rt.start_day),
-                    x2: day_to_x(rt.end_day),
-                    y: y + BAR_HEIGHT / 2.0,
-                    tags: task.tags.clone(),
-                    section_idx: si,
-                });
-                y += BAR_HEIGHT + BAR_GAP;
-            }
-        }
-        let section_end = y + SECTION_GAP / 2.0;
-        section_ranges.push((section_start, section_end, section.name.clone(), si));
-        y += SECTION_GAP;
-    }
+    let area = ChartArea {
+        chart_left,
+        chart_right,
+        full_left: MARGIN,
+        full_right,
+        min_day,
+        total_days,
+        axis_y,
+        width: full_right,
+        height: y + MARGIN,
+    };
 
-    let height = y + MARGIN;
-    let width = full_right;
-    let mut scene = Scene::new(width, height);
+    let mut scene = Scene::new(area.width, area.height);
 
-    // Title (centered)
     if let Some(title) = &chart.title {
         scene.push(Primitive::Text {
-            position: Point::new(width / 2.0, MARGIN + theme.font_size_title * 0.4),
+            position: Point::new(area.width / 2.0, MARGIN + theme.font_size_title * 0.4),
             content: title.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -103,24 +117,76 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
         });
     }
 
-    // Section backgrounds — full width from left margin to right margin
-    for (start, end, name, si) in &section_ranges {
-        let color = SECTION_COLORS[si % SECTION_COLORS.len()];
-        let sec_h = end - start;
+    draw_sections(&mut scene, &section_ranges, &area, theme);
+    draw_axis(&mut scene, &area, theme, min_day, max_day);
+    draw_bars(&mut scene, &bars, &area, theme);
+
+    scene
+}
+
+fn compute_bar_layout(
+    chart: &GanttChart,
+    resolved: &[ResolvedTask],
+    min_day: i32,
+    total_days: f64,
+    chart_left: f64,
+    y: &mut f64,
+) -> (Vec<BarPos>, Vec<SectionRange>) {
+    let day_to_x = |day: i32| -> f64 {
+        chart_left + (day - min_day) as f64 / total_days * CHART_WIDTH
+    };
+
+    let mut bars: Vec<BarPos> = Vec::new();
+    let mut section_ranges: Vec<SectionRange> = Vec::new();
+
+    for (si, section) in chart.sections.iter().enumerate() {
+        let section_start = *y;
+        if section.name.is_some() {
+            *y += SECTION_HEADER_H;
+        }
+        for task in &section.tasks {
+            if let Some(rt) = resolved.iter().find(|r| r.name == task.name) {
+                bars.push(BarPos {
+                    name: task.name.clone(),
+                    x1: day_to_x(rt.start_day),
+                    x2: day_to_x(rt.end_day),
+                    y: *y + BAR_HEIGHT / 2.0,
+                    tags: task.tags.clone(),
+                    section_idx: si,
+                });
+                *y += BAR_HEIGHT + BAR_GAP;
+            }
+        }
+        let section_end = *y + SECTION_GAP / 2.0;
+        section_ranges.push(SectionRange {
+            start: section_start,
+            end: section_end,
+            name: section.name.clone(),
+            idx: si,
+        });
+        *y += SECTION_GAP;
+    }
+
+    (bars, section_ranges)
+}
+
+fn draw_sections(scene: &mut Scene, ranges: &[SectionRange], area: &ChartArea, theme: &Theme) {
+    for sr in ranges {
+        let color = SECTION_COLORS[sr.idx % SECTION_COLORS.len()];
+        let sec_h = sr.end - sr.start;
         scene.push(Primitive::Rect {
             bbox: BBox::new(
-                (full_left + full_right) / 2.0,
-                (*start + *end) / 2.0,
-                full_right - full_left,
+                (area.full_left + area.full_right) / 2.0,
+                (sr.start + sr.end) / 2.0,
+                area.full_right - area.full_left,
                 sec_h,
             ),
             rx: 0.0, ry: 0.0,
             style: Style { fill: Some(Color::rgba(color.r, color.g, color.b, 18)), ..Default::default() },
         });
-        // Section label — top-left of section
-        if let Some(name) = name {
+        if let Some(name) = &sr.name {
             scene.push(Primitive::Text {
-                position: Point::new(MARGIN + 4.0, *start + SECTION_HEADER_H * 0.55),
+                position: Point::new(MARGIN + 4.0, sr.start + SECTION_HEADER_H * 0.55),
                 content: name.clone(),
                 anchor: TextAnchor::Start,
                 style: TextStyle {
@@ -132,13 +198,16 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Axis line (top of chart area)
-    let axis_line_y = axis_y + AXIS_HEIGHT;
+fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, max_day: i32) {
+    let axis_line_y = area.axis_line_y();
+
+    // Top axis line
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(chart_left, axis_line_y)),
-            PathSegment::LineTo(Point::new(chart_right, axis_line_y)),
+            PathSegment::MoveTo(Point::new(area.chart_left, axis_line_y)),
+            PathSegment::LineTo(Point::new(area.chart_right, axis_line_y)),
         ],
         style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
         marker_start: None,
@@ -148,32 +217,31 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
     // Right edge border
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(chart_right, axis_line_y)),
-            PathSegment::LineTo(Point::new(chart_right, height - MARGIN)),
+            PathSegment::MoveTo(Point::new(area.chart_right, axis_line_y)),
+            PathSegment::LineTo(Point::new(area.chart_right, area.height - MARGIN)),
         ],
         style: Style { stroke: Some(Color::rgba(180, 180, 180, 100)), stroke_width: Some(0.5), ..Default::default() },
         marker_start: None,
         marker_end: None,
     });
 
-    // Left edge border (at chart area start)
+    // Left edge border
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(chart_left, axis_line_y)),
-            PathSegment::LineTo(Point::new(chart_left, height - MARGIN)),
+            PathSegment::MoveTo(Point::new(area.chart_left, axis_line_y)),
+            PathSegment::LineTo(Point::new(area.chart_left, area.height - MARGIN)),
         ],
         style: Style { stroke: Some(Color::rgba(180, 180, 180, 100)), stroke_width: Some(0.5), ..Default::default() },
         marker_start: None,
         marker_end: None,
     });
 
-    // Axis ticks, grid lines, and labels
-    let tick_interval = compute_tick_interval(total_days as i32);
+    // Ticks, grid lines, and labels
+    let tick_interval = compute_tick_interval(area.total_days as i32);
     let mut day = min_day;
     while day <= max_day {
-        let x = day_to_x(day);
+        let x = area.day_to_x(day);
 
-        // Tick mark
         scene.push(Primitive::Path {
             segments: vec![
                 PathSegment::MoveTo(Point::new(x, axis_line_y - 4.0)),
@@ -184,11 +252,10 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
             marker_end: None,
         });
 
-        // Grid line (subtle)
         scene.push(Primitive::Path {
             segments: vec![
                 PathSegment::MoveTo(Point::new(x, axis_line_y)),
-                PathSegment::LineTo(Point::new(x, height - MARGIN)),
+                PathSegment::LineTo(Point::new(x, area.height - MARGIN)),
             ],
             style: Style {
                 stroke: Some(Color::rgba(180, 180, 180, 60)),
@@ -200,10 +267,9 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
             marker_end: None,
         });
 
-        // Label — centered under tick
         let label = format_day_label(day);
         scene.push(Primitive::Text {
-            position: Point::new(x, axis_y + AXIS_HEIGHT * 0.4),
+            position: Point::new(x, area.axis_y + AXIS_HEIGHT * 0.4),
             content: label,
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -215,9 +281,10 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
 
         day += tick_interval;
     }
+}
 
-    // Task bars
-    for bar in &bars {
+fn draw_bars(scene: &mut Scene, bars: &[BarPos], area: &ChartArea, theme: &Theme) {
+    for bar in bars {
         let color = SECTION_COLORS[bar.section_idx % SECTION_COLORS.len()];
         let is_milestone = bar.tags.contains(&TaskTag::Milestone);
         let is_done = bar.tags.contains(&TaskTag::Done);
@@ -255,9 +322,8 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
             });
         }
 
-        // Task label — right-aligned before chart area
         scene.push(Primitive::Text {
-            position: Point::new(chart_left - 8.0, bar.y),
+            position: Point::new(area.chart_left - 8.0, bar.y),
             content: bar.name.clone(),
             anchor: TextAnchor::End,
             style: TextStyle {
@@ -267,8 +333,6 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
             },
         });
     }
-
-    scene
 }
 
 // ── Date resolution ──
