@@ -43,9 +43,8 @@ pub fn to_svg(input: &str) -> Result<String, ParseError> {
 
 #[cfg(feature = "svg")]
 pub fn to_svg_themed(input: &str, theme: &Theme) -> Result<String, ParseError> {
-    use rusty_mermaid_core::Renderer;
     let scene = render_themed(input, theme)?;
-    Ok(rusty_mermaid_svg::SvgRenderer::new().render(&scene))
+    Ok(rusty_mermaid_svg::SvgRenderer::with_theme(theme).render_themed(&scene, theme))
 }
 
 #[cfg(feature = "svg")]
