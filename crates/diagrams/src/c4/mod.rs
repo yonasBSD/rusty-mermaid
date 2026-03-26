@@ -33,9 +33,27 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         return Scene::new(100.0, 50.0);
     }
 
+    let (positions, cursor_y, max_right) = compute_positions(diagram, theme);
+
+    let scene_w = max_right + SCENE_PAD;
+    let scene_h = cursor_y + SCENE_PAD;
+    let mut scene = Scene::new(scene_w, scene_h);
+
+    render_c4_title(&mut scene, diagram, scene_w, theme);
+    render_boundaries(&mut scene, diagram, &positions);
+    let edge_labels = render_edges(&mut scene, diagram, &positions);
+    render_elements(&mut scene, diagram, &positions, theme);
+    render_edge_labels(&mut scene, &edge_labels);
+
+    scene
+}
+
+fn compute_positions(
+    diagram: &C4Diagram,
+    _theme: &Theme,
+) -> (HashMap<String, (f64, f64, f64, f64)>, f64, f64) {
     let title_h = if diagram.title.is_some() { 36.0 } else { 0.0 };
 
-    // Group elements by boundary
     let mut free_elements: Vec<usize> = Vec::new();
     let mut boundary_elements: HashMap<String, Vec<usize>> = HashMap::new();
 
@@ -47,46 +65,39 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         }
     }
 
-    // Position all elements on a grid
-    let mut positions: HashMap<String, (f64, f64, f64, f64)> = HashMap::new(); // alias → (cx, cy, w, h)
+    let mut positions: HashMap<String, (f64, f64, f64, f64)> = HashMap::new();
     let mut cursor_y = SCENE_PAD + title_h;
     let mut max_right = 0.0f64;
 
-    // Free elements first
     layout_row(&diagram.elements, &free_elements, SCENE_PAD, &mut cursor_y, &mut positions, &mut max_right);
 
-    // Boundary groups
     for boundary in &diagram.boundaries {
         let elems = boundary_elements.get(&boundary.alias).cloned().unwrap_or_default();
         if elems.is_empty() { continue; }
 
         let boundary_y_start = cursor_y;
-        cursor_y += 28.0; // header
+        cursor_y += 28.0;
 
         layout_row(&diagram.elements, &elems, SCENE_PAD + BOUNDARY_PAD, &mut cursor_y, &mut positions, &mut max_right);
 
         cursor_y += BOUNDARY_PAD;
 
-        // Store boundary rect
         let bw = max_right - SCENE_PAD + BOUNDARY_PAD;
         let bh = cursor_y - boundary_y_start;
         positions.insert(
             format!("__boundary_{}", boundary.alias),
             (SCENE_PAD + bw / 2.0, boundary_y_start + bh / 2.0, bw, bh),
         );
-
-        // Store boundary info for rendering
         positions.insert(
             format!("__blabel_{}", boundary.alias),
             (SCENE_PAD + 8.0, boundary_y_start + 14.0, 0.0, 0.0),
         );
     }
 
-    let scene_w = max_right + SCENE_PAD;
-    let scene_h = cursor_y + SCENE_PAD;
-    let mut scene = Scene::new(scene_w, scene_h);
+    (positions, cursor_y, max_right)
+}
 
-    // Title
+fn render_c4_title(scene: &mut Scene, diagram: &C4Diagram, scene_w: f64, theme: &Theme) {
     if let Some(title) = &diagram.title {
         scene.push(Primitive::Text {
             position: Point::new(scene_w / 2.0, SCENE_PAD + 12.0),
@@ -100,8 +111,9 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Boundary rects (behind elements)
+fn render_boundaries(scene: &mut Scene, diagram: &C4Diagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
     for boundary in &diagram.boundaries {
         if let Some(&(cx, cy, w, h)) = positions.get(&format!("__boundary_{}", boundary.alias)) {
             scene.push(Primitive::Rect {
@@ -130,15 +142,19 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Compute visual widths per element (Database is narrower than its grid cell)
+fn render_edges(
+    scene: &mut Scene,
+    diagram: &C4Diagram,
+    positions: &HashMap<String, (f64, f64, f64, f64)>,
+) -> Vec<(f64, f64, String)> {
     let visual_widths: HashMap<String, f64> = diagram.elements.iter().map(|e| {
         let &(_, _, ew, _) = positions.get(&e.alias).unwrap_or(&(0.0, 0.0, MIN_ELEM_W, ELEM_H));
         let vw = if e.shape == C4Shape::Database { ew * DATABASE_WIDTH_RATIO } else { ew };
         (e.alias.clone(), vw)
     }).collect();
 
-    // Edge lines (behind elements), labels collected for on-top rendering
     let mut edge_labels: Vec<(f64, f64, String)> = Vec::new();
 
     for rel in &diagram.relationships {
@@ -155,10 +171,7 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         let end = Point::new(raw_end.x - 2.0 * dx / len, raw_end.y - 2.0 * dy / len);
 
         scene.push(Primitive::Path {
-            segments: vec![
-                PathSegment::MoveTo(start),
-                PathSegment::LineTo(end),
-            ],
+            segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
             style: Style {
                 stroke: Some(Color::rgb(140, 140, 140)),
                 stroke_width: Some(1.2),
@@ -168,7 +181,6 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
             marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
         });
 
-        // Label near source, above the line
         let label = if let Some(tech) = &rel.technology {
             format!("{} [{}]", rel.label, tech)
         } else {
@@ -183,18 +195,21 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         edge_labels.push((lx, ly, label));
     }
 
-    // Elements (on top of edges)
+    edge_labels
+}
+
+fn render_elements(scene: &mut Scene, diagram: &C4Diagram, positions: &HashMap<String, (f64, f64, f64, f64)>, theme: &Theme) {
     for elem in &diagram.elements {
         let Some(&(cx, cy, ew, _)) = positions.get(&elem.alias) else { continue };
-        render_element(&mut scene, elem, cx, cy, ew, theme);
+        render_element(scene, elem, cx, cy, ew, theme);
     }
+}
 
-    // Edge labels ON TOP with translucent background
+fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)]) {
     let label_bg = Color::rgba(255, 255, 255, 200);
-    for (lx, ly, label) in &edge_labels {
+    for (lx, ly, label) in edge_labels {
         let label_style = TextStyle { font_size: 10.0, ..Default::default() };
         let tw = SimpleTextMeasure::measure_raw(label, &label_style).width;
-        // Background rect
         scene.push(Primitive::Rect {
             bbox: BBox::new(*lx, *ly, tw + 8.0, 14.0),
             rx: 3.0, ry: 3.0,
@@ -211,8 +226,6 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
             },
         });
     }
-
-    scene
 }
 
 /// Measure the width an element needs based on its text content.

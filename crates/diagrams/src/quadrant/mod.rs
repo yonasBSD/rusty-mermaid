@@ -32,23 +32,60 @@ pub fn to_scene(chart: &QuadrantChart) -> Scene {
     to_scene_themed(chart, &Theme::default())
 }
 
+/// Grid layout parameters computed from chart metadata.
+struct GridLayout {
+    grid_x: f64,
+    grid_y: f64,
+    half: f64,
+    scene_w: f64,
+    scene_h: f64,
+    y_axis_w: f64,
+}
+
+impl GridLayout {
+    fn from_chart(chart: &QuadrantChart) -> Self {
+        let title_h = if chart.title.is_some() { 30.0 } else { 0.0 };
+        let x_axis_h = if chart.x_axis.is_some() { AXIS_LABEL_PAD } else { 0.0 };
+        let y_axis_w = if chart.y_axis.is_some() { AXIS_LABEL_PAD } else { 0.0 };
+        Self {
+            grid_x: SCENE_PAD + y_axis_w,
+            grid_y: SCENE_PAD + title_h,
+            half: CHART_SIZE / 2.0,
+            scene_w: CHART_SIZE + SCENE_PAD * 2.0 + y_axis_w,
+            scene_h: CHART_SIZE + SCENE_PAD * 2.0 + title_h + x_axis_h,
+            y_axis_w,
+        }
+    }
+
+    /// Q1=TR, Q2=TL, Q3=BL, Q4=BR center positions.
+    fn quad_positions(&self) -> [(f64, f64); 4] {
+        let (gx, gy, h) = (self.grid_x, self.grid_y, self.half);
+        [
+            (gx + h + h / 2.0, gy + h / 2.0),       // Q1
+            (gx + h / 2.0,     gy + h / 2.0),        // Q2
+            (gx + h / 2.0,     gy + h + h / 2.0),    // Q3
+            (gx + h + h / 2.0, gy + h + h / 2.0),    // Q4
+        ]
+    }
+}
+
 pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
-    let title_h = if chart.title.is_some() { 30.0 } else { 0.0 };
-    let x_axis_h = if chart.x_axis.is_some() { AXIS_LABEL_PAD } else { 0.0 };
-    let y_axis_w = if chart.y_axis.is_some() { AXIS_LABEL_PAD } else { 0.0 };
+    let layout = GridLayout::from_chart(chart);
+    let mut scene = Scene::new(layout.scene_w, layout.scene_h);
 
-    let grid_x = SCENE_PAD + y_axis_w;
-    let grid_y = SCENE_PAD + title_h;
-    let half = CHART_SIZE / 2.0;
+    render_title(&mut scene, chart, &layout, theme);
+    render_quadrants(&mut scene, chart, &layout);
+    render_grid(&mut scene, &layout);
+    render_axes(&mut scene, chart, &layout, theme);
+    render_points(&mut scene, chart, &layout, theme);
 
-    let scene_w = CHART_SIZE + SCENE_PAD * 2.0 + y_axis_w;
-    let scene_h = CHART_SIZE + SCENE_PAD * 2.0 + title_h + x_axis_h;
-    let mut scene = Scene::new(scene_w, scene_h);
+    scene
+}
 
-    // Title
+fn render_title(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, theme: &Theme) {
     if let Some(title) = &chart.title {
         scene.push(Primitive::Text {
-            position: Point::new(grid_x + half, SCENE_PAD + 10.0),
+            position: Point::new(layout.grid_x + layout.half, SCENE_PAD + 10.0),
             content: title.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -59,30 +96,21 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Quadrant backgrounds (BBox is center-based)
-    // Q2=TL, Q1=TR, Q3=BL, Q4=BR
-    let quad_positions = [
-        (grid_x + half + half / 2.0, grid_y + half / 2.0),         // Q1 top-right
-        (grid_x + half / 2.0, grid_y + half / 2.0),                 // Q2 top-left
-        (grid_x + half / 2.0, grid_y + half + half / 2.0),          // Q3 bottom-left
-        (grid_x + half + half / 2.0, grid_y + half + half / 2.0),   // Q4 bottom-right
-    ];
+fn render_quadrants(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout) {
+    let positions = layout.quad_positions();
+    let half = layout.half;
 
-    for (i, &(cx, cy)) in quad_positions.iter().enumerate() {
+    for (i, &(cx, cy)) in positions.iter().enumerate() {
         scene.push(Primitive::Rect {
             bbox: BBox::new(cx, cy, half, half),
-            rx: 0.0,
-            ry: 0.0,
-            style: Style {
-                fill: Some(quad_fill(i)),
-                ..Default::default()
-            },
+            rx: 0.0, ry: 0.0,
+            style: Style { fill: Some(quad_fill(i)), ..Default::default() },
         });
     }
 
-    // Quadrant labels (use base color, slightly muted)
-    for (i, &(cx, cy)) in quad_positions.iter().enumerate() {
+    for (i, &(cx, cy)) in positions.iter().enumerate() {
         if let Some(label) = &chart.quadrants[i] {
             let c = QUAD_BASE[i];
             scene.push(Primitive::Text {
@@ -101,8 +129,12 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Grid borders
+fn render_grid(scene: &mut Scene, layout: &GridLayout) {
+    use rusty_mermaid_core::PathSegment;
+
+    let (gx, gy, half) = (layout.grid_x, layout.grid_y, layout.half);
     let divider_color = Color::rgb(200, 200, 200);
     let border_style = Style {
         stroke: Some(divider_color),
@@ -110,11 +142,9 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
         ..Default::default()
     };
 
-    // Outer border (transparent fill — quadrant backgrounds must show through)
     scene.push(Primitive::Rect {
-        bbox: BBox::new(grid_x + half, grid_y + half, CHART_SIZE, CHART_SIZE),
-        rx: 0.0,
-        ry: 0.0,
+        bbox: BBox::new(gx + half, gy + half, CHART_SIZE, CHART_SIZE),
+        rx: 0.0, ry: 0.0,
         style: Style {
             fill: Some(Color::rgba(0, 0, 0, 0)),
             stroke: Some(Color::rgb(180, 180, 180)),
@@ -123,12 +153,10 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
         },
     });
 
-    // Center dividers
-    use rusty_mermaid_core::PathSegment;
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(grid_x + half, grid_y)),
-            PathSegment::LineTo(Point::new(grid_x + half, grid_y + CHART_SIZE)),
+            PathSegment::MoveTo(Point::new(gx + half, gy)),
+            PathSegment::LineTo(Point::new(gx + half, gy + CHART_SIZE)),
         ],
         style: border_style.clone(),
         marker_start: None,
@@ -136,51 +164,50 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
     });
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(grid_x, grid_y + half)),
-            PathSegment::LineTo(Point::new(grid_x + CHART_SIZE, grid_y + half)),
+            PathSegment::MoveTo(Point::new(gx, gy + half)),
+            PathSegment::LineTo(Point::new(gx + CHART_SIZE, gy + half)),
         ],
         style: border_style,
         marker_start: None,
         marker_end: None,
     });
+}
 
-    // X-axis labels
+fn render_axes(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, theme: &Theme) {
+    let (gx, gy, half) = (layout.grid_x, layout.grid_y, layout.half);
+    let axis_style = TextStyle {
+        font_size: theme.font_size_node,
+        fill: Some(theme.node_text),
+        ..Default::default()
+    };
+
     if let Some((left, right)) = &chart.x_axis {
-        let y = grid_y + CHART_SIZE + AXIS_LABEL_PAD / 2.0;
+        let y = gy + CHART_SIZE + AXIS_LABEL_PAD / 2.0;
         scene.push(Primitive::Text {
-            position: Point::new(grid_x + half / 2.0, y),
+            position: Point::new(gx + half / 2.0, y),
             content: left.clone(),
             anchor: TextAnchor::Middle,
-            style: TextStyle {
-                font_size: theme.font_size_node,
-                fill: Some(theme.node_text),
-                ..Default::default()
-            },
+            style: axis_style.clone(),
         });
         if let Some(right_label) = right {
             scene.push(Primitive::Text {
-                position: Point::new(grid_x + half + half / 2.0, y),
+                position: Point::new(gx + half + half / 2.0, y),
                 content: right_label.clone(),
                 anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: theme.font_size_node,
-                    fill: Some(theme.node_text),
-                    ..Default::default()
-                },
+                style: axis_style.clone(),
             });
         }
     }
 
-    // Y-axis labels (rotated -90°)
     if let Some((bottom, top)) = &chart.y_axis {
-        let x = SCENE_PAD + y_axis_w / 2.0;
+        let x = SCENE_PAD + layout.y_axis_w / 2.0;
         let y_style = TextStyle {
             font_size: theme.font_size_node,
             fill: Some(theme.node_text),
             ..Default::default()
         };
 
-        let y_bot = grid_y + half + half / 2.0;
+        let y_bot = gy + half + half / 2.0;
         scene.push(Primitive::Group {
             transform: Transform::Rotate { degrees: -90.0, cx: x, cy: y_bot },
             children: vec![Primitive::Text {
@@ -192,7 +219,7 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
         });
 
         if let Some(top_label) = top {
-            let y_top = grid_y + half / 2.0;
+            let y_top = gy + half / 2.0;
             scene.push(Primitive::Group {
                 transform: Transform::Rotate { degrees: -90.0, cx: x, cy: y_top },
                 children: vec![Primitive::Text {
@@ -204,21 +231,18 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Points
+fn render_points(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, theme: &Theme) {
     let point_color = Color::rgb(78, 121, 167);
     for pt in &chart.points {
-        // Map [0,1] → pixel coords (y inverted: 0=bottom, 1=top)
-        let px = grid_x + pt.x * CHART_SIZE;
-        let py = grid_y + (1.0 - pt.y) * CHART_SIZE;
+        let px = layout.grid_x + pt.x * CHART_SIZE;
+        let py = layout.grid_y + (1.0 - pt.y) * CHART_SIZE;
 
         scene.push(Primitive::Circle {
             center: Point::new(px, py),
             radius: POINT_RADIUS,
-            style: Style {
-                fill: Some(point_color),
-                ..Default::default()
-            },
+            style: Style { fill: Some(point_color), ..Default::default() },
         });
 
         scene.push(Primitive::Text {
@@ -232,8 +256,6 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
             },
         });
     }
-
-    scene
 }
 
 #[cfg(test)]

@@ -36,18 +36,12 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
         return Scene::new(100.0, 50.0);
     }
 
-    // Compute radii proportional to sqrt(size)
     let max_size = diagram.sets.iter().map(|s| s.size).fold(0.0f64, f64::max);
-    let radii: Vec<f64> = diagram
-        .sets
-        .iter()
+    let radii: Vec<f64> = diagram.sets.iter()
         .map(|s| BASE_RADIUS * (s.size / max_size.max(1.0)).sqrt())
         .collect();
-
-    // Position circles
     let centers = compute_centers(n, &radii);
 
-    // Bounding box
     let min_x = centers.iter().zip(&radii).map(|(&(cx, _), &r)| cx - r).fold(f64::INFINITY, f64::min);
     let max_x = centers.iter().zip(&radii).map(|(&(cx, _), &r)| cx + r).fold(f64::NEG_INFINITY, f64::max);
     let min_y = centers.iter().zip(&radii).map(|(&(_, cy), &r)| cy - r).fold(f64::INFINITY, f64::min);
@@ -61,7 +55,14 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
     let scene_h = max_y - min_y + SCENE_PAD * 2.0 + title_h;
     let mut scene = Scene::new(scene_w, scene_h);
 
-    // Title
+    render_venn_title(&mut scene, diagram, scene_w, theme);
+    render_circles(&mut scene, diagram, &centers, &radii, ox, oy, theme);
+    render_union_labels(&mut scene, diagram, &centers, &radii, ox, oy, theme);
+
+    scene
+}
+
+fn render_venn_title(scene: &mut Scene, diagram: &VennDiagram, scene_w: f64, theme: &Theme) {
     if let Some(title) = &diagram.title {
         scene.push(Primitive::Text {
             position: Point::new(scene_w / 2.0, SCENE_PAD + 10.0),
@@ -75,32 +76,35 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Draw circles (translucent fills)
+fn render_circles(
+    scene: &mut Scene,
+    diagram: &VennDiagram,
+    centers: &[(f64, f64)],
+    radii: &[f64],
+    ox: f64,
+    oy: f64,
+    theme: &Theme,
+) {
+    let n = diagram.sets.len();
     for (i, set) in diagram.sets.iter().enumerate() {
         let (cx, cy) = centers[i];
         let r = radii[i];
         let color = VENN_COLORS[i % VENN_COLORS.len()];
 
-        let fill = Color::rgba(color.r, color.g, color.b, FILL_ALPHA);
-
         scene.push(Primitive::Circle {
             center: Point::new(cx + ox, cy + oy),
             radius: r,
             style: Style {
-                fill: Some(fill),
+                fill: Some(Color::rgba(color.r, color.g, color.b, FILL_ALPHA)),
                 stroke: Some(color),
                 stroke_width: Some(2.0),
                 ..Default::default()
             },
         });
 
-        // Label: position outside if 2+ sets, center if single
-        let (lx, ly) = if n == 1 {
-            (cx, cy)
-        } else {
-            label_position(cx, cy, r, &centers, i)
-        };
+        let (lx, ly) = if n == 1 { (cx, cy) } else { label_position(cx, cy, r, centers, i) };
 
         scene.push(Primitive::Text {
             position: Point::new(lx + ox, ly + oy),
@@ -114,48 +118,50 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Union labels at the geometric center of the intersection region.
+fn render_union_labels(
+    scene: &mut Scene,
+    diagram: &VennDiagram,
+    centers: &[(f64, f64)],
+    radii: &[f64],
+    ox: f64,
+    oy: f64,
+    theme: &Theme,
+) {
+    let n = diagram.sets.len();
     for union in &diagram.unions {
-        if let Some(label) = &union.label {
-            let indices: Vec<usize> = union
-                .set_ids
-                .iter()
-                .filter_map(|id| diagram.sets.iter().position(|s| s.id == *id))
-                .collect();
+        let Some(label) = &union.label else { continue };
 
-            if indices.is_empty() {
-                continue;
-            }
+        let indices: Vec<usize> = union.set_ids.iter()
+            .filter_map(|id| diagram.sets.iter().position(|s| s.id == *id))
+            .collect();
+        if indices.is_empty() { continue; }
 
-            let (mut lx, mut ly) = intersection_center(&indices, &centers, &radii);
+        let (mut lx, mut ly) = intersection_center(&indices, centers, radii);
 
-            // For pairwise unions with other sets present, push away from non-members
-            let non_members: Vec<usize> = (0..n).filter(|i| !indices.contains(i)).collect();
-            if !non_members.is_empty() {
-                let non_cx: f64 = non_members.iter().map(|&i| centers[i].0).sum::<f64>() / non_members.len() as f64;
-                let non_cy: f64 = non_members.iter().map(|&i| centers[i].1).sum::<f64>() / non_members.len() as f64;
-                let dx = lx - non_cx;
-                let dy = ly - non_cy;
-                let dist = (dx * dx + dy * dy).sqrt().max(1.0);
-                lx += 20.0 * dx / dist;
-                ly += 20.0 * dy / dist;
-            }
-
-            scene.push(Primitive::Text {
-                position: Point::new(lx + ox, ly + oy),
-                content: label.clone(),
-                anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: theme.font_size_node - 1.0,
-                    fill: Some(Color::rgb(80, 80, 80)),
-                    ..Default::default()
-                },
-            });
+        let non_members: Vec<usize> = (0..n).filter(|i| !indices.contains(i)).collect();
+        if !non_members.is_empty() {
+            let non_cx: f64 = non_members.iter().map(|&i| centers[i].0).sum::<f64>() / non_members.len() as f64;
+            let non_cy: f64 = non_members.iter().map(|&i| centers[i].1).sum::<f64>() / non_members.len() as f64;
+            let dx = lx - non_cx;
+            let dy = ly - non_cy;
+            let dist = (dx * dx + dy * dy).sqrt().max(1.0);
+            lx += 20.0 * dx / dist;
+            ly += 20.0 * dy / dist;
         }
-    }
 
-    scene
+        scene.push(Primitive::Text {
+            position: Point::new(lx + ox, ly + oy),
+            content: label.clone(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle {
+                font_size: theme.font_size_node - 1.0,
+                fill: Some(Color::rgb(80, 80, 80)),
+                ..Default::default()
+            },
+        });
+    }
 }
 
 /// Compute circle centers based on count.

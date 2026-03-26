@@ -138,14 +138,14 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
         }
         let &(cx, cy, bw) = positions.get(&block.id).unwrap();
         let color = COLORS[i % COLORS.len()];
-        render_block(&mut scene, block, cx, cy, bw, color, theme);
+        render_block(&mut scene, block, BBox::new(cx, cy, bw, CELL_H), color, theme);
     }
 
     scene
 }
 
-fn render_block(scene: &mut Scene, block: &Block, cx: f64, cy: f64, w: f64, color: Color, theme: &Theme) {
-    let cell_w = w;
+fn render_block(scene: &mut Scene, block: &Block, bbox: BBox, color: Color, theme: &Theme) {
+    let (cx, cy, cell_w) = (bbox.x, bbox.y, bbox.width);
     let fill = tint_color(color, TINT);
     let stroke_style = Style {
         fill: Some(fill),
@@ -206,15 +206,13 @@ fn render_block(scene: &mut Scene, block: &Block, cx: f64, cy: f64, w: f64, colo
             });
         }
         BlockShape::Circle => {
-            let r = CELL_H / 2.0;
             scene.push(Primitive::Circle {
                 center: Point::new(cx, cy),
-                radius: r,
+                radius: CELL_H / 2.0,
                 style: stroke_style,
             });
         }
         BlockShape::Cylinder => {
-            // Approximate as rect with rounded top/bottom
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, cell_w * 0.7, CELL_H),
                 rx: cell_w * 0.35, ry: 8.0,
@@ -224,12 +222,8 @@ fn render_block(scene: &mut Scene, block: &Block, cx: f64, cy: f64, w: f64, colo
         BlockShape::Space => {}
     }
 
-    // Label
     if !block.label.is_empty() {
-        let label_style = TextStyle {
-            font_size: theme.font_size_node,
-            ..Default::default()
-        };
+        let label_style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
         let label_w = SimpleTextMeasure::measure_raw(&block.label, &label_style).width;
         if label_w < cell_w - 8.0 || block.shape == BlockShape::Diamond {
             scene.push(Primitive::Text {

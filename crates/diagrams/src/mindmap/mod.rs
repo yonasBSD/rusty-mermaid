@@ -33,7 +33,6 @@ pub fn to_scene(diagram: &MindmapDiagram) -> Scene {
 }
 
 pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
-    // Flatten tree to nodes + edges
     let mut flat_nodes: Vec<FlatNode> = Vec::new();
     let mut edges: Vec<(usize, usize)> = Vec::new();
     flatten(&diagram.root, &mut flat_nodes, &mut edges, None, 0, 0);
@@ -42,39 +41,8 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
         return Scene::new(100.0, 50.0);
     }
 
-    // Measure node sizes
-    let style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
-    for node in &mut flat_nodes {
-        let ts = SimpleTextMeasure::measure_raw(&node.text, &style);
-        node.width = (ts.width + NODE_PAD_X * 2.0).max(MIN_NODE_W);
-        node.height = ts.height + NODE_PAD_Y * 2.0;
-    }
+    layout_nodes(&mut flat_nodes, &edges, theme);
 
-    // Build ForceGraph with radial tree seeding
-    let mut fg = ForceGraph::new();
-    for (i, node) in flat_nodes.iter().enumerate() {
-        fg.add_node(ForceNode::new(i).with_size(node.width, node.height));
-    }
-    for &(s, t) in &edges {
-        fg.add_edge(s, t);
-    }
-
-    // Seed positions: root at center, children radially by depth
-    seed_tree_positions(&mut fg, &edges, &flat_nodes);
-
-    // Pin root at center
-    fg.nodes[0].fixed = true;
-
-    // Run force simulation
-    force_layout(&mut fg, &ForceConfig::tree());
-
-    // Copy positions back
-    for (i, fnode) in fg.nodes.iter().enumerate() {
-        flat_nodes[i].x = fnode.x;
-        flat_nodes[i].y = fnode.y;
-    }
-
-    // Compute bounding box and normalize to positive coords
     let min_x = flat_nodes.iter().map(|n| n.x - n.width / 2.0).fold(f64::INFINITY, f64::min);
     let min_y = flat_nodes.iter().map(|n| n.y - n.height / 2.0).fold(f64::INFINITY, f64::min);
     let max_x = flat_nodes.iter().map(|n| n.x + n.width / 2.0).fold(f64::NEG_INFINITY, f64::max);
@@ -91,8 +59,40 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
     let height = max_y - min_y + SCENE_MARGIN * 2.0;
     let mut scene = Scene::new(width, height);
 
-    // Render edges first (nodes drawn on top will occlude the center portions)
-    for &(parent_idx, child_idx) in &edges {
+    render_mindmap_edges(&mut scene, &flat_nodes, &edges);
+    render_mindmap_nodes(&mut scene, &flat_nodes, theme);
+
+    scene
+}
+
+fn layout_nodes(flat_nodes: &mut [FlatNode], edges: &[(usize, usize)], theme: &Theme) {
+    let style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
+    for node in flat_nodes.iter_mut() {
+        let ts = SimpleTextMeasure::measure_raw(&node.text, &style);
+        node.width = (ts.width + NODE_PAD_X * 2.0).max(MIN_NODE_W);
+        node.height = ts.height + NODE_PAD_Y * 2.0;
+    }
+
+    let mut fg = ForceGraph::new();
+    for (i, node) in flat_nodes.iter().enumerate() {
+        fg.add_node(ForceNode::new(i).with_size(node.width, node.height));
+    }
+    for &(s, t) in edges {
+        fg.add_edge(s, t);
+    }
+
+    seed_tree_positions(&mut fg, edges, flat_nodes);
+    fg.nodes[0].fixed = true;
+    force_layout(&mut fg, &ForceConfig::tree());
+
+    for (i, fnode) in fg.nodes.iter().enumerate() {
+        flat_nodes[i].x = fnode.x;
+        flat_nodes[i].y = fnode.y;
+    }
+}
+
+fn render_mindmap_edges(scene: &mut Scene, flat_nodes: &[FlatNode], edges: &[(usize, usize)]) {
+    for &(parent_idx, child_idx) in edges {
         let p = &flat_nodes[parent_idx];
         let c = &flat_nodes[child_idx];
         let color = section_color(c.section);
@@ -108,18 +108,15 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
                     to: Point::new(c.x, c.y),
                 },
             ],
-            style: Style {
-                stroke: Some(alpha_color),
-                stroke_width: Some(2.0),
-                ..Default::default()
-            },
+            style: Style { stroke: Some(alpha_color), stroke_width: Some(2.0), ..Default::default() },
             marker_start: None,
             marker_end: None,
         });
     }
+}
 
-    // Render nodes (opaque fills cover the edges underneath)
-    for node in &flat_nodes {
+fn render_mindmap_nodes(scene: &mut Scene, flat_nodes: &[FlatNode], theme: &Theme) {
+    for node in flat_nodes {
         let color = section_color(node.section);
         let is_root = node.depth == 0;
         let is_parent = node.has_children;
@@ -129,13 +126,12 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
         } else if is_parent {
             (color, color, Color::WHITE, rusty_mermaid_core::FontWeight::Bold)
         } else {
-            // Leaf nodes: light opaque tint (blended with white background)
             let t = 0.15 + (node.depth as f64).min(3.0) * 0.1;
-            let fill = tint_color(color, t);
-            (fill, color, theme.node_text, rusty_mermaid_core::FontWeight::Normal)
+            (tint_color(color, t), color, theme.node_text, rusty_mermaid_core::FontWeight::Normal)
         };
 
-        render_shape(&mut scene, node.x, node.y, node.width, node.height, node.shape, fill, stroke);
+        let bbox = BBox::new(node.x, node.y, node.width, node.height);
+        render_shape(scene, &bbox, node.shape, fill, stroke);
 
         scene.push(Primitive::Text {
             position: Point::new(node.x, node.y),
@@ -149,8 +145,6 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
             },
         });
     }
-
-    scene
 }
 
 // ── Tree flattening ──
@@ -254,28 +248,30 @@ fn section_color(section: usize) -> Color {
 
 // ── Shape rendering ──
 
-fn render_shape(scene: &mut Scene, x: f64, y: f64, w: f64, h: f64, shape: MindmapShape, fill: Color, stroke: Color) {
+fn render_shape(scene: &mut Scene, bbox: &BBox, shape: MindmapShape, fill: Color, stroke: Color) {
+    let (x, y, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
+    let shape_style = Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() };
+
     match shape {
         MindmapShape::Default | MindmapShape::RoundedRect => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(x, y, w, h),
-                rx: h / 2.0, ry: h / 2.0, // pill shape
-                style: Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() },
+                rx: h / 2.0, ry: h / 2.0,
+                style: shape_style,
             });
         }
         MindmapShape::Rect => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(x, y, w, h),
                 rx: 3.0, ry: 3.0,
-                style: Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() },
+                style: shape_style,
             });
         }
         MindmapShape::Circle => {
-            let r = w.max(h) / 2.0;
             scene.push(Primitive::Circle {
                 center: Point::new(x, y),
-                radius: r,
-                style: Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() },
+                radius: w.max(h) / 2.0,
+                style: shape_style,
             });
         }
         MindmapShape::Hexagon => {
@@ -291,19 +287,17 @@ fn render_shape(scene: &mut Scene, x: f64, y: f64, w: f64, h: f64, shape: Mindma
                     Point::new(x - hw + inset, y + hh),
                     Point::new(x - hw, y),
                 ],
-                style: Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() },
+                style: shape_style,
             });
         }
         MindmapShape::Cloud => {
-            // Approximate cloud as rounded rect with very large radius
             scene.push(Primitive::Rect {
                 bbox: BBox::new(x, y, w * 1.1, h * 1.2),
                 rx: h, ry: h,
-                style: Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() },
+                style: shape_style,
             });
         }
         MindmapShape::Bang => {
-            // Starburst: jagged polygon
             let r_outer = w.max(h) / 2.0;
             let r_inner = r_outer * 0.65;
             let spikes = 8;
@@ -313,10 +307,7 @@ fn render_shape(scene: &mut Scene, x: f64, y: f64, w: f64, h: f64, shape: Mindma
                 let r = if i % 2 == 0 { r_outer } else { r_inner };
                 pts.push(Point::new(x + r * angle.cos(), y + r * angle.sin()));
             }
-            scene.push(Primitive::Polygon {
-                points: pts,
-                style: Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() },
-            });
+            scene.push(Primitive::Polygon { points: pts, style: shape_style });
         }
     }
 }

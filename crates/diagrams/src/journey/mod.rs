@@ -37,6 +37,17 @@ pub fn to_scene(diagram: &JourneyDiagram) -> Scene {
     to_scene_themed(diagram, &Theme::default())
 }
 
+/// Vertical layout positions derived from the diagram.
+struct JourneyLayout {
+    ox: f64,
+    oy: f64,
+    task_top: f64,
+    actor_row_y: f64,
+    score_top: f64,
+    score_bot: f64,
+    scene_w: f64,
+}
+
 pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
     let total_tasks: usize = diagram.sections.iter().map(|s| s.tasks.len()).sum();
     if total_tasks == 0 {
@@ -55,13 +66,33 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
     let scene_h = content_h + title_h + SCENE_PAD * 2.0;
     let mut scene = Scene::new(scene_w, scene_h);
 
-    let ox = SCENE_PAD;
     let oy = SCENE_PAD + title_h;
+    let task_top = oy + SECTION_HEADER_H + 8.0;
+    let actor_row_y = task_top + TASK_H + 4.0;
+    let score_top = actor_row_y + ACTOR_ROW_H;
+    let score_bot = score_top + SCORE_RANGE_H + FACE_R * 2.0;
 
-    // Title
+    let layout = JourneyLayout {
+        ox: SCENE_PAD, oy, task_top, actor_row_y, score_top, score_bot, scene_w,
+    };
+
+    let actors = diagram.all_actors();
+    let actor_colors: Vec<Color> = actors.iter().enumerate()
+        .map(|(i, _)| SECTION_COLORS[i % SECTION_COLORS.len()])
+        .collect();
+
+    render_journey_title(&mut scene, diagram, &layout, theme);
+    let x = render_sections(&mut scene, diagram, &layout, &actors, &actor_colors, theme);
+    let _ = x;
+    render_actor_legend(&mut scene, &actors, &actor_colors, &layout, theme);
+
+    scene
+}
+
+fn render_journey_title(scene: &mut Scene, diagram: &JourneyDiagram, layout: &JourneyLayout, theme: &Theme) {
     if let Some(title) = &diagram.title {
         scene.push(Primitive::Text {
-            position: Point::new(scene_w / 2.0, SCENE_PAD + 10.0),
+            position: Point::new(layout.scene_w / 2.0, SCENE_PAD + 10.0),
             content: title.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -72,43 +103,31 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    let actors = diagram.all_actors();
-    let actor_colors: Vec<Color> = actors
-        .iter()
-        .enumerate()
-        .map(|(i, _)| SECTION_COLORS[i % SECTION_COLORS.len()])
-        .collect();
-
-    let mut x = ox + TASK_GAP;
-    let task_top = oy + SECTION_HEADER_H + 8.0;
-    let actor_row_y = task_top + TASK_H + 4.0; // dots go here, below task box
-    let score_top = actor_row_y + ACTOR_ROW_H;
-    // Face centers live in [score_top + FACE_R, score_bot - FACE_R]
-    // so the top face circle just touches score_top (the dashed line origin)
-    let score_bot = score_top + SCORE_RANGE_H + FACE_R * 2.0;
+fn render_sections(
+    scene: &mut Scene,
+    diagram: &JourneyDiagram,
+    layout: &JourneyLayout,
+    actors: &[String],
+    actor_colors: &[Color],
+    theme: &Theme,
+) -> f64 {
+    let mut x = layout.ox + TASK_GAP;
 
     for (si, section) in diagram.sections.iter().enumerate() {
         let color = SECTION_COLORS[si % SECTION_COLORS.len()];
         let section_w = section.tasks.len() as f64 * (TASK_W + TASK_GAP) - TASK_GAP;
 
-        // Section header background
         let fill = tint_color(color, TINT);
         scene.push(Primitive::Rect {
-            bbox: BBox::new(
-                x + section_w / 2.0,
-                oy + SECTION_HEADER_H / 2.0,
-                section_w,
-                SECTION_HEADER_H,
-            ),
-            rx: BORDER_RADIUS,
-            ry: BORDER_RADIUS,
+            bbox: BBox::new(x + section_w / 2.0, layout.oy + SECTION_HEADER_H / 2.0, section_w, SECTION_HEADER_H),
+            rx: BORDER_RADIUS, ry: BORDER_RADIUS,
             style: Style { fill: Some(fill), ..Default::default() },
         });
 
-        // Section label
         scene.push(Primitive::Text {
-            position: Point::new(x + section_w / 2.0, oy + SECTION_HEADER_H / 2.0),
+            position: Point::new(x + section_w / 2.0, layout.oy + SECTION_HEADER_H / 2.0),
             content: section.name.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -119,90 +138,94 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
             },
         });
 
-        // Tasks
         for task in &section.tasks {
             let task_cx = x + TASK_W / 2.0;
-
-            // Task box
-            let task_fill = tint_color(color, TINT * 0.7);
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(task_cx, task_top + TASK_H / 2.0, TASK_W, TASK_H),
-                rx: BORDER_RADIUS,
-                ry: BORDER_RADIUS,
-                style: Style {
-                    fill: Some(task_fill),
-                    stroke: Some(color),
-                    stroke_width: Some(1.0),
-                    ..Default::default()
-                },
-            });
-
-            // Task label
-            let label_style = TextStyle {
-                font_size: 11.0,
-                fill: Some(theme.node_text),
-                ..Default::default()
-            };
-            let label_w = SimpleTextMeasure::measure_raw(&task.name, &label_style).width;
-            if label_w < TASK_W - 8.0 {
-                scene.push(Primitive::Text {
-                    position: Point::new(task_cx, task_top + TASK_H / 2.0),
-                    content: task.name.clone(),
-                    anchor: TextAnchor::Middle,
-                    style: label_style,
-                });
-            }
-
-            // Score indicator — face center within [score_top + FACE_R, score_bot - FACE_R]
-            let face_top = score_top + FACE_R;
-            let face_bot = score_bot - FACE_R;
-            let score_y = face_bot - (task.score as f64 / MAX_SCORE) * (face_bot - face_top);
-
-            scene.push(Primitive::Path {
-                segments: vec![
-                    PathSegment::MoveTo(Point::new(task_cx, score_top)),
-                    PathSegment::LineTo(Point::new(task_cx, score_y)),
-                ],
-                style: Style {
-                    stroke: Some(Color::rgb(180, 180, 180)),
-                    stroke_width: Some(1.0),
-                    stroke_dasharray: Some(vec![4.0, 3.0]),
-                    ..Default::default()
-                },
-                marker_start: None,
-                marker_end: None,
-            });
-
-            // Face at score position
-            render_face(&mut scene, task_cx, score_y, task.score, color);
-
-            // Actor dots below task box with gap
-            for (ai, actor) in task.actors.iter().enumerate() {
-                if let Some(idx) = actors.iter().position(|a| a == actor) {
-                    let spacing = ACTOR_R * 2.0 + 4.0;
-                    let dot_x = task_cx - (task.actors.len() as f64 - 1.0) * spacing / 2.0
-                        + ai as f64 * spacing;
-                    let dot_y = actor_row_y + ACTOR_ROW_H / 2.0;
-                    scene.push(Primitive::Circle {
-                        center: Point::new(dot_x, dot_y),
-                        radius: ACTOR_R,
-                        style: Style {
-                            fill: Some(actor_colors[idx]),
-                            ..Default::default()
-                        },
-                    });
-                }
-            }
-
+            render_task(scene, task, task_cx, layout, color, actors, actor_colors, theme);
             x += TASK_W + TASK_GAP;
         }
 
         x += SECTION_GAP;
     }
 
-    // Actor legend at bottom
-    let legend_y = score_bot + FACE_R + 16.0;
-    let mut lx = ox + TASK_GAP;
+    x
+}
+
+fn render_task(
+    scene: &mut Scene,
+    task: &ir::JourneyTask,
+    task_cx: f64,
+    layout: &JourneyLayout,
+    color: Color,
+    actors: &[String],
+    actor_colors: &[Color],
+    theme: &Theme,
+) {
+    let task_fill = tint_color(color, TINT * 0.7);
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(task_cx, layout.task_top + TASK_H / 2.0, TASK_W, TASK_H),
+        rx: BORDER_RADIUS, ry: BORDER_RADIUS,
+        style: Style {
+            fill: Some(task_fill), stroke: Some(color), stroke_width: Some(1.0),
+            ..Default::default()
+        },
+    });
+
+    let label_style = TextStyle { font_size: 11.0, fill: Some(theme.node_text), ..Default::default() };
+    let label_w = SimpleTextMeasure::measure_raw(&task.name, &label_style).width;
+    if label_w < TASK_W - 8.0 {
+        scene.push(Primitive::Text {
+            position: Point::new(task_cx, layout.task_top + TASK_H / 2.0),
+            content: task.name.clone(),
+            anchor: TextAnchor::Middle,
+            style: label_style,
+        });
+    }
+
+    let face_top = layout.score_top + FACE_R;
+    let face_bot = layout.score_bot - FACE_R;
+    let score_y = face_bot - (task.score as f64 / MAX_SCORE) * (face_bot - face_top);
+
+    scene.push(Primitive::Path {
+        segments: vec![
+            PathSegment::MoveTo(Point::new(task_cx, layout.score_top)),
+            PathSegment::LineTo(Point::new(task_cx, score_y)),
+        ],
+        style: Style {
+            stroke: Some(Color::rgb(180, 180, 180)),
+            stroke_width: Some(1.0),
+            stroke_dasharray: Some(vec![4.0, 3.0]),
+            ..Default::default()
+        },
+        marker_start: None,
+        marker_end: None,
+    });
+
+    render_face(scene, task_cx, score_y, task.score, color);
+
+    for (ai, actor) in task.actors.iter().enumerate() {
+        if let Some(idx) = actors.iter().position(|a| a == actor) {
+            let spacing = ACTOR_R * 2.0 + 4.0;
+            let dot_x = task_cx - (task.actors.len() as f64 - 1.0) * spacing / 2.0
+                + ai as f64 * spacing;
+            let dot_y = layout.actor_row_y + ACTOR_ROW_H / 2.0;
+            scene.push(Primitive::Circle {
+                center: Point::new(dot_x, dot_y),
+                radius: ACTOR_R,
+                style: Style { fill: Some(actor_colors[idx]), ..Default::default() },
+            });
+        }
+    }
+}
+
+fn render_actor_legend(
+    scene: &mut Scene,
+    actors: &[String],
+    actor_colors: &[Color],
+    layout: &JourneyLayout,
+    theme: &Theme,
+) {
+    let legend_y = layout.score_bot + FACE_R + 16.0;
+    let mut lx = layout.ox + TASK_GAP;
     for (i, actor) in actors.iter().enumerate() {
         scene.push(Primitive::Circle {
             center: Point::new(lx + ACTOR_R, legend_y),
@@ -213,17 +236,11 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
             position: Point::new(lx + ACTOR_R * 2.0 + 4.0, legend_y),
             content: actor.clone(),
             anchor: TextAnchor::Start,
-            style: TextStyle {
-                font_size: 11.0,
-                fill: Some(theme.node_text),
-                ..Default::default()
-            },
+            style: TextStyle { font_size: 11.0, fill: Some(theme.node_text), ..Default::default() },
         });
         lx += SimpleTextMeasure::measure_raw(actor, &TextStyle { font_size: 11.0, ..Default::default() }).width
             + ACTOR_R * 2.0 + 16.0;
     }
-
-    scene
 }
 
 fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {

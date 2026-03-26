@@ -123,7 +123,7 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     for tp in &tasks {
         let color = SECTION_COLORS[tp.section_idx % SECTION_COLORS.len()];
         let task_x = axis_x - GAP - TASK_BOX_W / 2.0;
-        render_box(&mut scene, task_x, tp.axis_pos, TASK_BOX_W, TASK_BOX_H, &tp.name, color, true, theme);
+        render_box(&mut scene, &BoxSpec { bbox: BBox::new(task_x, tp.axis_pos, TASK_BOX_W, TASK_BOX_H), color, bold: true }, &tp.name, theme);
         render_dot(&mut scene, axis_x, tp.axis_pos, color);
 
         let event_x = axis_x + GAP + event_box_w / 2.0;
@@ -132,7 +132,7 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         for (ei, event) in tp.events.iter().enumerate() {
             let ey = start_y + ei as f64 * (EVENT_BOX_H + 4.0);
             render_connector(&mut scene, Point::new(axis_x + 5.0, tp.axis_pos), Point::new(event_x - event_box_w / 2.0, ey), theme);
-            render_box(&mut scene, event_x, ey, event_box_w, EVENT_BOX_H, event, color, false, theme);
+            render_box(&mut scene, &BoxSpec { bbox: BBox::new(event_x, ey, event_box_w, EVENT_BOX_H), color, bold: false }, event, theme);
         }
     }
 
@@ -210,7 +210,7 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         render_section_bg(&mut scene, sec_cx, bg_cy, sec_w, bg_h, *si);
         if let Some(name) = name {
             let color = SECTION_COLORS[*si % SECTION_COLORS.len()];
-            render_box(&mut scene, sec_cx, section_box_y, sec_w - GAP, SECTION_HEADER_H, name, color, true, theme);
+            render_box(&mut scene, &BoxSpec { bbox: BBox::new(sec_cx, section_box_y, sec_w - GAP, SECTION_HEADER_H), color, bold: true }, name, theme);
         }
     }
 
@@ -219,7 +219,7 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     for tp in &tasks {
         let color = SECTION_COLORS[tp.section_idx % SECTION_COLORS.len()];
         let task_y = axis_y - GAP - TASK_BOX_H / 2.0;
-        render_box(&mut scene, tp.axis_pos, task_y, TASK_BOX_W, TASK_BOX_H, &tp.name, color, true, theme);
+        render_box(&mut scene, &BoxSpec { bbox: BBox::new(tp.axis_pos, task_y, TASK_BOX_W, TASK_BOX_H), color, bold: true }, &tp.name, theme);
         render_dot(&mut scene, tp.axis_pos, axis_y, color);
 
         // Vertical line from axis to bottom of events area
@@ -230,7 +230,7 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         let start_y = axis_y + GAP + EVENT_BOX_H / 2.0;
         for (ei, event) in tp.events.iter().enumerate() {
             let ey = start_y + ei as f64 * (EVENT_BOX_H + 4.0);
-            render_box(&mut scene, tp.axis_pos, ey, event_box_w, EVENT_BOX_H, event, color, false, theme);
+            render_box(&mut scene, &BoxSpec { bbox: BBox::new(tp.axis_pos, ey, event_box_w, EVENT_BOX_H), color, bold: false }, event, theme);
         }
     }
 
@@ -290,25 +290,31 @@ fn render_section_label_left(scene: &mut Scene, x: f64, y: f64, name: &str, idx:
     });
 }
 
-fn render_box(scene: &mut Scene, x: f64, y: f64, w: f64, h: f64, text: &str, color: Color, bold: bool, theme: &Theme) {
-    let (rx, fill) = if bold {
-        (4.0, Color::rgba(color.r, color.g, color.b, 80))
+struct BoxSpec {
+    bbox: BBox,
+    color: Color,
+    bold: bool,
+}
+
+fn render_box(scene: &mut Scene, spec: &BoxSpec, text: &str, theme: &Theme) {
+    let (rx, fill) = if spec.bold {
+        (4.0, Color::rgba(spec.color.r, spec.color.g, spec.color.b, 80))
     } else {
         (12.0, theme.node_fill)
     };
     scene.push(Primitive::Rect {
-        bbox: BBox::new(x, y, w, h),
+        bbox: BBox::new(spec.bbox.x, spec.bbox.y, spec.bbox.width, spec.bbox.height),
         rx, ry: rx,
-        style: Style { fill: Some(fill), stroke: Some(color), stroke_width: Some(1.0), ..Default::default() },
+        style: Style { fill: Some(fill), stroke: Some(spec.color), stroke_width: Some(1.0), ..Default::default() },
     });
     scene.push(Primitive::Text {
-        position: Point::new(x, y),
+        position: Point::new(spec.bbox.x, spec.bbox.y),
         content: text.to_string(),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: if bold { theme.font_size_node } else { theme.font_size_edge_label },
+            font_size: if spec.bold { theme.font_size_node } else { theme.font_size_edge_label },
             fill: Some(theme.node_text),
-            font_weight: if bold { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
+            font_weight: if spec.bold { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
             ..Default::default()
         },
     });

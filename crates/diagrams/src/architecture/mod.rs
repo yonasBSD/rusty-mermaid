@@ -42,14 +42,32 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         return Scene::new(100.0, 50.0);
     }
 
+    let mut positions = run_force_layout(diagram, &node_ids);
+    normalize_positions(&mut positions);
+
+    let min_x = positions.values().map(|&(x, _, w, _)| x - w / 2.0).fold(f64::INFINITY, f64::min);
+    let min_y = positions.values().map(|&(_, y, _, h)| y - h / 2.0).fold(f64::INFINITY, f64::min);
+    let max_x = positions.values().map(|&(x, _, w, _)| x + w / 2.0).fold(f64::NEG_INFINITY, f64::max);
+    let max_y = positions.values().map(|&(_, y, _, h)| y + h / 2.0).fold(f64::NEG_INFINITY, f64::max);
+
+    let scene_w = max_x - min_x + SCENE_PAD * 2.0;
+    let scene_h = max_y - min_y + SCENE_PAD * 2.0;
+    let mut scene = Scene::new(scene_w, scene_h);
+
+    render_groups(&mut scene, diagram, &positions);
+    render_arch_edges(&mut scene, diagram, &positions);
+    render_services(&mut scene, diagram, &positions, theme);
+    render_junctions(&mut scene, diagram, &positions);
+
+    scene
+}
+
+fn run_force_layout(diagram: &ArchDiagram, node_ids: &[String]) -> HashMap<String, (f64, f64, f64, f64)> {
     let id_to_idx: HashMap<&str, usize> = node_ids.iter().enumerate()
         .map(|(i, id)| (id.as_str(), i)).collect();
-    let _n = node_ids.len();
 
-    // Build ForceGraph — services + junctions as nodes, edges as springs
     let mut fg = ForceGraph::new();
 
-    // Seed positions: cluster nodes by group so same-group nodes start near each other
     let mut group_centers: HashMap<String, (f64, f64)> = HashMap::new();
     let group_spacing = 250.0;
     for (gi, group) in diagram.groups.iter().enumerate() {
@@ -61,47 +79,43 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         let is_junction = diagram.junctions.iter().any(|j| j.id == *id);
         let (w, h) = if is_junction { (JUNCTION_SIZE, JUNCTION_SIZE) } else { (SERVICE_W, SERVICE_H) };
 
-        // Seed position near group center, spread horizontally
         let group_id = diagram.node_group(id);
         let (seed_x, seed_y) = group_id
             .and_then(|g| group_centers.get(g))
             .copied()
             .unwrap_or((0.0, 0.0));
-        // Count how many nodes in this group already placed, spread LR
         let group_idx = group_id.map(|g| {
             node_ids[..i].iter().filter(|prev| diagram.node_group(prev) == Some(g)).count()
         }).unwrap_or(i);
         let offset_x = (group_idx as f64 - 1.5) * (w + 30.0);
-        let offset_y = ((group_idx % 2) as f64 - 0.5) * 20.0; // slight vertical stagger
+        let offset_y = ((group_idx % 2) as f64 - 0.5) * 20.0;
         fg.add_node(ForceNode::new(i).with_size(w, h).with_position(seed_x + offset_x, seed_y + offset_y));
     }
 
-    // Add explicit edges as springs
     for edge in &diagram.edges {
         if let (Some(&s), Some(&t)) = (id_to_idx.get(edge.from.as_str()), id_to_idx.get(edge.to.as_str())) {
             fg.add_edge(s, t);
         }
     }
 
-    // ideal_length must exceed node size so CoSE clip-point distance works
     force_layout(&mut fg, &ForceConfig {
         ideal_length: 120.0,
         repulsion: 6000.0,
         ..ForceConfig::default()
     });
 
-    // Extract positions
     let mut positions: HashMap<String, (f64, f64, f64, f64)> = HashMap::new();
     for (i, id) in node_ids.iter().enumerate() {
         let node = &fg.nodes[i];
         positions.insert(id.clone(), (node.x, node.y, node.width, node.height));
     }
 
-    // Normalize to positive coordinates
+    positions
+}
+
+fn normalize_positions(positions: &mut HashMap<String, (f64, f64, f64, f64)>) {
     let min_x = positions.values().map(|&(x, _, w, _)| x - w / 2.0).fold(f64::INFINITY, f64::min);
     let min_y = positions.values().map(|&(_, y, _, h)| y - h / 2.0).fold(f64::INFINITY, f64::min);
-    let max_x = positions.values().map(|&(x, _, w, _)| x + w / 2.0).fold(f64::NEG_INFINITY, f64::max);
-    let max_y = positions.values().map(|&(_, y, _, h)| y + h / 2.0).fold(f64::NEG_INFINITY, f64::max);
 
     let ox = -min_x + SCENE_PAD;
     let oy = -min_y + SCENE_PAD;
@@ -109,12 +123,9 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         pos.0 += ox;
         pos.1 += oy;
     }
+}
 
-    let scene_w = max_x - min_x + SCENE_PAD * 2.0;
-    let scene_h = max_y - min_y + SCENE_PAD * 2.0;
-    let mut scene = Scene::new(scene_w, scene_h);
-
-    // Render groups (behind everything)
+fn render_groups(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
     for (gi, group) in diagram.groups.iter().enumerate() {
         let members: Vec<&str> = diagram.services.iter()
             .filter(|s| s.group.as_deref() == Some(&group.id))
@@ -149,7 +160,6 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
             },
         });
 
-        // Group label
         scene.push(Primitive::Text {
             position: Point::new(gx - gw / 2.0 + 10.0, gy - gh / 2.0 + 14.0),
             content: group.label.clone(),
@@ -162,14 +172,13 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Render edges (behind nodes)
-    let _edge_labels: Vec<(f64, f64, String)> = Vec::new();
+fn render_arch_edges(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
     for edge in &diagram.edges {
         let Some(&(x1, y1, w1, h1)) = positions.get(&edge.from) else { continue };
         let Some(&(x2, y2, w2, h2)) = positions.get(&edge.to) else { continue };
 
-        // Connect border-to-border (force layout determines actual positions)
         let start = intersect_rect(&BBox::new(x1, y1, w1, h1), Point::new(x2, y2));
         let end = intersect_rect(&BBox::new(x2, y2, w2, h2), Point::new(x1, y1));
 
@@ -177,10 +186,7 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         let marker_end = if edge.arrow_right { Some(rusty_mermaid_core::MarkerType::ArrowPoint) } else { None };
 
         scene.push(Primitive::Path {
-            segments: vec![
-                PathSegment::MoveTo(start),
-                PathSegment::LineTo(end),
-            ],
+            segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
             style: Style {
                 stroke: Some(Color::rgb(140, 140, 140)),
                 stroke_width: Some(1.5),
@@ -190,28 +196,25 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
             marker_end,
         });
     }
+}
 
-    // Render services (on top)
+fn render_services(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>, theme: &Theme) {
     for (si, svc) in diagram.services.iter().enumerate() {
         let Some(&(cx, cy, _, _)) = positions.get(&svc.id) else { continue };
         let color = COLORS[si % COLORS.len()];
-        render_service(&mut scene, svc, cx, cy, color, theme);
+        render_service(scene, svc, cx, cy, color, theme);
     }
+}
 
-    // Render junctions
+fn render_junctions(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
     for junc in &diagram.junctions {
         let Some(&(cx, cy, _, _)) = positions.get(&junc.id) else { continue };
         scene.push(Primitive::Rect {
             bbox: BBox::new(cx, cy, JUNCTION_SIZE, JUNCTION_SIZE),
             rx: 2.0, ry: 2.0,
-            style: Style {
-                fill: Some(Color::rgb(100, 100, 100)),
-                ..Default::default()
-            },
+            style: Style { fill: Some(Color::rgb(100, 100, 100)), ..Default::default() },
         });
     }
-
-    scene
 }
 
 
