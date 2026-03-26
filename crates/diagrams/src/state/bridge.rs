@@ -18,9 +18,13 @@ const FORK_JOIN_WIDTH: f64 = 70.0;
 const FORK_JOIN_HEIGHT: f64 = 7.0;
 const CHOICE_SIZE: f64 = 28.0;
 const NOTE_PADDING: f64 = 10.0;
+const NOTE_GAP: f64 = 10.0;
+const COMPOUND_LABEL_PAD: f64 = 20.0;
+const COMPOUND_HEADER_OFFSET: f64 = 24.0;
+const EDGE_LABEL_FONT_SIZE: f64 = 12.0;
+const EDGE_LABEL_PAD: f64 = 4.0;
+const BULLSEYE_MIN_GAP: f64 = 10.0;
 /// Extra height added above compound nodes for the title + separator header.
-/// With a 24px header, dagre's natural compound padding provides enough room
-/// so no additional extension is needed (previously 4.0 with a 28px header).
 const COMPOUND_HEADER_HEIGHT: f64 = 0.0;
 
 /// Layout result: node positions and edge points.
@@ -128,7 +132,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         let ts = measurer.measure(&note.text, &style);
         let note_w = ts.width + NOTE_PADDING * 2.0;
         let note_h = ts.height + NOTE_PADDING * 2.0;
-        let gap = 10.0;
+        let gap = NOTE_GAP;
 
         let note_x = match note.position {
             NotePosition::Right => state_node.x + state_node.width / 2.0 + gap + note_w / 2.0,
@@ -162,7 +166,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             node.y -= COMPOUND_HEADER_HEIGHT / 2.0;
 
             let label_w = measurer.measure(&node.label, &style).width;
-            let min_width = label_w + 20.0; // 10px padding each side
+            let min_width = label_w + COMPOUND_LABEL_PAD;
             if node.width < min_width {
                 node.width = min_width;
             }
@@ -238,7 +242,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
             }
 
             let label_size = transition.label.as_ref().map(|l| {
-                let edge_style = TextStyle { font_size: 12.0, ..style.clone() };
+                let edge_style = TextStyle { font_size: EDGE_LABEL_FONT_SIZE, ..style.clone() };
                 let ts = measurer.measure(l, &edge_style);
                 (ts.width, ts.height)
             });
@@ -259,7 +263,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     // Expand bounds to include edge control points and label extents
     // (dagre routes and labels can extend past the node bounding box).
     let mut min_y: f64 = 0.0;
-    let label_pad = 4.0;
+    let label_pad = EDGE_LABEL_PAD;
     // Reset min_x since the prior x_shift may not have accounted for edges
     min_x = 0.0;
     for edge in &edges {
@@ -306,7 +310,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
         if node.region_count < 2 {
             continue;
         }
-        let compound_top = node.y - node.height / 2.0 + 24.0; // below header
+        let compound_top = node.y - node.height / 2.0 + COMPOUND_HEADER_OFFSET;
         let compound_bottom = node.y + node.height / 2.0;
         let compound_left = node.x - node.width / 2.0;
         let compound_right = node.x + node.width / 2.0;
@@ -665,7 +669,7 @@ fn would_overlap(
     let Some(node) = g.node(nid) else { return false };
     let half_w = node.width / 2.0;
     let half_h = node.height / 2.0;
-    let min_gap = 10.0;
+    let min_gap = BULLSEYE_MIN_GAP;
 
     for &pid in peers {
         if pid == nid {

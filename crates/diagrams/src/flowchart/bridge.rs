@@ -17,6 +17,8 @@ use crate::common::tokens::strip_html_tags;
 
 const PADDING_X: f64 = 16.0;
 const PADDING_Y: f64 = 8.0;
+const DOUBLE_CIRCLE_PAD: f64 = 10.0;
+const EDGE_LABEL_FONT_SIZE: f64 = 12.0;
 
 /// Layout result: node positions and edge points.
 #[derive(Debug)]
@@ -256,7 +258,7 @@ fn build_flow_graph<'a>(
                 (d, d)
             }
             Shape::DoubleCircle => {
-                let d = text_w.max(text_h) + 10.0;
+                let d = text_w.max(text_h) + DOUBLE_CIRCLE_PAD;
                 (d, d)
             }
             Shape::Diamond => {
@@ -373,7 +375,7 @@ fn extract_edge_layouts(
         let flow_edge = edge_idx.map(|i| &diagram.edges[i]);
         let label = flow_edge.and_then(|fe| fe.label.clone());
         let label_size = label.as_ref().map(|text| {
-            let edge_style = TextStyle { font_size: 12.0, ..Default::default() };
+            let edge_style = TextStyle { font_size: EDGE_LABEL_FONT_SIZE, ..Default::default() };
             let ts = measurer.measure(text, &edge_style);
             (ts.width, ts.height)
         });
