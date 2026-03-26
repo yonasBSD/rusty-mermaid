@@ -57,4 +57,26 @@ mod tests {
         };
         assert_eq!(d.node_names(), vec!["X", "Y"]);
     }
+
+    #[test]
+    fn node_names_empty() {
+        let d = SankeyDiagram { links: vec![] };
+        assert!(d.node_names().is_empty());
+    }
+
+    #[test]
+    fn link_construction() {
+        let link = SankeyLink { source: "Power".into(), target: "Heat".into(), value: 42.5 };
+        assert_eq!(link.source, "Power");
+        assert_eq!(link.target, "Heat");
+        assert!((link.value - 42.5).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn node_names_single_link() {
+        let d = SankeyDiagram {
+            links: vec![SankeyLink { source: "In".into(), target: "Out".into(), value: 100.0 }],
+        };
+        assert_eq!(d.node_names(), vec!["In", "Out"]);
+    }
 }

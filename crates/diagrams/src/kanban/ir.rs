@@ -78,4 +78,44 @@ mod tests {
         assert_eq!(c.label, "Do something");
         assert!(c.priority.is_none());
     }
+
+    #[test]
+    fn card_optional_fields_none() {
+        let c = KanbanCard::new("x", "Y");
+        assert!(c.assigned.is_none());
+        assert!(c.ticket.is_none());
+    }
+
+    #[test]
+    fn priority_labels() {
+        assert_eq!(Priority::VeryHigh.label(), "Very High");
+        assert_eq!(Priority::High.label(), "High");
+        assert_eq!(Priority::Medium.label(), "Medium");
+        assert_eq!(Priority::Low.label(), "Low");
+        assert_eq!(Priority::VeryLow.label(), "Very Low");
+    }
+
+    #[test]
+    fn priority_equality() {
+        let all = [Priority::VeryHigh, Priority::High, Priority::Medium, Priority::Low, Priority::VeryLow];
+        for (i, a) in all.iter().enumerate() {
+            for (j, b) in all.iter().enumerate() {
+                assert_eq!(i == j, *a == *b);
+            }
+        }
+    }
+
+    #[test]
+    fn column_with_cards() {
+        let col = KanbanColumn {
+            id: "todo".into(),
+            label: "To Do".into(),
+            cards: vec![
+                KanbanCard::new("t1", "First"),
+                KanbanCard::new("t2", "Second"),
+            ],
+        };
+        assert_eq!(col.cards.len(), 2);
+        assert_eq!(col.label, "To Do");
+    }
 }

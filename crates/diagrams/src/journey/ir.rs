@@ -60,4 +60,43 @@ mod tests {
         };
         assert_eq!(d.all_actors(), vec!["A", "B", "C"]);
     }
+
+    #[test]
+    fn default_empty() {
+        let d = JourneyDiagram::default();
+        assert!(d.title.is_none());
+        assert!(d.sections.is_empty());
+    }
+
+    #[test]
+    fn all_actors_empty_diagram() {
+        let d = JourneyDiagram::default();
+        assert!(d.all_actors().is_empty());
+    }
+
+    #[test]
+    fn all_actors_across_sections() {
+        let d = JourneyDiagram {
+            title: Some("Test".into()),
+            sections: vec![
+                JourneySection {
+                    name: "S1".into(),
+                    tasks: vec![JourneyTask { name: "T1".into(), score: 4, actors: vec!["Alice".into()] }],
+                },
+                JourneySection {
+                    name: "S2".into(),
+                    tasks: vec![JourneyTask { name: "T2".into(), score: 2, actors: vec!["Bob".into(), "Alice".into()] }],
+                },
+            ],
+        };
+        assert_eq!(d.all_actors(), vec!["Alice", "Bob"]);
+    }
+
+    #[test]
+    fn task_score_range() {
+        let task = JourneyTask { name: "happy".into(), score: 5, actors: vec![] };
+        assert_eq!(task.score, 5);
+        let task_low = JourneyTask { name: "sad".into(), score: 0, actors: vec![] };
+        assert_eq!(task_low.score, 0);
+    }
 }

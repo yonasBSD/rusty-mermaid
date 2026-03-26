@@ -78,4 +78,36 @@ mod tests {
         });
         assert!((c.effective_max() - 10.0).abs() < f64::EPSILON);
     }
+
+    #[test]
+    fn default_values() {
+        let c = RadarChart::default();
+        assert!(c.title.is_none());
+        assert!(c.axes.is_empty());
+        assert!(c.curves.is_empty());
+        assert_eq!(c.ticks, 5);
+        assert!((c.min - 0.0).abs() < f64::EPSILON);
+        assert!(c.max.is_none());
+        assert_eq!(c.graticule, Graticule::Polygon);
+    }
+
+    #[test]
+    fn graticule_variants() {
+        assert_ne!(Graticule::Circle, Graticule::Polygon);
+        assert_eq!(Graticule::Circle, Graticule::Circle);
+    }
+
+    #[test]
+    fn effective_max_no_curves() {
+        let c = RadarChart::default();
+        assert!((c.effective_max() - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn effective_max_multiple_curves() {
+        let mut c = RadarChart::default();
+        c.curves.push(RadarCurve { id: "a".into(), label: "A".into(), values: vec![1.0, 2.0] });
+        c.curves.push(RadarCurve { id: "b".into(), label: "B".into(), values: vec![5.0, 3.0] });
+        assert!((c.effective_max() - 5.0).abs() < f64::EPSILON);
+    }
 }

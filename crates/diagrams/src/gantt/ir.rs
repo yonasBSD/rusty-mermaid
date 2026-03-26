@@ -82,4 +82,41 @@ mod tests {
         assert_ne!(TaskTag::Done, TaskTag::Active);
         assert_eq!(TaskTag::Crit, TaskTag::Crit);
     }
+
+    #[test]
+    fn new_no_title_no_axis_format() {
+        let c = GanttChart::new();
+        assert!(c.title.is_none());
+        assert!(c.axis_format.is_none());
+    }
+
+    #[test]
+    fn task_tag_all_variants_distinct() {
+        let tags = [TaskTag::Done, TaskTag::Active, TaskTag::Crit, TaskTag::Milestone];
+        for (i, a) in tags.iter().enumerate() {
+            for (j, b) in tags.iter().enumerate() {
+                assert_eq!(i == j, *a == *b);
+            }
+        }
+    }
+
+    #[test]
+    fn task_start_variants() {
+        let date = TaskStart::Date("2024-01-01".into());
+        let after = TaskStart::After("task1".into());
+        let auto = TaskStart::Auto;
+        assert!(matches!(date, TaskStart::Date(ref s) if s == "2024-01-01"));
+        assert!(matches!(after, TaskStart::After(ref s) if s == "task1"));
+        assert!(matches!(auto, TaskStart::Auto));
+    }
+
+    #[test]
+    fn task_end_variants() {
+        let date = TaskEnd::Date("2024-06-30".into());
+        let dur = TaskEnd::Duration("5d".into());
+        let auto = TaskEnd::Auto;
+        assert!(matches!(date, TaskEnd::Date(ref s) if s == "2024-06-30"));
+        assert!(matches!(dur, TaskEnd::Duration(ref s) if s == "5d"));
+        assert!(matches!(auto, TaskEnd::Auto));
+    }
 }

@@ -72,4 +72,48 @@ mod tests {
         let d = ArchDiagram::default();
         assert!(d.services.is_empty());
     }
+
+    #[test]
+    fn default_all_vecs_empty() {
+        let d = ArchDiagram::default();
+        assert!(d.groups.is_empty());
+        assert!(d.junctions.is_empty());
+        assert!(d.edges.is_empty());
+    }
+
+    #[test]
+    fn node_ids_combines_services_and_junctions() {
+        let mut d = ArchDiagram::default();
+        d.services.push(ArchService {
+            id: "svc1".into(), icon: String::new(), label: "Service 1".into(), group: None,
+        });
+        d.junctions.push(ArchJunction { id: "junc1".into(), group: None });
+        d.services.push(ArchService {
+            id: "svc2".into(), icon: String::new(), label: "Service 2".into(), group: Some("g1".into()),
+        });
+        assert_eq!(d.node_ids(), vec!["svc1", "svc2", "junc1"]);
+    }
+
+    #[test]
+    fn node_group_finds_service_group() {
+        let mut d = ArchDiagram::default();
+        d.services.push(ArchService {
+            id: "s1".into(), icon: String::new(), label: "S".into(), group: Some("grp".into()),
+        });
+        assert_eq!(d.node_group("s1"), Some("grp"));
+        assert_eq!(d.node_group("missing"), None);
+    }
+
+    #[test]
+    fn node_group_finds_junction_group() {
+        let mut d = ArchDiagram::default();
+        d.junctions.push(ArchJunction { id: "j1".into(), group: Some("g2".into()) });
+        assert_eq!(d.node_group("j1"), Some("g2"));
+    }
+
+    #[test]
+    fn dir_equality() {
+        assert_eq!(Dir::T, Dir::T);
+        assert_ne!(Dir::L, Dir::R);
+    }
 }

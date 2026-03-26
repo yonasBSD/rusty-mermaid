@@ -51,4 +51,44 @@ mod tests {
         assert!(c.plots.is_empty());
         assert!(!c.horizontal);
     }
+
+    #[test]
+    fn new_axes_defaults() {
+        let c = XyChart::new();
+        assert!(c.title.is_none());
+        assert!(matches!(c.x_axis, AxisDef::Band { ref categories, .. } if categories.is_empty()));
+        assert!(matches!(c.y_axis, AxisDef::Linear { min: None, max: None, .. }));
+    }
+
+    #[test]
+    fn plot_type_equality() {
+        assert_eq!(PlotType::Bar, PlotType::Bar);
+        assert_eq!(PlotType::Line, PlotType::Line);
+        assert_ne!(PlotType::Bar, PlotType::Line);
+    }
+
+    #[test]
+    fn plot_data_construction() {
+        let p = PlotData {
+            plot_type: PlotType::Bar,
+            label: Some("Sales".into()),
+            values: vec![10.0, 20.0, 30.0],
+        };
+        assert_eq!(p.values.len(), 3);
+        assert_eq!(p.label.as_deref(), Some("Sales"));
+    }
+
+    #[test]
+    fn axis_def_band_with_categories() {
+        let axis = AxisDef::Band {
+            title: Some("Months".into()),
+            categories: vec!["Jan".into(), "Feb".into(), "Mar".into()],
+        };
+        if let AxisDef::Band { title, categories } = axis {
+            assert_eq!(title.as_deref(), Some("Months"));
+            assert_eq!(categories.len(), 3);
+        } else {
+            panic!("expected Band");
+        }
+    }
 }

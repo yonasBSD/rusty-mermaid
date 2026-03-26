@@ -40,4 +40,48 @@ mod tests {
         };
         assert_eq!(t.node_count(), 3);
     }
+
+    #[test]
+    fn count_empty() {
+        let t = TreeView { roots: vec![] };
+        assert_eq!(t.node_count(), 0);
+    }
+
+    #[test]
+    fn count_single_root() {
+        let t = TreeView {
+            roots: vec![TreeNode { name: "root".into(), children: vec![] }],
+        };
+        assert_eq!(t.node_count(), 1);
+    }
+
+    #[test]
+    fn count_multiple_roots() {
+        let t = TreeView {
+            roots: vec![
+                TreeNode { name: "a".into(), children: vec![] },
+                TreeNode { name: "b".into(), children: vec![
+                    TreeNode { name: "b1".into(), children: vec![] },
+                ]},
+            ],
+        };
+        assert_eq!(t.node_count(), 3);
+    }
+
+    #[test]
+    fn count_deep_nesting() {
+        let t = TreeView {
+            roots: vec![TreeNode {
+                name: "1".into(),
+                children: vec![TreeNode {
+                    name: "2".into(),
+                    children: vec![TreeNode {
+                        name: "3".into(),
+                        children: vec![TreeNode { name: "4".into(), children: vec![] }],
+                    }],
+                }],
+            }],
+        };
+        assert_eq!(t.node_count(), 4);
+    }
 }

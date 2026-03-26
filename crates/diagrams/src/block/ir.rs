@@ -59,4 +59,46 @@ mod tests {
         assert!(d.blocks.is_empty());
         assert_eq!(d.columns, 0);
     }
+
+    #[test]
+    fn default_edges_empty() {
+        let d = BlockDiagram::default();
+        assert!(d.edges.is_empty());
+    }
+
+    #[test]
+    fn block_shape_variants() {
+        let shapes = [
+            BlockShape::Rect, BlockShape::Round, BlockShape::Stadium,
+            BlockShape::Diamond, BlockShape::Hexagon, BlockShape::Circle,
+            BlockShape::Cylinder, BlockShape::Space,
+        ];
+        for (i, a) in shapes.iter().enumerate() {
+            for (j, b) in shapes.iter().enumerate() {
+                assert_eq!(i == j, *a == *b);
+            }
+        }
+    }
+
+    #[test]
+    fn edge_style_variants() {
+        assert_ne!(EdgeStyle::Arrow, EdgeStyle::Dotted);
+        assert_ne!(EdgeStyle::Dotted, EdgeStyle::Thick);
+        assert_eq!(EdgeStyle::Arrow, EdgeStyle::Arrow);
+    }
+
+    #[test]
+    fn block_with_children() {
+        let child = Block {
+            id: "c1".into(), label: "Child".into(), shape: BlockShape::Rect,
+            children: vec![], span: 1,
+        };
+        let parent = Block {
+            id: "p1".into(), label: "Parent".into(), shape: BlockShape::Round,
+            children: vec![child], span: 2,
+        };
+        assert_eq!(parent.children.len(), 1);
+        assert_eq!(parent.span, 2);
+        assert_eq!(parent.children[0].id, "c1");
+    }
 }

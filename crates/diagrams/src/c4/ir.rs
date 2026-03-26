@@ -74,4 +74,42 @@ mod tests {
         assert!(d.elements.is_empty());
         assert_eq!(d.level, C4Level::Context);
     }
+
+    #[test]
+    fn default_no_title_and_empty_collections() {
+        let d = C4Diagram::default();
+        assert!(d.title.is_none());
+        assert!(d.boundaries.is_empty());
+        assert!(d.relationships.is_empty());
+    }
+
+    #[test]
+    fn c4_level_variants() {
+        let levels = [C4Level::Context, C4Level::Container, C4Level::Component, C4Level::Dynamic];
+        for (i, a) in levels.iter().enumerate() {
+            for (j, b) in levels.iter().enumerate() {
+                assert_eq!(i == j, *a == *b);
+            }
+        }
+    }
+
+    #[test]
+    fn c4_shape_variants() {
+        assert_ne!(C4Shape::Person, C4Shape::System);
+        assert_ne!(C4Shape::Container, C4Shape::Database);
+        assert_eq!(C4Shape::Queue, C4Shape::Queue);
+    }
+
+    #[test]
+    fn element_construction() {
+        let elem = C4Element {
+            alias: "web".into(), label: "Web App".into(),
+            technology: Some("React".into()), description: Some("Frontend".into()),
+            shape: C4Shape::Container, external: false, boundary: Some("sys1".into()),
+        };
+        assert_eq!(elem.alias, "web");
+        assert!(!elem.external);
+        assert_eq!(elem.shape, C4Shape::Container);
+        assert_eq!(elem.boundary.as_deref(), Some("sys1"));
+    }
 }

@@ -41,4 +41,34 @@ mod tests {
         let f = PacketField { start: 106, end: 106, label: "URG".into() };
         assert_eq!(f.bits(), 1);
     }
+
+    #[test]
+    fn default_values() {
+        let d = PacketDiagram::default();
+        assert!(d.title.is_none());
+        assert!(d.fields.is_empty());
+        assert_eq!(d.bits_per_row, 32);
+    }
+
+    #[test]
+    fn field_full_row() {
+        let f = PacketField { start: 0, end: 31, label: "Data".into() };
+        assert_eq!(f.bits(), 32);
+    }
+
+    #[test]
+    fn multiple_fields() {
+        let d = PacketDiagram {
+            title: Some("TCP Header".into()),
+            bits_per_row: 32,
+            fields: vec![
+                PacketField { start: 0, end: 15, label: "Src Port".into() },
+                PacketField { start: 16, end: 31, label: "Dst Port".into() },
+            ],
+        };
+        assert_eq!(d.fields.len(), 2);
+        assert_eq!(d.title.as_deref(), Some("TCP Header"));
+        let total_bits: usize = d.fields.iter().map(|f| f.bits()).sum();
+        assert_eq!(total_bits, 32);
+    }
 }

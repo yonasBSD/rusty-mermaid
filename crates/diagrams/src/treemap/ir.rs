@@ -44,4 +44,43 @@ mod tests {
         };
         assert!((n.total_value() - 100.0).abs() < f64::EPSILON);
     }
+
+    #[test]
+    fn is_leaf_true() {
+        let n = TreemapNode { name: "L".into(), value: Some(10.0), children: vec![] };
+        assert!(n.is_leaf());
+    }
+
+    #[test]
+    fn is_leaf_false() {
+        let n = TreemapNode {
+            name: "P".into(), value: None,
+            children: vec![TreemapNode { name: "C".into(), value: Some(5.0), children: vec![] }],
+        };
+        assert!(!n.is_leaf());
+    }
+
+    #[test]
+    fn total_value_nested_sections() {
+        let n = TreemapNode {
+            name: "Root".into(), value: None,
+            children: vec![
+                TreemapNode {
+                    name: "Sub".into(), value: None,
+                    children: vec![
+                        TreemapNode { name: "A".into(), value: Some(30.0), children: vec![] },
+                        TreemapNode { name: "B".into(), value: Some(20.0), children: vec![] },
+                    ],
+                },
+                TreemapNode { name: "C".into(), value: Some(50.0), children: vec![] },
+            ],
+        };
+        assert!((n.total_value() - 100.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn diagram_empty_roots() {
+        let d = TreemapDiagram { roots: vec![] };
+        assert!(d.roots.is_empty());
+    }
 }
