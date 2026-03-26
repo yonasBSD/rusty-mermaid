@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 608" width="608" height="608">
+  <g transform="translate(20, 20)">
+    <rect x="298" y="20" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="20" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="270" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="270" width="250" height="250" fill="#fdf1e5" />
+    <rect x="48" y="20" width="500" height="500" fill="none" stroke="#b4b4b4" stroke-width="1.5" />
+    <path d="M298 20 L298 520" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 270 L548 270" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="534" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low</text>
+    <text x="423" y="534" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High</text>
+    <g transform="rotate(-90, 34, 395)">
+      <text x="34" y="395" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low</text>
+    </g>
+    <g transform="rotate(-90, 34, 145)">
+      <text x="34" y="145" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High</text>
+    </g>
+    <circle cx="198" cy="170" r="5" fill="#4e79a7" />
+    <text x="198" y="183" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <circle cx="448" cy="420" r="5" fill="#4e79a7" />
+    <text x="448" y="433" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+  </g>
+</svg>

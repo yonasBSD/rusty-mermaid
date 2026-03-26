@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 230" width="260" height="230">
+  <g transform="translate(20, 20)">
+    <rect x="30" y="30" width="160" height="100" rx="4" ry="4" fill="#ecf0f9" stroke="#4472c4" stroke-width="1.5" />
+    <text x="110" y="72" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">My Application</text>
+    <text x="110" y="86" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[A simple app]</text>
+  </g>
+</svg>

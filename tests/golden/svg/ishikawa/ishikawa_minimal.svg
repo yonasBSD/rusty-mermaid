@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 349.19" width="780" height="349.19">
+  <g transform="translate(20, 20)">
+    <rect x="580" y="136.59" width="120" height="36" rx="4" ry="4" fill="#9370db" />
+    <text x="640" y="154.59" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Effect</text>
+    <path d="M160 154.59 L580 154.59" fill="none" stroke="#333333" stroke-width="2.5" />
+    <path d="M286.28 153.14 L260.78 58" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <text x="260.78" y="44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">CauseA</text>
+    <path d="M273.73 106.3 L203.73 106.3" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="199.73" y="106.3" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SubA1</text>
+    <path d="M412.95 156.04 L387.45 251.19" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <text x="387.45" y="265.19" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">CauseB</text>
+    <path d="M400.39 202.89 L330.39 202.89" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="326.39" y="202.89" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SubB1</text>
+  </g>
+</svg>

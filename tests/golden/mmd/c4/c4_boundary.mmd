@@ -1,0 +1,13 @@
+C4Context
+    title System Landscape
+    Person(admin, "Admin", "Manages system")
+    Boundary(b1, "Internal Systems") {
+        System(crm, "CRM", "Customer management")
+        System(billing, "Billing", "Payment processing")
+    }
+    Boundary(b2, "External") {
+        System_Ext(email, "Email Service", "SendGrid")
+    }
+    Rel(admin, crm, "Manages customers")
+    Rel(crm, billing, "Triggers invoices")
+    Rel(crm, email, "Sends notifications", "SMTP")

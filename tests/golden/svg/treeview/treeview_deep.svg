@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392 270" width="392" height="270">
+  <g transform="translate(20, 20)">
+    <path d="M24 38 L24 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 60 L48 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 82 L72 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M96 104 L96 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 192 L48 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 71 L62 71" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 93 L86 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M96 115 L110 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 137 L86 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 159 L62 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 181 L38 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 203 L62 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">root</text>
+    <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">level1a</text>
+    <text x="64" y="71" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">level2a</text>
+    <text x="88" y="93" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">level3a</text>
+    <text x="112" y="115" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">level4a</text>
+    <text x="88" y="137" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">level3b</text>
+    <text x="64" y="159" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">level2b</text>
+    <text x="40" y="181" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">level1b</text>
+    <text x="64" y="203" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">level2c</text>
+  </g>
+</svg>

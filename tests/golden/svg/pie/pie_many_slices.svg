@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" width="620" height="420">
+  <g transform="translate(20, 20)">
+    <text x="180" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Browser Share</text>
+    <path d="M180 200 L180 60 A140 140 0 1 1 66.74 282.29 Z" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <text x="261.08" y="241.31" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">65%</text>
+    <path d="M180 200 L66.74 282.29 A140 140 0 0 1 57.32 132.55 Z" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <text x="89.18" y="205.71" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">18%</text>
+    <path d="M180 200 L57.32 132.55 A140 140 0 0 1 77.94 104.16 Z" fill="#e15759" stroke="#ffffff" stroke-width="2" />
+    <text x="106.38" y="146.51" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">4%</text>
+    <path d="M180 200 L77.94 104.16 A140 140 0 0 1 112.55 77.32 Z" fill="#76b7b2" stroke="#ffffff" stroke-width="2" />
+    <text x="124.23" y="128.1" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">5%</text>
+    <path d="M180 200 L112.55 77.32 A140 140 0 0 1 128.46 69.83 Z" fill="#59a14f" stroke="#ffffff" stroke-width="2" />
+    <text x="141.25" y="117.66" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">2%</text>
+    <path d="M180 200 L128.46 69.83 A140 140 0 0 1 180 60 Z" fill="#edc949" stroke="#ffffff" stroke-width="2" />
+    <text x="162.95" y="110.61" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">6%</text>
+    <rect x="360" y="140" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="380" y="146" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Chrome</text>
+    <rect x="360" y="160" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="380" y="166" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Safari</text>
+    <rect x="360" y="180" width="12" height="12" rx="2" ry="2" fill="#e15759" />
+    <text x="380" y="186" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Firefox</text>
+    <rect x="360" y="200" width="12" height="12" rx="2" ry="2" fill="#76b7b2" />
+    <text x="380" y="206" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Edge</text>
+    <rect x="360" y="220" width="12" height="12" rx="2" ry="2" fill="#59a14f" />
+    <text x="380" y="226" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Opera</text>
+    <rect x="360" y="240" width="12" height="12" rx="2" ry="2" fill="#edc949" />
+    <text x="380" y="246" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Other</text>
+  </g>
+</svg>

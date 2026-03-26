@@ -1,0 +1,19 @@
+requirementDiagram
+    requirement SYS001 {
+        id: SYS001
+        text: "System shall be secure"
+        risk: high
+        verifymethod: test
+    }
+    functionalRequirement SEC001 {
+        id: SEC001
+        text: "Encrypt all data at rest"
+        risk: high
+        verifymethod: inspection
+    }
+    element AuthModule {
+        type: module
+        docRef: auth.rs
+    }
+    SYS001 - contains -> SEC001
+    AuthModule - satisfies -> SEC001

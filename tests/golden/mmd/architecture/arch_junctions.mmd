@@ -1,0 +1,12 @@
+architecture-beta
+    service a(server)[Service A]
+    service b(server)[Service B]
+    service c(server)[Service C]
+    service d(database)[Database]
+    junction j1
+    junction j2
+    a:R -- L:j1
+    b:R -- L:j1
+    j1:R -- L:j2
+    j2:R -- L:c
+    j2:B -- T:d

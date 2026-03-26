@@ -1,0 +1,9 @@
+C4Dynamic
+    title API Request Flow
+    Person(user, "Mobile User", "Uses mobile app")
+    Container(app, "Mobile App", "React Native")
+    Container(api, "API Gateway", "Node.js", "Routes requests")
+    ContainerDb(db, "Database", "PostgreSQL", "Stores data")
+    Rel(user, app, "Opens", "HTTPS")
+    Rel(app, api, "API calls", "REST/JSON")
+    Rel(api, db, "Reads/writes", "SQL")

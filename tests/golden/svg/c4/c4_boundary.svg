@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 484 614" width="484" height="614">
+  <defs>
+    <marker id="arrow-point-8c8c8c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#8c8c8c" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <text x="222" y="42" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">System Landscape</text>
+    <rect x="30" y="196" width="400" height="174" rx="4" ry="4" fill="none" stroke="#4472c4" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="38" y="210" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">Internal Systems</text>
+    <rect x="30" y="370" width="400" height="174" rx="4" ry="4" fill="none" stroke="#4472c4" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="38" y="384" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">External</text>
+    <path d="M116.49 166 L123.76 222.02" fill="none" stroke="#8c8c8c" stroke-width="1.2" marker-end="url(#arrow-point-8c8c8c)" />
+    <path d="M215 274 L243 274" fill="none" stroke="#8c8c8c" stroke-width="1.2" marker-end="url(#arrow-point-8c8c8c)" />
+    <path d="M129.21 324 L127.34 396" fill="none" stroke="#8c8c8c" stroke-width="1.2" marker-end="url(#arrow-point-8c8c8c)" />
+    <rect x="30" y="66" width="160" height="100" rx="4" ry="4" fill="#e6eff5" stroke="#0864a4" stroke-width="1.5" />
+    <circle cx="110" cy="80" r="10" fill="#0864a4" />
+    <text x="110" y="116" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#0864a4" font-weight="bold">Admin</text>
+    <text x="110" y="130" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Manages system]</text>
+    <rect x="46" y="224" width="169" height="100" rx="4" ry="4" fill="#ecf0f9" stroke="#4472c4" stroke-width="1.5" />
+    <text x="130.5" y="266" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">CRM</text>
+    <text x="130.5" y="280" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Customer management]</text>
+    <rect x="245" y="224" width="169" height="100" rx="4" ry="4" fill="#ecf0f9" stroke="#4472c4" stroke-width="1.5" />
+    <text x="329.5" y="266" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">Billing</text>
+    <text x="329.5" y="280" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Payment processing]</text>
+    <rect x="46" y="398" width="160" height="100" rx="4" ry="4" fill="#f2f2f2" stroke="#808080" stroke-width="1.5" />
+    <text x="126" y="440" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#808080" font-weight="bold">Email Service</text>
+    <text x="126" y="454" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[SendGrid]</text>
+    <rect x="50.27" y="170.6" width="112.43" height="14" rx="3" ry="3" fill="#ffffffc8" />
+    <text x="106.49" y="177.6" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Manages customers</text>
+    <rect x="163.29" y="253" width="112.43" height="14" rx="3" ry="3" fill="#ffffffc8" />
+    <text x="219.5" y="260" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Triggers invoices</text>
+    <rect x="35.35" y="331.8" width="167.71" height="14" rx="3" ry="3" fill="#ffffffc8" />
+    <text x="119.21" y="338.8" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Sends notifications [SMTP]</text>
+  </g>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500.54 200" width="500.54" height="200">
+  <g transform="translate(20, 20)">
+    <rect x="20" y="90" width="60.54" height="20" rx="4" ry="4" fill="#f28e2c" />
+    <text x="50.27" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff">hotfix</text>
+    <rect x="20" y="50" width="47.03" height="20" rx="4" ry="4" fill="#4e79a7" />
+    <text x="43.51" y="60" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">main</text>
+    <path d="M205.54 100 L255.54 100" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <path d="M105.54 60 L155.54 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M155.54 60 L305.54 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M305.54 60 L355.54 60" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <path d="M155.54 60 C180.54 60 180.54 100 205.54 100" fill="none" stroke="#f28e2c" stroke-width="2" stroke-dasharray="5 3" />
+    <path d="M255.54 100 C280.54 100 280.54 60 305.54 60" fill="none" stroke="#4e79a7" stroke-width="2" stroke-dasharray="5 3" />
+    <circle cx="105.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <circle cx="155.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <rect x="136.03" y="25" width="39.03" height="18" rx="3" ry="3" fill="#ffffc8dc" stroke="#4e79a7" stroke-width="1" />
+    <text x="155.54" y="34" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">v1.0</text>
+    <circle cx="205.54" cy="100" r="8" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <circle cx="255.54" cy="100" r="8" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
+    <rect x="229.27" y="65" width="52.54" height="18" rx="3" ry="3" fill="#ffffc8dc" stroke="#f28e2c" stroke-width="1" />
+    <text x="255.54" y="74" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">v1.0.1</text>
+    <circle cx="305.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <circle cx="305.54" cy="60" r="2.8" fill="#ffffff" />
+    <circle cx="355.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
+    <rect x="336.03" y="25" width="39.03" height="18" rx="3" ry="3" fill="#ffffc8dc" stroke="#4e79a7" stroke-width="1" />
+    <text x="355.54" y="34" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">v1.1</text>
+  </g>
+</svg>

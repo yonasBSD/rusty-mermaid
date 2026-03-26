@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" width="500" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Solo</text>
+    <polygon points="230,244 264.24,268.88 251.16,309.12 208.84,309.12 195.76,268.88" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,208 298.48,257.75 272.32,338.25 187.68,338.25 161.52,257.75" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,172 332.71,246.63 293.48,367.37 166.52,367.37 127.29,246.63" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,136 366.95,235.5 314.64,396.5 145.36,396.5 93.05,235.5" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 401.19,224.38 335.8,425.62 124.2,425.62 58.81,224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <path d="M230 280 L401.19 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="414.5" y="220.05" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <path d="M230 280 L335.8 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="344.03" y="436.95" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <path d="M230 280 L124.2 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="115.97" y="436.95" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
+    <path d="M230 280 L58.81 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="45.5" y="220.05" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">2</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">4</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">6</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">8</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">10</text>
+    <polygon points="230,154 366.95,235.5 282.9,352.81 134.78,411.06 93.05,235.5" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="154" r="3" fill="#4e79a7" />
+    <circle cx="366.95" cy="235.5" r="3" fill="#4e79a7" />
+    <circle cx="282.9" cy="352.81" r="3" fill="#4e79a7" />
+    <circle cx="134.78" cy="411.06" r="3" fill="#4e79a7" />
+    <circle cx="93.05" cy="235.5" r="3" fill="#4e79a7" />
+  </g>
+</svg>

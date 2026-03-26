@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 387.82" width="1140" height="387.82">
+  <g transform="translate(20, 20)">
+    <rect x="915.6" y="155.91" width="144.4" height="36" rx="4" ry="4" fill="#9370db" />
+    <text x="987.8" y="173.91" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Slow Page Load</text>
+    <path d="M160 173.91 L915.6 173.91" fill="none" stroke="#333333" stroke-width="2.5" />
+    <path d="M278.88 172.46 L248.21 58" fill="none" stroke="#4e79a7" stroke-width="2" />
+    <text x="248.21" y="44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Network</text>
+    <path d="M268.91 135.27 L198.91 135.27" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="194.91" y="135.27" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High latency</text>
+    <path d="M258.56 96.64 L188.56 96.64" fill="none" stroke="#4e79a7" stroke-width="1.2" />
+    <text x="184.56" y="96.64" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">DNS lookup</text>
+    <path d="M398.15 175.36 L367.48 289.82" fill="none" stroke="#f28e2c" stroke-width="2" />
+    <text x="367.48" y="303.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Backend</text>
+    <path d="M388.18 212.55 L318.18 212.55" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="314.18" y="212.55" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Slow queries</text>
+    <path d="M377.83 251.19 L307.83 251.19" fill="none" stroke="#f28e2c" stroke-width="1.2" />
+    <text x="303.83" y="251.19" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Missing index</text>
+    <path d="M517.41 172.46 L486.74 58" fill="none" stroke="#e15759" stroke-width="2" />
+    <text x="486.74" y="44" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Frontend</text>
+    <path d="M507.45 135.27 L437.45 135.27" fill="none" stroke="#e15759" stroke-width="1.2" />
+    <text x="433.45" y="135.27" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Large bundle</text>
+    <path d="M497.09 96.64 L427.09 96.64" fill="none" stroke="#e15759" stroke-width="1.2" />
+    <text x="423.09" y="96.64" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">No code split</text>
+    <path d="M636.68 175.36 L611.18 270.5" fill="none" stroke="#76b7b2" stroke-width="2" />
+    <text x="611.18" y="284.5" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2" font-weight="bold">Infrastructure</text>
+    <path d="M624.13 222.21 L554.13 222.21" fill="none" stroke="#76b7b2" stroke-width="1.2" />
+    <text x="550.13" y="222.21" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Undersized instance</text>
+    <path d="M755.95 172.46 L730.45 77.32" fill="none" stroke="#59a14f" stroke-width="2" />
+    <text x="730.45" y="63.32" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Database</text>
+    <path d="M743.39 125.61 L673.39 125.61" fill="none" stroke="#59a14f" stroke-width="1.2" />
+    <text x="669.39" y="125.61" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Connection pool full</text>
+  </g>
+</svg>

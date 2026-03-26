@@ -180,6 +180,7 @@ macro_rules! parse_requirement {
 parse_requirement!(req_basic);
 parse_requirement!(req_all_types);
 parse_requirement!(req_relationships);
+parse_requirement!(req_nested);
 parse_requirement!(req_direction);
 
 // --- Pie ---
@@ -200,6 +201,8 @@ macro_rules! parse_pie {
 parse_pie!(pie_basic);
 parse_pie!(pie_show_data);
 parse_pie!(pie_simple);
+parse_pie!(pie_many_slices);
+parse_pie!(pie_single_slice);
 
 // --- Timeline ---
 
@@ -239,6 +242,8 @@ macro_rules! parse_kanban {
 parse_kanban!(kanban_basic);
 parse_kanban!(kanban_metadata);
 parse_kanban!(kanban_simple);
+parse_kanban!(kanban_many_columns);
+parse_kanban!(kanban_single_column);
 
 // --- Gantt ---
 
@@ -258,6 +263,8 @@ macro_rules! parse_gantt {
 parse_gantt!(gantt_basic);
 parse_gantt!(gantt_dependencies);
 parse_gantt!(gantt_simple);
+parse_gantt!(gantt_milestones);
+parse_gantt!(gantt_many_tasks);
 
 // --- Gitgraph ---
 
@@ -277,6 +284,8 @@ macro_rules! parse_gitgraph {
 parse_gitgraph!(git_basic);
 parse_gitgraph!(git_feature_branches);
 parse_gitgraph!(git_commit_types);
+parse_gitgraph!(git_many_branches);
+parse_gitgraph!(git_tags);
 
 // --- XY Chart ---
 
@@ -296,6 +305,7 @@ macro_rules! parse_xychart {
 parse_xychart!(xychart_bar);
 parse_xychart!(xychart_line);
 parse_xychart!(xychart_mixed);
+parse_xychart!(xychart_multi_series);
 
 // --- Mindmap ---
 
@@ -358,6 +368,8 @@ macro_rules! parse_packet {
 parse_packet!(packet_tcp);
 parse_packet!(packet_udp);
 parse_packet!(packet_ipv4);
+parse_packet!(packet_single_field);
+parse_packet!(packet_many_fields);
 
 // --- Quadrant ---
 
@@ -376,6 +388,8 @@ macro_rules! parse_quadrant {
 
 parse_quadrant!(quadrant_priority);
 parse_quadrant!(quadrant_gartner);
+parse_quadrant!(quadrant_many_points);
+parse_quadrant!(quadrant_minimal);
 
 // --- Venn ---
 
@@ -394,6 +408,8 @@ macro_rules! parse_venn {
 
 parse_venn!(venn_two_sets);
 parse_venn!(venn_three_sets);
+parse_venn!(venn_four_sets);
+parse_venn!(venn_single_set);
 
 // --- Radar ---
 
@@ -412,6 +428,8 @@ macro_rules! parse_radar {
 
 parse_radar!(radar_skills);
 parse_radar!(radar_performance);
+parse_radar!(radar_single_curve);
+parse_radar!(radar_many_curves);
 
 // --- Journey ---
 
@@ -430,6 +448,8 @@ macro_rules! parse_journey {
 
 parse_journey!(journey_workday);
 parse_journey!(journey_ecommerce);
+parse_journey!(journey_multi_actor);
+parse_journey!(journey_single_section);
 
 // --- Treeview ---
 
@@ -448,6 +468,8 @@ macro_rules! parse_treeview {
 
 parse_treeview!(treeview_project);
 parse_treeview!(treeview_org);
+parse_treeview!(treeview_deep);
+parse_treeview!(treeview_wide);
 
 // --- Ishikawa ---
 
@@ -466,6 +488,8 @@ macro_rules! parse_ishikawa {
 
 parse_ishikawa!(ishikawa_quality);
 parse_ishikawa!(ishikawa_bug);
+parse_ishikawa!(ishikawa_many_categories);
+parse_ishikawa!(ishikawa_minimal);
 
 // --- Treemap ---
 
@@ -484,6 +508,8 @@ macro_rules! parse_treemap {
 
 parse_treemap!(treemap_budget);
 parse_treemap!(treemap_disk);
+parse_treemap!(treemap_deep);
+parse_treemap!(treemap_flat);
 
 // --- Block ---
 
@@ -503,6 +529,8 @@ macro_rules! parse_block {
 parse_block!(block_grid);
 parse_block!(block_shapes);
 parse_block!(block_spanning);
+parse_block!(block_many_shapes);
+parse_block!(block_edges);
 
 // --- C4 ---
 
@@ -521,6 +549,9 @@ macro_rules! parse_c4 {
 
 parse_c4!(c4_context);
 parse_c4!(c4_container);
+parse_c4!(c4_dynamic);
+parse_c4!(c4_boundary);
+parse_c4!(c4_single_element);
 
 // --- Architecture ---
 
@@ -539,3 +570,6 @@ macro_rules! parse_architecture {
 
 parse_architecture!(arch_api_gateway);
 parse_architecture!(arch_network);
+parse_architecture!(arch_multi_group);
+parse_architecture!(arch_junctions);
+parse_architecture!(arch_single_service);

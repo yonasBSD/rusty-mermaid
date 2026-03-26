@@ -1,0 +1,12 @@
+architecture-beta
+    group cloud(cloud)[Cloud Platform]
+    group backend(server)[Backend] in cloud
+    service web(server)[Web Server] in backend
+    service api(server)[API Server] in backend
+    service db(database)[PostgreSQL] in cloud
+    service cache(disk)[Redis Cache] in cloud
+    junction mid in cloud
+    web:R -- L:api
+    api:B -- T:db
+    api:R -- L:mid
+    mid:R -- L:cache

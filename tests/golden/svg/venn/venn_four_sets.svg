@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 514.43 571.94" width="514.43" height="571.94">
+  <g transform="translate(20, 20)">
+    <text x="237.21" y="40" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Programming Paradigms</text>
+    <circle cx="222.81" cy="200" r="140" fill="#4e79a732" stroke="#4e79a7" stroke-width="2" />
+    <text x="222.81" y="151" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">OOP</text>
+    <circle cx="316.63" cy="293.82" r="127.8" fill="#f28e2c32" stroke="#f28e2c" stroke-width="2" />
+    <text x="361.36" y="293.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Functional</text>
+    <circle cx="222.81" cy="387.63" r="114.31" fill="#e1575932" stroke="#e15759" stroke-width="2" />
+    <text x="222.81" y="427.64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Procedural</text>
+    <circle cx="128.99" cy="293.82" r="98.99" fill="#76b7b232" stroke="#76b7b2" stroke-width="2" />
+    <text x="94.35" y="293.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2" font-weight="bold">Logic</text>
+    <text x="293.81" y="242.84" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Multi</text>
+  </g>
+</svg>
