@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Corner Cases</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#b4b4b4" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Left</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Right</text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bottom</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top</text>
+    </g>
+    <circle cx="53" cy="545" r="5" fill="#4e79a7" />
+    <text x="53" y="558" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Origin</text>
+    <circle cx="53" cy="55" r="5" fill="#4e79a7" />
+    <text x="53" y="68" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top Left</text>
+    <circle cx="543" cy="55" r="5" fill="#4e79a7" />
+    <text x="543" y="68" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top Right</text>
+    <circle cx="543" cy="545" r="5" fill="#4e79a7" />
+    <text x="543" y="558" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bottom Right</text>
+    <circle cx="298" cy="300" r="5" fill="#4e79a7" />
+    <text x="298" y="313" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Center</text>
+  </g>
+</svg>

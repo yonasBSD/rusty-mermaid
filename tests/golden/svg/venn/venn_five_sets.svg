@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 498.93 548.02" width="498.93" height="548.02">
+  <g transform="translate(20, 20)">
+    <text x="229.47" y="40" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Five Senses</text>
+    <circle cx="215.06" cy="200" r="140" fill="#4e79a732" stroke="#4e79a7" stroke-width="2" />
+    <text x="215.06" y="151" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Sight</text>
+    <circle cx="301.13" cy="262.53" r="127.8" fill="#f28e2c32" stroke="#f28e2c" stroke-width="2" />
+    <text x="343.67" y="248.71" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Sound</text>
+    <circle cx="268.25" cy="363.71" r="114.31" fill="#e1575932" stroke="#e15759" stroke-width="2" />
+    <text x="291.77" y="396.08" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Touch</text>
+    <circle cx="161.87" cy="363.71" r="98.99" fill="#76b7b232" stroke="#76b7b2" stroke-width="2" />
+    <text x="141.5" y="391.74" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2" font-weight="bold">Taste</text>
+    <circle cx="128.99" cy="262.53" r="98.99" fill="#59a14f32" stroke="#59a14f" stroke-width="2" />
+    <text x="96.04" y="251.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Smell</text>
+    <text x="284.2" y="225.7" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">AV</text>
+    <text x="126.41" y="319.3" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Flavor</text>
+  </g>
+</svg>

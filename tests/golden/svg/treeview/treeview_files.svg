@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 490" width="368" height="490">
+  <g transform="translate(20, 20)">
+    <path d="M24 38 L24 357" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 104 L48 225" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 148 L72 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 236 L72 269" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 302 L48 335" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 368 L48 401" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 412 L72 423" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 71 L38 71" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 93 L38 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 115 L62 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 137 L62 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 159 L86 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 181 L86 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 203 L86 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 225 L62 225" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 247 L86 247" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 269 L86 269" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 291 L38 291" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 313 L62 313" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 335 L62 335" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 357 L38 357" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 379 L62 379" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M48 401 L62 401" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M72 423 L86 423" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">my-app</text>
+    <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">package.json</text>
+    <text x="40" y="71" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">tsconfig.json</text>
+    <text x="40" y="93" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">src</text>
+    <text x="64" y="115" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">index.ts</text>
+    <text x="64" y="137" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">components</text>
+    <text x="88" y="159" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Header.tsx</text>
+    <text x="88" y="181" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Footer.tsx</text>
+    <text x="88" y="203" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sidebar.tsx</text>
+    <text x="64" y="225" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">utils</text>
+    <text x="88" y="247" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">format.ts</text>
+    <text x="88" y="269" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">validate.ts</text>
+    <text x="40" y="291" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">public</text>
+    <text x="64" y="313" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">index.html</text>
+    <text x="64" y="335" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">favicon.ico</text>
+    <text x="40" y="357" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">tests</text>
+    <text x="64" y="379" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">setup.ts</text>
+    <text x="64" y="401" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">components</text>
+    <text x="88" y="423" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Header.test.tsx</text>
+  </g>
+</svg>

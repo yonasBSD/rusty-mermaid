@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Skill Assessment</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <text x="423" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#365474">Master</text>
+    <text x="173" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#3e7037">Invest</text>
+    <text x="173" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a58c33">Ignore</text>
+    <text x="423" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a9631e">Automate</text>
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#b4b4b4" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Beginner</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Expert</text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rarely Used</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Daily Use</text>
+    </g>
+    <circle cx="448" cy="100" r="5" fill="#4e79a7" />
+    <text x="448" y="113" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Git</text>
+    <circle cx="298" cy="200" r="5" fill="#4e79a7" />
+    <text x="298" y="213" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Docker</text>
+    <circle cx="198" cy="350" r="5" fill="#4e79a7" />
+    <text x="198" y="363" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Kubernetes</text>
+    <circle cx="398" cy="150" r="5" fill="#4e79a7" />
+    <text x="398" y="163" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SQL</text>
+    <circle cx="248" cy="450" r="5" fill="#4e79a7" />
+    <text x="248" y="463" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Regex</text>
+    <circle cx="348" cy="250" r="5" fill="#4e79a7" />
+    <text x="348" y="263" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bash</text>
+  </g>
+</svg>
