@@ -178,4 +178,22 @@ mod tests {
         let d = parse("venn-beta\n  set A\n  set B").unwrap();
         assert!((d.sets[0].size - 10.0).abs() < f64::EPSILON);
     }
+
+    #[test]
+    fn empty_diagram_ok() {
+        let d = parse("venn-beta").unwrap();
+        assert!(d.sets.is_empty());
+    }
+
+    #[test]
+    fn union_without_sets_ok() {
+        let d = parse("venn-beta\n  union X,Y").unwrap();
+        assert_eq!(d.unions.len(), 1);
+        assert!(d.sets.is_empty());
+    }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("pie\n  set A").is_err());
+    }
 }

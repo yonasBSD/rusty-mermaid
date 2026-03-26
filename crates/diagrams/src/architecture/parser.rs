@@ -184,4 +184,30 @@ mod tests {
     fn reject_no_header() {
         assert!(parse("service a(server)[A]").is_err());
     }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("C4Context\n  service a(server)[A]").is_err());
+    }
+
+    #[test]
+    fn empty_architecture_ok() {
+        let d = parse("architecture-beta").unwrap();
+        assert!(d.services.is_empty());
+        assert!(d.groups.is_empty());
+    }
+
+    #[test]
+    fn left_arrow() {
+        let d = parse("architecture-beta\n  service a(server)[A]\n  service b(server)[B]\n  a:R <-- L:b").unwrap();
+        assert!(d.edges[0].arrow_left);
+        assert!(!d.edges[0].arrow_right);
+    }
+
+    #[test]
+    fn service_icon_parsed() {
+        let d = parse("architecture-beta\n  service db(database)[My DB]").unwrap();
+        assert_eq!(d.services[0].icon, "database");
+        assert_eq!(d.services[0].label, "My DB");
+    }
 }

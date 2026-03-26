@@ -242,4 +242,22 @@ mod tests {
     fn reject_no_header() {
         assert!(parse("a[\"A\"]").is_err());
     }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("flowchart TD\n  a[\"A\"]").is_err());
+    }
+
+    #[test]
+    fn empty_block_ok() {
+        let d = parse("block-beta").unwrap();
+        assert!(d.blocks.is_empty());
+    }
+
+    #[test]
+    fn plain_id_becomes_rect() {
+        let d = parse("block-beta\n  mynode").unwrap();
+        assert_eq!(d.blocks[0].id, "mynode");
+        assert_eq!(d.blocks[0].shape, BlockShape::Rect);
+    }
 }

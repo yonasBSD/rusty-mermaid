@@ -197,4 +197,23 @@ mod tests {
     fn reject_no_header() {
         assert!(parse("axis A,B\ncurve x{1,2}").is_err());
     }
+
+    #[test]
+    fn empty_radar_ok() {
+        let c = parse("radar-beta").unwrap();
+        assert!(c.axes.is_empty());
+        assert!(c.curves.is_empty());
+    }
+
+    #[test]
+    fn curve_without_axes_ok() {
+        let c = parse("radar-beta\ncurve x{1,2,3}").unwrap();
+        assert_eq!(c.curves.len(), 1);
+        assert!(c.axes.is_empty());
+    }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("pie\naxis A").is_err());
+    }
 }

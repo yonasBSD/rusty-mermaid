@@ -187,4 +187,21 @@ mod tests {
         let c = parse("quadrantChart").unwrap();
         assert!(c.points.is_empty());
     }
+
+    #[test]
+    fn reject_invalid_coords_format() {
+        let c = parse("quadrantChart\n  A: 0.5, 0.5").unwrap(); // no brackets
+        assert!(c.points.is_empty(), "missing brackets should skip point");
+    }
+
+    #[test]
+    fn reject_negative_coords() {
+        let c = parse("quadrantChart\n  A: [-0.1, 0.5]").unwrap();
+        assert!(c.points.is_empty(), "negative coords should be skipped");
+    }
+
+    #[test]
+    fn invalid_quadrant_number() {
+        assert!(parse("quadrantChart\n  quadrant-5 Invalid").is_err());
+    }
 }

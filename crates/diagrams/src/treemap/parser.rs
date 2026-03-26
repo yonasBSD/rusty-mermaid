@@ -109,4 +109,21 @@ mod tests {
     fn reject_no_header() {
         assert!(parse("    A: 10").is_err());
     }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("pie\n    A: 10").is_err());
+    }
+
+    #[test]
+    fn section_value_from_children() {
+        let d = parse("treemap\n    Section\n        A: 60\n        B: 40").unwrap();
+        assert!(d.roots[0].value.is_none(), "section should have no direct value");
+        assert!((d.roots[0].total_value() - 100.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn empty_treemap_ok() {
+        assert!(parse("treemap").is_ok());
+    }
 }

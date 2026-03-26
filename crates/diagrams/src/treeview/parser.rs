@@ -109,4 +109,22 @@ mod tests {
     fn reject_no_header() {
         assert!(parse("    a\n        b").is_err());
     }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("mindmap\n    a").is_err());
+    }
+
+    #[test]
+    fn empty_tree_ok() {
+        let t = parse("treeView-beta").unwrap();
+        assert!(t.roots.is_empty());
+    }
+
+    #[test]
+    fn single_node_is_root() {
+        let t = parse("treeView-beta\n    solo").unwrap();
+        assert_eq!(t.roots.len(), 1);
+        assert!(t.roots[0].children.is_empty());
+    }
 }

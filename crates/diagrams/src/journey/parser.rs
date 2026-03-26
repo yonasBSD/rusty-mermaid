@@ -138,4 +138,22 @@ mod tests {
         let d = parse("journey").unwrap();
         assert!(d.sections.is_empty());
     }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("pie\n  section S\n    T: 3").is_err());
+    }
+
+    #[test]
+    fn task_without_section() {
+        let d = parse("journey\n    Task: 5: Me").unwrap();
+        assert_eq!(d.sections.len(), 1, "implicit section created");
+        assert_eq!(d.sections[0].tasks.len(), 1);
+    }
+
+    #[test]
+    fn score_defaults_to_3() {
+        let d = parse("journey\n  section S\n    Task: abc").unwrap();
+        assert_eq!(d.sections[0].tasks[0].score, 3);
+    }
 }

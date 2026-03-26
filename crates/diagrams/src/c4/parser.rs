@@ -205,4 +205,23 @@ mod tests {
     fn reject_no_header() {
         assert!(parse("Person(u, \"User\")").is_err());
     }
+
+    #[test]
+    fn reject_wrong_header() {
+        assert!(parse("flowchart TD\n  Person(u, \"U\")").is_err());
+    }
+
+    #[test]
+    fn empty_c4_ok() {
+        let d = parse("C4Context").unwrap();
+        assert!(d.elements.is_empty());
+    }
+
+    #[test]
+    fn parse_all_levels() {
+        assert_eq!(parse("C4Context").unwrap().level, C4Level::Context);
+        assert_eq!(parse("C4Container").unwrap().level, C4Level::Container);
+        assert_eq!(parse("C4Component").unwrap().level, C4Level::Component);
+        assert_eq!(parse("C4Dynamic").unwrap().level, C4Level::Dynamic);
+    }
 }
