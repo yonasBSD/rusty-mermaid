@@ -47,11 +47,15 @@ struct SankeyLayout {
     link_layouts: Vec<LinkLayout>,
 }
 
-/// Build adjacency, assign columns, vertical positions, and link y-stacking.
-fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashMap<&str, usize>) -> SankeyLayout {
-    let n = names.len();
+struct Adjacency {
+    outgoing: Vec<Vec<(usize, f64)>>,
+    incoming: Vec<Vec<(usize, f64)>>,
+    value_out: Vec<f64>,
+    value_in: Vec<f64>,
+    node_value: Vec<f64>,
+}
 
-    // Build adjacency + compute node values
+fn build_adjacency(diagram: &SankeyDiagram, n: usize, name_to_idx: &HashMap<&str, usize>) -> Adjacency {
     let mut outgoing: Vec<Vec<(usize, f64)>> = vec![Vec::new(); n];
     let mut incoming: Vec<Vec<(usize, f64)>> = vec![Vec::new(); n];
     let mut value_out = vec![0.0f64; n];
@@ -67,12 +71,16 @@ fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashM
     }
 
     let node_value: Vec<f64> = (0..n).map(|i| value_out[i].max(value_in[i])).collect();
+    Adjacency { outgoing, incoming, value_out, value_in, node_value }
+}
 
-    // Assign columns via topological depth
-    let depth = compute_depths(n, &outgoing, &incoming);
+fn assign_columns(
+    n: usize,
+    adj: &Adjacency,
+) -> (Vec<usize>, Vec<Vec<usize>>) {
+    let depth = compute_depths(n, &adj.outgoing, &adj.incoming);
     let max_depth = depth.iter().copied().max().unwrap_or(0);
 
-    // Group nodes by column
     let mut columns: Vec<Vec<usize>> = vec![Vec::new(); max_depth + 1];
     for (i, &d) in depth.iter().enumerate() {
         columns[d].push(i);
@@ -88,10 +96,10 @@ fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashM
     for _pass in 0..6 {
         for d in 0..=max_depth {
             for &node_idx in &columns[d] {
-                let neighbors: Vec<f64> = incoming[node_idx]
+                let neighbors: Vec<f64> = adj.incoming[node_idx]
                     .iter()
                     .map(|&(src, _)| node_y_center[src])
-                    .chain(outgoing[node_idx].iter().map(|&(tgt, _)| node_y_center[tgt]))
+                    .chain(adj.outgoing[node_idx].iter().map(|&(tgt, _)| node_y_center[tgt]))
                     .collect();
                 if !neighbors.is_empty() {
                     node_y_center[node_idx] =
@@ -109,7 +117,15 @@ fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashM
         }
     }
 
-    // Compute vertical positions
+    (depth, columns)
+}
+
+fn assign_node_positions(
+    n: usize,
+    columns: &[Vec<usize>],
+    node_value: &[f64],
+) -> (Vec<f64>, Vec<f64>, Vec<f64>, f64) {
+    let max_depth = columns.len().saturating_sub(1);
     let available_w = DIAGRAM_W - SCENE_PAD * 2.0;
     let available_h = DIAGRAM_H - SCENE_PAD * 2.0;
     let col_spacing = if max_depth > 0 {
@@ -151,10 +167,19 @@ fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashM
         }
     }
 
-    // Compute link positions (y stacking at source and target)
-    let mut link_layouts: Vec<LinkLayout> = Vec::new();
-    let mut out_y = node_y0.clone();
-    let mut in_y = node_y0.clone();
+    (node_x0, node_y0, node_y1, scale)
+}
+
+fn compute_link_layouts(
+    diagram: &SankeyDiagram,
+    name_to_idx: &HashMap<&str, usize>,
+    adj: &Adjacency,
+    depth: &[usize],
+    node_y0: &[f64],
+    node_y1: &[f64],
+) -> Vec<LinkLayout> {
+    let mut out_y = node_y0.to_vec();
+    let mut in_y = node_y0.to_vec();
 
     let mut sorted_links: Vec<(usize, usize, f64)> = diagram
         .links
@@ -173,12 +198,13 @@ fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashM
             .then_with(|| node_y0[a.1].partial_cmp(&node_y0[b.1]).unwrap_or(std::cmp::Ordering::Equal))
     });
 
+    let mut link_layouts = Vec::new();
     for &(s, t, val) in &sorted_links {
         let src_range = node_y1[s] - node_y0[s];
         let tgt_range = node_y1[t] - node_y0[t];
 
-        let w_src = if value_out[s] > 0.0 { val / value_out[s] * src_range } else { 0.0 };
-        let w_tgt = if value_in[t] > 0.0 { val / value_in[t] * tgt_range } else { 0.0 };
+        let w_src = if adj.value_out[s] > 0.0 { val / adj.value_out[s] * src_range } else { 0.0 };
+        let w_tgt = if adj.value_in[t] > 0.0 { val / adj.value_in[t] * tgt_range } else { 0.0 };
         let width = w_src.max(w_tgt).max(1.0);
 
         let y0 = out_y[s] + w_src / 2.0;
@@ -190,7 +216,18 @@ fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashM
         link_layouts.push(LinkLayout { source: s, target: t, y0, y1, width });
     }
 
-    SankeyLayout { node_x0, node_y0, node_y1, node_value, depth, link_layouts }
+    link_layouts
+}
+
+/// Build adjacency, assign columns, vertical positions, and link y-stacking.
+fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashMap<&str, usize>) -> SankeyLayout {
+    let n = names.len();
+    let adj = build_adjacency(diagram, n, name_to_idx);
+    let (depth, columns) = assign_columns(n, &adj);
+    let (node_x0, node_y0, node_y1, _scale) = assign_node_positions(n, &columns, &adj.node_value);
+    let link_layouts = compute_link_layouts(diagram, name_to_idx, &adj, &depth, &node_y0, &node_y1);
+
+    SankeyLayout { node_x0, node_y0, node_y1, node_value: adj.node_value, depth, link_layouts }
 }
 
 fn render_links(scene: &mut Scene, link_layouts: &[LinkLayout], node_x0: &[f64]) {

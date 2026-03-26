@@ -141,22 +141,9 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
     let style = TextStyle::default();
     let n = diagram.participants.len();
 
-    // 1. Measure actor boxes.
-    let actor_dims: Vec<(f64, f64)> = diagram
-        .participants
-        .iter()
-        .map(|p| measure_actor(p, text, &style))
-        .collect();
-    let actor_height = actor_dims.iter().map(|(_, h)| *h).fold(0.0_f64, f64::max);
+    let (actor_dims, actor_height) = measure_actors(diagram, text, &style);
+    let actor_centers = compute_actor_positions(diagram, &actor_dims, text, &style);
 
-    // 2. Compute minimum gaps between adjacent actors.
-    let mut gaps = vec![ACTOR_MARGIN; n.saturating_sub(1)];
-    widen_gaps_for_labels(&diagram.items, &diagram.participants, &mut gaps, text, &style);
-
-    // 3. Position actors L→R.
-    let actor_centers = place_actors_x(&actor_dims, &gaps);
-
-    // 4. Title.
     let title_y = DIAGRAM_MARGIN;
     let title_height = diagram
         .title
@@ -165,111 +152,21 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         .unwrap_or(0.0);
     let actor_top_y = DIAGRAM_MARGIN + title_height;
 
-    // 5. Build actor layouts.
-    let mut actors: Vec<ActorLayout> = diagram
-        .participants
-        .iter()
-        .enumerate()
-        .map(|(i, p)| ActorLayout {
-            id: p.id.clone(),
-            label: p.label.clone(),
-            x: actor_centers[i],
-            y: actor_top_y,
-            width: actor_dims[i].0,
-            height: actor_height,
-            kind: p.kind,
-        })
-        .collect();
+    let mut actors = build_actor_layouts(diagram, &actor_centers, &actor_dims, actor_height, actor_top_y);
 
-    // 6. Walk items top-down.
-    let mut pass = LayoutPass {
-        actors: &actors,
-        text,
-        style,
-        cursor_y: actor_top_y + actor_height,
-        messages: Vec::new(),
-        notes: Vec::new(),
-        fragments: Vec::new(),
-        activation_stack: BTreeMap::new(),
-        activations: Vec::new(),
-        max_self_label_right: 0.0,
-        msg_counter: diagram.autonumber.map(|a| (a.start, a.step)),
-    };
-    pass.layout_items(&diagram.items);
-    pass.close_remaining_activations();
+    let (cursor_y, mut messages, mut activations, mut notes, mut fragments, max_self_label_right) =
+        run_layout_pass(&actors, diagram, text, style.clone(), actor_top_y, actor_height);
 
-    // Extract results from pass, releasing the borrow on actors.
-    let cursor_y = pass.cursor_y + ACTOR_BOTTOM_MARGIN;
-    let mut messages = pass.messages;
-    let mut activations = pass.activations;
-    let mut notes = pass.notes;
-    let mut fragments = pass.fragments;
-    let max_self_label_right = pass.max_self_label_right;
+    let max_right = apply_bounds_shift(
+        n, &mut actors, &mut messages, &mut activations,
+        &mut notes, &mut fragments, max_self_label_right,
+    );
 
-    // 7. Expand bounds to include notes and self-message labels beyond actor edges.
-    let actor_right = if n > 0 {
-        actors[n - 1].x + actors[n - 1].width / 2.0
-    } else {
-        0.0
-    };
-    let mut min_x = 0.0_f64;
-    let mut max_right = actor_right;
-    for note in &notes {
-        min_x = min_x.min(note.x);
-        max_right = max_right.max(note.x + note.width);
-    }
-    max_right = max_right.max(max_self_label_right);
-    let shift = if min_x < 0.0 { -min_x } else { 0.0 };
-    if shift > 0.0 {
-        for a in &mut actors {
-            a.x += shift;
-        }
-        for m in &mut messages {
-            m.from_x += shift;
-            m.to_x += shift;
-        }
-        for act in &mut activations {
-            act.x += shift;
-        }
-        for note in &mut notes {
-            note.x += shift;
-        }
-        for frag in &mut fragments {
-            frag.x += shift;
-        }
-        max_right += shift;
-    }
+    let (bottom_actors, lifelines) = build_bottom_actors_and_lifelines(
+        &actors, cursor_y, actor_top_y, actor_height,
+    );
 
-    // 8. Bottom actors (mirrored).
-    let bottom_y = cursor_y;
-    let bottom_actors: Vec<ActorLayout> = actors
-        .iter()
-        .map(|a| ActorLayout {
-            y: bottom_y,
-            ..a.clone()
-        })
-        .collect();
-
-    // 9. Lifelines.
-    let lifeline_top = actor_top_y + actor_height;
-    let lifeline_bottom = bottom_y;
-    let lifelines = actors
-        .iter()
-        .map(|a| LifelineLayout {
-            actor_id: a.id.clone(),
-            x: a.x,
-            top_y: lifeline_top,
-            bottom_y: lifeline_bottom,
-        })
-        .collect();
-
-    // 10. Total dimensions.
-    let total_width = if n > 0 {
-        max_right + DIAGRAM_MARGIN
-    } else {
-        2.0 * DIAGRAM_MARGIN
-    };
-    let total_height = bottom_y + actor_height + DIAGRAM_MARGIN;
+    let (total_width, total_height) = compute_dimensions(n, max_right, cursor_y, actor_height);
 
     SequenceLayout {
         width: total_width,
@@ -284,6 +181,151 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         notes,
         fragments,
     }
+}
+
+fn measure_actors(
+    diagram: &SequenceDiagram,
+    text: &impl TextMeasure,
+    style: &TextStyle,
+) -> (Vec<(f64, f64)>, f64) {
+    let actor_dims: Vec<(f64, f64)> = diagram
+        .participants
+        .iter()
+        .map(|p| measure_actor(p, text, style))
+        .collect();
+    let actor_height = actor_dims.iter().map(|(_, h)| *h).fold(0.0_f64, f64::max);
+    (actor_dims, actor_height)
+}
+
+fn compute_actor_positions(
+    diagram: &SequenceDiagram,
+    actor_dims: &[(f64, f64)],
+    text: &impl TextMeasure,
+    style: &TextStyle,
+) -> Vec<f64> {
+    let n = diagram.participants.len();
+    let mut gaps = vec![ACTOR_MARGIN; n.saturating_sub(1)];
+    widen_gaps_for_labels(&diagram.items, &diagram.participants, &mut gaps, text, style);
+    place_actors_x(actor_dims, &gaps)
+}
+
+fn build_actor_layouts(
+    diagram: &SequenceDiagram,
+    actor_centers: &[f64],
+    actor_dims: &[(f64, f64)],
+    actor_height: f64,
+    actor_top_y: f64,
+) -> Vec<ActorLayout> {
+    diagram
+        .participants
+        .iter()
+        .enumerate()
+        .map(|(i, p)| ActorLayout {
+            id: p.id.clone(),
+            label: p.label.clone(),
+            x: actor_centers[i],
+            y: actor_top_y,
+            width: actor_dims[i].0,
+            height: actor_height,
+            kind: p.kind,
+        })
+        .collect()
+}
+
+fn run_layout_pass(
+    actors: &[ActorLayout],
+    diagram: &SequenceDiagram,
+    text: &impl TextMeasure,
+    style: TextStyle,
+    actor_top_y: f64,
+    actor_height: f64,
+) -> (f64, Vec<MessageLayout>, Vec<ActivationLayout>, Vec<NoteLayout>, Vec<FragmentLayout>, f64) {
+    let mut pass = LayoutPass {
+        actors,
+        text,
+        style,
+        cursor_y: actor_top_y + actor_height,
+        messages: Vec::new(),
+        notes: Vec::new(),
+        fragments: Vec::new(),
+        activation_stack: BTreeMap::new(),
+        activations: Vec::new(),
+        max_self_label_right: 0.0,
+        msg_counter: diagram.autonumber.map(|a| (a.start, a.step)),
+    };
+    pass.layout_items(&diagram.items);
+    pass.close_remaining_activations();
+
+    let cursor_y = pass.cursor_y + ACTOR_BOTTOM_MARGIN;
+    (cursor_y, pass.messages, pass.activations, pass.notes, pass.fragments, pass.max_self_label_right)
+}
+
+fn apply_bounds_shift(
+    n: usize,
+    actors: &mut [ActorLayout],
+    messages: &mut [MessageLayout],
+    activations: &mut [ActivationLayout],
+    notes: &mut [NoteLayout],
+    fragments: &mut [FragmentLayout],
+    max_self_label_right: f64,
+) -> f64 {
+    let actor_right = if n > 0 {
+        actors[n - 1].x + actors[n - 1].width / 2.0
+    } else {
+        0.0
+    };
+    let mut min_x = 0.0_f64;
+    let mut max_right = actor_right;
+    for note in notes.iter() {
+        min_x = min_x.min(note.x);
+        max_right = max_right.max(note.x + note.width);
+    }
+    max_right = max_right.max(max_self_label_right);
+    let shift = if min_x < 0.0 { -min_x } else { 0.0 };
+    if shift > 0.0 {
+        for a in actors.iter_mut() { a.x += shift; }
+        for m in messages.iter_mut() { m.from_x += shift; m.to_x += shift; }
+        for act in activations.iter_mut() { act.x += shift; }
+        for note in notes.iter_mut() { note.x += shift; }
+        for frag in fragments.iter_mut() { frag.x += shift; }
+        max_right += shift;
+    }
+    max_right
+}
+
+fn build_bottom_actors_and_lifelines(
+    actors: &[ActorLayout],
+    bottom_y: f64,
+    actor_top_y: f64,
+    actor_height: f64,
+) -> (Vec<ActorLayout>, Vec<LifelineLayout>) {
+    let bottom_actors: Vec<ActorLayout> = actors
+        .iter()
+        .map(|a| ActorLayout { y: bottom_y, ..a.clone() })
+        .collect();
+
+    let lifeline_top = actor_top_y + actor_height;
+    let lifelines = actors
+        .iter()
+        .map(|a| LifelineLayout {
+            actor_id: a.id.clone(),
+            x: a.x,
+            top_y: lifeline_top,
+            bottom_y,
+        })
+        .collect();
+
+    (bottom_actors, lifelines)
+}
+
+fn compute_dimensions(n: usize, max_right: f64, bottom_y: f64, actor_height: f64) -> (f64, f64) {
+    let total_width = if n > 0 {
+        max_right + DIAGRAM_MARGIN
+    } else {
+        2.0 * DIAGRAM_MARGIN
+    };
+    let total_height = bottom_y + actor_height + DIAGRAM_MARGIN;
+    (total_width, total_height)
 }
 
 // ---------------------------------------------------------------------------

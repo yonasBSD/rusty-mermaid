@@ -60,43 +60,71 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
     let style = TextStyle::default();
     let line_height = measurer.measure("X", &style).height;
     let row_height = line_height * ATTR_FONT_SCALE + ROW_PADDING * 2.0;
-    let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
-    let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
+    let (mut g, id_map, entity_dims) = build_er_graph(diagram, measurer, &style, line_height, row_height);
 
-    // Compute entity dimensions and add nodes
-    let mut entity_dims: BTreeMap<String, EntityDims> = BTreeMap::new();
-    for entity in &diagram.entities {
-        let dims = compute_entity_dims(entity, measurer, &style, line_height, row_height);
-        let nid = g.add_node(NodeLabel::new(dims.width, dims.height));
-        id_map.insert(entity.id.clone(), nid);
-        entity_dims.insert(entity.id.clone(), dims);
-    }
-
-    // Add edges
-    for rel in &diagram.relationships {
-        let Some(&src) = id_map.get(&rel.entity_a) else { continue };
-        let Some(&dst) = id_map.get(&rel.entity_b) else { continue };
-        let mut label = EdgeLabel::default();
-        if let Some(text) = &rel.label {
-            let ts = measurer.measure(text, &style);
-            label.width = ts.width;
-            label.height = ts.height;
-        }
-        g.add_edge(src, dst, label);
-    }
-
-    // Run dagre
     let config = DagreConfig {
         rankdir: diagram.direction,
         ..Default::default()
     };
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
-    // Resolve styles
     let style_entities = diagram.entities.iter().map(|e| (e.id.as_str(), e.css_classes.as_slice()));
     let node_styles = resolve_entity_styles(style_entities, &diagram.class_defs, &diagram.style_stmts);
 
-    // Extract positioned entities
+    let (entities, mut max_x, mut max_y) = extract_er_entities(diagram, &g, &id_map, &entity_dims, &node_styles, row_height);
+    let edges = extract_er_edges(diagram, &g, &id_map, measurer, &style);
+
+    for edge in &edges {
+        for pt in &edge.edge.points {
+            max_x = max_x.max(pt.x);
+            max_y = max_y.max(pt.y);
+        }
+    }
+
+    LayoutResult { entities, edges, width: max_x, height: max_y }
+}
+
+fn build_er_graph(
+    diagram: &ErDiagram,
+    measurer: &impl TextMeasure,
+    style: &TextStyle,
+    line_height: f64,
+    row_height: f64,
+) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, BTreeMap<String, EntityDims>) {
+    let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
+    let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
+    let mut entity_dims: BTreeMap<String, EntityDims> = BTreeMap::new();
+
+    for entity in &diagram.entities {
+        let dims = compute_entity_dims(entity, measurer, style, line_height, row_height);
+        let nid = g.add_node(NodeLabel::new(dims.width, dims.height));
+        id_map.insert(entity.id.clone(), nid);
+        entity_dims.insert(entity.id.clone(), dims);
+    }
+
+    for rel in &diagram.relationships {
+        let Some(&src) = id_map.get(&rel.entity_a) else { continue };
+        let Some(&dst) = id_map.get(&rel.entity_b) else { continue };
+        let mut label = EdgeLabel::default();
+        if let Some(text) = &rel.label {
+            let ts = measurer.measure(text, style);
+            label.width = ts.width;
+            label.height = ts.height;
+        }
+        g.add_edge(src, dst, label);
+    }
+
+    (g, id_map, entity_dims)
+}
+
+fn extract_er_entities(
+    diagram: &ErDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+    entity_dims: &BTreeMap<String, EntityDims>,
+    node_styles: &BTreeMap<&str, Style>,
+    row_height: f64,
+) -> (Vec<EntityLayout>, f64, f64) {
     let mut entities = Vec::new();
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
@@ -122,7 +150,16 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
         max_y = max_y.max(n.y + n.height / 2.0);
     }
 
-    // Extract edges with intersection routing
+    (entities, max_x, max_y)
+}
+
+fn extract_er_edges(
+    diagram: &ErDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+    measurer: &impl TextMeasure,
+    style: &TextStyle,
+) -> Vec<ErEdgeLayout> {
     let mut edges = Vec::new();
     for rel in &diagram.relationships {
         let Some(&src_nid) = id_map.get(&rel.entity_a) else { continue };
@@ -139,23 +176,10 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
             points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
-        // Clip at node boundaries
-        if let Some(src_n) = g.node(src_nid) {
-            let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
-            if points.len() >= 2 {
-                points[0] = intersect_rect(&bbox, points[1]);
-            }
-        }
-        if let Some(dst_n) = g.node(dst_nid) {
-            let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
-            let n = points.len();
-            if n >= 2 {
-                points[n - 1] = intersect_rect(&bbox, points[n - 2]);
-            }
-        }
+        clip_edge_endpoints(g, src_nid, dst_nid, &mut points);
 
         let label_size = rel.label.as_ref().map(|l| {
-            let ts = measurer.measure(l, &style);
+            let ts = measurer.measure(l, style);
             (ts.width, ts.height)
         });
 
@@ -179,12 +203,27 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
             identification: rel.identification,
         });
     }
+    edges
+}
 
-    LayoutResult {
-        entities,
-        edges,
-        width: max_x,
-        height: max_y,
+fn clip_edge_endpoints(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    src_nid: NodeId,
+    dst_nid: NodeId,
+    points: &mut [Point],
+) {
+    if let Some(src_n) = g.node(src_nid) {
+        let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
+        if points.len() >= 2 {
+            points[0] = intersect_rect(&bbox, points[1]);
+        }
+    }
+    if let Some(dst_n) = g.node(dst_nid) {
+        let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
+        let n = points.len();
+        if n >= 2 {
+            points[n - 1] = intersect_rect(&bbox, points[n - 2]);
+        }
     }
 }
 

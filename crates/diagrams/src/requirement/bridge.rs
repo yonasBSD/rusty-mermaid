@@ -51,11 +51,41 @@ pub fn layout(diagram: &RequirementDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let style = TextStyle::default();
     let line_height = measurer.measure("X", &style).height;
+    let (mut g, id_map, node_infos) = build_req_graph(diagram, measurer, &style, line_height);
+
+    let config = DagreConfig {
+        rankdir: diagram.direction,
+        ..Default::default()
+    };
+    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+
+    let (nodes, max_x, max_y) = extract_req_nodes(&g, &id_map, &node_infos);
+    let edges = extract_req_edges(diagram, &g, &id_map, &style);
+
+    LayoutResult { nodes, edges, width: max_x, height: max_y }
+}
+
+fn measure_req_box(name: &str, lines: &[String], style: &TextStyle, line_height: f64) -> (f64, f64) {
+    let max_line_w = lines.iter()
+        .map(|l| SimpleTextMeasure::measure_raw(l, style).width)
+        .fold(0.0f64, f64::max);
+    let name_w = SimpleTextMeasure::measure_raw(name, style).width;
+    let content_w = max_line_w.max(name_w);
+    let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
+    let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
+    (width, height)
+}
+
+fn build_req_graph(
+    diagram: &RequirementDiagram,
+    measurer: &impl TextMeasure,
+    style: &TextStyle,
+    line_height: f64,
+) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, BTreeMap<String, (String, Vec<String>)>) {
     let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut node_infos: BTreeMap<String, (String, Vec<String>)> = BTreeMap::new();
 
-    // Add requirement nodes
     for req in &diagram.requirements {
         let mut lines = Vec::new();
         lines.push(format!("<<{}>>", req.display_type()));
@@ -64,63 +94,48 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         if let Some(risk) = &req.risk { lines.push(format!("Risk: {}", risk_label(*risk))); }
         if let Some(vm) = &req.verify_method { lines.push(format!("Verify: {}", verify_label(*vm))); }
 
-        let max_line_w = lines.iter()
-            .map(|l| SimpleTextMeasure::measure_raw(l, &style).width)
-            .fold(0.0f64, f64::max);
-        let name_w = SimpleTextMeasure::measure_raw(&req.name, &style).width;
-        let content_w = max_line_w.max(name_w);
-        let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
-        let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
-
+        let (width, height) = measure_req_box(&req.name, &lines, style, line_height);
         let nid = g.add_node(NodeLabel::new(width, height));
         id_map.insert(req.name.clone(), nid);
         node_infos.insert(req.name.clone(), (req.name.clone(), lines));
     }
 
-    // Add element nodes
     for elem in &diagram.elements {
         let mut lines = Vec::new();
         lines.push("<<Element>>".to_string());
         if let Some(t) = &elem.elem_type { lines.push(format!("Type: {t}")); }
         if let Some(d) = &elem.docref { lines.push(format!("Doc: {d}")); }
 
-        let max_line_w = lines.iter()
-            .map(|l| SimpleTextMeasure::measure_raw(l, &style).width)
-            .fold(0.0f64, f64::max);
-        let name_w = SimpleTextMeasure::measure_raw(&elem.name, &style).width;
-        let content_w = max_line_w.max(name_w);
-        let width = (content_w + PADDING_X * 2.0).max(MIN_NODE_WIDTH);
-        let height = (lines.len() as f64 + 1.0) * (line_height + LINE_GAP) + PADDING_Y * 2.0;
-
+        let (width, height) = measure_req_box(&elem.name, &lines, style, line_height);
         let nid = g.add_node(NodeLabel::new(width, height));
         id_map.insert(elem.name.clone(), nid);
         node_infos.insert(elem.name.clone(), (elem.name.clone(), lines));
     }
 
-    // Add edges
     for rel in &diagram.relationships {
         let Some(&src) = id_map.get(&rel.src) else { continue };
         let Some(&dst) = id_map.get(&rel.dst) else { continue };
         let mut label = EdgeLabel::default();
         let label_text = format!("<<{}>>", rel.rel_type.label());
-        let ts = measurer.measure(&label_text, &style);
+        let ts = measurer.measure(&label_text, style);
         label.width = ts.width;
         label.height = ts.height;
         g.add_edge(src, dst, label);
     }
 
-    let config = DagreConfig {
-        rankdir: diagram.direction,
-        ..Default::default()
-    };
-    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+    (g, id_map, node_infos)
+}
 
-    // Extract nodes
+fn extract_req_nodes(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+    node_infos: &BTreeMap<String, (String, Vec<String>)>,
+) -> (Vec<ReqNodeLayout>, f64, f64) {
     let mut nodes = Vec::new();
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
 
-    for (name, (type_label, lines)) in &node_infos {
+    for (name, (type_label, lines)) in node_infos {
         let Some(&nid) = id_map.get(name) else { continue };
         let Some(n) = g.node(nid) else { continue };
         nodes.push(ReqNodeLayout {
@@ -137,7 +152,15 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
         max_y = max_y.max(n.y + n.height / 2.0);
     }
 
-    // Extract edges
+    (nodes, max_x, max_y)
+}
+
+fn extract_req_edges(
+    diagram: &RequirementDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+    style: &TextStyle,
+) -> Vec<ReqEdgeLayout> {
     let mut edges = Vec::new();
     for rel in &diagram.relationships {
         let Some(&src_nid) = id_map.get(&rel.src) else { continue };
@@ -154,15 +177,7 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
             points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
-        if let Some(src_n) = g.node(src_nid) {
-            let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
-            if points.len() >= 2 { points[0] = intersect_rect(&bbox, points[1]); }
-        }
-        if let Some(dst_n) = g.node(dst_nid) {
-            let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
-            let n = points.len();
-            if n >= 2 { points[n - 1] = intersect_rect(&bbox, points[n - 2]); }
-        }
+        clip_req_edge_endpoints(g, src_nid, dst_nid, &mut points);
 
         let label_text = format!("<<{}>>", rel.rel_type.label());
         let label_style = TextStyle { font_size: rusty_mermaid_core::Theme::default().font_size_edge_label, ..style.clone() };
@@ -188,8 +203,24 @@ pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMe
             rel_type: rel.rel_type,
         });
     }
+    edges
+}
 
-    LayoutResult { nodes, edges, width: max_x, height: max_y }
+fn clip_req_edge_endpoints(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    src_nid: NodeId,
+    dst_nid: NodeId,
+    points: &mut [Point],
+) {
+    if let Some(src_n) = g.node(src_nid) {
+        let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
+        if points.len() >= 2 { points[0] = intersect_rect(&bbox, points[1]); }
+    }
+    if let Some(dst_n) = g.node(dst_nid) {
+        let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
+        let n = points.len();
+        if n >= 2 { points[n - 1] = intersect_rect(&bbox, points[n - 2]); }
+    }
 }
 
 fn risk_label(r: RiskLevel) -> &'static str {

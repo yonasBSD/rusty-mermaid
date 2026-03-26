@@ -39,15 +39,19 @@ pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
         ..Default::default()
     };
 
-    // Draw connectors: one vertical line per parent spanning its children
-    // Build a map: for each row that has children, find first and last child row indices
+    render_connectors(&mut scene, &rows, &line_style);
+    render_stubs(&mut scene, &rows, &line_style);
+    render_tree_labels(&mut scene, &rows, theme);
+
+    scene
+}
+
+fn render_connectors(scene: &mut Scene, rows: &[FlatRow], line_style: &Style) {
     let mut i = 0;
     while i < rows.len() {
         let depth = rows[i].depth;
-        // Find children: consecutive rows at depth+1 (with possible deeper descendants between)
         let first_child = i + 1;
         if first_child < rows.len() && rows[first_child].depth > depth {
-            // Find last direct-or-deeper descendant
             let mut last_child = first_child;
             for j in (first_child + 1)..rows.len() {
                 if rows[j].depth <= depth {
@@ -58,7 +62,6 @@ pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
                 }
             }
 
-            // Single vertical line from row i down to last direct child
             let vx = SCENE_PAD + depth as f64 * INDENT_W + CONNECTOR_GAP;
             let vy_top = SCENE_PAD + i as f64 * LINE_H + LINE_H;
             let vy_bot = SCENE_PAD + last_child as f64 * LINE_H + LINE_H / 2.0;
@@ -75,8 +78,9 @@ pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
         }
         i += 1;
     }
+}
 
-    // Draw horizontal stubs for each non-root node
+fn render_stubs(scene: &mut Scene, rows: &[FlatRow], line_style: &Style) {
     for (row_idx, row) in rows.iter().enumerate() {
         if row.depth > 0 {
             let x = SCENE_PAD + row.depth as f64 * INDENT_W;
@@ -94,8 +98,9 @@ pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Draw labels
+fn render_tree_labels(scene: &mut Scene, rows: &[FlatRow], theme: &Theme) {
     for (row_idx, row) in rows.iter().enumerate() {
         let x = SCENE_PAD + row.depth as f64 * INDENT_W;
         let y = SCENE_PAD + row_idx as f64 * LINE_H + LINE_H / 2.0;
@@ -118,8 +123,6 @@ pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
             },
         });
     }
-
-    scene
 }
 
 struct FlatRow {

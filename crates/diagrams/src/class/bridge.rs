@@ -74,13 +74,38 @@ pub fn layout(diagram: &ClassDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let style = TextStyle::default();
     let line_height = measurer.measure("X", &style).height;
+    let (mut g, id_map, class_dims) = build_class_graph(diagram, measurer, &style, line_height);
+
+    let config = DagreConfig {
+        rankdir: diagram.direction,
+        ..Default::default()
+    };
+    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+
+    let entities = diagram.classes.iter().map(|c| (c.id.as_str(), c.css_classes.as_slice()));
+    let node_styles = resolve_entity_styles(entities, &diagram.class_defs, &diagram.style_stmts);
+
+    let (classes, mut max_x, mut max_y) = extract_class_layouts(diagram, &g, &id_map, &class_dims, &node_styles);
+    let edges = extract_class_edges(diagram, &g, &id_map, measurer, &style);
+    let (namespaces, ns_max_x, ns_max_y) = extract_namespace_layouts(diagram, &g, &id_map);
+    max_x = max_x.max(ns_max_x);
+    max_y = max_y.max(ns_max_y);
+
+    LayoutResult { classes, edges, namespaces, width: max_x, height: max_y }
+}
+
+fn build_class_graph(
+    diagram: &ClassDiagram,
+    measurer: &impl TextMeasure,
+    style: &TextStyle,
+    line_height: f64,
+) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, BTreeMap<String, ClassDims>) {
     let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
-
-    // Compute dimensions and add nodes
     let mut class_dims: BTreeMap<String, ClassDims> = BTreeMap::new();
+
     for c in &diagram.classes {
-        let dims = compute_class_dims(c, measurer, &style, line_height);
+        let dims = compute_class_dims(c, measurer, style, line_height);
         let nid = g.add_node(NodeLabel::new(dims.width, dims.height));
         id_map.insert(c.id.clone(), nid);
         class_dims.insert(c.id.clone(), dims);
@@ -97,35 +122,28 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
         }
     }
 
-    // Add edges
     for rel in &diagram.relationships {
         let Some(&src) = id_map.get(&rel.from_id) else { continue };
         let Some(&dst) = id_map.get(&rel.to_id) else { continue };
         let mut label = EdgeLabel::default();
         if let Some(text) = &rel.label {
-            let ts = measurer.measure(text, &style);
+            let ts = measurer.measure(text, style);
             label.width = ts.width;
             label.height = ts.height;
         }
         g.add_edge(src, dst, label);
     }
 
-    // Run dagre
-    let config = DagreConfig {
-        rankdir: diagram.direction,
-        ..Default::default()
-    };
-    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+    (g, id_map, class_dims)
+}
 
-    // Resolve styles
-    let entities = diagram.classes.iter().map(|c| (c.id.as_str(), c.css_classes.as_slice()));
-    let node_styles = resolve_entity_styles(
-        entities,
-        &diagram.class_defs,
-        &diagram.style_stmts,
-    );
-
-    // Extract positioned classes
+fn extract_class_layouts(
+    diagram: &ClassDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+    class_dims: &BTreeMap<String, ClassDims>,
+    node_styles: &BTreeMap<&str, Style>,
+) -> (Vec<ClassLayout>, f64, f64) {
     let mut classes = Vec::new();
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
@@ -155,15 +173,21 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
         max_y = max_y.max(n.y + n.height / 2.0);
     }
 
-    // Extract edges with intersection routing
-    // Note: start_arrow/end_arrow are None — class relationship markers are
-    // handled by the renderer via ClassEdgeLayout.from_type/to_type → MarkerType.
+    (classes, max_x, max_y)
+}
+
+fn extract_class_edges(
+    diagram: &ClassDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+    measurer: &impl TextMeasure,
+    style: &TextStyle,
+) -> Vec<ClassEdgeLayout> {
     let mut edges = Vec::new();
     for rel in &diagram.relationships {
         let Some(&src_nid) = id_map.get(&rel.from_id) else { continue };
         let Some(&dst_nid) = id_map.get(&rel.to_id) else { continue };
 
-        // Find the dagre edge
         let edge_id = g.edge_ids()
             .find(|&eid| g.edge_endpoints(eid).is_some_and(|(s, d)| s == src_nid && d == dst_nid));
         let Some(eid) = edge_id else { continue };
@@ -175,23 +199,10 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
             points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
-        // Clip endpoints at node boundaries
-        if let Some(src_n) = g.node(src_nid) {
-            let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
-            if points.len() >= 2 {
-                points[0] = intersect_rect(&bbox, points[1]);
-            }
-        }
-        if let Some(dst_n) = g.node(dst_nid) {
-            let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
-            let n = points.len();
-            if n >= 2 {
-                points[n - 1] = intersect_rect(&bbox, points[n - 2]);
-            }
-        }
+        clip_class_edge_endpoints(g, src_nid, dst_nid, &mut points);
 
         let label_size = rel.label.as_ref().map(|l| {
-            let ts = measurer.measure(l, &style);
+            let ts = measurer.measure(l, style);
             (ts.width, ts.height)
         });
 
@@ -216,9 +227,18 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
             cardinality_to: rel.cardinality_to.clone(),
         });
     }
+    edges
+}
 
-    // Namespace positions
+fn extract_namespace_layouts(
+    diagram: &ClassDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<String, NodeId>,
+) -> (Vec<NamespaceLayout>, f64, f64) {
     let mut namespaces = Vec::new();
+    let mut max_x: f64 = 0.0;
+    let mut max_y: f64 = 0.0;
+
     for ns in &diagram.namespaces {
         if let Some(&nid) = id_map.get(&ns.id) {
             if let Some(n) = g.node(nid) {
@@ -237,12 +257,27 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
         }
     }
 
-    LayoutResult {
-        classes,
-        edges,
-        namespaces,
-        width: max_x,
-        height: max_y,
+    (namespaces, max_x, max_y)
+}
+
+fn clip_class_edge_endpoints(
+    g: &Graph<NodeLabel, EdgeLabel>,
+    src_nid: NodeId,
+    dst_nid: NodeId,
+    points: &mut [Point],
+) {
+    if let Some(src_n) = g.node(src_nid) {
+        let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
+        if points.len() >= 2 {
+            points[0] = intersect_rect(&bbox, points[1]);
+        }
+    }
+    if let Some(dst_n) = g.node(dst_nid) {
+        let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
+        let n = points.len();
+        if n >= 2 {
+            points[n - 1] = intersect_rect(&bbox, points[n - 2]);
+        }
     }
 }
 

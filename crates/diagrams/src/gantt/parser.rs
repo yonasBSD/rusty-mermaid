@@ -89,9 +89,7 @@ fn parse_task_line(line: &str) -> Option<GanttTask> {
     let parts: Vec<&str> = specs.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
 
     let mut tags = Vec::new();
-    let mut id: Option<String> = None;
     let mut start = TaskStart::Auto;
-    let mut end = TaskEnd::Auto;
     let mut date_parts: Vec<&str> = Vec::new();
 
     for part in &parts {
@@ -107,8 +105,25 @@ fn parse_task_line(line: &str) -> Option<GanttTask> {
         }
     }
 
-    // Interpret remaining date_parts
-    // Patterns: [id, start, end] or [id, duration] or [start, end] or [duration] or [id]
+    let (parsed_id, parsed_start, parsed_end) = interpret_date_parts(&date_parts, start);
+
+    Some(GanttTask {
+        name: name.to_string(),
+        id: parsed_id,
+        tags,
+        start: parsed_start,
+        end: parsed_end,
+    })
+}
+
+fn interpret_date_parts(
+    date_parts: &[&str],
+    current_start: TaskStart,
+) -> (Option<String>, TaskStart, TaskEnd) {
+    let mut id = None;
+    let mut start = current_start;
+    let mut end = TaskEnd::Auto;
+
     match date_parts.len() {
         0 => {}
         1 => {
@@ -129,7 +144,11 @@ fn parse_task_line(line: &str) -> Option<GanttTask> {
             let (a, b) = (date_parts[0], date_parts[1]);
             if looks_like_date(a) && (looks_like_date(b) || is_duration(b)) {
                 start = TaskStart::Date(a.to_string());
-                end = if is_duration(b) { TaskEnd::Duration(b.to_string()) } else { TaskEnd::Date(b.to_string()) };
+                end = if is_duration(b) {
+                    TaskEnd::Duration(b.to_string())
+                } else {
+                    TaskEnd::Date(b.to_string())
+                };
             } else if !looks_like_date(a) && !is_duration(a) {
                 id = Some(a.to_string());
                 if is_duration(b) {
@@ -143,32 +162,20 @@ fn parse_task_line(line: &str) -> Option<GanttTask> {
                 }
             }
         }
-        3 => {
+        _ => {
             id = Some(date_parts[0].to_string());
             start = TaskStart::Date(date_parts[1].to_string());
-            end = if is_duration(date_parts[2]) {
+            end = if date_parts.len() >= 3 && is_duration(date_parts[2]) {
                 TaskEnd::Duration(date_parts[2].to_string())
-            } else {
+            } else if date_parts.len() >= 3 {
                 TaskEnd::Date(date_parts[2].to_string())
+            } else {
+                TaskEnd::Auto
             };
-        }
-        _ => {
-            // Take first as id, second as start, third as end
-            if date_parts.len() >= 3 {
-                id = Some(date_parts[0].to_string());
-                start = TaskStart::Date(date_parts[1].to_string());
-                end = TaskEnd::Date(date_parts[2].to_string());
-            }
         }
     }
 
-    Some(GanttTask {
-        name: name.to_string(),
-        id,
-        tags,
-        start,
-        end,
-    })
+    (id, start, end)
 }
 
 fn is_duration(s: &str) -> bool {

@@ -50,18 +50,46 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     let (mut g, id_map) = build_flow_graph(diagram, measurer);
 
     let config = DagreConfig { rankdir: diagram.direction, ..Default::default() };
-
-    // Extract subgraphs with per-subgraph direction override.
-    // Matching mermaid's dagre backend: subgraphs without external
-    // connections get independent dagre layout with their own rankdir.
     let extracted = extract_directed_subgraphs(diagram, &mut g, &id_map, measurer);
 
-    // Run layout
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
-    // Apply extracted subgraph inner positions: translate from
-    // inner-relative coordinates to final absolute coordinates.
-    for ex in &extracted {
+    apply_subgraph_positions(&extracted, &id_map, &mut g);
+    recenter_compounds(diagram, &extracted, &id_map, &mut g);
+
+    let node_styles = resolve_node_styles(diagram);
+    let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
+
+    let (mut nodes, mut max_x, mut max_y) = extract_flow_nodes(diagram, &g, &id_map, &node_styles);
+    let mut edges = extract_edge_layouts(diagram, &g, &nid_to_id, measurer);
+    let (mut subgraphs, sg_max_x, sg_max_y) = extract_subgraph_layouts(diagram, &g, &id_map);
+    max_x = max_x.max(sg_max_x);
+    max_y = max_y.max(sg_max_y);
+
+    expand_bounds_and_shift(&edges, &mut nodes, &mut subgraphs, &mut max_x, &mut max_y);
+
+    // Apply shift to edges separately (needs mutable borrow on edges)
+    let (min_x, min_y) = compute_edge_bounds_min(&edges);
+    if min_x < 0.0 || min_y < 0.0 {
+        let dx = if min_x < 0.0 { -min_x } else { 0.0 };
+        let dy = if min_y < 0.0 { -min_y } else { 0.0 };
+        for edge in &mut edges {
+            for pt in &mut edge.points {
+                pt.x += dx;
+                pt.y += dy;
+            }
+        }
+    }
+
+    LayoutResult { nodes, edges, subgraphs, width: max_x, height: max_y }
+}
+
+fn apply_subgraph_positions(
+    extracted: &[ExtractedLayout],
+    id_map: &BTreeMap<&str, NodeId>,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+) {
+    for ex in extracted {
         let Some(&sg_nid) = id_map.get(ex.sg_id.as_str()) else { continue };
         let Some(sg) = g.node(sg_nid) else { continue };
         let sg_cx = sg.x;
@@ -85,7 +113,6 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         for edge in &ex.inner_edges {
             let Some(&src) = id_map.get(edge.src.as_str()) else { continue };
             let Some(&dst) = id_map.get(edge.dst.as_str()) else { continue };
-            // Re-add inner edges (removed during extraction) with translated points.
             let mut label = EdgeLabel::default();
             label.points = edge.points.iter()
                 .map(|&(px, py)| Point::new(sg_cx + px, sg_cy + py))
@@ -93,20 +120,19 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             g.add_edge(src, dst, label);
         }
     }
+}
 
-    // Recenter compound nodes on their content.  The BK position
-    // algorithm can place left/right border nodes asymmetrically,
-    // causing unequal left/right padding.  Redistribute padding
-    // evenly by centering each compound on its children's bounding
-    // box.  Process inner-to-outer so parent compounds see the
-    // updated child positions.
+fn recenter_compounds(
+    diagram: &FlowDiagram,
+    extracted: &[ExtractedLayout],
+    id_map: &BTreeMap<&str, NodeId>,
+    g: &mut Graph<NodeLabel, EdgeLabel>,
+) {
     for sg in diagram.subgraphs.iter().rev() {
         if extracted.iter().any(|ex| ex.sg_id == sg.id) {
-            continue; // extracted subgraphs already positioned
-        }
-        let Some(&nid) = id_map.get(sg.id.as_str()) else {
             continue;
-        };
+        }
+        let Some(&nid) = id_map.get(sg.id.as_str()) else { continue };
         let mut min_x = f64::INFINITY;
         let mut max_x = f64::NEG_INFINITY;
         for child in g.children(nid).collect::<Vec<_>>() {
@@ -120,24 +146,22 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             n.x = (min_x + max_x) / 2.0;
         }
     }
+}
 
-    // Resolve per-node styles from classDef + class + style statements.
-    let node_styles = resolve_node_styles(diagram);
-
-    // Extract results
-    let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
-
+fn extract_flow_nodes(
+    diagram: &FlowDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<&str, NodeId>,
+    node_styles: &BTreeMap<&str, Style>,
+) -> (Vec<NodeLayout>, f64, f64) {
+    let sg_ids: HashSet<&str> = diagram.subgraphs.iter().map(|s| s.id.as_str()).collect();
     let mut nodes = Vec::new();
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
 
-    // Subgraph IDs: skip vertex rendering when a vertex ID collides with a
-    // subgraph ID (the subgraph node takes precedence in the graph).
-    let sg_ids: HashSet<&str> = diagram.subgraphs.iter().map(|s| s.id.as_str()).collect();
-
     for v in &diagram.vertices {
         if sg_ids.contains(v.id.as_str()) {
-            continue; // rendered as subgraph, not vertex
+            continue;
         }
         if let Some(&nid) = id_map.get(v.id.as_str()) {
             let Some(n) = g.node(nid) else { continue };
@@ -158,11 +182,18 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
-    let mut edges = extract_edge_layouts(diagram, &g, &nid_to_id, measurer);
+    (nodes, max_x, max_y)
+}
 
-    // Extract subgraph positions from dagre's compound node bounds
-    // (padding and label space are already included by remove_border_nodes).
+fn extract_subgraph_layouts(
+    diagram: &FlowDiagram,
+    g: &Graph<NodeLabel, EdgeLabel>,
+    id_map: &BTreeMap<&str, NodeId>,
+) -> (Vec<SubgraphLayout>, f64, f64) {
     let mut subgraphs = Vec::new();
+    let mut max_x: f64 = 0.0;
+    let mut max_y: f64 = 0.0;
+
     for sg in &diagram.subgraphs {
         if let Some(&nid) = id_map.get(sg.id.as_str()) {
             let Some(n) = g.node(nid) else { continue };
@@ -182,17 +213,17 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
-    // Expand bounds to include edge control points and label extents
-    // (dagre routes and labels can extend past the node bounding box).
+    (subgraphs, max_x, max_y)
+}
+
+fn compute_edge_bounds_min(edges: &[EdgeLayout]) -> (f64, f64) {
+    let label_pad = 4.0;
     let mut min_x: f64 = 0.0;
     let mut min_y: f64 = 0.0;
-    let label_pad = 4.0;
-    for edge in &edges {
+    for edge in edges {
         for pt in &edge.points {
             min_x = min_x.min(pt.x);
             min_y = min_y.min(pt.y);
-            max_x = max_x.max(pt.x);
-            max_y = max_y.max(pt.y);
         }
         if let Some(size) = edge.label_size {
             if edge.points.len() < 2 { continue; }
@@ -201,39 +232,53 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
             let lh = size.1 + label_pad * 2.0;
             min_x = min_x.min(mid.x - lw / 2.0);
             min_y = min_y.min(mid.y - lh / 2.0);
-            max_x = max_x.max(mid.x + lw / 2.0);
-            max_y = max_y.max(mid.y + lh / 2.0);
+        }
+    }
+    (min_x, min_y)
+}
+
+fn expand_bounds_and_shift(
+    edges: &[EdgeLayout],
+    nodes: &mut [NodeLayout],
+    subgraphs: &mut [SubgraphLayout],
+    max_x: &mut f64,
+    max_y: &mut f64,
+) {
+    let label_pad = 4.0;
+    let mut min_x: f64 = 0.0;
+    let mut min_y: f64 = 0.0;
+    for edge in edges {
+        for pt in &edge.points {
+            min_x = min_x.min(pt.x);
+            min_y = min_y.min(pt.y);
+            *max_x = max_x.max(pt.x);
+            *max_y = max_y.max(pt.y);
+        }
+        if let Some(size) = edge.label_size {
+            if edge.points.len() < 2 { continue; }
+            let mid = edge.points[edge.points.len() / 2];
+            let lw = size.0 + label_pad * 2.0;
+            let lh = size.1 + label_pad * 2.0;
+            min_x = min_x.min(mid.x - lw / 2.0);
+            min_y = min_y.min(mid.y - lh / 2.0);
+            *max_x = max_x.max(mid.x + lw / 2.0);
+            *max_y = max_y.max(mid.y + lh / 2.0);
         }
     }
 
-    // Shift everything if edge labels extend past the origin
     if min_x < 0.0 || min_y < 0.0 {
         let dx = if min_x < 0.0 { -min_x } else { 0.0 };
         let dy = if min_y < 0.0 { -min_y } else { 0.0 };
-        for node in &mut nodes {
+        for node in nodes.iter_mut() {
             node.x += dx;
             node.y += dy;
         }
-        for edge in &mut edges {
-            for pt in &mut edge.points {
-                pt.x += dx;
-                pt.y += dy;
-            }
-        }
-        for sg in &mut subgraphs {
+        for sg in subgraphs.iter_mut() {
             sg.x += dx;
             sg.y += dy;
         }
-        max_x += dx;
-        max_y += dy;
-    }
-
-    LayoutResult {
-        nodes,
-        edges,
-        subgraphs,
-        width: max_x,
-        height: max_y,
+        *max_x += dx;
+        *max_y += dy;
     }
 }
 
