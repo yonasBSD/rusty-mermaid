@@ -9,71 +9,73 @@ use tiny_skia::{
     Transform as SkTransform,
 };
 
+struct RenderCtx<'a> {
+    pixmap: &'a mut Pixmap,
+    transform: SkTransform,
+    theme: &'a Theme,
+}
+
 pub fn render_primitive(
     pixmap: &mut Pixmap,
     prim: &Primitive,
     transform: SkTransform,
     theme: &Theme,
 ) {
+    let mut ctx = RenderCtx { pixmap, transform, theme };
+    render_prim(&mut ctx, prim);
+}
+
+fn render_prim(ctx: &mut RenderCtx, prim: &Primitive) {
     match prim {
         Primitive::Rect { bbox, rx, ry, style } => {
-            render_rect(pixmap, bbox, *rx, *ry, style, transform, theme);
+            render_rect(ctx, bbox, *rx, *ry, style);
         }
         Primitive::Circle { center, radius, style } => {
-            render_circle(pixmap, center, *radius, style, transform, theme);
+            render_circle(ctx, center, *radius, style);
         }
         Primitive::Ellipse { center, rx, ry, style } => {
-            render_ellipse(pixmap, center, *rx, *ry, style, transform, theme);
+            render_ellipse(ctx, center, *rx, *ry, style);
         }
         Primitive::Path { segments, style, marker_start, marker_end } => {
-            render_path(pixmap, segments, style, *marker_start, *marker_end, transform, theme);
+            render_path(ctx, segments, style, *marker_start, *marker_end);
         }
         Primitive::Text { position, content, anchor, style } => {
-            render_text(pixmap, position, content, *anchor, style, transform);
+            render_text(ctx, position, content, *anchor, style);
         }
         Primitive::Polygon { points, style } => {
-            render_polygon(pixmap, points, style, transform, theme);
+            render_polygon(ctx, points, style);
         }
         Primitive::Group { transform: group_tf, children } => {
-            let child_transform = compose_transform(transform, group_tf);
+            let child_transform = compose_transform(ctx.transform, group_tf);
+            let mut child_ctx = RenderCtx { pixmap: ctx.pixmap, transform: child_transform, theme: ctx.theme };
             for child in children {
-                render_primitive(pixmap, child, child_transform, theme);
+                render_prim(&mut child_ctx, child);
             }
         }
         Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
-            render_arc(pixmap, center, *inner_r, *outer_r, *start_angle, *end_angle, style, transform, theme);
+            render_arc(ctx, center, *inner_r, *outer_r, *start_angle, *end_angle, style);
         }
     }
 }
 
 /// Fill and/or stroke a prebuilt path based on style.
-fn fill_and_stroke(
-    pixmap: &mut Pixmap,
-    path: &tiny_skia::Path,
-    style: &Style,
-    transform: SkTransform,
-    theme: &Theme,
-) {
+fn fill_and_stroke(ctx: &mut RenderCtx, path: &tiny_skia::Path, style: &Style) {
     if let Some(fill) = resolve_fill(style) {
         let mut paint = Paint::default();
         paint.set_color(fill);
         paint.anti_alias = true;
-        pixmap.fill_path(path, &paint, FillRule::Winding, transform, None);
+        ctx.pixmap.fill_path(path, &paint, FillRule::Winding, ctx.transform, None);
     }
-    if let Some((stroke_color, width)) = resolve_stroke(style, theme) {
+    if let Some((stroke_color, width)) = resolve_stroke(style, ctx.theme) {
         let mut paint = Paint::default();
         paint.set_color(stroke_color);
         paint.anti_alias = true;
         let stroke = make_stroke(width, style);
-        pixmap.stroke_path(path, &paint, &stroke, transform, None);
+        ctx.pixmap.stroke_path(path, &paint, &stroke, ctx.transform, None);
     }
 }
 
-fn render_rect(
-    pixmap: &mut Pixmap,
-    bbox: &rusty_mermaid_core::BBox, rx: f64, ry: f64,
-    style: &Style, transform: SkTransform, theme: &Theme,
-) {
+fn render_rect(ctx: &mut RenderCtx, bbox: &rusty_mermaid_core::BBox, rx: f64, ry: f64, style: &Style) {
     let left = (bbox.x - bbox.width / 2.0) as f32;
     let top = (bbox.y - bbox.height / 2.0) as f32;
     let w = bbox.width as f32;
@@ -93,35 +95,23 @@ fn render_rect(
         pb.finish()
     };
     let Some(path) = path else { return };
-    fill_and_stroke(pixmap, &path, style, transform, theme);
+    fill_and_stroke(ctx, &path, style);
 }
 
-fn render_circle(
-    pixmap: &mut Pixmap,
-    center: &Point, radius: f64,
-    style: &Style, transform: SkTransform, theme: &Theme,
-) {
+fn render_circle(ctx: &mut RenderCtx, center: &Point, radius: f64, style: &Style) {
     let Some(path) = circle_path(center.x as f32, center.y as f32, radius as f32) else { return };
-    fill_and_stroke(pixmap, &path, style, transform, theme);
+    fill_and_stroke(ctx, &path, style);
 }
 
-fn render_ellipse(
-    pixmap: &mut Pixmap,
-    center: &Point, rx: f64, ry: f64,
-    style: &Style, transform: SkTransform, theme: &Theme,
-) {
+fn render_ellipse(ctx: &mut RenderCtx, center: &Point, rx: f64, ry: f64, style: &Style) {
     let Some(path) = ellipse_path(center.x as f32, center.y as f32, rx as f32, ry as f32) else { return };
-    fill_and_stroke(pixmap, &path, style, transform, theme);
+    fill_and_stroke(ctx, &path, style);
 }
 
 fn render_path(
-    pixmap: &mut Pixmap,
-    segments: &[PathSegment],
-    style: &Style,
+    ctx: &mut RenderCtx, segments: &[PathSegment], style: &Style,
     marker_start: Option<rusty_mermaid_core::MarkerType>,
     marker_end: Option<rusty_mermaid_core::MarkerType>,
-    transform: SkTransform,
-    theme: &Theme,
 ) {
     let Some(path) = segments_to_path(segments) else { return };
 
@@ -129,29 +119,25 @@ fn render_path(
         let mut paint = Paint::default();
         paint.set_color(fill);
         paint.anti_alias = true;
-        pixmap.fill_path(&path, &paint, FillRule::Winding, transform, None);
+        ctx.pixmap.fill_path(&path, &paint, FillRule::Winding, ctx.transform, None);
     }
 
-    let (stroke_color, width) = resolve_stroke(style, theme)
-        .unwrap_or_else(|| (to_skia_color(style.resolved_stroke(theme)), style.resolved_stroke_width(theme) as f32));
+    let (stroke_color, width) = resolve_stroke(style, ctx.theme)
+        .unwrap_or_else(|| (to_skia_color(style.resolved_stroke(ctx.theme)), style.resolved_stroke_width(ctx.theme) as f32));
     let mut paint = Paint::default();
     paint.set_color(stroke_color);
     paint.anti_alias = true;
-    pixmap.stroke_path(&path, &paint, &make_stroke(width, style), transform, None);
+    ctx.pixmap.stroke_path(&path, &paint, &make_stroke(width, style), ctx.transform, None);
 
     if let (Some(marker), Some((pt, angle))) = (marker_start, rusty_mermaid_core::path_start_tangent(segments)) {
-        draw_marker(pixmap, marker, pt, angle, stroke_color, width, transform);
+        draw_marker(ctx, marker, pt, angle, stroke_color, width);
     }
     if let (Some(marker), Some((pt, angle))) = (marker_end, rusty_mermaid_core::path_end_tangent(segments)) {
-        draw_marker(pixmap, marker, pt, angle, stroke_color, width, transform);
+        draw_marker(ctx, marker, pt, angle, stroke_color, width);
     }
 }
 
-fn render_polygon(
-    pixmap: &mut Pixmap,
-    points: &[Point],
-    style: &Style, transform: SkTransform, theme: &Theme,
-) {
+fn render_polygon(ctx: &mut RenderCtx, points: &[Point], style: &Style) {
     if points.len() < 3 { return; }
     let mut pb = PathBuilder::new();
     pb.move_to(points[0].x as f32, points[0].y as f32);
@@ -160,7 +146,7 @@ fn render_polygon(
     }
     pb.close();
     let Some(path) = pb.finish() else { return };
-    fill_and_stroke(pixmap, &path, style, transform, theme);
+    fill_and_stroke(ctx, &path, style);
 }
 
 // ── Helpers ──
@@ -287,42 +273,38 @@ fn compose_transform(parent: SkTransform, child: &Transform) -> SkTransform {
 // ── Markers ──
 
 fn draw_marker(
-    pixmap: &mut Pixmap,
+    ctx: &mut RenderCtx,
     marker: rusty_mermaid_core::MarkerType,
-    tip: Point,
-    angle: f64,
-    color: tiny_skia::Color,
-    stroke_width: f32,
-    transform: SkTransform,
+    tip: Point, angle: f64,
+    color: tiny_skia::Color, stroke_width: f32,
 ) {
     use rusty_mermaid_core::MarkerPath;
     let mp = rusty_mermaid_core::marker_path(marker, tip, angle, stroke_width as f64);
-
     let fill_paint = |c: tiny_skia::Color| -> Paint { let mut p = Paint::default(); p.set_color(c); p.anti_alias = true; p };
 
     match mp {
         MarkerPath::FillPolygon { points } => {
             if let Some(path) = points_to_skia_path(&points, true) {
-                pixmap.fill_path(&path, &fill_paint(color), FillRule::Winding, transform, None);
+                ctx.pixmap.fill_path(&path, &fill_paint(color), FillRule::Winding, ctx.transform, None);
             }
         }
         MarkerPath::StrokePolyline { points, width, closed } => {
             if let Some(path) = points_to_skia_path(&points, closed) {
                 let stroke = Stroke { width: width as f32, ..Default::default() };
-                pixmap.stroke_path(&path, &fill_paint(color), &stroke, transform, None);
+                ctx.pixmap.stroke_path(&path, &fill_paint(color), &stroke, ctx.transform, None);
             }
         }
         MarkerPath::FillAndStrokePolygon { points, stroke_width: sw, fill_is_marker_color } => {
             if let Some(path) = points_to_skia_path(&points, true) {
                 let fc = if fill_is_marker_color { color } else { tiny_skia::Color::from_rgba8(255, 255, 255, 255) };
-                pixmap.fill_path(&path, &fill_paint(fc), FillRule::Winding, transform, None);
+                ctx.pixmap.fill_path(&path, &fill_paint(fc), FillRule::Winding, ctx.transform, None);
                 let stroke = Stroke { width: sw as f32, ..Default::default() };
-                pixmap.stroke_path(&path, &fill_paint(color), &stroke, transform, None);
+                ctx.pixmap.stroke_path(&path, &fill_paint(color), &stroke, ctx.transform, None);
             }
         }
         MarkerPath::FillCircle { center, radius } => {
             if let Some(path) = circle_path(center.x as f32, center.y as f32, radius as f32) {
-                pixmap.fill_path(&path, &fill_paint(color), FillRule::Winding, transform, None);
+                ctx.pixmap.fill_path(&path, &fill_paint(color), FillRule::Winding, ctx.transform, None);
             }
         }
         MarkerPath::StrokeCurves { curves, width } => {
@@ -332,7 +314,7 @@ fn draw_marker(
                 pb.quad_to(cp.x as f32, cp.y as f32, end.x as f32, end.y as f32);
                 if let Some(path) = pb.finish() {
                     let stroke = Stroke { width: width as f32, line_cap: LineCap::Round, ..Default::default() };
-                    pixmap.stroke_path(&path, &fill_paint(color), &stroke, transform, None);
+                    ctx.pixmap.stroke_path(&path, &fill_paint(color), &stroke, ctx.transform, None);
                 }
             }
         }
@@ -352,15 +334,9 @@ fn points_to_skia_path(pts: &[Point], closed: bool) -> Option<tiny_skia::Path> {
 
 
 fn render_arc(
-    pixmap: &mut Pixmap,
-    center: &Point,
-    inner_r: f64,
-    outer_r: f64,
-    start_angle: f64,
-    end_angle: f64,
+    ctx: &mut RenderCtx, center: &Point,
+    inner_r: f64, outer_r: f64, start_angle: f64, end_angle: f64,
     style: &Style,
-    transform: SkTransform,
-    theme: &Theme,
 ) {
     let segs = rusty_mermaid_core::arc_sector_segments(
         *center, inner_r, outer_r, start_angle, end_angle,
@@ -375,7 +351,7 @@ fn render_arc(
         }
     }
     let Some(path) = pb.finish() else { return };
-    fill_and_stroke(pixmap, &path, style, transform, theme);
+    fill_and_stroke(ctx, &path, style);
 }
 
 // ── Text rendering ──
@@ -415,12 +391,9 @@ fn select_raster_font(family: &RasterFontFamily, bold: bool, italic: bool) -> &f
 }
 
 fn render_text(
-    pixmap: &mut Pixmap,
-    position: &Point,
-    content: &str,
-    anchor: TextAnchor,
-    style: &rusty_mermaid_core::TextStyle,
-    transform: SkTransform,
+    ctx: &mut RenderCtx,
+    position: &Point, content: &str,
+    anchor: TextAnchor, style: &rusty_mermaid_core::TextStyle,
 ) {
     let family = get_font_family();
     let px = style.font_size as f32;
@@ -462,14 +435,14 @@ fn render_text(
                 let (metrics, bitmap) = font.rasterize(ch, px);
                 if metrics.width > 0 && metrics.height > 0 {
                     blit_glyph(
-                        pixmap,
+                        ctx.pixmap,
                         &bitmap,
                         metrics.width,
                         metrics.height,
                         cursor_x + metrics.xmin as f32,
                         line_y - metrics.ymin as f32 - metrics.height as f32,
                         fill,
-                        transform,
+                        ctx.transform,
                     );
                 }
                 cursor_x += metrics.advance_width;
@@ -480,13 +453,8 @@ fn render_text(
 
 fn blit_glyph(
     pixmap: &mut Pixmap,
-    bitmap: &[u8],
-    glyph_w: usize,
-    glyph_h: usize,
-    x: f32,
-    y: f32,
-    color: Color,
-    transform: SkTransform,
+    bitmap: &[u8], glyph_w: usize, glyph_h: usize,
+    x: f32, y: f32, color: Color, transform: SkTransform,
 ) {
     let pw = pixmap.width() as usize;
     let ph = pixmap.height() as usize;
