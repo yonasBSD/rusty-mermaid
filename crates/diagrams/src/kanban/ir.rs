@@ -6,7 +6,9 @@ pub struct KanbanBoard {
 
 impl KanbanBoard {
     pub fn new() -> Self {
-        Self { columns: Vec::new() }
+        Self {
+            columns: Vec::new(),
+        }
     }
 }
 
@@ -97,7 +99,13 @@ mod tests {
 
     #[test]
     fn priority_equality() {
-        let all = [Priority::VeryHigh, Priority::High, Priority::Medium, Priority::Low, Priority::VeryLow];
+        let all = [
+            Priority::VeryHigh,
+            Priority::High,
+            Priority::Medium,
+            Priority::Low,
+            Priority::VeryLow,
+        ];
         for (i, a) in all.iter().enumerate() {
             for (j, b) in all.iter().enumerate() {
                 assert_eq!(i == j, *a == *b);

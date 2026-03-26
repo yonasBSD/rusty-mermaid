@@ -43,10 +43,22 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
 
     layout_nodes(&mut flat_nodes, &edges, theme);
 
-    let min_x = flat_nodes.iter().map(|n| n.x - n.width / 2.0).fold(f64::INFINITY, f64::min);
-    let min_y = flat_nodes.iter().map(|n| n.y - n.height / 2.0).fold(f64::INFINITY, f64::min);
-    let max_x = flat_nodes.iter().map(|n| n.x + n.width / 2.0).fold(f64::NEG_INFINITY, f64::max);
-    let max_y = flat_nodes.iter().map(|n| n.y + n.height / 2.0).fold(f64::NEG_INFINITY, f64::max);
+    let min_x = flat_nodes
+        .iter()
+        .map(|n| n.x - n.width / 2.0)
+        .fold(f64::INFINITY, f64::min);
+    let min_y = flat_nodes
+        .iter()
+        .map(|n| n.y - n.height / 2.0)
+        .fold(f64::INFINITY, f64::min);
+    let max_x = flat_nodes
+        .iter()
+        .map(|n| n.x + n.width / 2.0)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let max_y = flat_nodes
+        .iter()
+        .map(|n| n.y + n.height / 2.0)
+        .fold(f64::NEG_INFINITY, f64::max);
 
     let offset_x = -min_x + SCENE_MARGIN;
     let offset_y = -min_y + SCENE_MARGIN;
@@ -66,7 +78,10 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
 }
 
 fn layout_nodes(flat_nodes: &mut [FlatNode], edges: &[(usize, usize)], theme: &Theme) {
-    let style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
+    let style = TextStyle {
+        font_size: theme.font_size_node,
+        ..Default::default()
+    };
     for node in flat_nodes.iter_mut() {
         let ts = SimpleTextMeasure::measure_raw(&node.text, &style);
         node.width = (ts.width + NODE_PAD_X * 2.0).max(MIN_NODE_W);
@@ -108,7 +123,11 @@ fn render_mindmap_edges(scene: &mut Scene, flat_nodes: &[FlatNode], edges: &[(us
                     to: Point::new(c.x, c.y),
                 },
             ],
-            style: Style { stroke: Some(alpha_color), stroke_width: Some(2.0), ..Default::default() },
+            style: Style {
+                stroke: Some(alpha_color),
+                stroke_width: Some(2.0),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: None,
         });
@@ -122,12 +141,27 @@ fn render_mindmap_nodes(scene: &mut Scene, flat_nodes: &[FlatNode], theme: &Them
         let is_parent = node.has_children;
 
         let (fill, stroke, text_color, font_weight) = if is_root {
-            (theme.node_stroke, theme.node_stroke, Color::WHITE, rusty_mermaid_core::FontWeight::Bold)
+            (
+                theme.node_stroke,
+                theme.node_stroke,
+                Color::WHITE,
+                rusty_mermaid_core::FontWeight::Bold,
+            )
         } else if is_parent {
-            (color, color, Color::WHITE, rusty_mermaid_core::FontWeight::Bold)
+            (
+                color,
+                color,
+                Color::WHITE,
+                rusty_mermaid_core::FontWeight::Bold,
+            )
         } else {
             let t = 0.15 + (node.depth as f64).min(3.0) * 0.1;
-            (tint_color(color, t), color, theme.node_text, rusty_mermaid_core::FontWeight::Normal)
+            (
+                tint_color(color, t),
+                color,
+                theme.node_text,
+                rusty_mermaid_core::FontWeight::Normal,
+            )
         };
 
         let bbox = BBox::new(node.x, node.y, node.width, node.height);
@@ -138,7 +172,11 @@ fn render_mindmap_nodes(scene: &mut Scene, flat_nodes: &[FlatNode], theme: &Them
             content: node.text.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: if is_root { theme.font_size_title } else { theme.font_size_node },
+                font_size: if is_root {
+                    theme.font_size_title
+                } else {
+                    theme.font_size_node
+                },
                 fill: Some(text_color),
                 font_weight,
                 ..Default::default()
@@ -176,8 +214,10 @@ fn flatten(
         depth,
         section,
         has_children: !node.children.is_empty(),
-        x: 0.0, y: 0.0,
-        width: 0.0, height: 0.0,
+        x: 0.0,
+        y: 0.0,
+        width: 0.0,
+        height: 0.0,
     });
     if let Some(pi) = parent_idx {
         edges.push((pi, idx));
@@ -193,7 +233,9 @@ fn flatten(
 fn seed_tree_positions(fg: &mut ForceGraph, edges: &[(usize, usize)], nodes: &[FlatNode]) {
     use std::f64::consts::TAU;
 
-    if fg.nodes.is_empty() { return; }
+    if fg.nodes.is_empty() {
+        return;
+    }
     fg.nodes[0].x = 0.0;
     fg.nodes[0].y = 0.0;
 
@@ -220,7 +262,9 @@ fn seed_tree_positions(fg: &mut ForceGraph, edges: &[(usize, usize)], nodes: &[F
 
     while let Some((idx, angle_start, angle_span)) = queue.pop_front() {
         let children = &children_of[idx];
-        if children.is_empty() { continue; }
+        if children.is_empty() {
+            continue;
+        }
 
         let total_weight: usize = children.iter().map(|&c| subtree_size[c]).sum();
         let mut current_angle = angle_start;
@@ -245,25 +289,31 @@ fn section_color(section: usize) -> Color {
     SECTION_COLORS[section % SECTION_COLORS.len()]
 }
 
-
 // ── Shape rendering ──
 
 fn render_shape(scene: &mut Scene, bbox: &BBox, shape: MindmapShape, fill: Color, stroke: Color) {
     let (x, y, w, h) = (bbox.x, bbox.y, bbox.width, bbox.height);
-    let shape_style = Style { fill: Some(fill), stroke: Some(stroke), stroke_width: Some(1.5), ..Default::default() };
+    let shape_style = Style {
+        fill: Some(fill),
+        stroke: Some(stroke),
+        stroke_width: Some(1.5),
+        ..Default::default()
+    };
 
     match shape {
         MindmapShape::Default | MindmapShape::RoundedRect => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(x, y, w, h),
-                rx: h / 2.0, ry: h / 2.0,
+                rx: h / 2.0,
+                ry: h / 2.0,
                 style: shape_style,
             });
         }
         MindmapShape::Rect => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(x, y, w, h),
-                rx: 3.0, ry: 3.0,
+                rx: 3.0,
+                ry: 3.0,
                 style: shape_style,
             });
         }
@@ -293,7 +343,8 @@ fn render_shape(scene: &mut Scene, bbox: &BBox, shape: MindmapShape, fill: Color
         MindmapShape::Cloud => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(x, y, w * 1.1, h * 1.2),
-                rx: h, ry: h,
+                rx: h,
+                ry: h,
                 style: shape_style,
             });
         }
@@ -303,11 +354,15 @@ fn render_shape(scene: &mut Scene, bbox: &BBox, shape: MindmapShape, fill: Color
             let spikes = 8;
             let mut pts = Vec::with_capacity(spikes * 2);
             for i in 0..(spikes * 2) {
-                let angle = std::f64::consts::TAU * i as f64 / (spikes * 2) as f64 - std::f64::consts::FRAC_PI_2;
+                let angle = std::f64::consts::TAU * i as f64 / (spikes * 2) as f64
+                    - std::f64::consts::FRAC_PI_2;
                 let r = if i % 2 == 0 { r_outer } else { r_inner };
                 pts.push(Point::new(x + r * angle.cos(), y + r * angle.sin()));
             }
-            scene.push(Primitive::Polygon { points: pts, style: shape_style });
+            scene.push(Primitive::Polygon {
+                points: pts,
+                style: shape_style,
+            });
         }
     }
 }
@@ -333,7 +388,9 @@ mod tests {
         let has_bold = scene.elements().iter().any(|e| {
             if let Primitive::Text { style, content, .. } = &e.primitive {
                 content == "Root" && style.font_weight == rusty_mermaid_core::FontWeight::Bold
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(has_bold, "root should be bold");
     }
@@ -344,12 +401,16 @@ mod tests {
         let parent_bold = scene.elements().iter().any(|e| {
             if let Primitive::Text { style, content, .. } = &e.primitive {
                 content == "Parent" && style.font_weight == rusty_mermaid_core::FontWeight::Bold
-            } else { false }
+            } else {
+                false
+            }
         });
         let leaf_normal = scene.elements().iter().any(|e| {
             if let Primitive::Text { style, content, .. } = &e.primitive {
                 content == "Leaf" && style.font_weight == rusty_mermaid_core::FontWeight::Normal
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(parent_bold, "parent nodes should be bold");
         assert!(leaf_normal, "leaf nodes should be normal weight");
@@ -357,24 +418,35 @@ mod tests {
 
     #[test]
     fn shapes_render() {
-        let scene = render("mindmap\n    Root\n        [Rect]\n        ((Circle))\n        {{Hex}}");
+        let scene =
+            render("mindmap\n    Root\n        [Rect]\n        ((Circle))\n        {{Hex}}");
         assert!(scene.len() >= 8);
     }
 
     #[test]
     fn edges_are_curves() {
         let scene = render("mindmap\n    Root\n        A\n        B");
-        let curves = scene.elements().iter().filter(|e| {
-            if let Primitive::Path { segments, .. } = &e.primitive {
-                segments.iter().any(|s| matches!(s, PathSegment::CubicTo { .. }))
-            } else { false }
-        }).count();
+        let curves = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Path { segments, .. } = &e.primitive {
+                    segments
+                        .iter()
+                        .any(|s| matches!(s, PathSegment::CubicTo { .. }))
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(curves, 2, "2 curved edges from root to children");
     }
 
     #[test]
     fn all_nodes_have_finite_positions() {
-        let scene = render("mindmap\n    Root\n        A\n            A1\n            A2\n        B\n            B1\n        C");
+        let scene = render(
+            "mindmap\n    Root\n        A\n            A1\n            A2\n        B\n            B1\n        C",
+        );
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Text { position, .. } => {
@@ -390,7 +462,9 @@ mod tests {
 
     #[test]
     fn wide_tree_renders() {
-        let scene = render("mindmap\n    Center\n        A\n        B\n        C\n        D\n        E\n        F");
+        let scene = render(
+            "mindmap\n    Center\n        A\n        B\n        C\n        D\n        E\n        F",
+        );
         assert!(scene.len() >= 14, "7 nodes + 6 edges + text");
     }
 }

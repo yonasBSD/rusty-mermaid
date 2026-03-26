@@ -8,10 +8,10 @@ use rusty_mermaid_core::{
     TextStyle, Theme, interpolate,
 };
 
-use bridge::LayoutResult;
-use ir::{ClassMember, RelationType};
 use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::{render_edge_label, shorten_path_for_markers};
+use bridge::LayoutResult;
+use ir::{ClassMember, RelationType};
 
 /// Convert a class diagram layout result into a Scene with default theme.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
@@ -71,7 +71,9 @@ fn render_namespaces(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for edge_layout in &layout.edges {
         let edge = &edge_layout.edge;
-        if edge.points.len() < 2 { continue; }
+        if edge.points.len() < 2 {
+            continue;
+        }
 
         let mut segments = interpolate(&edge.points, CurveType::Basis);
 
@@ -106,7 +108,9 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         // Cardinality text near endpoints. Both use the forward edge
         // direction for perpendicular offset (same side). The "to" end
         // reverses the along-offset to move inward from its endpoint.
-        let Some(last_pt) = edge.points.last() else { continue };
+        let Some(last_pt) = edge.points.last() else {
+            continue;
+        };
         let fwd_dx = last_pt.x - edge.points[0].x;
         let fwd_dy = last_pt.y - edge.points[0].y;
         if let Some(card) = &edge_layout.cardinality_from {
@@ -135,9 +139,19 @@ const CARDINALITY_PERP: f64 = 9.0;
 /// Offset along the edge toward midpoint (pulls label away from node boundary).
 const CARDINALITY_INWARD: f64 = 9.0;
 
-fn render_cardinality(scene: &mut Scene, endpoint: Point, fwd_dx: f64, fwd_dy: f64, inward_sign: f64, text: &str, theme: &Theme) {
+fn render_cardinality(
+    scene: &mut Scene,
+    endpoint: Point,
+    fwd_dx: f64,
+    fwd_dy: f64,
+    inward_sign: f64,
+    text: &str,
+    theme: &Theme,
+) {
     let len = (fwd_dx * fwd_dx + fwd_dy * fwd_dy).sqrt();
-    if len < 1e-6 { return; }
+    if len < 1e-6 {
+        return;
+    }
 
     let tx = fwd_dx / len;
     let ty = fwd_dy / len;
@@ -312,10 +326,15 @@ mod tests {
 
     #[test]
     fn scene_has_primitives() {
-        let scene = render("classDiagram\n    class Animal {\n        +String name\n        +makeSound()\n    }");
+        let scene = render(
+            "classDiagram\n    class Animal {\n        +String name\n        +makeSound()\n    }",
+        );
         assert!(scene.len() > 0, "scene should have primitives");
         // Should have: rect + annotation? + title text + separator + member text + separator + method text
-        assert!(scene.len() >= 5, "class box needs rect + title + separators + members");
+        assert!(
+            scene.len() >= 5,
+            "class box needs rect + title + separators + members"
+        );
     }
 
     #[test]
@@ -334,30 +353,70 @@ mod tests {
 
     #[test]
     fn annotation_rendered() {
-        let scene = render("classDiagram\n    class Shape {\n        <<interface>>\n        +draw()\n    }");
-        let texts: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.as_str()) } else { None }
-        }).collect();
-        assert!(texts.iter().any(|t| t.contains("<<interface>>")), "annotation text should be rendered");
+        let scene = render(
+            "classDiagram\n    class Shape {\n        <<interface>>\n        +draw()\n    }",
+        );
+        let texts: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(
+            texts.iter().any(|t| t.contains("<<interface>>")),
+            "annotation text should be rendered"
+        );
     }
 
     #[test]
     fn generic_in_title() {
         let scene = render("classDiagram\n    class List~T~");
-        let texts: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.as_str()) } else { None }
-        }).collect();
-        assert!(texts.iter().any(|t| t.contains("<T>")), "generic type should appear in title");
+        let texts: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(
+            texts.iter().any(|t| t.contains("<T>")),
+            "generic type should appear in title"
+        );
     }
 
     #[test]
     fn members_rendered_with_visibility() {
-        let scene = render("classDiagram\n    class Foo {\n        +publicField\n        -privateField\n    }");
-        let texts: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.clone()) } else { None }
-        }).collect();
-        assert!(texts.iter().any(|t| t.starts_with('+')), "should render + visibility");
-        assert!(texts.iter().any(|t| t.starts_with('-')), "should render - visibility");
+        let scene = render(
+            "classDiagram\n    class Foo {\n        +publicField\n        -privateField\n    }",
+        );
+        let texts: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(
+            texts.iter().any(|t| t.starts_with('+')),
+            "should render + visibility"
+        );
+        assert!(
+            texts.iter().any(|t| t.starts_with('-')),
+            "should render - visibility"
+        );
     }
 
     #[test]
@@ -366,9 +425,14 @@ mod tests {
         let has_dashed = scene.elements().iter().any(|e| {
             if let Primitive::Path { style, .. } = &e.primitive {
                 style.stroke_dasharray.is_some()
-            } else { false }
+            } else {
+                false
+            }
         });
-        assert!(has_dashed, "dotted relationship should have stroke_dasharray");
+        assert!(
+            has_dashed,
+            "dotted relationship should have stroke_dasharray"
+        );
     }
 
     #[test]
@@ -377,8 +441,13 @@ mod tests {
         let has_extension = scene.elements().iter().any(|e| {
             if let Primitive::Path { marker_start, .. } = &e.primitive {
                 *marker_start == Some(MarkerType::ArrowBarb)
-            } else { false }
+            } else {
+                false
+            }
         });
-        assert!(has_extension, "<|-- should place open arrow marker at from (left) end");
+        assert!(
+            has_extension,
+            "<|-- should place open arrow marker at from (left) end"
+        );
     }
 }

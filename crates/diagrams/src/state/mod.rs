@@ -10,8 +10,8 @@ use rusty_mermaid_core::{
     TextStyle, Theme, interpolate,
 };
 
-use bridge::LayoutResult;
 use crate::common::layout::NodeLayout;
+use bridge::LayoutResult;
 
 use crate::common::rendering::{
     contrasting_label_style, merge_custom_style, overlay_style, render_edge_label,
@@ -35,7 +35,9 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     compounds.sort_by(|a, b| {
         let area_a = a.width * a.height;
         let area_b = b.width * b.height;
-        area_b.partial_cmp(&area_a).unwrap_or(std::cmp::Ordering::Equal)
+        area_b
+            .partial_cmp(&area_a)
+            .unwrap_or(std::cmp::Ordering::Equal)
     });
 
     render_compound_nodes(&compounds, scene, theme);
@@ -65,12 +67,20 @@ fn render_compound_nodes(compounds: &[&NodeLayout], scene: &mut Scene, theme: &T
         if let Some(custom) = &node.custom_style {
             overlay_style(&mut cstyle, custom);
         }
-        scene.push(Primitive::Rect { bbox, rx: 5.0, ry: 5.0, style: cstyle });
+        scene.push(Primitive::Rect {
+            bbox,
+            rx: 5.0,
+            ry: 5.0,
+            style: cstyle,
+        });
         scene.push(Primitive::Text {
             position: Point::new(node.x, top + COMPOUND_LABEL_OFFSET_Y),
             content: node.label.clone(),
             anchor: TextAnchor::Middle,
-            style: TextStyle { fill: Some(theme.composite_label), ..Default::default() },
+            style: TextStyle {
+                fill: Some(theme.composite_label),
+                ..Default::default()
+            },
         });
         scene.push(Primitive::Path {
             segments: vec![
@@ -91,7 +101,12 @@ fn render_compound_nodes(compounds: &[&NodeLayout], scene: &mut Scene, theme: &T
 fn render_region_rects(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for rr in &layout.region_rects {
         scene.push(Primitive::Rect {
-            bbox: BBox::new(rr.x + rr.width / 2.0, rr.y + rr.height / 2.0, rr.width, rr.height),
+            bbox: BBox::new(
+                rr.x + rr.width / 2.0,
+                rr.y + rr.height / 2.0,
+                rr.width,
+                rr.height,
+            ),
             rx: 0.0,
             ry: 0.0,
             style: Style {
@@ -105,9 +120,16 @@ fn render_region_rects(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) 
     }
 }
 
-fn render_edges(layout: &LayoutResult, compounds: &[&NodeLayout], scene: &mut Scene, theme: &Theme) {
+fn render_edges(
+    layout: &LayoutResult,
+    compounds: &[&NodeLayout],
+    scene: &mut Scene,
+    theme: &Theme,
+) {
     for edge in &layout.edges {
-        if edge.points.len() < 2 { continue; }
+        if edge.points.len() < 2 {
+            continue;
+        }
         let segments = interpolate(&edge.points, CurveType::Basis);
         let mut segments = clip::clip_segments_at_compounds(&segments, compounds);
         let label_pos = clip::path_midpoint(&segments);
@@ -116,7 +138,11 @@ fn render_edges(layout: &LayoutResult, compounds: &[&NodeLayout], scene: &mut Sc
         shorten_path_for_markers(&mut segments, None, marker_end, sw);
         scene.push(Primitive::Path {
             segments,
-            style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(sw), ..Default::default() },
+            style: Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(sw),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end,
         });
@@ -139,27 +165,44 @@ fn render_leaf_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
             scene.push(Primitive::Circle {
                 center: Point::new(node.x, node.y),
                 radius: node.width / 2.0,
-                style: Style { fill: Some(theme.start_fill), stroke: Some(theme.start_fill), ..Default::default() },
+                style: Style {
+                    fill: Some(theme.start_fill),
+                    stroke: Some(theme.start_fill),
+                    ..Default::default()
+                },
             });
         }
         Shape::StateEnd => {
             let r = node.width / 2.0;
             scene.push(Primitive::Circle {
-                center: Point::new(node.x, node.y), radius: r,
+                center: Point::new(node.x, node.y),
+                radius: r,
                 style: Style {
-                    fill: Some(Color::TRANSPARENT), stroke: Some(theme.node_stroke),
-                    stroke_width: Some(theme.default_stroke_width), ..Default::default()
+                    fill: Some(Color::TRANSPARENT),
+                    stroke: Some(theme.node_stroke),
+                    stroke_width: Some(theme.default_stroke_width),
+                    ..Default::default()
                 },
             });
             scene.push(Primitive::Circle {
-                center: Point::new(node.x, node.y), radius: r - STATE_END_INNER_INSET,
-                style: Style { fill: Some(theme.end_inner_fill), ..Default::default() },
+                center: Point::new(node.x, node.y),
+                radius: r - STATE_END_INNER_INSET,
+                style: Style {
+                    fill: Some(theme.end_inner_fill),
+                    ..Default::default()
+                },
             });
         }
         Shape::ForkJoin => {
             scene.push(Primitive::Rect {
-                bbox: BBox::new(node.x, node.y, node.width, node.height), rx: 0.0, ry: 0.0,
-                style: Style { fill: Some(theme.start_fill), stroke: Some(theme.start_fill), ..Default::default() },
+                bbox: BBox::new(node.x, node.y, node.width, node.height),
+                rx: 0.0,
+                ry: 0.0,
+                style: Style {
+                    fill: Some(theme.start_fill),
+                    stroke: Some(theme.start_fill),
+                    ..Default::default()
+                },
             });
         }
         Shape::Choice => {
@@ -167,50 +210,74 @@ fn render_leaf_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
             let hh = node.height / 2.0;
             scene.push(Primitive::Polygon {
                 points: vec![
-                    Point::new(node.x, node.y - hh), Point::new(node.x + hw, node.y),
-                    Point::new(node.x, node.y + hh), Point::new(node.x - hw, node.y),
+                    Point::new(node.x, node.y - hh),
+                    Point::new(node.x + hw, node.y),
+                    Point::new(node.x, node.y + hh),
+                    Point::new(node.x - hw, node.y),
                 ],
                 style: merge_custom_style(node.custom_style.as_ref(), theme),
             });
         }
         Shape::Note => {
             scene.push(Primitive::Rect {
-                bbox: BBox::new(node.x, node.y, node.width, node.height), rx: 0.0, ry: 0.0,
+                bbox: BBox::new(node.x, node.y, node.width, node.height),
+                rx: 0.0,
+                ry: 0.0,
                 style: Style {
-                    fill: Some(theme.note_fill), stroke: Some(theme.note_stroke),
-                    stroke_width: Some(1.0), ..Default::default()
+                    fill: Some(theme.note_fill),
+                    stroke: Some(theme.note_stroke),
+                    stroke_width: Some(1.0),
+                    ..Default::default()
                 },
             });
             scene.push(Primitive::Text {
-                position: Point::new(node.x, node.y), content: node.label.clone(),
+                position: Point::new(node.x, node.y),
+                content: node.label.clone(),
                 anchor: TextAnchor::Middle,
-                style: TextStyle { font_size: theme.font_size_edge_label, fill: Some(theme.note_text), ..Default::default() },
+                style: TextStyle {
+                    font_size: theme.font_size_edge_label,
+                    fill: Some(theme.note_text),
+                    ..Default::default()
+                },
             });
         }
         Shape::History => {
             let r = node.width / 2.0;
             scene.push(Primitive::Circle {
-                center: Point::new(node.x, node.y), radius: r,
+                center: Point::new(node.x, node.y),
+                radius: r,
                 style: Style {
-                    fill: Some(theme.composite_fill), stroke: Some(theme.node_stroke),
-                    stroke_width: Some(theme.default_stroke_width), ..Default::default()
+                    fill: Some(theme.composite_fill),
+                    stroke: Some(theme.node_stroke),
+                    stroke_width: Some(theme.default_stroke_width),
+                    ..Default::default()
                 },
             });
             scene.push(Primitive::Text {
-                position: Point::new(node.x, node.y), content: "H".to_string(),
+                position: Point::new(node.x, node.y),
+                content: "H".to_string(),
                 anchor: TextAnchor::Middle,
-                style: TextStyle { font_size: theme.font_size_edge_label, fill: Some(theme.node_text), ..Default::default() },
+                style: TextStyle {
+                    font_size: theme.font_size_edge_label,
+                    fill: Some(theme.node_text),
+                    ..Default::default()
+                },
             });
         }
         Shape::RoundedRect | _ => {
             let style = merge_custom_style(node.custom_style.as_ref(), theme);
             let node_fill = style.fill;
             scene.push(Primitive::Rect {
-                bbox: BBox::new(node.x, node.y, node.width, node.height), rx: 5.0, ry: 5.0, style,
+                bbox: BBox::new(node.x, node.y, node.width, node.height),
+                rx: 5.0,
+                ry: 5.0,
+                style,
             });
             scene.push(Primitive::Text {
-                position: Point::new(node.x, node.y), content: node.label.clone(),
-                anchor: TextAnchor::Middle, style: contrasting_label_style(node_fill, theme),
+                position: Point::new(node.x, node.y),
+                content: node.label.clone(),
+                anchor: TextAnchor::Middle,
+                style: contrasting_label_style(node_fill, theme),
             });
         }
     }
@@ -221,8 +288,10 @@ fn render_dividers(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         scene.push(Primitive::Path {
             segments: vec![PathSegment::MoveTo(div.start), PathSegment::LineTo(div.end)],
             style: Style {
-                stroke: Some(theme.divider_stroke), stroke_width: Some(1.0),
-                stroke_dasharray: Some(vec![3.0]), ..Default::default()
+                stroke: Some(theme.divider_stroke),
+                stroke_width: Some(1.0),
+                stroke_dasharray: Some(vec![3.0]),
+                ..Default::default()
             },
             marker_start: None,
             marker_end: None,

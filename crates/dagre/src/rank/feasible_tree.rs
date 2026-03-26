@@ -64,9 +64,7 @@ impl NsTree {
     }
 
     pub(crate) fn has_edge(&self, u: NodeId, v: NodeId) -> bool {
-        self.adj
-            .get(&u)
-            .is_some_and(|ns| ns.contains(&v))
+        self.adj.get(&u).is_some_and(|ns| ns.contains(&v))
     }
 
     pub(crate) fn neighbors(&self, v: NodeId) -> &[NodeId] {
@@ -78,7 +76,10 @@ impl NsTree {
     }
 
     pub(crate) fn get_cut_value(&self, u: NodeId, v: NodeId) -> f64 {
-        self.cut_values.get(&canonical(u, v)).copied().unwrap_or(0.0)
+        self.cut_values
+            .get(&canonical(u, v))
+            .copied()
+            .unwrap_or(0.0)
     }
 
     /// Is `v` a descendant of `root_node` in the DFS tree?
@@ -262,8 +263,12 @@ mod tests {
 
         let tree = feasible_tree_mut(&mut g);
         // Check that the tree structure has edges
-        assert!(tree.has_edge(a, b) || tree.has_edge(b, a)
-            || tree.has_edge(b, c) || tree.has_edge(c, b));
+        assert!(
+            tree.has_edge(a, b)
+                || tree.has_edge(b, a)
+                || tree.has_edge(b, c)
+                || tree.has_edge(c, b)
+        );
     }
 
     #[test]

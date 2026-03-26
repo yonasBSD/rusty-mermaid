@@ -15,7 +15,9 @@ pub fn ws_nl<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
 
 /// Skip a `%%` line comment (consumes through end of line, not the newline itself).
 pub fn line_comment<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
-    ("%%", take_while(0.., |c: char| c != '\n')).take().parse_next(input)
+    ("%%", take_while(0.., |c: char| c != '\n'))
+        .take()
+        .parse_next(input)
 }
 
 /// Skip any combination of whitespace, newlines, and `%%` comments.
@@ -61,7 +63,9 @@ pub fn identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
 pub fn node_id<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
     (
         any.verify(|c: &char| c.is_ascii_alphanumeric() || *c == '_'),
-        take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_' || c == '-'),
+        take_while(0.., |c: char| {
+            c.is_ascii_alphanumeric() || c == '_' || c == '-'
+        }),
     )
         .take()
         .parse_next(input)
@@ -87,9 +91,8 @@ pub fn unescape_unicode(s: &str) -> String {
                 let hex: String = peek.clone().take(4).collect();
                 if hex.len() == 4
                     && hex.chars().all(|h| h.is_ascii_hexdigit())
-                    && let Some(decoded) = u32::from_str_radix(&hex, 16)
-                        .ok()
-                        .and_then(char::from_u32)
+                    && let Some(decoded) =
+                        u32::from_str_radix(&hex, 16).ok().and_then(char::from_u32)
                 {
                     result.push(decoded);
                     // Advance past 'u' + 4 hex digits
@@ -167,7 +170,10 @@ pub fn strip_html_tags(s: &str) -> String {
         if let Some(end) = rest[start..].find('>') {
             let tag = &rest[start..start + end + 1];
             // Convert line-break tags to newlines for multi-line rendering
-            if tag.eq_ignore_ascii_case("<br>") || tag.eq_ignore_ascii_case("<br/>") || tag.eq_ignore_ascii_case("<br />") {
+            if tag.eq_ignore_ascii_case("<br>")
+                || tag.eq_ignore_ascii_case("<br/>")
+                || tag.eq_ignore_ascii_case("<br />")
+            {
                 result.push('\n');
             }
             rest = &rest[start + end + 1..];

@@ -16,10 +16,10 @@ const POINT_LABEL_GAP: f64 = 8.0;
 
 /// Base colors from the shared palette — blended with white for translucent fills.
 const QUAD_BASE: [Color; 4] = [
-    Color::rgb(78, 121, 167),  // Q1 blue
-    Color::rgb(89, 161, 79),   // Q2 green
-    Color::rgb(237, 201, 73),  // Q3 yellow
-    Color::rgb(242, 142, 44),  // Q4 orange
+    Color::rgb(78, 121, 167), // Q1 blue
+    Color::rgb(89, 161, 79),  // Q2 green
+    Color::rgb(237, 201, 73), // Q3 yellow
+    Color::rgb(242, 142, 44), // Q4 orange
 ];
 
 const QUAD_TINT: f64 = 0.12;
@@ -45,8 +45,16 @@ struct GridLayout {
 impl GridLayout {
     fn from_chart(chart: &QuadrantChart) -> Self {
         let title_h = if chart.title.is_some() { 30.0 } else { 0.0 };
-        let x_axis_h = if chart.x_axis.is_some() { AXIS_LABEL_PAD } else { 0.0 };
-        let y_axis_w = if chart.y_axis.is_some() { AXIS_LABEL_PAD } else { 0.0 };
+        let x_axis_h = if chart.x_axis.is_some() {
+            AXIS_LABEL_PAD
+        } else {
+            0.0
+        };
+        let y_axis_w = if chart.y_axis.is_some() {
+            AXIS_LABEL_PAD
+        } else {
+            0.0
+        };
         Self {
             grid_x: SCENE_PAD + y_axis_w,
             grid_y: SCENE_PAD + title_h,
@@ -61,10 +69,10 @@ impl GridLayout {
     fn quad_positions(&self) -> [(f64, f64); 4] {
         let (gx, gy, h) = (self.grid_x, self.grid_y, self.half);
         [
-            (gx + h + h / 2.0, gy + h / 2.0),       // Q1
-            (gx + h / 2.0,     gy + h / 2.0),        // Q2
-            (gx + h / 2.0,     gy + h + h / 2.0),    // Q3
-            (gx + h + h / 2.0, gy + h + h / 2.0),    // Q4
+            (gx + h + h / 2.0, gy + h / 2.0),     // Q1
+            (gx + h / 2.0, gy + h / 2.0),         // Q2
+            (gx + h / 2.0, gy + h + h / 2.0),     // Q3
+            (gx + h + h / 2.0, gy + h + h / 2.0), // Q4
         ]
     }
 }
@@ -105,8 +113,12 @@ fn render_quadrants(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayou
     for (i, &(cx, cy)) in positions.iter().enumerate() {
         scene.push(Primitive::Rect {
             bbox: BBox::new(cx, cy, half, half),
-            rx: 0.0, ry: 0.0,
-            style: Style { fill: Some(quad_fill(i)), ..Default::default() },
+            rx: 0.0,
+            ry: 0.0,
+            style: Style {
+                fill: Some(quad_fill(i)),
+                ..Default::default()
+            },
         });
     }
 
@@ -144,7 +156,8 @@ fn render_grid(scene: &mut Scene, layout: &GridLayout, theme: &Theme) {
 
     scene.push(Primitive::Rect {
         bbox: BBox::new(gx + half, gy + half, CHART_SIZE, CHART_SIZE),
-        rx: 0.0, ry: 0.0,
+        rx: 0.0,
+        ry: 0.0,
         style: Style {
             fill: Some(Color::rgba(0, 0, 0, 0)),
             stroke: Some(theme.grid_stroke),
@@ -209,7 +222,11 @@ fn render_axes(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, th
 
         let y_bot = gy + half + half / 2.0;
         scene.push(Primitive::Group {
-            transform: Transform::Rotate { degrees: -90.0, cx: x, cy: y_bot },
+            transform: Transform::Rotate {
+                degrees: -90.0,
+                cx: x,
+                cy: y_bot,
+            },
             children: vec![Primitive::Text {
                 position: Point::new(x, y_bot),
                 content: bottom.clone(),
@@ -221,7 +238,11 @@ fn render_axes(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, th
         if let Some(top_label) = top {
             let y_top = gy + half / 2.0;
             scene.push(Primitive::Group {
-                transform: Transform::Rotate { degrees: -90.0, cx: x, cy: y_top },
+                transform: Transform::Rotate {
+                    degrees: -90.0,
+                    cx: x,
+                    cy: y_top,
+                },
                 children: vec![Primitive::Text {
                     position: Point::new(x, y_top),
                     content: top_label.clone(),
@@ -242,7 +263,10 @@ fn render_points(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, 
         scene.push(Primitive::Circle {
             center: Point::new(px, py),
             radius: POINT_RADIUS,
-            style: Style { fill: Some(point_color), ..Default::default() },
+            style: Style {
+                fill: Some(point_color),
+                ..Default::default()
+            },
         });
 
         scene.push(Primitive::Text {
@@ -276,28 +300,41 @@ mod tests {
     #[test]
     fn has_four_quadrant_rects() {
         let scene = render("quadrantChart\n  A: [0.5, 0.5]");
-        let rects = scene.elements().iter().filter(|e| {
-            if let Primitive::Rect { style, .. } = &e.primitive {
-                style.fill.is_some() && style.stroke.is_none()
-            } else { false }
-        }).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Rect { style, .. } = &e.primitive {
+                    style.fill.is_some() && style.stroke.is_none()
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(rects, 4, "should have 4 quadrant background rects");
     }
 
     #[test]
     fn points_are_circles() {
         let scene = render("quadrantChart\n  A: [0.2, 0.8]\n  B: [0.7, 0.3]");
-        let circles = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Circle { .. })
-        }).count();
+        let circles = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .count();
         assert_eq!(circles, 2);
     }
 
     #[test]
     fn quadrant_labels_render() {
-        let scene = render("quadrantChart\n  quadrant-1 Leaders\n  quadrant-3 Niche\n  A: [0.5, 0.5]");
+        let scene =
+            render("quadrantChart\n  quadrant-1 Leaders\n  quadrant-3 Niche\n  A: [0.5, 0.5]");
         let has_leaders = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "Leaders" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "Leaders"
+            } else {
+                false
+            }
         });
         assert!(has_leaders);
     }
@@ -306,10 +343,18 @@ mod tests {
     fn axis_labels_render() {
         let scene = render("quadrantChart\n  x-axis Low --> High\n  A: [0.5, 0.5]");
         let has_low = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "Low" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "Low"
+            } else {
+                false
+            }
         });
         let has_high = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "High" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "High"
+            } else {
+                false
+            }
         });
         assert!(has_low && has_high);
     }
@@ -318,9 +363,17 @@ mod tests {
     fn point_y_is_inverted() {
         // y=0 should be at bottom, y=1 at top
         let scene = render("quadrantChart\n  Bottom: [0.5, 0.0]\n  Top: [0.5, 1.0]");
-        let circles: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Circle { center, .. } = &e.primitive { Some(center.y) } else { None }
-        }).collect();
+        let circles: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Circle { center, .. } = &e.primitive {
+                    Some(center.y)
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert_eq!(circles.len(), 2);
         // Bottom point (y=0) should have larger pixel y than top point (y=1)
         assert!(circles[0] > circles[1], "y=0 should be below y=1");

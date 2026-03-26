@@ -22,7 +22,11 @@ impl PacketField {
 
 impl Default for PacketDiagram {
     fn default() -> Self {
-        Self { title: None, fields: Vec::new(), bits_per_row: 32 }
+        Self {
+            title: None,
+            fields: Vec::new(),
+            bits_per_row: 32,
+        }
     }
 }
 
@@ -32,13 +36,21 @@ mod tests {
 
     #[test]
     fn field_bits() {
-        let f = PacketField { start: 0, end: 15, label: "Port".into() };
+        let f = PacketField {
+            start: 0,
+            end: 15,
+            label: "Port".into(),
+        };
         assert_eq!(f.bits(), 16);
     }
 
     #[test]
     fn single_bit_field() {
-        let f = PacketField { start: 106, end: 106, label: "URG".into() };
+        let f = PacketField {
+            start: 106,
+            end: 106,
+            label: "URG".into(),
+        };
         assert_eq!(f.bits(), 1);
     }
 
@@ -52,7 +64,11 @@ mod tests {
 
     #[test]
     fn field_full_row() {
-        let f = PacketField { start: 0, end: 31, label: "Data".into() };
+        let f = PacketField {
+            start: 0,
+            end: 31,
+            label: "Data".into(),
+        };
         assert_eq!(f.bits(), 32);
     }
 
@@ -62,8 +78,16 @@ mod tests {
             title: Some("TCP Header".into()),
             bits_per_row: 32,
             fields: vec![
-                PacketField { start: 0, end: 15, label: "Src Port".into() },
-                PacketField { start: 16, end: 31, label: "Dst Port".into() },
+                PacketField {
+                    start: 0,
+                    end: 15,
+                    label: "Src Port".into(),
+                },
+                PacketField {
+                    start: 16,
+                    end: 31,
+                    label: "Dst Port".into(),
+                },
             ],
         };
         assert_eq!(d.fields.len(), 2);

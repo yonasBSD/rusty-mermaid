@@ -23,7 +23,11 @@ pub struct VennUnion {
 
 impl Default for VennDiagram {
     fn default() -> Self {
-        Self { title: None, sets: Vec::new(), unions: Vec::new() }
+        Self {
+            title: None,
+            sets: Vec::new(),
+            unions: Vec::new(),
+        }
     }
 }
 
@@ -46,7 +50,11 @@ mod tests {
 
     #[test]
     fn set_construction() {
-        let s = VennSet { id: "A".into(), label: "Set A".into(), size: 100.0 };
+        let s = VennSet {
+            id: "A".into(),
+            label: "Set A".into(),
+            size: 100.0,
+        };
         assert_eq!(s.id, "A");
         assert_eq!(s.label, "Set A");
         assert!((s.size - 100.0).abs() < f64::EPSILON);

@@ -10,8 +10,8 @@ use rusty_mermaid_core::{
 const SUBGRAPH_LABEL_OFFSET_X: f64 = 8.0;
 const SUBGRAPH_LABEL_OFFSET_Y: f64 = 12.0;
 
-use bridge::LayoutResult;
 use crate::common::layout::NodeLayout;
+use bridge::LayoutResult;
 use ir::{ArrowEnd, StrokeType};
 
 use crate::common::rendering::{
@@ -72,7 +72,9 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     subgraphs.sort_by(|a, b| {
         let area_a = a.width * a.height;
         let area_b = b.width * b.height;
-        area_b.partial_cmp(&area_a).unwrap_or(std::cmp::Ordering::Equal)
+        area_b
+            .partial_cmp(&area_a)
+            .unwrap_or(std::cmp::Ordering::Equal)
     });
     for sg in &subgraphs {
         let bbox = BBox::new(sg.x, sg.y, sg.width, sg.height);
@@ -86,7 +88,10 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             let top_y = sg.y - sg.height / 2.0;
             let left_x = sg.x - sg.width / 2.0;
             scene.push(Primitive::Text {
-                position: Point::new(left_x + SUBGRAPH_LABEL_OFFSET_X, top_y + SUBGRAPH_LABEL_OFFSET_Y),
+                position: Point::new(
+                    left_x + SUBGRAPH_LABEL_OFFSET_X,
+                    top_y + SUBGRAPH_LABEL_OFFSET_Y,
+                ),
                 content: label.clone(),
                 anchor: TextAnchor::Start,
                 style: subgraph_label_style(theme),
@@ -154,14 +159,29 @@ fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
 
     match node.shape {
         Shape::Rect => {
-            scene.push(Primitive::Rect { bbox, rx: 0.0, ry: 0.0, style });
+            scene.push(Primitive::Rect {
+                bbox,
+                rx: 0.0,
+                ry: 0.0,
+                style,
+            });
         }
         Shape::RoundedRect => {
-            scene.push(Primitive::Rect { bbox, rx: 5.0, ry: 5.0, style });
+            scene.push(Primitive::Rect {
+                bbox,
+                rx: 5.0,
+                ry: 5.0,
+                style,
+            });
         }
         Shape::Stadium => {
             let r = h / 2.0;
-            scene.push(Primitive::Rect { bbox, rx: r, ry: r, style });
+            scene.push(Primitive::Rect {
+                bbox,
+                rx: r,
+                ry: r,
+                style,
+            });
         }
         Shape::Diamond => render_diamond(bbox, style, scene),
         Shape::Circle => {
@@ -196,7 +216,12 @@ fn render_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
         Shape::Subroutine => render_subroutine(bbox, style, scene),
         Shape::Asymmetric => render_asymmetric(bbox, style, scene),
         _ => {
-            scene.push(Primitive::Rect { bbox, rx: 3.0, ry: 3.0, style });
+            scene.push(Primitive::Rect {
+                bbox,
+                rx: 3.0,
+                ry: 3.0,
+                style,
+            });
         }
     }
 
@@ -243,10 +268,10 @@ fn render_hexagon(bbox: BBox, style: Style, scene: &mut Scene) {
         points: vec![
             Point::new(cx - hw + m, cy - hh), // top-left
             Point::new(cx + hw - m, cy - hh), // top-right
-            Point::new(cx + hw, cy),           // right
+            Point::new(cx + hw, cy),          // right
             Point::new(cx + hw - m, cy + hh), // bottom-right
             Point::new(cx - hw + m, cy + hh), // bottom-left
-            Point::new(cx - hw, cy),           // left
+            Point::new(cx - hw, cy),          // left
         ],
         style,
     });
@@ -291,10 +316,10 @@ fn render_trapezoid(bbox: BBox, style: Style, scene: &mut Scene) {
     let offset = bbox.height / 2.0;
     scene.push(Primitive::Polygon {
         points: vec![
-            Point::new(cx - hw, cy - hh),            // top-left
-            Point::new(cx + hw, cy - hh),            // top-right
-            Point::new(cx + hw + offset, cy + hh),   // bottom-right (wider)
-            Point::new(cx - hw - offset, cy + hh),   // bottom-left (wider)
+            Point::new(cx - hw, cy - hh),          // top-left
+            Point::new(cx + hw, cy - hh),          // top-right
+            Point::new(cx + hw + offset, cy + hh), // bottom-right (wider)
+            Point::new(cx - hw - offset, cy + hh), // bottom-left (wider)
         ],
         style,
     });
@@ -307,10 +332,10 @@ fn render_trapezoid_alt(bbox: BBox, style: Style, scene: &mut Scene) {
     let offset = bbox.height / 2.0;
     scene.push(Primitive::Polygon {
         points: vec![
-            Point::new(cx - hw - offset, cy - hh),   // top-left (wider)
-            Point::new(cx + hw + offset, cy - hh),   // top-right (wider)
-            Point::new(cx + hw, cy + hh),            // bottom-right
-            Point::new(cx - hw, cy + hh),            // bottom-left
+            Point::new(cx - hw - offset, cy - hh), // top-left (wider)
+            Point::new(cx + hw + offset, cy - hh), // top-right (wider)
+            Point::new(cx + hw, cy + hh),          // bottom-right
+            Point::new(cx - hw, cy + hh),          // bottom-left
         ],
         style,
     });
@@ -397,11 +422,11 @@ fn render_asymmetric(bbox: BBox, style: Style, scene: &mut Scene) {
     let notch = (bbox.height / 4.0).min(hw * 0.8);
     scene.push(Primitive::Polygon {
         points: vec![
-            Point::new(cx - hw, cy - hh),         // top-left
-            Point::new(cx + hw, cy - hh),         // top-right
-            Point::new(cx + hw, cy + hh),         // bottom-right
-            Point::new(cx - hw, cy + hh),         // bottom-left
-            Point::new(cx - hw + notch, cy),      // left V-notch (pointing right)
+            Point::new(cx - hw, cy - hh),    // top-left
+            Point::new(cx + hw, cy - hh),    // top-right
+            Point::new(cx + hw, cy + hh),    // bottom-right
+            Point::new(cx - hw, cy + hh),    // bottom-left
+            Point::new(cx - hw + notch, cy), // left V-notch (pointing right)
         ],
         style,
     });

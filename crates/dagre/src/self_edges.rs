@@ -12,21 +12,24 @@ pub(crate) fn remove_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     let self_eids: Vec<_> = graph
         .edge_ids()
         .filter(|&eid| {
-            graph.edge_endpoints(eid)
+            graph
+                .edge_endpoints(eid)
                 .is_some_and(|(src, dst)| src == dst)
         })
         .collect();
 
     for eid in self_eids {
-        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
-        let Some(label) = graph.edge(eid) else { continue };
+        let Some((src, dst)) = graph.edge_endpoints(eid) else {
+            continue;
+        };
+        let Some(label) = graph.edge(eid) else {
+            continue;
+        };
         let label = label.clone();
-        let Some(node) = graph.node_mut(src) else { continue };
-        node.self_edges.push(SelfEdge {
-            src,
-            dst,
-            label,
-        });
+        let Some(node) = graph.node_mut(src) else {
+            continue;
+        };
+        node.self_edges.push(SelfEdge { src, dst, label });
         graph.remove_edge(eid);
     }
 }
@@ -40,7 +43,9 @@ pub(crate) fn insert_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     for layer in &layers {
         let mut order_shift = 0usize;
         for (i, &v) in layer.iter().enumerate() {
-            let Some(node) = graph.node_mut(v) else { continue };
+            let Some(node) = graph.node_mut(v) else {
+                continue;
+            };
             node.order = i + order_shift;
 
             let self_edges: Vec<SelfEdge> = std::mem::take(&mut node.self_edges);
@@ -68,14 +73,24 @@ pub(crate) fn insert_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
 pub(crate) fn position_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     let dummy_ids: Vec<_> = graph
         .node_ids()
-        .filter(|&nid| graph.node(nid).is_some_and(|n| n.dummy == Some(DummyKind::SelfEdge)))
+        .filter(|&nid| {
+            graph
+                .node(nid)
+                .is_some_and(|n| n.dummy == Some(DummyKind::SelfEdge))
+        })
         .collect();
 
     for nid in dummy_ids {
-        let Some(node) = graph.node(nid) else { continue };
+        let Some(node) = graph.node(nid) else {
+            continue;
+        };
         let node = node.clone();
-        let Some(sed) = node.self_edge_data.as_ref() else { continue };
-        let Some(self_node) = graph.node(sed.src) else { continue };
+        let Some(sed) = node.self_edge_data.as_ref() else {
+            continue;
+        };
+        let Some(self_node) = graph.node(sed.src) else {
+            continue;
+        };
         let sx = self_node.x + self_node.width / 2.0;
         let sy = self_node.y;
         let dx = node.x - sx;
@@ -83,11 +98,23 @@ pub(crate) fn position_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
 
         let mut label = sed.label.clone();
         label.points = vec![
-            rusty_mermaid_core::Point { x: sx + LOOP_INNER * dx, y: sy - dy },
-            rusty_mermaid_core::Point { x: sx + LOOP_OUTER * dx, y: sy - dy },
-            rusty_mermaid_core::Point { x: sx + dx,              y: sy },
-            rusty_mermaid_core::Point { x: sx + LOOP_OUTER * dx, y: sy + dy },
-            rusty_mermaid_core::Point { x: sx + LOOP_INNER * dx, y: sy + dy },
+            rusty_mermaid_core::Point {
+                x: sx + LOOP_INNER * dx,
+                y: sy - dy,
+            },
+            rusty_mermaid_core::Point {
+                x: sx + LOOP_OUTER * dx,
+                y: sy - dy,
+            },
+            rusty_mermaid_core::Point { x: sx + dx, y: sy },
+            rusty_mermaid_core::Point {
+                x: sx + LOOP_OUTER * dx,
+                y: sy + dy,
+            },
+            rusty_mermaid_core::Point {
+                x: sx + LOOP_INNER * dx,
+                y: sy + dy,
+            },
         ];
         label.x = node.x;
         label.y = node.y;

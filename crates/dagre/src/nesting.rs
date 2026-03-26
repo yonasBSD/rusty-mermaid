@@ -187,7 +187,8 @@ fn tree_depths(graph: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, i32> {
 }
 
 fn sum_weights(graph: &Graph<NodeLabel, EdgeLabel>) -> f64 {
-    graph.edge_ids()
+    graph
+        .edge_ids()
         .filter_map(|eid| graph.edge(eid).map(|l| l.weight))
         .sum()
 }

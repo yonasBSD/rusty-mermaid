@@ -20,7 +20,9 @@ fn arb_graph(
                 g.add_edge(
                     nodes[src_idx],
                     nodes[dst_idx],
-                    EdgeLabel::new().with_minlen(minlen).with_weight(weight as f64),
+                    EdgeLabel::new()
+                        .with_minlen(minlen)
+                        .with_weight(weight as f64),
                 );
             }
             g

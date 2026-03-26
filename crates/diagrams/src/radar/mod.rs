@@ -285,31 +285,51 @@ mod tests {
     #[test]
     fn has_polygon_for_curve() {
         let scene = render("radar-beta\naxis A,B,C\ncurve x{1,2,3}");
-        let polygons = scene.elements().iter().filter(|e| {
-            if let Primitive::Polygon { style, .. } = &e.primitive {
-                style.stroke_width == Some(2.0) // data polygon, not grid
-            } else { false }
-        }).count();
+        let polygons = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Polygon { style, .. } = &e.primitive {
+                    style.stroke_width == Some(2.0) // data polygon, not grid
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(polygons, 1);
     }
 
     #[test]
     fn grid_has_tick_rings() {
         let scene = render("radar-beta\nticks 3\naxis A,B,C,D\ncurve x{1,2,3,4}");
-        let grids = scene.elements().iter().filter(|e| {
-            if let Primitive::Polygon { style, .. } = &e.primitive {
-                style.stroke_width == Some(0.8)
-            } else { false }
-        }).count();
+        let grids = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Polygon { style, .. } = &e.primitive {
+                    style.stroke_width == Some(0.8)
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(grids, 3, "3 tick rings");
     }
 
     #[test]
     fn axis_labels_present() {
         let scene = render("radar-beta\naxis Speed,Power,Agility\ncurve x{5,3,4}");
-        let labels: Vec<&str> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.as_str()) } else { None }
-        }).collect();
+        let labels: Vec<&str> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert!(labels.contains(&"Speed"));
         assert!(labels.contains(&"Power"));
         assert!(labels.contains(&"Agility"));
@@ -318,22 +338,34 @@ mod tests {
     #[test]
     fn multiple_curves_with_legend() {
         let scene = render("radar-beta\naxis A,B,C\ncurve a{1,2,3}\ncurve b{3,2,1}");
-        let data_polygons = scene.elements().iter().filter(|e| {
-            if let Primitive::Polygon { style, .. } = &e.primitive {
-                style.stroke_width == Some(2.0)
-            } else { false }
-        }).count();
+        let data_polygons = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Polygon { style, .. } = &e.primitive {
+                    style.stroke_width == Some(2.0)
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(data_polygons, 2);
     }
 
     #[test]
     fn vertex_dots() {
         let scene = render("radar-beta\naxis A,B,C,D\ncurve x{1,2,3,4}");
-        let dots = scene.elements().iter().filter(|e| {
-            if let Primitive::Circle { radius, style, .. } = &e.primitive {
-                *radius < 4.0 && style.fill.is_some()
-            } else { false }
-        }).count();
+        let dots = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Circle { radius, style, .. } = &e.primitive {
+                    *radius < 4.0 && style.fill.is_some()
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(dots, 4, "one dot per axis vertex");
     }
 

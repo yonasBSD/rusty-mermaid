@@ -78,7 +78,14 @@ pub fn to_scene_themed(diagram: &PacketDiagram, theme: &Theme) -> Scene {
     scene
 }
 
-fn render_packet_block(scene: &mut Scene, block: &Block, bpr: usize, ox: f64, oy: f64, theme: &Theme) {
+fn render_packet_block(
+    scene: &mut Scene,
+    block: &Block,
+    bpr: usize,
+    ox: f64,
+    oy: f64,
+    theme: &Theme,
+) {
     let row = block.start / bpr;
     let col_start = block.start % bpr;
     let col_end = block.end % bpr;
@@ -88,32 +95,54 @@ fn render_packet_block(scene: &mut Scene, block: &Block, bpr: usize, ox: f64, oy
 
     scene.push(Primitive::Rect {
         bbox: BBox::new(x + width / 2.0, y + ROW_HEIGHT / 2.0, width, ROW_HEIGHT),
-        rx: 0.0, ry: 0.0,
-        style: Style { fill: Some(BLOCK_FILL), stroke: Some(BLOCK_STROKE), stroke_width: Some(1.0), ..Default::default() },
+        rx: 0.0,
+        ry: 0.0,
+        style: Style {
+            fill: Some(BLOCK_FILL),
+            stroke: Some(BLOCK_STROKE),
+            stroke_width: Some(1.0),
+            ..Default::default()
+        },
     });
 
-    let label_style = TextStyle { font_size: theme.font_size_node, fill: Some(theme.node_text), ..Default::default() };
+    let label_style = TextStyle {
+        font_size: theme.font_size_node,
+        fill: Some(theme.node_text),
+        ..Default::default()
+    };
     if SimpleTextMeasure::measure_raw(&block.label, &label_style).width < width - 4.0 {
         scene.push(Primitive::Text {
             position: Point::new(x + width / 2.0, y + ROW_HEIGHT / 2.0),
-            content: block.label.clone(), anchor: TextAnchor::Middle, style: label_style,
+            content: block.label.clone(),
+            anchor: TextAnchor::Middle,
+            style: label_style,
         });
     }
 
-    let bit_style = TextStyle { font_size: BIT_FONT_SIZE, fill: Some(theme.muted_text), ..Default::default() };
+    let bit_style = TextStyle {
+        font_size: BIT_FONT_SIZE,
+        fill: Some(theme.muted_text),
+        ..Default::default()
+    };
     if block.start == block.end {
         scene.push(Primitive::Text {
             position: Point::new(x + width / 2.0, y + BIT_FONT_SIZE + 1.0),
-            content: block.start.to_string(), anchor: TextAnchor::Middle, style: bit_style,
+            content: block.start.to_string(),
+            anchor: TextAnchor::Middle,
+            style: bit_style,
         });
     } else {
         scene.push(Primitive::Text {
             position: Point::new(x + 3.0, y + BIT_FONT_SIZE + 1.0),
-            content: block.start.to_string(), anchor: TextAnchor::Start, style: bit_style.clone(),
+            content: block.start.to_string(),
+            anchor: TextAnchor::Start,
+            style: bit_style.clone(),
         });
         scene.push(Primitive::Text {
             position: Point::new(x + width - 3.0, y + BIT_FONT_SIZE + 1.0),
-            content: block.end.to_string(), anchor: TextAnchor::End, style: bit_style,
+            content: block.end.to_string(),
+            anchor: TextAnchor::End,
+            style: bit_style,
         });
     }
 }
@@ -135,7 +164,11 @@ fn split_into_blocks(fields: &[PacketField], bpr: usize) -> Vec<Block> {
         while s <= field.end {
             let row_end = (s / bpr + 1) * bpr - 1;
             let e = field.end.min(row_end);
-            blocks.push(Block { start: s, end: e, label: field.label.clone() });
+            blocks.push(Block {
+                start: s,
+                end: e,
+                label: field.label.clone(),
+            });
             s = e + 1;
         }
     }
@@ -161,17 +194,29 @@ mod tests {
     #[test]
     fn one_row_has_blocks() {
         let scene = render("packet-beta\n0-15: \"A\"\n16-31: \"B\"");
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert_eq!(rects, 2, "2 field rects");
     }
 
     #[test]
     fn field_splits_across_rows() {
         let blocks = split_into_blocks(
-            &[PacketField { start: 0, end: 63, label: "Big".into() }],
+            &[PacketField {
+                start: 0,
+                end: 63,
+                label: "Big".into(),
+            }],
             32,
         );
-        assert_eq!(blocks.len(), 2, "64-bit field should split into 2 rows of 32");
+        assert_eq!(
+            blocks.len(),
+            2,
+            "64-bit field should split into 2 rows of 32"
+        );
         assert_eq!(blocks[0].start, 0);
         assert_eq!(blocks[0].end, 31);
         assert_eq!(blocks[1].start, 32);
@@ -182,16 +227,28 @@ mod tests {
     fn single_bit_fields() {
         let scene = render("packet-beta\n0-7: \"Flags\"\n8: \"A\"\n9: \"B\"\n10-15: \"Pad\"");
         assert!(!scene.is_empty());
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert_eq!(rects, 4);
     }
 
     #[test]
     fn bit_numbers_present() {
         let scene = render("packet-beta\n0-15: \"Port\"");
-        let texts: Vec<&str> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.as_str()) } else { None }
-        }).collect();
+        let texts: Vec<&str> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert!(texts.contains(&"0"), "should show start bit 0");
         assert!(texts.contains(&"15"), "should show end bit 15");
     }
@@ -200,7 +257,11 @@ mod tests {
     fn title_renders() {
         let scene = render("packet-beta\ntitle \"TCP Header\"\n0-31: \"Row\"");
         let has_title = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "TCP Header" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "TCP Header"
+            } else {
+                false
+            }
         });
         assert!(has_title);
     }

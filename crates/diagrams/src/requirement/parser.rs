@@ -32,7 +32,9 @@ fn parse_req_diagram(input: &mut &str) -> ModalResult<RequirementDiagram> {
 fn parse_statements(input: &mut &str, diagram: &mut RequirementDiagram) -> ModalResult<()> {
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
         if !try_parse_statement(input, diagram)? {
             if !input.is_empty() {
                 *input = &input[1..];
@@ -113,9 +115,18 @@ fn try_parse_statement(input: &mut &str, diagram: &mut RequirementDiagram) -> Mo
 
 fn try_parse_req_type(input: &mut &str) -> Option<RequirementType> {
     for (prefix, rt) in [
-        ("functionalRequirement", RequirementType::FunctionalRequirement),
-        ("interfaceRequirement", RequirementType::InterfaceRequirement),
-        ("performanceRequirement", RequirementType::PerformanceRequirement),
+        (
+            "functionalRequirement",
+            RequirementType::FunctionalRequirement,
+        ),
+        (
+            "interfaceRequirement",
+            RequirementType::InterfaceRequirement,
+        ),
+        (
+            "performanceRequirement",
+            RequirementType::PerformanceRequirement,
+        ),
         ("physicalRequirement", RequirementType::PhysicalRequirement),
         ("designConstraint", RequirementType::DesignConstraint),
         ("requirement", RequirementType::Requirement),
@@ -131,7 +142,10 @@ fn try_parse_req_type(input: &mut &str) -> Option<RequirementType> {
     None
 }
 
-fn parse_requirement_block(input: &mut &str, req_type: RequirementType) -> ModalResult<Requirement> {
+fn parse_requirement_block(
+    input: &mut &str,
+    req_type: RequirementType,
+) -> ModalResult<Requirement> {
     ws.parse_next(input)?;
     let name = req_identifier(input)?;
     let mut req = Requirement::new(name, req_type);
@@ -149,7 +163,9 @@ fn parse_requirement_block(input: &mut &str, req_type: RequirementType) -> Modal
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() || input.starts_with('}') { break; }
+        if input.is_empty() || input.starts_with('}') {
+            break;
+        }
 
         let line = take_line(input);
         if let Some((key, val)) = parse_kv(line) {
@@ -184,7 +200,9 @@ fn parse_element_block(input: &mut &str) -> ModalResult<DesignElement> {
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() || input.starts_with('}') { break; }
+        if input.is_empty() || input.starts_with('}') {
+            break;
+        }
 
         let line = take_line(input);
         if let Some((key, val)) = parse_kv(line) {
@@ -236,7 +254,9 @@ fn parse_relationship(input: &mut &str) -> ModalResult<ReqRelation> {
         });
     }
 
-    Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()))
+    Err(winnow::error::ErrMode::Backtrack(
+        winnow::error::ContextError::new(),
+    ))
 }
 
 fn parse_rel_type(input: &mut &str) -> ModalResult<RelationshipType> {
@@ -257,7 +277,9 @@ fn parse_rel_type(input: &mut &str) -> ModalResult<RelationshipType> {
             }
         }
     }
-    Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()))
+    Err(winnow::error::ErrMode::Backtrack(
+        winnow::error::ContextError::new(),
+    ))
 }
 
 // ── Helpers ──
@@ -269,7 +291,8 @@ fn parse_direction(input: &mut &str) -> ModalResult<Direction> {
         "BT".value(Direction::BT),
         "LR".value(Direction::LR),
         "RL".value(Direction::RL),
-    )).parse_next(input)
+    ))
+    .parse_next(input)
 }
 
 fn parse_kv(line: &str) -> Option<(&str, &str)> {
@@ -301,8 +324,7 @@ fn strip_quotes(s: &str) -> String {
 }
 
 fn req_identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
-    take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-')
-        .parse_next(input)
+    take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-').parse_next(input)
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
@@ -312,7 +334,11 @@ fn skip_horizontal_ws(input: &mut &str) {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 

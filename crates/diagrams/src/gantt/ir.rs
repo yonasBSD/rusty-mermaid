@@ -92,7 +92,12 @@ mod tests {
 
     #[test]
     fn task_tag_all_variants_distinct() {
-        let tags = [TaskTag::Done, TaskTag::Active, TaskTag::Crit, TaskTag::Milestone];
+        let tags = [
+            TaskTag::Done,
+            TaskTag::Active,
+            TaskTag::Crit,
+            TaskTag::Milestone,
+        ];
         for (i, a) in tags.iter().enumerate() {
             for (j, b) in tags.iter().enumerate() {
                 assert_eq!(i == j, *a == *b);

@@ -159,9 +159,17 @@ mod tests {
     #[test]
     fn has_text_labels() {
         let scene = render("treeView-beta\n    src\n        main.rs\n        lib.rs");
-        let labels: Vec<&str> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.as_str()) } else { None }
-        }).collect();
+        let labels: Vec<&str> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert!(labels.contains(&"src"));
         assert!(labels.contains(&"main.rs"));
         assert!(labels.contains(&"lib.rs"));
@@ -170,18 +178,28 @@ mod tests {
     #[test]
     fn has_connector_lines() {
         let scene = render("treeView-beta\n    root\n        child");
-        let lines = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Path { .. })
-        }).count();
+        let lines = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Path { .. }))
+            .count();
         assert!(lines >= 2, "should have horizontal + vertical connectors");
     }
 
     #[test]
     fn deeper_nodes_indented_right() {
         let scene = render("treeView-beta\n    a\n        b\n            c");
-        let positions: Vec<f64> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { position, .. } = &e.primitive { Some(position.x) } else { None }
-        }).collect();
+        let positions: Vec<f64> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { position, .. } = &e.primitive {
+                    Some(position.x)
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert_eq!(positions.len(), 3);
         assert!(positions[1] > positions[0], "b should be right of a");
         assert!(positions[2] > positions[1], "c should be right of b");
@@ -193,12 +211,16 @@ mod tests {
         let folder_bold = scene.elements().iter().any(|e| {
             if let Primitive::Text { content, style, .. } = &e.primitive {
                 content == "folder" && style.font_weight == rusty_mermaid_core::FontWeight::Bold
-            } else { false }
+            } else {
+                false
+            }
         });
         let file_normal = scene.elements().iter().any(|e| {
             if let Primitive::Text { content, style, .. } = &e.primitive {
                 content == "file.rs" && style.font_weight == rusty_mermaid_core::FontWeight::Normal
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(folder_bold, "folder should be bold");
         assert!(file_normal, "file should be normal weight");

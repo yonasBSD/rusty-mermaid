@@ -20,7 +20,9 @@ pub fn push_style_attrs(attrs: &mut Vec<(String, String)>, style: &Style) {
     if let Some(da) = &style.stroke_dasharray {
         let mut dash = String::with_capacity(da.len() * 6);
         for (i, v) in da.iter().enumerate() {
-            if i > 0 { dash.push(' '); }
+            if i > 0 {
+                dash.push(' ');
+            }
             write_f64(&mut dash, *v);
         }
         attrs.push(("stroke-dasharray".into(), dash));
@@ -94,7 +96,11 @@ mod tests {
             ..Default::default()
         };
         let attrs = style_attrs(&s);
-        assert!(attrs.iter().any(|(k, v)| k == "stroke-dasharray" && v == "5 3"));
+        assert!(
+            attrs
+                .iter()
+                .any(|(k, v)| k == "stroke-dasharray" && v == "5 3")
+        );
     }
 
     #[test]
@@ -104,7 +110,11 @@ mod tests {
             ..Default::default()
         };
         let attrs = style_attrs(&s);
-        assert!(attrs.iter().any(|(k, v)| k == "class" && v == "node active"));
+        assert!(
+            attrs
+                .iter()
+                .any(|(k, v)| k == "class" && v == "node active")
+        );
     }
 
     #[test]

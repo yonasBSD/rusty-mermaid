@@ -189,12 +189,30 @@ impl Message {
 }
 
 impl ArrowStyle {
-    pub const SOLID_FILLED: Self = Self { line: LineStyle::Solid, head: ArrowHead::Filled };
-    pub const SOLID_OPEN: Self = Self { line: LineStyle::Solid, head: ArrowHead::Open };
-    pub const DOTTED_FILLED: Self = Self { line: LineStyle::Dotted, head: ArrowHead::Filled };
-    pub const DOTTED_OPEN: Self = Self { line: LineStyle::Dotted, head: ArrowHead::Open };
-    pub const SOLID_CROSS: Self = Self { line: LineStyle::Solid, head: ArrowHead::Cross };
-    pub const DOTTED_CROSS: Self = Self { line: LineStyle::Dotted, head: ArrowHead::Cross };
+    pub const SOLID_FILLED: Self = Self {
+        line: LineStyle::Solid,
+        head: ArrowHead::Filled,
+    };
+    pub const SOLID_OPEN: Self = Self {
+        line: LineStyle::Solid,
+        head: ArrowHead::Open,
+    };
+    pub const DOTTED_FILLED: Self = Self {
+        line: LineStyle::Dotted,
+        head: ArrowHead::Filled,
+    };
+    pub const DOTTED_OPEN: Self = Self {
+        line: LineStyle::Dotted,
+        head: ArrowHead::Open,
+    };
+    pub const SOLID_CROSS: Self = Self {
+        line: LineStyle::Solid,
+        head: ArrowHead::Cross,
+    };
+    pub const DOTTED_CROSS: Self = Self {
+        line: LineStyle::Dotted,
+        head: ArrowHead::Cross,
+    };
 }
 
 impl Default for ArrowStyle {

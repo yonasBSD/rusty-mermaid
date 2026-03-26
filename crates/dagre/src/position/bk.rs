@@ -42,21 +42,22 @@ pub(crate) fn position_x(
         }
 
         let neighbor_fn: Box<NeighborFn> = if vert_up {
-                Box::new(|graph: &Graph<NodeLabel, EdgeLabel>, v| {
-                    graph.in_edges(v)
-                        .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
-                        .collect()
-                })
-            } else {
-                Box::new(|graph: &Graph<NodeLabel, EdgeLabel>, v| {
-                    graph.out_edges(v)
-                        .filter_map(|eid| graph.edge_endpoints(eid).map(|(_, d)| d))
-                        .collect()
-                })
-            };
+            Box::new(|graph: &Graph<NodeLabel, EdgeLabel>, v| {
+                graph
+                    .in_edges(v)
+                    .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
+                    .collect()
+            })
+        } else {
+            Box::new(|graph: &Graph<NodeLabel, EdgeLabel>, v| {
+                graph
+                    .out_edges(v)
+                    .filter_map(|eid| graph.edge_endpoints(eid).map(|(_, d)| d))
+                    .collect()
+            })
+        };
 
-        let (root, align) =
-            vertical_alignment(graph, &adj_layering, &conflicts, &*neighbor_fn);
+        let (root, align) = vertical_alignment(graph, &adj_layering, &conflicts, &*neighbor_fn);
         let mut xs =
             horizontal_compaction(graph, &adj_layering, &root, &align, !horiz_left, config);
 
@@ -70,10 +71,8 @@ pub(crate) fn position_x(
     }
 
     // Convert to BTreeMaps for alignment/balancing
-    let mut maps: Vec<BTreeMap<NodeId, f64>> = xss
-        .into_iter()
-        .map(|xs| xs.into_iter().collect())
-        .collect();
+    let mut maps: Vec<BTreeMap<NodeId, f64>> =
+        xss.into_iter().map(|xs| xs.into_iter().collect()).collect();
 
     let smallest_idx = find_smallest_width_alignment(graph, &maps);
     align_coordinates(&mut maps, smallest_idx);
@@ -119,9 +118,7 @@ fn find_type1_conflicts(
 
         for (i, &v) in layer.iter().enumerate() {
             let w = find_other_inner_segment_node(graph, v);
-            let k1 = w.map_or(prev_layer_len, |w| {
-                *pos.get(&w).unwrap_or(&prev_layer_len)
-            });
+            let k1 = w.map_or(prev_layer_len, |w| *pos.get(&w).unwrap_or(&prev_layer_len));
 
             if w.is_some() || i == layer.len() - 1 {
                 for &scan_node in &layer[scan_pos..=i] {
@@ -132,7 +129,8 @@ fn find_type1_conflicts(
                     for u in predecessors {
                         let u_pos = *pos.get(&u).unwrap_or(&0);
                         let u_is_dummy = graph.node(u).is_some_and(|n| n.dummy.is_some());
-                        let scan_is_dummy = graph.node(scan_node).is_some_and(|n| n.dummy.is_some());
+                        let scan_is_dummy =
+                            graph.node(scan_node).is_some_and(|n| n.dummy.is_some());
                         if (u_pos < k0 || k1 < u_pos) && !(u_is_dummy && scan_is_dummy) {
                             add_conflict(&mut conflicts, u, scan_node);
                         }
@@ -159,24 +157,23 @@ fn find_type2_conflicts(
         let south = &layering[layer_idx];
 
         // Build position cache for north
-        let north_pos: BTreeMap<NodeId, usize> = north
-            .iter()
-            .enumerate()
-            .map(|(i, &v)| (v, i))
-            .collect();
+        let north_pos: BTreeMap<NodeId, usize> =
+            north.iter().enumerate().map(|(i, &v)| (v, i)).collect();
 
         let mut prev_north_border: i64 = -1;
         let mut south_pos = 0usize;
 
         for (south_lookahead, &v) in south.iter().enumerate() {
-            if graph.node(v).is_some_and(|n| n.dummy == Some(DummyKind::Border)) {
+            if graph
+                .node(v)
+                .is_some_and(|n| n.dummy == Some(DummyKind::Border))
+            {
                 let preds: Vec<NodeId> = graph
                     .in_edges(v)
                     .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
                     .collect();
                 if let Some(&pred) = preds.first() {
-                    let next_north_pos =
-                        *north_pos.get(&pred).unwrap_or(&0) as i64;
+                    let next_north_pos = *north_pos.get(&pred).unwrap_or(&0) as i64;
                     scan_type2(
                         graph,
                         &north_pos,
@@ -237,12 +234,10 @@ fn scan_type2(
     }
 }
 
-fn find_other_inner_segment_node(
-    graph: &Graph<NodeLabel, EdgeLabel>,
-    v: NodeId,
-) -> Option<NodeId> {
+fn find_other_inner_segment_node(graph: &Graph<NodeLabel, EdgeLabel>, v: NodeId) -> Option<NodeId> {
     if graph.node(v).is_some_and(|n| n.dummy.is_some()) {
-        graph.in_edges(v)
+        graph
+            .in_edges(v)
             .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
             .find(|&u| graph.node(u).is_some_and(|n| n.dummy.is_some()))
     } else {
@@ -250,10 +245,7 @@ fn find_other_inner_segment_node(
     }
 }
 
-fn find_conflicts(
-    graph: &Graph<NodeLabel, EdgeLabel>,
-    layering: &[Vec<NodeId>],
-) -> Conflicts {
+fn find_conflicts(graph: &Graph<NodeLabel, EdgeLabel>, layering: &[Vec<NodeId>]) -> Conflicts {
     let mut c = find_type1_conflicts(graph, layering);
     c.extend(find_type2_conflicts(graph, layering));
     c
@@ -298,10 +290,7 @@ fn vertical_alignment(
             let hi = mp.ceil() as usize;
 
             for &w in &ws[lo..=hi] {
-                if align[&v] == v
-                    && prev_idx < (pos[&w] as i64)
-                    && !has_conflict(conflicts, v, w)
-                {
+                if align[&v] == v && prev_idx < (pos[&w] as i64) && !has_conflict(conflicts, v, w) {
                     align.insert(w, v);
                     let rw = root[&w];
                     root.insert(v, rw);
@@ -325,8 +314,12 @@ fn sep(
     reverse_sep: bool,
     config: &DagreConfig,
 ) -> f64 {
-    let Some(v_label) = graph.node(v) else { return 0.0 };
-    let Some(w_label) = graph.node(w) else { return 0.0 };
+    let Some(v_label) = graph.node(v) else {
+        return 0.0;
+    };
+    let Some(w_label) = graph.node(w) else {
+        return 0.0;
+    };
     let node_sep = config.nodesep;
     let edge_sep = config.edgesep;
 
@@ -436,30 +429,27 @@ fn horizontal_compaction(
 
     // Pass 1: assign smallest coordinates (process in topo order via DFS post-order)
     dfs_iterate(&block_nodes, &rev_edges, |elem| {
-        let x = rev_edges
-            .get(&elem)
-            .map_or(0.0, |preds| {
-                preds
-                    .iter()
-                    .map(|&(pred, sep)| xs.get(&pred).unwrap_or(&0.0) + sep)
-                    .fold(0.0f64, f64::max)
-            });
+        let x = rev_edges.get(&elem).map_or(0.0, |preds| {
+            preds
+                .iter()
+                .map(|&(pred, sep)| xs.get(&pred).unwrap_or(&0.0) + sep)
+                .fold(0.0f64, f64::max)
+        });
         xs.insert(elem, x);
     });
 
     // Pass 2: assign greatest coordinates (compact right)
     dfs_iterate(&block_nodes, &fwd_edges, |elem| {
-        let min = fwd_edges
-            .get(&elem)
-            .map_or(f64::INFINITY, |succs| {
-                succs
-                    .iter()
-                    .map(|&(succ, sep)| xs.get(&succ).unwrap_or(&0.0) - sep)
-                    .fold(f64::INFINITY, f64::min)
-            });
+        let min = fwd_edges.get(&elem).map_or(f64::INFINITY, |succs| {
+            succs
+                .iter()
+                .map(|&(succ, sep)| xs.get(&succ).unwrap_or(&0.0) - sep)
+                .fold(f64::INFINITY, f64::min)
+        });
 
         if min != f64::INFINITY
-            && graph.node(elem)
+            && graph
+                .node(elem)
                 .and_then(|n| n.border_type)
                 .is_none_or(|bt| bt != border_type)
         {
@@ -551,7 +541,11 @@ fn align_coordinates(maps: &mut [BTreeMap<NodeId, f64>], align_to_idx: usize) {
             }
             let is_right = idx % 2 == 1;
             if is_right {
-                align_max - maps[idx].values().copied().fold(f64::NEG_INFINITY, f64::max)
+                align_max
+                    - maps[idx]
+                        .values()
+                        .copied()
+                        .fold(f64::NEG_INFINITY, f64::max)
             } else {
                 align_min - maps[idx].values().copied().fold(f64::INFINITY, f64::min)
             }
@@ -567,10 +561,7 @@ fn align_coordinates(maps: &mut [BTreeMap<NodeId, f64>], align_to_idx: usize) {
     }
 }
 
-fn balance(
-    maps: &[BTreeMap<NodeId, f64>],
-    config: &DagreConfig,
-) -> Vec<(NodeId, f64)> {
+fn balance(maps: &[BTreeMap<NodeId, f64>], config: &DagreConfig) -> Vec<(NodeId, f64)> {
     if let Some(align) = config.align {
         let idx = match align {
             crate::config::Align::UL => 0,
@@ -586,10 +577,7 @@ fn balance(
     let mut result = Vec::with_capacity(all_nodes.len());
 
     for v in all_nodes {
-        let mut xs: Vec<f64> = maps
-            .iter()
-            .filter_map(|m| m.get(&v).copied())
-            .collect();
+        let mut xs: Vec<f64> = maps.iter().filter_map(|m| m.get(&v).copied()).collect();
         xs.sort_by(|a, b| a.total_cmp(b));
         let x = if xs.len() >= 4 {
             (xs[1] + xs[2]) / 2.0

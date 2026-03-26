@@ -40,13 +40,19 @@ fn compute_barycenters(
                 graph.out_edges(v).collect()
             };
             if edges.is_empty() {
-                return BaryEntry { v, barycenter: None, weight: 0.0 };
+                return BaryEntry {
+                    v,
+                    barycenter: None,
+                    weight: 0.0,
+                };
             }
 
             let mut sum = 0.0;
             let mut weight = 0.0;
             for eid in edges {
-                let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
+                let Some((src, dst)) = graph.edge_endpoints(eid) else {
+                    continue;
+                };
                 let neighbor = if use_in_edges { src } else { dst };
                 let edge_weight = graph.edge(eid).map_or(1.0, |l| l.weight);
                 let order = graph.node(neighbor).map_or(0, |n| n.order) as f64;
@@ -54,7 +60,11 @@ fn compute_barycenters(
                 weight += edge_weight;
             }
 
-            BaryEntry { v, barycenter: Some(sum / weight), weight }
+            BaryEntry {
+                v,
+                barycenter: Some(sum / weight),
+                weight,
+            }
         })
         .collect()
 }

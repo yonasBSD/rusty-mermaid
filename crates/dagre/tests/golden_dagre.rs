@@ -123,7 +123,8 @@ fn run_golden(golden: &GoldenFile) -> LayoutResult {
     rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
 
     // Collect results
-    let nid_to_id: HashMap<NodeId, String> = id_to_nid.iter().map(|(k, &v)| (v, k.clone())).collect();
+    let nid_to_id: HashMap<NodeId, String> =
+        id_to_nid.iter().map(|(k, &v)| (v, k.clone())).collect();
 
     let mut node_map = HashMap::new();
     for (&nid, id) in &nid_to_id {
@@ -155,7 +156,8 @@ fn load_golden(name: &str) -> GoldenFile {
         .unwrap()
         .join("tests/golden/expected")
         .join(format!("{}.json", name));
-    let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
+    let text =
+        fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
     serde_json::from_str(&text).unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e))
 }
 
@@ -167,7 +169,9 @@ fn check_ranks(golden: &GoldenFile, result: &LayoutResult, name: &str) {
             assert!(
                 rank >= 0,
                 "[{}] node {} has negative rank {}",
-                name, n.id, rank
+                name,
+                n.id,
+                rank
             );
         }
     }
@@ -186,7 +190,11 @@ fn check_y_ordering(golden: &GoldenFile, result: &LayoutResult, name: &str) {
                     assert!(
                         ay < by,
                         "[{}] rank {} (y={:.1}) should be above rank {} (y={:.1})",
-                        name, ar, ay, br, by
+                        name,
+                        ar,
+                        ay,
+                        br,
+                        by
                     );
                 }
             }
@@ -194,7 +202,12 @@ fn check_y_ordering(golden: &GoldenFile, result: &LayoutResult, name: &str) {
     }
 }
 
-fn check_positions_close(golden: &GoldenFile, result: &LayoutResult, name: &str, tol: f64) -> Vec<String> {
+fn check_positions_close(
+    golden: &GoldenFile,
+    result: &LayoutResult,
+    name: &str,
+    tol: f64,
+) -> Vec<String> {
     let mut diffs = Vec::new();
     for n in &golden.output.nodes {
         if let Some(&(_, our_x, our_y, _)) = result.node_map.get(&n.id) {
@@ -231,7 +244,11 @@ macro_rules! golden_test {
             // Position closeness check
             let diffs = check_positions_close(&golden, &result, stringify!($name), tol);
             if !diffs.is_empty() {
-                eprintln!("[{}] position divergences (tol={}):", stringify!($name), tol);
+                eprintln!(
+                    "[{}] position divergences (tol={}):",
+                    stringify!($name),
+                    tol
+                );
                 for d in &diffs {
                     eprintln!("{}", d);
                 }

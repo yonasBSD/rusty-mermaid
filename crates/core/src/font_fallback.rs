@@ -18,8 +18,7 @@ pub const DINGBATS_FONT: &str = "Noto Sans Symbols 2";
 pub const ARABIC_FONT: &str = "Noto Naskh Arabic";
 
 /// CSS font-family stack for SVG rendering.
-pub const SVG_FONT_FAMILY: &str =
-    "'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace";
+pub const SVG_FONT_FAMILY: &str = "'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace";
 
 /// Get the canonical font family name for a FontSlot.
 pub const fn font_family_for_slot(slot: FontSlot) -> &'static str {
@@ -70,7 +69,10 @@ pub enum FontSlot {
 impl FontSlot {
     #[inline]
     pub const fn is_embedded(self) -> bool {
-        matches!(self, Self::Primary | Self::ExtendedText | Self::Monospace | Self::Dingbats | Self::Arabic)
+        matches!(
+            self,
+            Self::Primary | Self::ExtendedText | Self::Monospace | Self::Dingbats | Self::Arabic
+        )
     }
 
     #[inline]
@@ -162,7 +164,9 @@ pub fn detect_external_fonts(text: &str) -> (bool, bool) {
             FontSlot::Emoji => emoji = true,
             _ => {}
         }
-        if cjk && emoji { break; } // early exit
+        if cjk && emoji {
+            break;
+        } // early exit
     }
     (cjk, emoji)
 }
@@ -182,10 +186,7 @@ pub fn system_font_dirs() -> &'static [&'static str] {
             "/Library/Fonts/",
         ]
     } else if cfg!(target_os = "linux") {
-        &[
-            "/usr/share/fonts/",
-            "/usr/local/share/fonts/",
-        ]
+        &["/usr/share/fonts/", "/usr/local/share/fonts/"]
     } else if cfg!(target_os = "windows") {
         &["C:\\Windows\\Fonts\\"]
     } else {
@@ -197,12 +198,18 @@ pub fn system_font_dirs() -> &'static [&'static str] {
 pub fn find_system_font(family: &str) -> Option<std::path::PathBuf> {
     for dir in system_font_dirs() {
         let dir_path = std::path::Path::new(dir);
-        if !dir_path.exists() { continue; }
+        if !dir_path.exists() {
+            continue;
+        }
         for ext in &["ttf", "ttc", "otf"] {
             let path = dir_path.join(format!("{family}.{ext}"));
-            if path.exists() { return Some(path); }
+            if path.exists() {
+                return Some(path);
+            }
             let path = dir_path.join(format!("{}.{ext}", family.replace(' ', "")));
-            if path.exists() { return Some(path); }
+            if path.exists() {
+                return Some(path);
+            }
         }
     }
     None

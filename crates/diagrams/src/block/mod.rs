@@ -48,21 +48,36 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
     render_block_edges(&mut scene, &diagram.edges, &positions, theme);
 
     for (i, block) in diagram.blocks.iter().enumerate() {
-        if block.shape == BlockShape::Space { continue; }
-        let Some(&(cx, cy, bw)) = positions.get(&block.id) else { continue };
-        render_block(&mut scene, block, BBox::new(cx, cy, bw, CELL_H), COLORS[i % COLORS.len()], theme);
+        if block.shape == BlockShape::Space {
+            continue;
+        }
+        let Some(&(cx, cy, bw)) = positions.get(&block.id) else {
+            continue;
+        };
+        render_block(
+            &mut scene,
+            block,
+            BBox::new(cx, cy, bw, CELL_H),
+            COLORS[i % COLORS.len()],
+            theme,
+        );
     }
 
     scene
 }
 
-fn compute_block_positions(blocks: &[Block], cols: usize) -> (HashMap<String, (f64, f64, f64)>, usize) {
+fn compute_block_positions(
+    blocks: &[Block],
+    cols: usize,
+) -> (HashMap<String, (f64, f64, f64)>, usize) {
     let mut positions = HashMap::new();
     let mut grid_pos: usize = 0;
     for block in blocks {
         let span = block.span.min(cols);
         let col = grid_pos % cols;
-        if col + span > cols { grid_pos += cols - col; }
+        if col + span > cols {
+            grid_pos += cols - col;
+        }
         let col = grid_pos % cols;
         let row = grid_pos / cols;
         let block_w = span as f64 * (CELL_W + GAP) - GAP;
@@ -74,10 +89,19 @@ fn compute_block_positions(blocks: &[Block], cols: usize) -> (HashMap<String, (f
     (positions, grid_pos)
 }
 
-fn render_block_edges(scene: &mut Scene, edges: &[ir::BlockEdge], positions: &HashMap<String, (f64, f64, f64)>, theme: &Theme) {
+fn render_block_edges(
+    scene: &mut Scene,
+    edges: &[ir::BlockEdge],
+    positions: &HashMap<String, (f64, f64, f64)>,
+    theme: &Theme,
+) {
     for edge in edges {
-        let Some(&(x1, y1, w1)) = positions.get(&edge.from) else { continue };
-        let Some(&(x2, y2, w2)) = positions.get(&edge.to) else { continue };
+        let Some(&(x1, y1, w1)) = positions.get(&edge.from) else {
+            continue;
+        };
+        let Some(&(x2, y2, w2)) = positions.get(&edge.to) else {
+            continue;
+        };
         let start = intersect_rect(&BBox::new(x1, y1, w1, CELL_H), Point::new(x2, y2));
         let raw_end = intersect_rect(&BBox::new(x2, y2, w2, CELL_H), Point::new(x1, y1));
         let dx = raw_end.x - start.x;
@@ -86,19 +110,39 @@ fn render_block_edges(scene: &mut Scene, edges: &[ir::BlockEdge], positions: &Ha
         let end = Point::new(raw_end.x - 3.0 * dx / len, raw_end.y - 3.0 * dy / len);
 
         let style = match edge.style {
-            EdgeStyle::Arrow => Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.5), ..Default::default() },
-            EdgeStyle::Dotted => Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.5), stroke_dasharray: Some(vec![5.0, 3.0]), ..Default::default() },
-            EdgeStyle::Thick => Style { stroke: Some(theme.edge_stroke), stroke_width: Some(3.0), ..Default::default() },
+            EdgeStyle::Arrow => Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(1.5),
+                ..Default::default()
+            },
+            EdgeStyle::Dotted => Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(1.5),
+                stroke_dasharray: Some(vec![5.0, 3.0]),
+                ..Default::default()
+            },
+            EdgeStyle::Thick => Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(3.0),
+                ..Default::default()
+            },
         };
         scene.push(Primitive::Path {
             segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
-            style, marker_start: None, marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+            style,
+            marker_start: None,
+            marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
         });
         if let Some(label) = &edge.label {
             scene.push(Primitive::Text {
                 position: Point::new((start.x + end.x) / 2.0, (start.y + end.y) / 2.0 - 8.0),
-                content: label.clone(), anchor: TextAnchor::Middle,
-                style: TextStyle { font_size: 10.0, fill: Some(theme.edge_label_text), ..Default::default() },
+                content: label.clone(),
+                anchor: TextAnchor::Middle,
+                style: TextStyle {
+                    font_size: 10.0,
+                    fill: Some(theme.edge_label_text),
+                    ..Default::default()
+                },
             });
         }
     }
@@ -118,21 +162,24 @@ fn render_block(scene: &mut Scene, block: &Block, bbox: BBox, color: Color, them
         BlockShape::Rect => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, cell_w, CELL_H),
-                rx: 3.0, ry: 3.0,
+                rx: 3.0,
+                ry: 3.0,
                 style: stroke_style,
             });
         }
         BlockShape::Round => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, cell_w, CELL_H),
-                rx: 12.0, ry: 12.0,
+                rx: 12.0,
+                ry: 12.0,
                 style: stroke_style,
             });
         }
         BlockShape::Stadium => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, cell_w, CELL_H),
-                rx: CELL_H / 2.0, ry: CELL_H / 2.0,
+                rx: CELL_H / 2.0,
+                ry: CELL_H / 2.0,
                 style: stroke_style,
             });
         }
@@ -175,7 +222,8 @@ fn render_block(scene: &mut Scene, block: &Block, bbox: BBox, color: Color, them
         BlockShape::Cylinder => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, cell_w * 0.7, CELL_H),
-                rx: cell_w * 0.35, ry: 8.0,
+                rx: cell_w * 0.35,
+                ry: 8.0,
                 style: stroke_style,
             });
         }
@@ -183,7 +231,10 @@ fn render_block(scene: &mut Scene, block: &Block, bbox: BBox, color: Color, them
     }
 
     if !block.label.is_empty() {
-        let label_style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
+        let label_style = TextStyle {
+            font_size: theme.font_size_node,
+            ..Default::default()
+        };
         let label_w = SimpleTextMeasure::measure_raw(&block.label, &label_style).width;
         if label_w < cell_w - 8.0 || block.shape == BlockShape::Diamond {
             scene.push(Primitive::Text {
@@ -211,41 +262,60 @@ mod tests {
 
     #[test]
     fn basic_renders() {
-        let scene = render("block-beta\n  columns 2\n  a[\"A\"]\n  b[\"B\"]\n  c[\"C\"]\n  d[\"D\"]");
+        let scene =
+            render("block-beta\n  columns 2\n  a[\"A\"]\n  b[\"B\"]\n  c[\"C\"]\n  d[\"D\"]");
         assert!(!scene.is_empty());
     }
 
     #[test]
     fn has_block_rects() {
         let scene = render("block-beta\n  a[\"A\"]\n  b[\"B\"]");
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert_eq!(rects, 2);
     }
 
     #[test]
     fn edges_render() {
         let scene = render("block-beta\n  a[\"A\"]\n  b[\"B\"]\n  a --> b");
-        let paths = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Path { .. })).count();
+        let paths = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Path { .. }))
+            .count();
         assert!(paths >= 1, "should have edge path");
     }
 
     #[test]
     fn diamond_shape() {
         let scene = render("block-beta\n  a{\"Decision\"}");
-        let polys = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Polygon { .. })).count();
+        let polys = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Polygon { .. }))
+            .count();
         assert_eq!(polys, 1);
     }
 
     #[test]
     fn space_creates_gap() {
         let scene = render("block-beta\n  columns 3\n  a[\"A\"]\n  space\n  b[\"B\"]");
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert_eq!(rects, 2, "space should not create a visible rect");
     }
 
     #[test]
     fn all_positions_finite() {
-        let scene = render("block-beta\n  columns 2\n  a[\"Start\"]\n  b(\"Process\")\n  c{\"Check\"}\n  d[\"End\"]\n  a --> b\n  b --> c");
+        let scene = render(
+            "block-beta\n  columns 2\n  a[\"Start\"]\n  b(\"Process\")\n  c{\"Check\"}\n  d[\"End\"]\n  a --> b\n  b --> c",
+        );
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Rect { bbox, .. } => {

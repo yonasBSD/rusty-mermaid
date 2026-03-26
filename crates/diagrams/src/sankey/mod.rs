@@ -55,7 +55,11 @@ struct Adjacency {
     node_value: Vec<f64>,
 }
 
-fn build_adjacency(diagram: &SankeyDiagram, n: usize, name_to_idx: &HashMap<&str, usize>) -> Adjacency {
+fn build_adjacency(
+    diagram: &SankeyDiagram,
+    n: usize,
+    name_to_idx: &HashMap<&str, usize>,
+) -> Adjacency {
     let mut outgoing: Vec<Vec<(usize, f64)>> = vec![Vec::new(); n];
     let mut incoming: Vec<Vec<(usize, f64)>> = vec![Vec::new(); n];
     let mut value_out = vec![0.0f64; n];
@@ -71,13 +75,16 @@ fn build_adjacency(diagram: &SankeyDiagram, n: usize, name_to_idx: &HashMap<&str
     }
 
     let node_value: Vec<f64> = (0..n).map(|i| value_out[i].max(value_in[i])).collect();
-    Adjacency { outgoing, incoming, value_out, value_in, node_value }
+    Adjacency {
+        outgoing,
+        incoming,
+        value_out,
+        value_in,
+        node_value,
+    }
 }
 
-fn assign_columns(
-    n: usize,
-    adj: &Adjacency,
-) -> (Vec<usize>, Vec<Vec<usize>>) {
+fn assign_columns(n: usize, adj: &Adjacency) -> (Vec<usize>, Vec<Vec<usize>>) {
     let depth = compute_depths(n, &adj.outgoing, &adj.incoming);
     let max_depth = depth.iter().copied().max().unwrap_or(0);
 
@@ -99,7 +106,11 @@ fn assign_columns(
                 let neighbors: Vec<f64> = adj.incoming[node_idx]
                     .iter()
                     .map(|&(src, _)| node_y_center[src])
-                    .chain(adj.outgoing[node_idx].iter().map(|&(tgt, _)| node_y_center[tgt]))
+                    .chain(
+                        adj.outgoing[node_idx]
+                            .iter()
+                            .map(|&(tgt, _)| node_y_center[tgt]),
+                    )
                     .collect();
                 if !neighbors.is_empty() {
                     node_y_center[node_idx] =
@@ -144,7 +155,11 @@ fn assign_node_positions(
         .map(|(sum, pad)| sum / (available_h - pad).max(1.0))
         .fold(0.0f64, f64::max);
 
-    let scale = if max_col_value > 0.0 { 1.0 / max_col_value } else { 1.0 };
+    let scale = if max_col_value > 0.0 {
+        1.0 / max_col_value
+    } else {
+        1.0
+    };
 
     let mut node_x0 = vec![0.0f64; n];
     let mut node_y0 = vec![0.0f64; n];
@@ -152,9 +167,8 @@ fn assign_node_positions(
 
     for (d, col) in columns.iter().enumerate() {
         let x0 = SCENE_PAD + d as f64 * col_spacing;
-        let col_height: f64 =
-            col.iter().map(|&i| node_value[i] * scale).sum::<f64>()
-                + (col.len().saturating_sub(1)) as f64 * NODE_PAD;
+        let col_height: f64 = col.iter().map(|&i| node_value[i] * scale).sum::<f64>()
+            + (col.len().saturating_sub(1)) as f64 * NODE_PAD;
         let y_start = SCENE_PAD + (available_h - col_height) / 2.0;
 
         let mut y = y_start;
@@ -193,9 +207,11 @@ fn compute_link_layouts(
         })
         .collect();
     sorted_links.sort_by(|a, b| {
-        depth[a.0]
-            .cmp(&depth[b.0])
-            .then_with(|| node_y0[a.1].partial_cmp(&node_y0[b.1]).unwrap_or(std::cmp::Ordering::Equal))
+        depth[a.0].cmp(&depth[b.0]).then_with(|| {
+            node_y0[a.1]
+                .partial_cmp(&node_y0[b.1])
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
     });
 
     let mut link_layouts = Vec::new();
@@ -203,8 +219,16 @@ fn compute_link_layouts(
         let src_range = node_y1[s] - node_y0[s];
         let tgt_range = node_y1[t] - node_y0[t];
 
-        let w_src = if adj.value_out[s] > 0.0 { val / adj.value_out[s] * src_range } else { 0.0 };
-        let w_tgt = if adj.value_in[t] > 0.0 { val / adj.value_in[t] * tgt_range } else { 0.0 };
+        let w_src = if adj.value_out[s] > 0.0 {
+            val / adj.value_out[s] * src_range
+        } else {
+            0.0
+        };
+        let w_tgt = if adj.value_in[t] > 0.0 {
+            val / adj.value_in[t] * tgt_range
+        } else {
+            0.0
+        };
         let width = w_src.max(w_tgt).max(1.0);
 
         let y0 = out_y[s] + w_src / 2.0;
@@ -213,21 +237,38 @@ fn compute_link_layouts(
         out_y[s] += w_src;
         in_y[t] += w_tgt;
 
-        link_layouts.push(LinkLayout { source: s, target: t, y0, y1, width });
+        link_layouts.push(LinkLayout {
+            source: s,
+            target: t,
+            y0,
+            y1,
+            width,
+        });
     }
 
     link_layouts
 }
 
 /// Build adjacency, assign columns, vertical positions, and link y-stacking.
-fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashMap<&str, usize>) -> SankeyLayout {
+fn compute_layout(
+    diagram: &SankeyDiagram,
+    names: &[String],
+    name_to_idx: &HashMap<&str, usize>,
+) -> SankeyLayout {
     let n = names.len();
     let adj = build_adjacency(diagram, n, name_to_idx);
     let (depth, columns) = assign_columns(n, &adj);
     let (node_x0, node_y0, node_y1, _scale) = assign_node_positions(n, &columns, &adj.node_value);
     let link_layouts = compute_link_layouts(diagram, name_to_idx, &adj, &depth, &node_y0, &node_y1);
 
-    SankeyLayout { node_x0, node_y0, node_y1, node_value: adj.node_value, depth, link_layouts }
+    SankeyLayout {
+        node_x0,
+        node_y0,
+        node_y1,
+        node_value: adj.node_value,
+        depth,
+        link_layouts,
+    }
 }
 
 fn render_links(scene: &mut Scene, link_layouts: &[LinkLayout], node_x0: &[f64]) {
@@ -315,14 +356,20 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
     }
 
     let names = diagram.node_names();
-    let name_to_idx: HashMap<&str, usize> =
-        names.iter().enumerate().map(|(i, n)| (n.as_str(), i)).collect();
+    let name_to_idx: HashMap<&str, usize> = names
+        .iter()
+        .enumerate()
+        .map(|(i, n)| (n.as_str(), i))
+        .collect();
 
     let mut layout = compute_layout(diagram, &names, &name_to_idx);
 
     // Measure labels to compute margins
     let max_depth = layout.depth.iter().copied().max().unwrap_or(0);
-    let label_style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
+    let label_style = TextStyle {
+        font_size: theme.font_size_node,
+        ..Default::default()
+    };
 
     let mut left_label_w = 0.0f64;
     let mut right_label_w = 0.0f64;

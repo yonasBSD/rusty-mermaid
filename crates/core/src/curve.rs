@@ -513,8 +513,14 @@ mod tests {
 
         // First cubic: flat tangent at start → cp1 == start point
         if let PathSegment::CubicTo { cp1, to, .. } = segs[1] {
-            assert!((cp1.x - 0.0).abs() < 1e-10, "cp1.x should be 0 (flat tangent)");
-            assert!((cp1.y - 0.0).abs() < 1e-10, "cp1.y should be 0 (flat tangent)");
+            assert!(
+                (cp1.x - 0.0).abs() < 1e-10,
+                "cp1.x should be 0 (flat tangent)"
+            );
+            assert!(
+                (cp1.y - 0.0).abs() < 1e-10,
+                "cp1.y should be 0 (flat tangent)"
+            );
             assert!((to.x - 50.0).abs() < 1e-10);
             assert!((to.y - 100.0).abs() < 1e-10);
         } else {
@@ -523,7 +529,10 @@ mod tests {
 
         // Last cubic: flat tangent at end → cp2 == end point
         if let PathSegment::CubicTo { cp2, to, .. } = segs[2] {
-            assert!((cp2.x - 100.0).abs() < 1e-10, "cp2 should equal endpoint (flat tangent)");
+            assert!(
+                (cp2.x - 100.0).abs() < 1e-10,
+                "cp2 should equal endpoint (flat tangent)"
+            );
             assert!((cp2.y - 0.0).abs() < 1e-10);
             assert!((to.x - 100.0).abs() < 1e-10);
             assert!((to.y - 0.0).abs() < 1e-10);
@@ -687,12 +696,28 @@ mod tests {
             Point::new(100.0, 0.0),
         ];
         let segs = interpolate(&pts, CurveType::Natural);
-        if let (PathSegment::CubicTo { cp1: a1, cp2: a2, .. }, PathSegment::CubicTo { cp1: b1, cp2: b2, .. }) =
-            (&segs[1], &segs[2])
+        if let (
+            PathSegment::CubicTo {
+                cp1: a1, cp2: a2, ..
+            },
+            PathSegment::CubicTo {
+                cp1: b1, cp2: b2, ..
+            },
+        ) = (&segs[1], &segs[2])
         {
             // cp1 of seg1 and cp2 of seg2 should mirror about x=50
-            assert!((a1.x + b2.x - 100.0).abs() < 1e-10, "should mirror: {} + {}", a1.x, b2.x);
-            assert!((a2.x + b1.x - 100.0).abs() < 1e-10, "should mirror: {} + {}", a2.x, b1.x);
+            assert!(
+                (a1.x + b2.x - 100.0).abs() < 1e-10,
+                "should mirror: {} + {}",
+                a1.x,
+                b2.x
+            );
+            assert!(
+                (a2.x + b1.x - 100.0).abs() < 1e-10,
+                "should mirror: {} + {}",
+                a2.x,
+                b1.x
+            );
         }
     }
 

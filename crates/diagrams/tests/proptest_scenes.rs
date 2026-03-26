@@ -13,37 +13,53 @@ fn scene_is_valid(input: &str) -> bool {
         Err(_) => return true, // parse errors are fine for random input
     };
 
-    if scene.width <= 0.0 || scene.height <= 0.0 { return false; }
+    if scene.width <= 0.0 || scene.height <= 0.0 {
+        return false;
+    }
 
     for elem in scene.elements() {
         match &elem.primitive {
             Primitive::Rect { bbox, .. } => {
-                if !bbox.x.is_finite() || !bbox.y.is_finite() { return false; }
-                if !bbox.width.is_finite() || !bbox.height.is_finite() { return false; }
+                if !bbox.x.is_finite() || !bbox.y.is_finite() {
+                    return false;
+                }
+                if !bbox.width.is_finite() || !bbox.height.is_finite() {
+                    return false;
+                }
             }
             Primitive::Text { position, .. } => {
-                if !position.x.is_finite() || !position.y.is_finite() { return false; }
+                if !position.x.is_finite() || !position.y.is_finite() {
+                    return false;
+                }
             }
             Primitive::Circle { center, radius, .. } => {
-                if !center.x.is_finite() || !center.y.is_finite() || !radius.is_finite() { return false; }
+                if !center.x.is_finite() || !center.y.is_finite() || !radius.is_finite() {
+                    return false;
+                }
             }
             Primitive::Path { segments, .. } => {
                 for seg in segments {
                     let pts: Vec<&rusty_mermaid_core::Point> = match seg {
                         rusty_mermaid_core::PathSegment::MoveTo(p) => vec![p],
                         rusty_mermaid_core::PathSegment::LineTo(p) => vec![p],
-                        rusty_mermaid_core::PathSegment::CubicTo { cp1, cp2, to } => vec![cp1, cp2, to],
+                        rusty_mermaid_core::PathSegment::CubicTo { cp1, cp2, to } => {
+                            vec![cp1, cp2, to]
+                        }
                         rusty_mermaid_core::PathSegment::QuadTo { cp, to } => vec![cp, to],
                         _ => vec![],
                     };
                     for p in pts {
-                        if !p.x.is_finite() || !p.y.is_finite() { return false; }
+                        if !p.x.is_finite() || !p.y.is_finite() {
+                            return false;
+                        }
                     }
                 }
             }
             Primitive::Polygon { points, .. } => {
                 for p in points {
-                    if !p.x.is_finite() || !p.y.is_finite() { return false; }
+                    if !p.x.is_finite() || !p.y.is_finite() {
+                        return false;
+                    }
                 }
             }
             _ => {}

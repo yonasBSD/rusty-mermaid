@@ -51,7 +51,9 @@ fn add_border_node(
 
     // Get the previous border node at rank-1 and link them
     let prev = {
-        let Some(sg_node) = graph.node(sg) else { return };
+        let Some(sg_node) = graph.node(sg) else {
+            return;
+        };
         let borders = match border_type {
             BorderType::Left => &sg_node.border_left,
             BorderType::Right => &sg_node.border_right,
@@ -60,7 +62,9 @@ fn add_border_node(
     };
 
     // Store current node in the compound's border map
-    let Some(sg_node) = graph.node_mut(sg) else { return };
+    let Some(sg_node) = graph.node_mut(sg) else {
+        return;
+    };
     match border_type {
         BorderType::Left => sg_node.border_left.insert(rank, curr),
         BorderType::Right => sg_node.border_right.insert(rank, curr),
@@ -79,12 +83,16 @@ pub(crate) fn assign_rank_min_max(graph: &mut Graph<NodeLabel, EdgeLabel>) -> i3
 
     let nids: Vec<_> = graph.node_ids().collect();
     for nid in nids {
-        let Some(node) = graph.node(nid) else { continue };
+        let Some(node) = graph.node(nid) else {
+            continue;
+        };
         if let (Some(top), Some(bottom)) = (node.border_top, node.border_bottom) {
             let min = graph.node(top).map_or(0, |n| n.rank);
             let max = graph.node(bottom).map_or(0, |n| n.rank);
 
-            let Some(node) = graph.node_mut(nid) else { continue };
+            let Some(node) = graph.node_mut(nid) else {
+                continue;
+            };
             node.min_rank = Some(min);
             node.max_rank = Some(max);
 
@@ -119,12 +127,16 @@ pub(crate) fn extend_rank_min_max(graph: &mut Graph<NodeLabel, EdgeLabel>) {
         };
 
         for child in graph.children(sg) {
-            let Some(cn) = graph.node(child) else { continue };
+            let Some(cn) = graph.node(child) else {
+                continue;
+            };
             min = min.min(cn.rank);
             max = max.max(cn.rank);
         }
 
-        let Some(node) = graph.node_mut(sg) else { continue };
+        let Some(node) = graph.node_mut(sg) else {
+            continue;
+        };
         node.min_rank = Some(min);
         node.max_rank = Some(max);
     }

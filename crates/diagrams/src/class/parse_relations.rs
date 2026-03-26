@@ -27,7 +27,11 @@ pub(super) fn parse_relationship(input: &mut &str) -> ModalResult<ClassRelation>
         ':'.parse_next(input)?;
         skip_horizontal_ws(input);
         let text = take_to_eol(input);
-        if text.is_empty() { None } else { Some(text.to_string()) }
+        if text.is_empty() {
+            None
+        } else {
+            Some(text.to_string())
+        }
     } else {
         None
     };
@@ -44,7 +48,9 @@ pub(super) fn parse_relationship(input: &mut &str) -> ModalResult<ClassRelation>
     })
 }
 
-fn parse_rel_operator(input: &mut &str) -> ModalResult<(Option<RelationType>, LineType, Option<RelationType>)> {
+fn parse_rel_operator(
+    input: &mut &str,
+) -> ModalResult<(Option<RelationType>, LineType, Option<RelationType>)> {
     // Left marker (optional)
     let left = parse_rel_marker(input);
 
@@ -56,7 +62,9 @@ fn parse_rel_operator(input: &mut &str) -> ModalResult<(Option<RelationType>, Li
         "..".parse_next(input)?;
         LineType::Dotted
     } else {
-        return Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()));
+        return Err(winnow::error::ErrMode::Backtrack(
+            winnow::error::ContextError::new(),
+        ));
     };
 
     // Right marker (optional)
@@ -94,7 +102,9 @@ fn parse_rel_marker(input: &mut &str) -> Option<RelationType> {
 }
 
 pub(super) fn parse_opt_cardinality(input: &mut &str) -> Option<String> {
-    if !input.starts_with('"') { return None; }
+    if !input.starts_with('"') {
+        return None;
+    }
     *input = &input[1..]; // skip opening "
     let end = input.find('"')?;
     let text = &input[..end];

@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::*;
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<BlockDiagram, ParseError> {
     let mut diagram = BlockDiagram::default();
@@ -16,25 +16,39 @@ pub fn parse(input: &str) -> Result<BlockDiagram, ParseError> {
                 header_found = true;
                 continue;
             }
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..1, input));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                0..1,
+                input,
+            ));
         }
 
         // Skip styling lines
-        if line.starts_with("classDef") || line.starts_with("class ") || line.starts_with("style ") {
+        if line.starts_with("classDef") || line.starts_with("class ") || line.starts_with("style ")
+        {
             continue;
         }
 
         // Columns
         if let Some(rest) = line.strip_prefix("columns") {
             let rest = rest.trim();
-            diagram.columns = if rest == "auto" { 0 } else { rest.parse().unwrap_or(0) };
+            diagram.columns = if rest == "auto" {
+                0
+            } else {
+                rest.parse().unwrap_or(0)
+            };
             continue;
         }
 
         // Space
         if line.starts_with("space") {
-            let span = line.strip_prefix("space").unwrap_or("")
-                .trim_start_matches(':').trim().parse().unwrap_or(1usize);
+            let span = line
+                .strip_prefix("space")
+                .unwrap_or("")
+                .trim_start_matches(':')
+                .trim()
+                .parse()
+                .unwrap_or(1usize);
             for _ in 0..span {
                 diagram.blocks.push(Block {
                     id: format!("__space_{}", diagram.blocks.len()),
@@ -60,7 +74,11 @@ pub fn parse(input: &str) -> Result<BlockDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     // Default columns if not specified
@@ -112,30 +130,65 @@ fn parse_block(s: &str) -> Option<Block> {
         (id.clone(), id, BlockShape::Rect)
     };
 
-    Some(Block { id, label, shape, children: Vec::new(), span })
+    Some(Block {
+        id,
+        label,
+        shape,
+        children: Vec::new(),
+        span,
+    })
 }
 
 fn parse_shape_label(s: &str) -> (String, BlockShape) {
     if s.starts_with("[\"") || s.starts_with("['") || s.starts_with('[') {
-        let label = s.trim_start_matches('[').trim_end_matches(']').trim_matches('"').trim_matches('\'').to_string();
+        let label = s
+            .trim_start_matches('[')
+            .trim_end_matches(']')
+            .trim_matches('"')
+            .trim_matches('\'')
+            .to_string();
         (label, BlockShape::Rect)
     } else if s.starts_with("((") {
-        let label = s.trim_start_matches('(').trim_end_matches(')').trim_matches('"').to_string();
+        let label = s
+            .trim_start_matches('(')
+            .trim_end_matches(')')
+            .trim_matches('"')
+            .to_string();
         (label, BlockShape::Circle)
     } else if s.starts_with("([") {
-        let label = s.trim_start_matches("([").trim_end_matches("])").trim_matches('"').to_string();
+        let label = s
+            .trim_start_matches("([")
+            .trim_end_matches("])")
+            .trim_matches('"')
+            .to_string();
         (label, BlockShape::Stadium)
     } else if s.starts_with('(') {
-        let label = s.trim_start_matches('(').trim_end_matches(')').trim_matches('"').to_string();
+        let label = s
+            .trim_start_matches('(')
+            .trim_end_matches(')')
+            .trim_matches('"')
+            .to_string();
         (label, BlockShape::Round)
     } else if s.starts_with("{{") {
-        let label = s.trim_start_matches('{').trim_end_matches('}').trim_matches('"').to_string();
+        let label = s
+            .trim_start_matches('{')
+            .trim_end_matches('}')
+            .trim_matches('"')
+            .to_string();
         (label, BlockShape::Hexagon)
     } else if s.starts_with('{') {
-        let label = s.trim_start_matches('{').trim_end_matches('}').trim_matches('"').to_string();
+        let label = s
+            .trim_start_matches('{')
+            .trim_end_matches('}')
+            .trim_matches('"')
+            .to_string();
         (label, BlockShape::Diamond)
     } else if s.starts_with("[(") {
-        let label = s.trim_start_matches("[(").trim_end_matches(")]").trim_matches('"').to_string();
+        let label = s
+            .trim_start_matches("[(")
+            .trim_end_matches(")]")
+            .trim_matches('"')
+            .to_string();
         (label, BlockShape::Cylinder)
     } else {
         (s.trim_matches('"').to_string(), BlockShape::Rect)
@@ -157,16 +210,34 @@ fn try_parse_edge(line: &str) -> Option<BlockEdge> {
     // Split on arrow pattern
     let (left, right) = if style == EdgeStyle::Dotted {
         let parts: Vec<&str> = line.splitn(2, "-.").collect();
-        if parts.len() != 2 { return None; }
-        (parts[0], parts[1].trim_start_matches(['-', '.', '>']).trim())
+        if parts.len() != 2 {
+            return None;
+        }
+        (
+            parts[0],
+            parts[1].trim_start_matches(['-', '.', '>']).trim(),
+        )
     } else {
-        let sep = if style == EdgeStyle::Thick { "==>" } else { "-->" };
+        let sep = if style == EdgeStyle::Thick {
+            "==>"
+        } else {
+            "-->"
+        };
         let parts: Vec<&str> = line.splitn(2, sep).collect();
-        if parts.len() != 2 { return None; }
+        if parts.len() != 2 {
+            return None;
+        }
         (parts[0], parts[1].trim())
     };
 
-    let from = left.split("--").next().unwrap_or(left).split("==").next().unwrap_or(left).trim();
+    let from = left
+        .split("--")
+        .next()
+        .unwrap_or(left)
+        .split("==")
+        .next()
+        .unwrap_or(left)
+        .trim();
     let label = if left.contains('"') {
         left.split('"').nth(1).map(|s| s.to_string())
     } else {
@@ -174,12 +245,21 @@ fn try_parse_edge(line: &str) -> Option<BlockEdge> {
     };
 
     // Target might have a shape definition: id2["Label"]
-    let to = right.split('[').next().unwrap_or(right)
-        .split('(').next().unwrap_or(right)
-        .split('{').next().unwrap_or(right)
+    let to = right
+        .split('[')
+        .next()
+        .unwrap_or(right)
+        .split('(')
+        .next()
+        .unwrap_or(right)
+        .split('{')
+        .next()
+        .unwrap_or(right)
         .trim();
 
-    if from.is_empty() || to.is_empty() { return None; }
+    if from.is_empty() || to.is_empty() {
+        return None;
+    }
 
     Some(BlockEdge {
         from: from.to_string(),
@@ -195,14 +275,17 @@ mod tests {
 
     #[test]
     fn parse_basic() {
-        let d = parse("block-beta\n  columns 2\n  a[\"A\"]\n  b[\"B\"]\n  c[\"C\"]\n  d[\"D\"]").unwrap();
+        let d = parse("block-beta\n  columns 2\n  a[\"A\"]\n  b[\"B\"]\n  c[\"C\"]\n  d[\"D\"]")
+            .unwrap();
         assert_eq!(d.columns, 2);
         assert_eq!(d.blocks.len(), 4);
     }
 
     #[test]
     fn parse_shapes() {
-        let d = parse("block-beta\n  a[\"Rect\"]\n  b(\"Round\")\n  c{\"Diamond\"}\n  d((\"Circle\"))").unwrap();
+        let d =
+            parse("block-beta\n  a[\"Rect\"]\n  b(\"Round\")\n  c{\"Diamond\"}\n  d((\"Circle\"))")
+                .unwrap();
         assert_eq!(d.blocks[0].shape, BlockShape::Rect);
         assert_eq!(d.blocks[1].shape, BlockShape::Round);
         assert_eq!(d.blocks[2].shape, BlockShape::Diamond);

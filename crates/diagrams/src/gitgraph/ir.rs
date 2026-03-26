@@ -7,7 +7,10 @@ pub struct GitGraph {
 
 impl GitGraph {
     pub fn new() -> Self {
-        Self { direction: GitDirection::LR, statements: Vec::new() }
+        Self {
+            direction: GitDirection::LR,
+            statements: Vec::new(),
+        }
     }
 }
 
@@ -86,16 +89,25 @@ mod tests {
     #[test]
     fn statement_commit() {
         let stmt = GitStatement::Commit {
-            id: Some("abc123".into()), tag: Some("v1.0".into()), commit_type: CommitType::Highlight,
+            id: Some("abc123".into()),
+            tag: Some("v1.0".into()),
+            commit_type: CommitType::Highlight,
         };
-        assert!(matches!(stmt, GitStatement::Commit { id: Some(ref i), tag: Some(ref t), commit_type: CommitType::Highlight } if i == "abc123" && t == "v1.0"));
+        assert!(
+            matches!(stmt, GitStatement::Commit { id: Some(ref i), tag: Some(ref t), commit_type: CommitType::Highlight } if i == "abc123" && t == "v1.0")
+        );
     }
 
     #[test]
     fn statement_branch_and_checkout() {
-        let branch = GitStatement::Branch { name: "feature".into(), order: Some(2) };
+        let branch = GitStatement::Branch {
+            name: "feature".into(),
+            order: Some(2),
+        };
         let checkout = GitStatement::Checkout("feature".into());
-        assert!(matches!(branch, GitStatement::Branch { ref name, order: Some(2) } if name == "feature"));
+        assert!(
+            matches!(branch, GitStatement::Branch { ref name, order: Some(2) } if name == "feature")
+        );
         assert!(matches!(checkout, GitStatement::Checkout(ref n) if n == "feature"));
     }
 }

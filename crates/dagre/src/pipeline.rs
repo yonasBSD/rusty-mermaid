@@ -3,7 +3,10 @@ use rusty_mermaid_graph::{Graph, NodeId};
 
 use crate::config::DagreConfig;
 use crate::labels::{DummyKind, EdgeLabel, LabelPos, NodeLabel};
-use crate::{acyclic, border_segments, coord_system, nesting, normalize, order, parent_dummy_chains, position, self_edges, util};
+use crate::{
+    acyclic, border_segments, coord_system, nesting, normalize, order, parent_dummy_chains,
+    position, self_edges, util,
+};
 
 /// Run the full dagre Sugiyama layout pipeline.
 ///
@@ -55,7 +58,9 @@ pub fn layout(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
 /// Double minlen and adjust edge label widths to make space for labels.
 fn make_space_for_edge_labels(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
     for eid in graph.edge_ids().collect::<Vec<_>>() {
-        let Some(e) = graph.edge_mut(eid) else { continue };
+        let Some(e) = graph.edge_mut(eid) else {
+            continue;
+        };
         e.minlen *= 2;
         if e.labelpos != LabelPos::Center {
             if config.rankdir == Direction::TB || config.rankdir == Direction::BT {
@@ -98,7 +103,8 @@ fn inject_edge_label_proxies(graph: &mut Graph<NodeLabel, EdgeLabel>) {
 /// of `node_rank_factor` (used by nesting to ensure edge labels land on
 /// dedicated intermediate ranks).
 fn remove_empty_ranks(graph: &mut Graph<NodeLabel, EdgeLabel>, node_rank_factor: i32) {
-    let offset = graph.node_ids()
+    let offset = graph
+        .node_ids()
         .filter_map(|nid| Some(graph.node(nid)?.rank))
         .min()
         .unwrap_or(0);
@@ -135,7 +141,9 @@ fn remove_empty_ranks(graph: &mut Graph<NodeLabel, EdgeLabel>, node_rank_factor:
         let Some(n) = graph.node(nid) else { continue };
         let r = (n.rank - offset) as usize;
         if r < len && shift[r] != 0 {
-            let Some(n) = graph.node_mut(nid) else { continue };
+            let Some(n) = graph.node_mut(nid) else {
+                continue;
+            };
             n.rank += shift[r];
         }
     }
@@ -157,9 +165,10 @@ fn remove_edge_label_proxies(graph: &mut Graph<NodeLabel, EdgeLabel>) {
 
     for (nid, rank, proxy_edge) in proxies {
         if let Some(eid) = proxy_edge
-            && let Some(edge) = graph.edge_mut(eid) {
-                edge.label_rank = Some(rank);
-            }
+            && let Some(edge) = graph.edge_mut(eid)
+        {
+            edge.label_rank = Some(rank);
+        }
         graph.remove_node(nid);
     }
 }
@@ -179,12 +188,22 @@ fn remove_border_nodes(graph: &mut Graph<NodeLabel, EdgeLabel>) {
         .collect();
 
     for &nid in &compounds {
-        let Some(node) = graph.node(nid) else { continue };
+        let Some(node) = graph.node(nid) else {
+            continue;
+        };
         let bt = node.border_top;
         let bb = node.border_bottom;
         // Last entries = highest rank in the map (matching JS borderLeft[borderLeft.length-1])
-        let bl = node.border_left.iter().max_by_key(|&(&r, _)| r).map(|(_, &v)| v);
-        let br = node.border_right.iter().max_by_key(|&(&r, _)| r).map(|(_, &v)| v);
+        let bl = node
+            .border_left
+            .iter()
+            .max_by_key(|&(&r, _)| r)
+            .map(|(_, &v)| v);
+        let br = node
+            .border_right
+            .iter()
+            .max_by_key(|&(&r, _)| r)
+            .map(|(_, &v)| v);
 
         if let (Some(t_id), Some(b_id), Some(l_id), Some(r_id)) = (bt, bb, bl, br) {
             let Some(t) = graph.node(t_id) else { continue };
@@ -197,7 +216,9 @@ fn remove_border_nodes(graph: &mut Graph<NodeLabel, EdgeLabel>) {
             let x = l.x + width / 2.0;
             let y = t.y + height / 2.0;
 
-            let Some(n) = graph.node_mut(nid) else { continue };
+            let Some(n) = graph.node_mut(nid) else {
+                continue;
+            };
             n.width = width;
             n.height = height;
             n.x = x;
@@ -208,7 +229,11 @@ fn remove_border_nodes(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     // Second pass: remove border nodes
     let borders: Vec<NodeId> = graph
         .node_ids()
-        .filter(|&nid| graph.node(nid).is_some_and(|n| n.dummy == Some(DummyKind::Border)))
+        .filter(|&nid| {
+            graph
+                .node(nid)
+                .is_some_and(|n| n.dummy == Some(DummyKind::Border))
+        })
         .collect();
     for nid in borders {
         graph.remove_node(nid);
@@ -225,7 +250,9 @@ fn fixup_edge_label_coords(graph: &mut Graph<NodeLabel, EdgeLabel>) {
         let lp = e.labelpos;
         let lo = e.labeloffset;
 
-        let Some(e) = graph.edge_mut(eid) else { continue };
+        let Some(e) = graph.edge_mut(eid) else {
+            continue;
+        };
         match lp {
             LabelPos::Left => {
                 e.width -= lo;
@@ -269,13 +296,17 @@ fn translate_graph(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig
     let dy = config.marginy - min_y;
 
     for nid in graph.node_ids().collect::<Vec<_>>() {
-        let Some(n) = graph.node_mut(nid) else { continue };
+        let Some(n) = graph.node_mut(nid) else {
+            continue;
+        };
         n.x += dx;
         n.y += dy;
     }
 
     for eid in graph.edge_ids().collect::<Vec<_>>() {
-        let Some(e) = graph.edge_mut(eid) else { continue };
+        let Some(e) = graph.edge_mut(eid) else {
+            continue;
+        };
         for p in &mut e.points {
             p.x += dx;
             p.y += dy;
@@ -290,9 +321,15 @@ fn translate_graph(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig
 /// Assign edge-node intersection points as first/last edge points.
 fn assign_node_intersects(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     for eid in graph.edge_ids().collect::<Vec<_>>() {
-        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
-        let Some(node_v) = graph.node(src) else { continue };
-        let Some(node_w) = graph.node(dst) else { continue };
+        let Some((src, dst)) = graph.edge_endpoints(eid) else {
+            continue;
+        };
+        let Some(node_v) = graph.node(src) else {
+            continue;
+        };
+        let Some(node_w) = graph.node(dst) else {
+            continue;
+        };
 
         let Some(e) = graph.edge(eid) else { continue };
         let (p1, p2) = if e.points.is_empty() {
@@ -326,7 +363,9 @@ fn assign_node_intersects(graph: &mut Graph<NodeLabel, EdgeLabel>) {
         let start = rusty_mermaid_core::intersect_rect(&v_bbox, p1);
         let end = rusty_mermaid_core::intersect_rect(&w_bbox, p2);
 
-        let Some(e) = graph.edge_mut(eid) else { continue };
+        let Some(e) = graph.edge_mut(eid) else {
+            continue;
+        };
         e.points.insert(0, start);
         e.points.push(end);
     }
@@ -336,9 +375,10 @@ fn assign_node_intersects(graph: &mut Graph<NodeLabel, EdgeLabel>) {
 fn reverse_points_for_reversed_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     for eid in graph.edge_ids().collect::<Vec<_>>() {
         if graph.edge(eid).is_some_and(|e| e.reversed)
-            && let Some(e) = graph.edge_mut(eid) {
-                e.points.reverse();
-            }
+            && let Some(e) = graph.edge_mut(eid)
+        {
+            e.points.reverse();
+        }
     }
 }
 
@@ -454,7 +494,10 @@ mod tests {
         let inner_left = inner_n.x - inner_n.width / 2.0;
         let inner_right = inner_n.x + inner_n.width / 2.0;
 
-        eprintln!("inner: x={:.1} w={:.1} [{:.1}, {:.1}]", inner_n.x, inner_n.width, inner_left, inner_right);
+        eprintln!(
+            "inner: x={:.1} w={:.1} [{:.1}, {:.1}]",
+            inner_n.x, inner_n.width, inner_left, inner_right
+        );
         eprintln!("a: x={:.1} w={:.1}", a_n.x, a_n.width);
         eprintln!("b: x={:.1} w={:.1}", b_n.x, b_n.width);
 

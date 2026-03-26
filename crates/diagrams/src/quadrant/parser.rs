@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{QuadrantChart, QuadrantPoint};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<QuadrantChart, ParseError> {
     let mut chart = QuadrantChart::default();
@@ -86,7 +86,10 @@ pub fn parse(input: &str) -> Result<QuadrantChart, ParseError> {
             // Find [x, y] in the rest (skip second colon for :::class)
             let coord_str = if coord_part.starts_with("::") {
                 // "::className: [x, y]" — find the actual coordinates after the second colon
-                coord_part.split_once(':').map(|(_, c)| c).unwrap_or(coord_part)
+                coord_part
+                    .split_once(':')
+                    .map(|(_, c)| c)
+                    .unwrap_or(coord_part)
             } else {
                 coord_part
             };
@@ -101,7 +104,11 @@ pub fn parse(input: &str) -> Result<QuadrantChart, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     Ok(chart)
@@ -144,7 +151,9 @@ mod tests {
 
     #[test]
     fn parse_axes() {
-        let c = parse("quadrantChart\n  x-axis Low --> High\n  y-axis Bad --> Good\n  A: [0.5, 0.5]").unwrap();
+        let c =
+            parse("quadrantChart\n  x-axis Low --> High\n  y-axis Bad --> Good\n  A: [0.5, 0.5]")
+                .unwrap();
         let (xl, xr) = c.x_axis.unwrap();
         assert_eq!(xl, "Low");
         assert_eq!(xr.unwrap(), "High");

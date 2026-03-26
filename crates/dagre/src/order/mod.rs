@@ -135,7 +135,9 @@ fn sweep_layer(
     let result =
         sort_subgraph::sort_subgraph(graph, synth_root, cg, bias_right, use_in_edges, rank);
     for (i, &nid) in result.vs.iter().enumerate() {
-        let Some(node) = graph.node_mut(nid) else { continue };
+        let Some(node) = graph.node_mut(nid) else {
+            continue;
+        };
         node.order = i;
     }
     add_subgraph_constraints(graph, cg, &result.vs);
@@ -193,10 +195,11 @@ fn add_subgraph_constraints(
             };
 
             if let Some(pc) = prev_child
-                && pc != child {
-                    cg.add_edge(pc, child);
-                    break; // stop after first constraint per node (matches JS `return`)
-                }
+                && pc != child
+            {
+                cg.add_edge(pc, child);
+                break; // stop after first constraint per node (matches JS `return`)
+            }
 
             match parent {
                 Some(p) => child = p,

@@ -22,7 +22,12 @@ struct Rect {
 
 impl Rect {
     fn from_node(n: &ForceNode) -> Self {
-        Self { cx: n.x, cy: n.y, hw: n.width / 2.0, hh: n.height / 2.0 }
+        Self {
+            cx: n.x,
+            cy: n.y,
+            hw: n.width / 2.0,
+            hh: n.height / 2.0,
+        }
     }
 
     fn overlaps(&self, other: &Self) -> bool {
@@ -119,7 +124,10 @@ impl SpatialGrid {
     }
 
     fn cell_key(x: f64, y: f64, cell_size: f64) -> (i32, i32) {
-        ((x / cell_size).floor() as i32, (y / cell_size).floor() as i32)
+        (
+            (x / cell_size).floor() as i32,
+            (y / cell_size).floor() as i32,
+        )
     }
 
     /// Iterate all node indices in the 3×3 neighborhood of a position.
@@ -246,7 +254,10 @@ impl Default for ForceConfig {
 impl ForceConfig {
     /// Preset tuned for tree/mindmap layouts.
     pub fn tree() -> Self {
-        Self { ideal_length: 80.0, ..Self::default() }
+        Self {
+            ideal_length: 80.0,
+            ..Self::default()
+        }
     }
 }
 
@@ -259,7 +270,10 @@ pub struct ForceGraph {
 
 impl Default for ForceGraph {
     fn default() -> Self {
-        Self { nodes: Vec::new(), edges: Vec::new() }
+        Self {
+            nodes: Vec::new(),
+            edges: Vec::new(),
+        }
     }
 }
 
@@ -368,9 +382,7 @@ pub fn layout(graph: &mut ForceGraph, config: &ForceConfig) {
             if displacement < threshold {
                 break;
             }
-            if iter > config.max_iterations / 3
-                && (displacement - prev_displacement).abs() < 2.0
-            {
+            if iter > config.max_iterations / 3 && (displacement - prev_displacement).abs() < 2.0 {
                 break;
             }
             prev_displacement = displacement;
@@ -421,11 +433,7 @@ fn apply_repulsion_brute(graph: &mut ForceGraph, config: &ForceConfig) {
 }
 
 /// Grid-accelerated repulsion: only checks 3×3 neighborhood per node.
-fn apply_repulsion_grid(
-    graph: &mut ForceGraph,
-    config: &ForceConfig,
-    grid: &SpatialGrid,
-) {
+fn apply_repulsion_grid(graph: &mut ForceGraph, config: &ForceConfig, grid: &SpatialGrid) {
     let n = graph.nodes.len();
     for i in 0..n {
         let ni = &graph.nodes[i];
@@ -500,11 +508,7 @@ fn apply_gravity(graph: &mut ForceGraph, config: &ForceConfig) {
 
 /// Apply accumulated forces scaled by cooling factor.
 /// Returns total displacement (for convergence check).
-fn apply_displacements(
-    graph: &mut ForceGraph,
-    cooling: f64,
-    config: &ForceConfig,
-) -> f64 {
+fn apply_displacements(graph: &mut ForceGraph, cooling: f64, config: &ForceConfig) -> f64 {
     let max = cooling * config.max_displacement;
     let mut total = 0.0;
 
@@ -549,7 +553,12 @@ mod tests {
 
     #[test]
     fn clip_point_right_edge() {
-        let r = Rect { cx: 0.0, cy: 0.0, hw: 20.0, hh: 10.0 };
+        let r = Rect {
+            cx: 0.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
         let (x, y) = r.clip_point(100.0, 0.0);
         assert!((x - 20.0).abs() < 0.01);
         assert!(y.abs() < 0.01);
@@ -557,7 +566,12 @@ mod tests {
 
     #[test]
     fn clip_point_top_edge() {
-        let r = Rect { cx: 0.0, cy: 0.0, hw: 20.0, hh: 10.0 };
+        let r = Rect {
+            cx: 0.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
         let (x, y) = r.clip_point(0.0, -100.0);
         assert!(x.abs() < 0.01);
         assert!((y - -10.0).abs() < 0.01);
@@ -565,7 +579,12 @@ mod tests {
 
     #[test]
     fn clip_point_diagonal() {
-        let r = Rect { cx: 0.0, cy: 0.0, hw: 20.0, hh: 20.0 };
+        let r = Rect {
+            cx: 0.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 20.0,
+        };
         let (x, y) = r.clip_point(100.0, 100.0);
         assert!((x - 20.0).abs() < 0.01);
         assert!((y - 20.0).abs() < 0.01);
@@ -573,18 +592,43 @@ mod tests {
 
     #[test]
     fn overlap_detection() {
-        let a = Rect { cx: 0.0, cy: 0.0, hw: 20.0, hh: 10.0 };
-        let b = Rect { cx: 30.0, cy: 0.0, hw: 20.0, hh: 10.0 };
+        let a = Rect {
+            cx: 0.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
+        let b = Rect {
+            cx: 30.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
         assert!(a.overlaps(&b), "rects touching should overlap");
 
-        let c = Rect { cx: 50.0, cy: 0.0, hw: 20.0, hh: 10.0 };
+        let c = Rect {
+            cx: 50.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
         assert!(!a.overlaps(&c), "separated rects should not overlap");
     }
 
     #[test]
     fn separation_pushes_apart() {
-        let a = Rect { cx: 0.0, cy: 0.0, hw: 20.0, hh: 10.0 };
-        let b = Rect { cx: 10.0, cy: 0.0, hw: 20.0, hh: 10.0 };
+        let a = Rect {
+            cx: 0.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
+        let b = Rect {
+            cx: 10.0,
+            cy: 0.0,
+            hw: 20.0,
+            hh: 10.0,
+        };
         let (sx, sy) = calc_separation(&a, &b, 5.0);
         assert!(sx < 0.0, "a should be pushed left");
         assert!(sy.abs() < 0.01, "no vertical separation needed");
@@ -616,9 +660,8 @@ mod tests {
         g.add_edge(0, 1);
         layout(&mut g, &ForceConfig::default());
 
-        let dist = ((g.nodes[1].x - g.nodes[0].x).powi(2)
-            + (g.nodes[1].y - g.nodes[0].y).powi(2))
-        .sqrt();
+        let dist =
+            ((g.nodes[1].x - g.nodes[0].x).powi(2) + (g.nodes[1].y - g.nodes[0].y).powi(2)).sqrt();
         assert!(dist > 20.0, "connected nodes too close: {dist}");
         assert!(dist < 300.0, "connected nodes too far: {dist}");
     }
@@ -630,9 +673,8 @@ mod tests {
         g.add_node(ForceNode::new(1).with_position(5.0, 0.0));
         layout(&mut g, &ForceConfig::default());
 
-        let dist = ((g.nodes[1].x - g.nodes[0].x).powi(2)
-            + (g.nodes[1].y - g.nodes[0].y).powi(2))
-        .sqrt();
+        let dist =
+            ((g.nodes[1].x - g.nodes[0].x).powi(2) + (g.nodes[1].y - g.nodes[0].y).powi(2)).sqrt();
         assert!(dist > 10.0, "unconnected nodes should repel: dist={dist}");
     }
 
@@ -757,12 +799,10 @@ mod tests {
 
         layout(&mut g, &ForceConfig::default());
 
-        let d01 = ((g.nodes[1].x - g.nodes[0].x).powi(2)
-            + (g.nodes[1].y - g.nodes[0].y).powi(2))
-        .sqrt();
-        let d02 = ((g.nodes[2].x - g.nodes[0].x).powi(2)
-            + (g.nodes[2].y - g.nodes[0].y).powi(2))
-        .sqrt();
+        let d01 =
+            ((g.nodes[1].x - g.nodes[0].x).powi(2) + (g.nodes[1].y - g.nodes[0].y).powi(2)).sqrt();
+        let d02 =
+            ((g.nodes[2].x - g.nodes[0].x).powi(2) + (g.nodes[2].y - g.nodes[0].y).powi(2)).sqrt();
         assert!(
             d01 < d02,
             "connected ({d01}) should be closer than unconnected ({d02})"
@@ -804,7 +844,10 @@ mod tests {
         g.add_edge(0, 1);
 
         // Should converge well before 2500 iterations
-        let cfg = ForceConfig { max_iterations: 2500, ..ForceConfig::default() };
+        let cfg = ForceConfig {
+            max_iterations: 2500,
+            ..ForceConfig::default()
+        };
         layout(&mut g, &cfg);
 
         for n in &g.nodes {
@@ -844,7 +887,9 @@ mod tests {
             assert!(
                 (a.fx - b.fx).abs() < 1e-6,
                 "node {} fx: brute={} grid={}",
-                a.id, a.fx, b.fx,
+                a.id,
+                a.fx,
+                b.fx,
             );
         }
     }
@@ -877,7 +922,10 @@ mod tests {
         let exp = cooling_exponent(max_cycle, final_temp);
 
         let first = compute_cooling(0, 1.0, exp, max_cycle, final_temp);
-        assert!((first - 1.0).abs() < 1e-10, "cycle 0 should be 1.0, got {first}");
+        assert!(
+            (first - 1.0).abs() < 1e-10,
+            "cycle 0 should be 1.0, got {first}"
+        );
 
         let last = compute_cooling(max_cycle, 1.0, exp, max_cycle, final_temp);
         assert!(
@@ -895,7 +943,10 @@ mod tests {
         let mut prev = 2.0;
         for cycle in 0..=max_cycle {
             let c = compute_cooling(cycle, 1.0, exp, max_cycle, final_temp);
-            assert!(c <= prev, "cooling must decay: cycle {cycle} ({c}) > prev ({prev})");
+            assert!(
+                c <= prev,
+                "cooling must decay: cycle {cycle} ({c}) > prev ({prev})"
+            );
             assert!(c >= final_temp, "cooling must stay >= final_temp");
             assert!(c <= 1.0, "cooling must stay <= 1.0");
             prev = c;
@@ -924,7 +975,9 @@ mod tests {
         // Find first cycle where cooling <= final_temp + 0.01 (effectively converged)
         let near_final = |adapt: f64| -> usize {
             (0..=max_cycle)
-                .find(|&c| compute_cooling(c, adapt, exp, max_cycle, final_temp) < final_temp + 0.01)
+                .find(|&c| {
+                    compute_cooling(c, adapt, exp, max_cycle, final_temp) < final_temp + 0.01
+                })
                 .unwrap_or(max_cycle)
         };
 
@@ -980,7 +1033,10 @@ mod tests {
             }
         }
 
-        let cfg = ForceConfig { max_iterations: 500, ..ForceConfig::default() };
+        let cfg = ForceConfig {
+            max_iterations: 500,
+            ..ForceConfig::default()
+        };
         layout(&mut g, &cfg);
 
         // All finite

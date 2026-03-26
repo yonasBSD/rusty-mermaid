@@ -132,7 +132,10 @@ mod tests {
     #[test]
     fn empty_tag() {
         let mut doc = SvgDocument::new(100.0, 100.0);
-        doc.empty_tag("rect", &[("x", "10"), ("y", "20"), ("width", "30"), ("height", "40")]);
+        doc.empty_tag(
+            "rect",
+            &[("x", "10"), ("y", "20"), ("width", "30"), ("height", "40")],
+        );
         let svg = doc.finish();
         assert!(svg.contains(r#"<rect x="10" y="20" width="30" height="40" />"#));
     }

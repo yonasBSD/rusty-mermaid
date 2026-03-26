@@ -20,16 +20,27 @@ fn parse_gitgraph(input: &mut &str) -> ModalResult<GitGraph> {
 
     // Optional direction
     skip_horizontal_ws(input);
-    if input.starts_with("LR") { *input = &input[2..]; graph.direction = GitDirection::LR; }
-    else if input.starts_with("TB") { *input = &input[2..]; graph.direction = GitDirection::TB; }
-    else if input.starts_with("BT") { *input = &input[2..]; graph.direction = GitDirection::BT; }
+    if input.starts_with("LR") {
+        *input = &input[2..];
+        graph.direction = GitDirection::LR;
+    } else if input.starts_with("TB") {
+        *input = &input[2..];
+        graph.direction = GitDirection::TB;
+    } else if input.starts_with("BT") {
+        *input = &input[2..];
+        graph.direction = GitDirection::BT;
+    }
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         let line = take_line(input);
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
 
         if let Some(stmt) = parse_statement(line) {
             graph.statements.push(stmt);
@@ -47,16 +58,23 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
         let id = extract_option(rest, "id:");
         let tag = extract_option(rest, "tag:");
         let commit_type = extract_commit_type(rest);
-        return Some(GitStatement::Commit { id, tag, commit_type });
+        return Some(GitStatement::Commit {
+            id,
+            tag,
+            commit_type,
+        });
     }
 
     if line.starts_with("branch") {
-        let rest = line.strip_prefix("branch").expect("guarded by starts_with").trim();
+        let rest = line
+            .strip_prefix("branch")
+            .expect("guarded by starts_with")
+            .trim();
         let parts: Vec<&str> = rest.splitn(2, |c: char| c == ' ' || c == '\t').collect();
         let name = parts[0].to_string();
-        let order = parts.get(1).and_then(|r| {
-            extract_option(r, "order:").and_then(|o| o.parse().ok())
-        });
+        let order = parts
+            .get(1)
+            .and_then(|r| extract_option(r, "order:").and_then(|o| o.parse().ok()));
         return Some(GitStatement::Branch { name, order });
     }
 
@@ -67,18 +85,29 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
     }
 
     if line.starts_with("merge") {
-        let rest = line.strip_prefix("merge").expect("guarded by starts_with").trim();
+        let rest = line
+            .strip_prefix("merge")
+            .expect("guarded by starts_with")
+            .trim();
         let parts: Vec<&str> = rest.splitn(2, |c: char| c == ' ' || c == '\t').collect();
         let branch = parts[0].to_string();
         let opts = parts.get(1).copied().unwrap_or("");
         let id = extract_option(opts, "id:");
         let tag = extract_option(opts, "tag:");
         let commit_type = extract_commit_type(opts);
-        return Some(GitStatement::Merge { branch, id, tag, commit_type });
+        return Some(GitStatement::Merge {
+            branch,
+            id,
+            tag,
+            commit_type,
+        });
     }
 
     if line.starts_with("cherry-pick") {
-        let rest = line.strip_prefix("cherry-pick").expect("guarded by starts_with").trim();
+        let rest = line
+            .strip_prefix("cherry-pick")
+            .expect("guarded by starts_with")
+            .trim();
         let id = extract_option(rest, "id:").unwrap_or_default();
         let tag = extract_option(rest, "tag:");
         return Some(GitStatement::CherryPick { id, tag });
@@ -94,7 +123,9 @@ fn extract_option(text: &str, key: &str) -> Option<String> {
         let end = rest[1..].find('"')?;
         Some(rest[1..1 + end].to_string())
     } else {
-        let end = rest.find(|c: char| c == ' ' || c == '\t').unwrap_or(rest.len());
+        let end = rest
+            .find(|c: char| c == ' ' || c == '\t')
+            .unwrap_or(rest.len());
         Some(rest[..end].to_string())
     }
 }
@@ -116,7 +147,11 @@ fn skip_horizontal_ws(input: &mut &str) {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 
@@ -137,7 +172,9 @@ mod tests {
         if let GitStatement::Commit { id, tag, .. } = &g.statements[0] {
             assert_eq!(id.as_deref(), Some("abc"));
             assert_eq!(tag.as_deref(), Some("v1.0"));
-        } else { panic!("expected commit"); }
+        } else {
+            panic!("expected commit");
+        }
     }
 
     #[test]
@@ -153,7 +190,8 @@ mod tests {
 
     #[test]
     fn parse_branch_and_checkout() {
-        let g = parse("gitGraph\n    commit\n    branch develop\n    checkout develop\n    commit").unwrap();
+        let g = parse("gitGraph\n    commit\n    branch develop\n    checkout develop\n    commit")
+            .unwrap();
         assert_eq!(g.statements.len(), 4);
         assert!(matches!(&g.statements[1], GitStatement::Branch { name, .. } if name == "develop"));
         assert!(matches!(&g.statements[2], GitStatement::Checkout(name) if name == "develop"));
@@ -165,15 +203,21 @@ mod tests {
         if let GitStatement::Merge { branch, tag, .. } = &g.statements[4] {
             assert_eq!(branch, "feature");
             assert_eq!(tag.as_deref(), Some("v2.0"));
-        } else { panic!("expected merge"); }
+        } else {
+            panic!("expected merge");
+        }
     }
 
     #[test]
     fn parse_cherry_pick() {
-        let g = parse("gitGraph\n    commit id: \"abc\"\n    branch dev\n    cherry-pick id: \"abc\"").unwrap();
+        let g =
+            parse("gitGraph\n    commit id: \"abc\"\n    branch dev\n    cherry-pick id: \"abc\"")
+                .unwrap();
         if let GitStatement::CherryPick { id, .. } = &g.statements[2] {
             assert_eq!(id, "abc");
-        } else { panic!("expected cherry-pick"); }
+        } else {
+            panic!("expected cherry-pick");
+        }
     }
 
     #[test]

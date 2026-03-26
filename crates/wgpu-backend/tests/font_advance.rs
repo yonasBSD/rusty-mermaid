@@ -4,7 +4,10 @@ use skrifa::MetadataProvider;
 fn measure_real_advance() {
     let bytes = include_bytes!("../../raster/fonts/IntelOneMono-Regular.ttf");
     let font = skrifa::FontRef::new(bytes).unwrap();
-    let gm = font.glyph_metrics(skrifa::instance::Size::new(14.0), skrifa::instance::LocationRef::default());
+    let gm = font.glyph_metrics(
+        skrifa::instance::Size::new(14.0),
+        skrifa::instance::LocationRef::default(),
+    );
     let cm = font.charmap();
 
     for ch in ['A', 'a', 'W', 'i', ' ', '0'] {

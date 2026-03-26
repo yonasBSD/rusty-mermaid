@@ -49,7 +49,11 @@ mod tests {
 
     #[test]
     fn point_construction() {
-        let p = QuadrantPoint { label: "Feature X".into(), x: 0.75, y: 0.25 };
+        let p = QuadrantPoint {
+            label: "Feature X".into(),
+            x: 0.75,
+            y: 0.25,
+        };
         assert_eq!(p.label, "Feature X");
         assert!((p.x - 0.75).abs() < f64::EPSILON);
         assert!((p.y - 0.25).abs() < f64::EPSILON);

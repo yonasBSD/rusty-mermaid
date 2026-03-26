@@ -46,7 +46,11 @@ static FLOWCHARTS: LazyLock<Vec<FlowResult>> = LazyLock::new(|| {
         };
         let layout = rusty_mermaid_diagrams::flowchart::bridge::layout(&diagram);
         let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
-        results.push(FlowResult { stem, diagram, layout });
+        results.push(FlowResult {
+            stem,
+            diagram,
+            layout,
+        });
     }
     results.sort_by(|a, b| a.stem.cmp(&b.stem));
     results
@@ -67,7 +71,11 @@ static STATES: LazyLock<Vec<StateResult>> = LazyLock::new(|| {
         };
         let layout = rusty_mermaid_diagrams::state::bridge::layout(&diagram);
         let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
-        results.push(StateResult { stem, diagram, layout });
+        results.push(StateResult {
+            stem,
+            diagram,
+            layout,
+        });
     }
     results.sort_by(|a, b| a.stem.cmp(&b.stem));
     results
@@ -77,9 +85,7 @@ static STATES: LazyLock<Vec<StateResult>> = LazyLock::new(|| {
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn node_bbox(
-    n: &rusty_mermaid_diagrams::common::layout::NodeLayout,
-) -> (f64, f64, f64, f64) {
+fn node_bbox(n: &rusty_mermaid_diagrams::common::layout::NodeLayout) -> (f64, f64, f64, f64) {
     let left = n.x - n.width / 2.0;
     let top = n.y - n.height / 2.0;
     let right = n.x + n.width / 2.0;
@@ -101,7 +107,9 @@ fn rect_contains(outer: (f64, f64, f64, f64), inner: (f64, f64, f64, f64), tol: 
 }
 
 /// Collect all note state_ids from an IR (recursively through composites).
-fn collect_note_state_ids(diagram: &rusty_mermaid_diagrams::state::ir::StateDiagram) -> Vec<String> {
+fn collect_note_state_ids(
+    diagram: &rusty_mermaid_diagrams::state::ir::StateDiagram,
+) -> Vec<String> {
     let mut ids = Vec::new();
     for note in &diagram.notes {
         ids.push(note.state_id.clone());
@@ -116,7 +124,13 @@ fn collect_note_state_ids_from_states(
 ) {
     use rusty_mermaid_diagrams::state::ir::StateKind;
     for s in states {
-        if let StateKind::Composite { children, notes, regions, .. } = &s.kind {
+        if let StateKind::Composite {
+            children,
+            notes,
+            regions,
+            ..
+        } = &s.kind
+        {
             for note in notes {
                 ids.push(note.state_id.clone());
             }
@@ -129,25 +143,31 @@ fn collect_note_state_ids_from_states(
 }
 
 /// Count concurrent regions in IR for a state (returns 0 if not composite/concurrent).
-fn ir_region_count(
-    states: &[rusty_mermaid_diagrams::state::ir::StateNode],
-    id: &str,
-) -> usize {
+fn ir_region_count(states: &[rusty_mermaid_diagrams::state::ir::StateNode], id: &str) -> usize {
     use rusty_mermaid_diagrams::state::ir::StateKind;
     for s in states {
         if s.id == id {
             if let StateKind::Composite { regions, .. } = &s.kind {
-                if regions.is_empty() { return 0; }
+                if regions.is_empty() {
+                    return 0;
+                }
                 return regions.len();
             }
             return 0;
         }
-        if let StateKind::Composite { children, regions, .. } = &s.kind {
+        if let StateKind::Composite {
+            children, regions, ..
+        } = &s.kind
+        {
             let r = ir_region_count(children, id);
-            if r > 0 { return r; }
+            if r > 0 {
+                return r;
+            }
             for region in regions {
                 let r = ir_region_count(&region.children, id);
-                if r > 0 { return r; }
+                if r > 0 {
+                    return r;
+                }
             }
         }
     }
@@ -164,18 +184,24 @@ fn flowchart_positive_dimensions() {
     for fr in FLOWCHARTS.iter() {
         if fr.layout.width <= 0.0 || fr.layout.height <= 0.0 {
             failures.push(format!(
-                "{}: layout {}x{}", fr.stem, fr.layout.width, fr.layout.height
+                "{}: layout {}x{}",
+                fr.stem, fr.layout.width, fr.layout.height
             ));
         }
         for n in &fr.layout.nodes {
             if n.width <= 0.0 || n.height <= 0.0 {
                 failures.push(format!(
-                    "{}: node {} has {}x{}", fr.stem, n.id, n.width, n.height
+                    "{}: node {} has {}x{}",
+                    fr.stem, n.id, n.width, n.height
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "non-positive dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "non-positive dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -184,18 +210,24 @@ fn state_positive_dimensions() {
     for sr in STATES.iter() {
         if sr.layout.width <= 0.0 || sr.layout.height <= 0.0 {
             failures.push(format!(
-                "{}: layout {}x{}", sr.stem, sr.layout.width, sr.layout.height
+                "{}: layout {}x{}",
+                sr.stem, sr.layout.width, sr.layout.height
             ));
         }
         for n in &sr.layout.nodes {
             if n.width <= 0.0 || n.height <= 0.0 {
                 failures.push(format!(
-                    "{}: node {} has {}x{}", sr.stem, n.id, n.width, n.height
+                    "{}: node {} has {}x{}",
+                    sr.stem, n.id, n.width, n.height
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "non-positive dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "non-positive dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -219,14 +251,19 @@ fn flowchart_no_nan_inf() {
             for pt in &e.points {
                 if !pt.x.is_finite() || !pt.y.is_finite() {
                     failures.push(format!(
-                        "{}: edge {}->{} has non-finite point", fr.stem, e.src, e.dst
+                        "{}: edge {}->{} has non-finite point",
+                        fr.stem, e.src, e.dst
                     ));
                     break;
                 }
             }
         }
     }
-    assert!(failures.is_empty(), "NaN/Inf detected:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "NaN/Inf detected:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -246,14 +283,19 @@ fn state_no_nan_inf() {
             for pt in &e.points {
                 if !pt.x.is_finite() || !pt.y.is_finite() {
                     failures.push(format!(
-                        "{}: edge {}->{} has non-finite point", sr.stem, e.src, e.dst
+                        "{}: edge {}->{} has non-finite point",
+                        sr.stem, e.src, e.dst
                     ));
                     break;
                 }
             }
         }
     }
-    assert!(failures.is_empty(), "NaN/Inf detected:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "NaN/Inf detected:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -275,7 +317,11 @@ fn flowchart_nodes_within_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "nodes outside bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "nodes outside bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -293,7 +339,11 @@ fn state_nodes_within_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "nodes outside bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "nodes outside bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -318,7 +368,11 @@ fn flowchart_edge_points_within_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge points outside bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge points outside bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -339,7 +393,11 @@ fn state_edge_points_within_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge points outside bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge points outside bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -352,7 +410,9 @@ fn flowchart_edge_labels_within_bounds() {
     for fr in FLOWCHARTS.iter() {
         let (lw, lh) = (fr.layout.width, fr.layout.height);
         for e in &fr.layout.edges {
-            let Some((label_w, label_h)) = e.label_size else { continue };
+            let Some((label_w, label_h)) = e.label_size else {
+                continue;
+            };
             if e.points.len() < 2 {
                 continue;
             }
@@ -369,7 +429,11 @@ fn flowchart_edge_labels_within_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge labels outside bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge labels outside bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -378,7 +442,9 @@ fn state_edge_labels_within_bounds() {
     for sr in STATES.iter() {
         let (lw, lh) = (sr.layout.width, sr.layout.height);
         for e in &sr.layout.edges {
-            let Some((label_w, label_h)) = e.label_size else { continue };
+            let Some((label_w, label_h)) = e.label_size else {
+                continue;
+            };
             if e.points.len() < 2 {
                 continue;
             }
@@ -395,7 +461,11 @@ fn state_edge_labels_within_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge labels outside bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge labels outside bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -413,20 +483,28 @@ fn flowchart_no_leaf_node_overlaps() {
                 let b = node_bbox(leaves[j]);
                 if rects_overlap(a, b) {
                     failures.push(format!(
-                        "{}: nodes {} and {} overlap", fr.stem, leaves[i].id, leaves[j].id
+                        "{}: nodes {} and {} overlap",
+                        fr.stem, leaves[i].id, leaves[j].id
                     ));
                 }
             }
         }
     }
-    assert!(failures.is_empty(), "overlapping nodes:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "overlapping nodes:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
 fn state_no_leaf_node_overlaps() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
-        let leaves: Vec<_> = sr.layout.nodes.iter()
+        let leaves: Vec<_> = sr
+            .layout
+            .nodes
+            .iter()
             .filter(|n| !n.is_compound)
             // Pseudo-states ([*]_start/end) are tiny circles that dagre may
             // place touching regular nodes — exclude from overlap check.
@@ -438,23 +516,34 @@ fn state_no_leaf_node_overlaps() {
                 let b = node_bbox(leaves[j]);
                 if rects_overlap(a, b) {
                     failures.push(format!(
-                        "{}: nodes {} and {} overlap", sr.stem, leaves[i].id, leaves[j].id
+                        "{}: nodes {} and {} overlap",
+                        sr.stem, leaves[i].id, leaves[j].id
                     ));
                 }
             }
         }
     }
-    assert!(failures.is_empty(), "overlapping nodes:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "overlapping nodes:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
 fn state_pseudo_states_no_overlap_with_leaves() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
-        let pseudos: Vec<_> = sr.layout.nodes.iter()
+        let pseudos: Vec<_> = sr
+            .layout
+            .nodes
+            .iter()
             .filter(|n| matches!(n.shape, Shape::StateStart | Shape::StateEnd))
             .collect();
-        let leaves: Vec<_> = sr.layout.nodes.iter()
+        let leaves: Vec<_> = sr
+            .layout
+            .nodes
+            .iter()
             .filter(|n| !n.is_compound)
             .filter(|n| !matches!(n.shape, Shape::StateStart | Shape::StateEnd))
             .collect();
@@ -464,13 +553,18 @@ fn state_pseudo_states_no_overlap_with_leaves() {
                 let lb = node_bbox(l);
                 if rects_overlap(pb, lb) {
                     failures.push(format!(
-                        "{}: pseudo-state {} overlaps leaf {}", sr.stem, p.id, l.id
+                        "{}: pseudo-state {} overlaps leaf {}",
+                        sr.stem, p.id, l.id
                     ));
                 }
             }
         }
     }
-    assert!(failures.is_empty(), "pseudo-state overlaps:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "pseudo-state overlaps:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -559,12 +653,20 @@ fn flowchart_edges_have_points() {
             if e.points.len() < 2 {
                 failures.push(format!(
                     "{}: edge {} ({}->{}) has {} points",
-                    fr.stem, i, e.src, e.dst, e.points.len()
+                    fr.stem,
+                    i,
+                    e.src,
+                    e.dst,
+                    e.points.len()
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "edges with <2 points:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edges with <2 points:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -575,12 +677,20 @@ fn state_edges_have_points() {
             if e.points.len() < 2 {
                 failures.push(format!(
                     "{}: edge {} ({}->{}) has {} points",
-                    sr.stem, i, e.src, e.dst, e.points.len()
+                    sr.stem,
+                    i,
+                    e.src,
+                    e.dst,
+                    e.points.len()
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "edges with <2 points:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edges with <2 points:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -629,7 +739,11 @@ fn flowchart_edge_endpoints_near_nodes() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge endpoints far from nodes:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge endpoints far from nodes:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -674,7 +788,11 @@ fn state_edge_endpoints_near_nodes() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge endpoints far from nodes:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge endpoints far from nodes:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -693,17 +811,23 @@ fn flowchart_edge_connectivity() {
         for e in &fr.layout.edges {
             if !known_ids.contains(e.src.as_str()) {
                 failures.push(format!(
-                    "{}: edge {}->{} references missing src node", fr.stem, e.src, e.dst
+                    "{}: edge {}->{} references missing src node",
+                    fr.stem, e.src, e.dst
                 ));
             }
             if !known_ids.contains(e.dst.as_str()) {
                 failures.push(format!(
-                    "{}: edge {}->{} references missing dst node", fr.stem, e.src, e.dst
+                    "{}: edge {}->{} references missing dst node",
+                    fr.stem, e.src, e.dst
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "dangling edges:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "dangling edges:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -719,17 +843,23 @@ fn state_edge_connectivity() {
             let dst_scoped = e.dst.contains('.') && e.dst.contains("[*]");
             if !src_scoped && !node_ids.contains(e.src.as_str()) {
                 failures.push(format!(
-                    "{}: edge {}->{} references missing src node", sr.stem, e.src, e.dst
+                    "{}: edge {}->{} references missing src node",
+                    sr.stem, e.src, e.dst
                 ));
             }
             if !dst_scoped && !node_ids.contains(e.dst.as_str()) {
                 failures.push(format!(
-                    "{}: edge {}->{} references missing dst node", sr.stem, e.src, e.dst
+                    "{}: edge {}->{} references missing dst node",
+                    sr.stem, e.src, e.dst
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "dangling edges:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "dangling edges:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -747,7 +877,11 @@ fn flowchart_unique_node_ids() {
             }
         }
     }
-    assert!(failures.is_empty(), "duplicate node IDs:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "duplicate node IDs:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -758,13 +892,19 @@ fn state_unique_node_ids() {
         for n in &sr.layout.nodes {
             // Note nodes can have duplicates when a state has notes on both
             // sides (both get id "{state}-note") — known naming limitation.
-            if n.shape == Shape::Note { continue; }
+            if n.shape == Shape::Note {
+                continue;
+            }
             if !seen.insert(&n.id) {
                 failures.push(format!("{}: duplicate node id '{}'", sr.stem, n.id));
             }
         }
     }
-    assert!(failures.is_empty(), "duplicate node IDs:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "duplicate node IDs:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -779,7 +919,8 @@ fn flowchart_label_dimensions_valid() {
             if e.label.is_some() {
                 match e.label_size {
                     None => failures.push(format!(
-                        "{}: edge {}->{} has label but no label_size", fr.stem, e.src, e.dst
+                        "{}: edge {}->{} has label but no label_size",
+                        fr.stem, e.src, e.dst
                     )),
                     Some((w, h)) => {
                         if w <= 0.0 || h <= 0.0 {
@@ -793,12 +934,17 @@ fn flowchart_label_dimensions_valid() {
             }
             if e.label.is_none() && e.label_size.is_some() {
                 failures.push(format!(
-                    "{}: edge {}->{} has label_size but no label", fr.stem, e.src, e.dst
+                    "{}: edge {}->{} has label_size but no label",
+                    fr.stem, e.src, e.dst
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "invalid label dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "invalid label dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -809,7 +955,8 @@ fn state_label_dimensions_valid() {
             if e.label.is_some() {
                 match e.label_size {
                     None => failures.push(format!(
-                        "{}: edge {}->{} has label but no label_size", sr.stem, e.src, e.dst
+                        "{}: edge {}->{} has label but no label_size",
+                        sr.stem, e.src, e.dst
                     )),
                     Some((w, h)) => {
                         if w <= 0.0 || h <= 0.0 {
@@ -823,12 +970,17 @@ fn state_label_dimensions_valid() {
             }
             if e.label.is_none() && e.label_size.is_some() {
                 failures.push(format!(
-                    "{}: edge {}->{} has label_size but no label", sr.stem, e.src, e.dst
+                    "{}: edge {}->{} has label_size but no label",
+                    sr.stem, e.src, e.dst
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "invalid label dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "invalid label dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -865,7 +1017,11 @@ fn flowchart_circle_shapes_roughly_square() {
             }
         }
     }
-    assert!(failures.is_empty(), "shape aspect ratio violations:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "shape aspect ratio violations:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -907,7 +1063,11 @@ fn state_special_shape_sizes() {
             }
         }
     }
-    assert!(failures.is_empty(), "state shape size violations:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "state shape size violations:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -919,17 +1079,25 @@ fn flowchart_self_loop_routing() {
     let mut failures = Vec::new();
     for fr in FLOWCHARTS.iter() {
         for e in &fr.layout.edges {
-            if e.src != e.dst { continue; }
-            if e.points.len() < 3 { continue; }
+            if e.src != e.dst {
+                continue;
+            }
+            if e.points.len() < 3 {
+                continue;
+            }
 
-            let Some(node) = fr.layout.nodes.iter().find(|n| n.id == e.src) else { continue };
+            let Some(node) = fr.layout.nodes.iter().find(|n| n.id == e.src) else {
+                continue;
+            };
             let bbox = node_bbox(node);
 
             // At least one control point should be outside the node bbox
             // (the path exits the node and comes back)
             let has_external = e.points.iter().any(|pt| {
-                pt.x < bbox.0 - 1.0 || pt.x > bbox.2 + 1.0
-                    || pt.y < bbox.1 - 1.0 || pt.y > bbox.3 + 1.0
+                pt.x < bbox.0 - 1.0
+                    || pt.x > bbox.2 + 1.0
+                    || pt.y < bbox.1 - 1.0
+                    || pt.y > bbox.3 + 1.0
             });
             if !has_external {
                 failures.push(format!(
@@ -939,7 +1107,11 @@ fn flowchart_self_loop_routing() {
             }
         }
     }
-    assert!(failures.is_empty(), "self-loop routing issues:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "self-loop routing issues:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -947,15 +1119,23 @@ fn state_self_loop_routing() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
         for e in &sr.layout.edges {
-            if e.src != e.dst { continue; }
-            if e.points.len() < 3 { continue; }
+            if e.src != e.dst {
+                continue;
+            }
+            if e.points.len() < 3 {
+                continue;
+            }
 
-            let Some(node) = sr.layout.nodes.iter().find(|n| n.id == e.src) else { continue };
+            let Some(node) = sr.layout.nodes.iter().find(|n| n.id == e.src) else {
+                continue;
+            };
             let bbox = node_bbox(node);
 
             let has_external = e.points.iter().any(|pt| {
-                pt.x < bbox.0 - 1.0 || pt.x > bbox.2 + 1.0
-                    || pt.y < bbox.1 - 1.0 || pt.y > bbox.3 + 1.0
+                pt.x < bbox.0 - 1.0
+                    || pt.x > bbox.2 + 1.0
+                    || pt.y < bbox.1 - 1.0
+                    || pt.y > bbox.3 + 1.0
             });
             if !has_external {
                 failures.push(format!(
@@ -965,7 +1145,11 @@ fn state_self_loop_routing() {
             }
         }
     }
-    assert!(failures.is_empty(), "self-loop routing issues:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "self-loop routing issues:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -982,11 +1166,19 @@ fn flowchart_direction_rank_progression() {
         let total = fr.layout.edges.len();
         let mut count = 0usize;
         for e in &fr.layout.edges {
-            if e.src == e.dst { continue; }
+            if e.src == e.dst {
+                continue;
+            }
 
-            let Some(src) = fr.layout.nodes.iter().find(|n| n.id == e.src) else { continue };
-            let Some(dst) = fr.layout.nodes.iter().find(|n| n.id == e.dst) else { continue };
-            if src.is_compound || dst.is_compound { continue; }
+            let Some(src) = fr.layout.nodes.iter().find(|n| n.id == e.src) else {
+                continue;
+            };
+            let Some(dst) = fr.layout.nodes.iter().find(|n| n.id == e.dst) else {
+                continue;
+            };
+            if src.is_compound || dst.is_compound {
+                continue;
+            }
 
             let ok = match dir {
                 Direction::TB => dst.y >= src.y - 1.0,
@@ -994,7 +1186,9 @@ fn flowchart_direction_rank_progression() {
                 Direction::LR => dst.x >= src.x - 1.0,
                 Direction::RL => dst.x <= src.x + 1.0,
             };
-            if !ok { count += 1; }
+            if !ok {
+                count += 1;
+            }
         }
         if count > 0 {
             violations.insert(fr.stem.clone(), (count, total));
@@ -1002,11 +1196,18 @@ fn flowchart_direction_rank_progression() {
     }
     // Cycles legitimately have back-edges. Only flag if majority of edges
     // violate the direction (indicates a layout bug, not just cycles).
-    let hard_failures: Vec<_> = violations.iter()
+    let hard_failures: Vec<_> = violations
+        .iter()
         .filter(|(_, (count, total))| *count > *total / 2)
-        .map(|(stem, (count, total))| format!("{}: {}/{} edges violate direction", stem, count, total))
+        .map(|(stem, (count, total))| {
+            format!("{}: {}/{} edges violate direction", stem, count, total)
+        })
         .collect();
-    assert!(hard_failures.is_empty(), "direction violations:\n{}", hard_failures.join("\n"));
+    assert!(
+        hard_failures.is_empty(),
+        "direction violations:\n{}",
+        hard_failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1034,9 +1235,10 @@ fn flowchart_style_propagation() {
         for v in &fr.diagram.vertices {
             if !v.classes.is_empty() {
                 // Check if any assigned class is actually defined
-                let has_defined_class = v.classes.iter().any(|c| {
-                    fr.diagram.class_defs.iter().any(|cd| cd.name == *c)
-                });
+                let has_defined_class = v
+                    .classes
+                    .iter()
+                    .any(|c| fr.diagram.class_defs.iter().any(|cd| cd.name == *c));
                 if has_defined_class {
                     styled_ids.insert(v.id.clone());
                 }
@@ -1054,7 +1256,11 @@ fn flowchart_style_propagation() {
             }
         }
     }
-    assert!(failures.is_empty(), "missing style propagation:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "missing style propagation:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1081,14 +1287,18 @@ fn state_style_propagation() {
             use rusty_mermaid_diagrams::state::ir::StateKind;
             for s in states {
                 if !s.classes.is_empty() {
-                    let has_defined = s.classes.iter().any(|c| {
-                        class_defs.iter().any(|cd| cd.name == *c)
-                    });
+                    let has_defined = s
+                        .classes
+                        .iter()
+                        .any(|c| class_defs.iter().any(|cd| cd.name == *c));
                     if has_defined {
                         styled_ids.insert(s.id.clone());
                     }
                 }
-                if let StateKind::Composite { children, regions, .. } = &s.kind {
+                if let StateKind::Composite {
+                    children, regions, ..
+                } = &s.kind
+                {
                     collect_classed_ids(children, class_defs, styled_ids);
                     for region in regions {
                         collect_classed_ids(&region.children, class_defs, styled_ids);
@@ -1109,7 +1319,11 @@ fn state_style_propagation() {
             }
         }
     }
-    assert!(failures.is_empty(), "missing style propagation:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "missing style propagation:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1122,22 +1336,34 @@ fn state_concurrent_dividers_valid() {
     for sr in STATES.iter() {
         // Check compound nodes with region_count >= 2
         for node in &sr.layout.nodes {
-            if node.region_count < 2 { continue; }
+            if node.region_count < 2 {
+                continue;
+            }
 
             let expected_dividers = node.region_count - 1;
             let bbox = node_bbox(node);
 
             // Count dividers within this compound's bbox
-            let dividers_in_compound: Vec<_> = sr.layout.dividers.iter().filter(|d| {
-                d.start.x >= bbox.0 - 1.0 && d.start.x <= bbox.2 + 1.0
-                    && d.start.y >= bbox.1 - 1.0 && d.end.y <= bbox.3 + 1.0
-            }).collect();
+            let dividers_in_compound: Vec<_> = sr
+                .layout
+                .dividers
+                .iter()
+                .filter(|d| {
+                    d.start.x >= bbox.0 - 1.0
+                        && d.start.x <= bbox.2 + 1.0
+                        && d.start.y >= bbox.1 - 1.0
+                        && d.end.y <= bbox.3 + 1.0
+                })
+                .collect();
 
             if dividers_in_compound.len() != expected_dividers {
                 failures.push(format!(
                     "{}: compound {} has region_count={} but {} dividers (expected {})",
-                    sr.stem, node.id, node.region_count,
-                    dividers_in_compound.len(), expected_dividers
+                    sr.stem,
+                    node.id,
+                    node.region_count,
+                    dividers_in_compound.len(),
+                    expected_dividers
                 ));
             }
 
@@ -1153,14 +1379,19 @@ fn state_concurrent_dividers_valid() {
         }
 
         // Check region_rects count matches compound region_counts
-        let total_regions: usize = sr.layout.nodes.iter()
+        let total_regions: usize = sr
+            .layout
+            .nodes
+            .iter()
             .filter(|n| n.region_count >= 2)
             .map(|n| n.region_count)
             .sum();
         if sr.layout.region_rects.len() != total_regions {
             failures.push(format!(
                 "{}: {} region_rects but {} expected from compounds",
-                sr.stem, sr.layout.region_rects.len(), total_regions
+                sr.stem,
+                sr.layout.region_rects.len(),
+                total_regions
             ));
         }
 
@@ -1174,7 +1405,11 @@ fn state_concurrent_dividers_valid() {
             }
         }
     }
-    assert!(failures.is_empty(), "concurrent region issues:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "concurrent region issues:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1186,7 +1421,9 @@ fn state_notes_in_layout() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
         let note_state_ids = collect_note_state_ids(&sr.diagram);
-        if note_state_ids.is_empty() { continue; }
+        if note_state_ids.is_empty() {
+            continue;
+        }
 
         for state_id in &note_state_ids {
             let note_node_id = format!("{}-note", state_id);
@@ -1215,7 +1452,11 @@ fn state_notes_in_layout() {
             }
         }
     }
-    assert!(failures.is_empty(), "missing/invalid notes in layout:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "missing/invalid notes in layout:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1227,7 +1468,9 @@ fn state_region_count_matches_ir() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
         for node in &sr.layout.nodes {
-            if !node.is_compound { continue; }
+            if !node.is_compound {
+                continue;
+            }
             let ir_regions = ir_region_count(&sr.diagram.states, &node.id);
             if ir_regions > 0 && node.region_count != ir_regions {
                 failures.push(format!(
@@ -1237,7 +1480,11 @@ fn state_region_count_matches_ir() {
             }
         }
     }
-    assert!(failures.is_empty(), "region count mismatches:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "region count mismatches:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1267,7 +1514,11 @@ fn state_pseudo_state_shapes() {
             }
         }
     }
-    assert!(failures.is_empty(), "pseudo-state shape mismatches:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "pseudo-state shape mismatches:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1286,21 +1537,29 @@ fn flowchart_edge_attributes_from_ir() {
             std::collections::BTreeMap::new();
 
         for e in &fr.diagram.edges {
-            ir_by_pair.entry((e.src.as_str(), e.dst.as_str()))
+            ir_by_pair
+                .entry((e.src.as_str(), e.dst.as_str()))
                 .or_default()
                 .push((e.stroke, e.start_arrow, e.end_arrow, e.label.as_deref()));
         }
         for e in &fr.layout.edges {
-            layout_by_pair.entry((e.src.as_str(), e.dst.as_str()))
+            layout_by_pair
+                .entry((e.src.as_str(), e.dst.as_str()))
                 .or_default()
                 .push((e.stroke, e.start_arrow, e.end_arrow, e.label.as_deref()));
         }
 
         // For unique (src, dst) pairs, verify stroke/arrows/label match
         for ((src, dst), ir_edges) in &ir_by_pair {
-            let Some(layout_edges) = layout_by_pair.get(&(*src, *dst)) else { continue };
-            if ir_edges.len() != layout_edges.len() { continue; }
-            if ir_edges.len() != 1 { continue; } // skip multi-edges
+            let Some(layout_edges) = layout_by_pair.get(&(*src, *dst)) else {
+                continue;
+            };
+            if ir_edges.len() != layout_edges.len() {
+                continue;
+            }
+            if ir_edges.len() != 1 {
+                continue;
+            } // skip multi-edges
 
             let (ir_stroke, ir_start, ir_end, ir_label) = &ir_edges[0];
             let (l_stroke, l_start, l_end, l_label) = &layout_edges[0];
@@ -1331,7 +1590,11 @@ fn flowchart_edge_attributes_from_ir() {
             }
         }
     }
-    assert!(failures.is_empty(), "edge attribute mismatches:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "edge attribute mismatches:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1355,14 +1618,18 @@ fn flowchart_multi_edge_spacing() {
         }
 
         for ((a, b), indices) in &edge_groups {
-            if indices.len() < 2 { continue; }
+            if indices.len() < 2 {
+                continue;
+            }
 
             // For each pair of parallel edges, check that their midpoints differ
             for i in 0..indices.len() {
                 for j in (i + 1)..indices.len() {
                     let e1 = &fr.layout.edges[indices[i]];
                     let e2 = &fr.layout.edges[indices[j]];
-                    if e1.points.is_empty() || e2.points.is_empty() { continue; }
+                    if e1.points.is_empty() || e2.points.is_empty() {
+                        continue;
+                    }
 
                     let mid1 = e1.points[e1.points.len() / 2];
                     let mid2 = e2.points[e2.points.len() / 2];
@@ -1378,7 +1645,11 @@ fn flowchart_multi_edge_spacing() {
             }
         }
     }
-    assert!(failures.is_empty(), "multi-edge overlap:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "multi-edge overlap:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1392,12 +1663,22 @@ fn flowchart_minlen_respected() {
     for fr in FLOWCHARTS.iter() {
         let dir = fr.diagram.direction;
         for ir_edge in &fr.diagram.edges {
-            if ir_edge.minlen <= 1 { continue; }
-            if ir_edge.src == ir_edge.dst { continue; }
+            if ir_edge.minlen <= 1 {
+                continue;
+            }
+            if ir_edge.src == ir_edge.dst {
+                continue;
+            }
 
-            let Some(src) = fr.layout.nodes.iter().find(|n| n.id == ir_edge.src) else { continue };
-            let Some(dst) = fr.layout.nodes.iter().find(|n| n.id == ir_edge.dst) else { continue };
-            if src.is_compound || dst.is_compound { continue; }
+            let Some(src) = fr.layout.nodes.iter().find(|n| n.id == ir_edge.src) else {
+                continue;
+            };
+            let Some(dst) = fr.layout.nodes.iter().find(|n| n.id == ir_edge.dst) else {
+                continue;
+            };
+            if src.is_compound || dst.is_compound {
+                continue;
+            }
 
             // Measure the span in the primary direction
             let span = match dir {
@@ -1408,16 +1689,23 @@ fn flowchart_minlen_respected() {
             };
 
             // Back-edges in cycles go against the flow — skip them
-            if span < 0.0 { continue; }
+            if span < 0.0 {
+                continue;
+            }
 
             // Find baseline span for minlen=1 edges, then verify minlen>1
             // edges span proportionally more.
-            let min1_spans: Vec<f64> = fr.diagram.edges.iter()
+            let min1_spans: Vec<f64> = fr
+                .diagram
+                .edges
+                .iter()
                 .filter(|e| e.minlen == 1 && e.src != e.dst)
                 .filter_map(|e| {
                     let s = fr.layout.nodes.iter().find(|n| n.id == e.src)?;
                     let d = fr.layout.nodes.iter().find(|n| n.id == e.dst)?;
-                    if s.is_compound || d.is_compound { return None; }
+                    if s.is_compound || d.is_compound {
+                        return None;
+                    }
                     Some(match dir {
                         Direction::TB => d.y - s.y,
                         Direction::BT => s.y - d.y,
@@ -1428,7 +1716,9 @@ fn flowchart_minlen_respected() {
                 .filter(|s| *s > 0.0)
                 .collect();
 
-            if min1_spans.is_empty() { continue; }
+            if min1_spans.is_empty() {
+                continue;
+            }
             let avg_single = min1_spans.iter().sum::<f64>() / min1_spans.len() as f64;
 
             // With minlen N, span should be at least N * avg_single * 0.75
@@ -1441,7 +1731,11 @@ fn flowchart_minlen_respected() {
             }
         }
     }
-    assert!(failures.is_empty(), "minlen violations:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "minlen violations:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1463,7 +1757,11 @@ fn flowchart_node_shapes_from_ir() {
             }
         }
     }
-    assert!(failures.is_empty(), "node shape mismatches:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "node shape mismatches:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1474,10 +1772,14 @@ fn flowchart_node_shapes_from_ir() {
 fn flowchart_linkstyle_propagation() {
     let mut failures = Vec::new();
     for fr in FLOWCHARTS.iter() {
-        if fr.diagram.link_styles.is_empty() { continue; }
+        if fr.diagram.link_styles.is_empty() {
+            continue;
+        }
 
         for ls in &fr.diagram.link_styles {
-            if ls.is_default { continue; }
+            if ls.is_default {
+                continue;
+            }
             for &idx in &ls.indices {
                 if idx < fr.layout.edges.len() {
                     let edge = &fr.layout.edges[idx];
@@ -1491,7 +1793,11 @@ fn flowchart_linkstyle_propagation() {
             }
         }
     }
-    assert!(failures.is_empty(), "missing linkStyle propagation:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "missing linkStyle propagation:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1507,7 +1813,9 @@ fn state_notes_dont_overlap_state() {
             let note_node_id = format!("{}-note", state_id);
             let note = sr.layout.nodes.iter().find(|n| n.id == note_node_id);
             let state = sr.layout.nodes.iter().find(|n| n.id == *state_id);
-            let (Some(note), Some(state)) = (note, state) else { continue };
+            let (Some(note), Some(state)) = (note, state) else {
+                continue;
+            };
 
             let note_bbox = node_bbox(note);
             let state_bbox = node_bbox(state);
@@ -1520,7 +1828,11 @@ fn state_notes_dont_overlap_state() {
             }
         }
     }
-    assert!(failures.is_empty(), "note/state overlaps:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "note/state overlaps:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1534,12 +1846,17 @@ fn flowchart_subgraph_positive_dimensions() {
         for sg in &fr.layout.subgraphs {
             if sg.width <= 0.0 || sg.height <= 0.0 {
                 failures.push(format!(
-                    "{}: subgraph {} has {}x{}", fr.stem, sg.id, sg.width, sg.height
+                    "{}: subgraph {} has {}x{}",
+                    fr.stem, sg.id, sg.width, sg.height
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "non-positive subgraph dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "non-positive subgraph dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1551,14 +1868,18 @@ fn state_dividers_within_compound_bounds() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
         for node in &sr.layout.nodes {
-            if node.region_count < 2 { continue; }
+            if node.region_count < 2 {
+                continue;
+            }
             let bbox = node_bbox(node);
 
             for d in &sr.layout.dividers {
                 // Check if this divider belongs to this compound
                 let in_x = d.start.x >= bbox.0 - 1.0 && d.start.x <= bbox.2 + 1.0;
                 let in_y = d.start.y >= bbox.1 - 1.0 && d.end.y <= bbox.3 + 1.0;
-                if !in_x || !in_y { continue; }
+                if !in_x || !in_y {
+                    continue;
+                }
 
                 // Divider should span from compound top to bottom (below header)
                 if d.start.y < bbox.1 - 1.0 || d.end.y > bbox.3 + 1.0 {
@@ -1570,7 +1891,11 @@ fn state_dividers_within_compound_bounds() {
             }
         }
     }
-    assert!(failures.is_empty(), "dividers outside compound bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "dividers outside compound bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1582,24 +1907,30 @@ fn flowchart_style_field_validity() {
     let mut failures = Vec::new();
     for fr in FLOWCHARTS.iter() {
         for n in &fr.layout.nodes {
-            let Some(style) = &n.custom_style else { continue };
+            let Some(style) = &n.custom_style else {
+                continue;
+            };
             if let Some(opacity) = style.opacity {
                 if !(0.0..=1.0).contains(&opacity) {
                     failures.push(format!(
-                        "{}: node {} opacity {:.2} not in [0,1]", fr.stem, n.id, opacity
+                        "{}: node {} opacity {:.2} not in [0,1]",
+                        fr.stem, n.id, opacity
                     ));
                 }
             }
             if let Some(sw) = style.stroke_width {
                 if sw < 0.0 {
                     failures.push(format!(
-                        "{}: node {} stroke_width {:.2} negative", fr.stem, n.id, sw
+                        "{}: node {} stroke_width {:.2} negative",
+                        fr.stem, n.id, sw
                     ));
                 }
             }
         }
         for e in &fr.layout.edges {
-            let Some(style) = &e.custom_style else { continue };
+            let Some(style) = &e.custom_style else {
+                continue;
+            };
             if let Some(opacity) = style.opacity {
                 if !(0.0..=1.0).contains(&opacity) {
                     failures.push(format!(
@@ -1610,7 +1941,11 @@ fn flowchart_style_field_validity() {
             }
         }
     }
-    assert!(failures.is_empty(), "invalid style fields:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "invalid style fields:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1618,24 +1953,32 @@ fn state_style_field_validity() {
     let mut failures = Vec::new();
     for sr in STATES.iter() {
         for n in &sr.layout.nodes {
-            let Some(style) = &n.custom_style else { continue };
+            let Some(style) = &n.custom_style else {
+                continue;
+            };
             if let Some(opacity) = style.opacity {
                 if !(0.0..=1.0).contains(&opacity) {
                     failures.push(format!(
-                        "{}: node {} opacity {:.2} not in [0,1]", sr.stem, n.id, opacity
+                        "{}: node {} opacity {:.2} not in [0,1]",
+                        sr.stem, n.id, opacity
                     ));
                 }
             }
             if let Some(sw) = style.stroke_width {
                 if sw < 0.0 {
                     failures.push(format!(
-                        "{}: node {} stroke_width {:.2} negative", sr.stem, n.id, sw
+                        "{}: node {} stroke_width {:.2} negative",
+                        sr.stem, n.id, sw
                     ));
                 }
             }
         }
     }
-    assert!(failures.is_empty(), "invalid style fields:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "invalid style fields:\n{}",
+        failures.join("\n")
+    );
 }
 
 // ===========================================================================
@@ -1673,10 +2016,7 @@ static SEQUENCES: LazyLock<Vec<SeqResult>> = LazyLock::new(|| {
 
 #[test]
 fn seq_has_golden_files() {
-    assert!(
-        !SEQUENCES.is_empty(),
-        "no sequence golden .mmd files found"
-    );
+    assert!(!SEQUENCES.is_empty(), "no sequence golden .mmd files found");
 }
 
 #[test]
@@ -1685,11 +2025,16 @@ fn seq_positive_dimensions() {
     for sr in SEQUENCES.iter() {
         if sr.layout.width <= 0.0 || sr.layout.height <= 0.0 {
             failures.push(format!(
-                "{}: invalid dimensions {}×{}", sr.stem, sr.layout.width, sr.layout.height
+                "{}: invalid dimensions {}×{}",
+                sr.stem, sr.layout.width, sr.layout.height
             ));
         }
     }
-    assert!(failures.is_empty(), "bad dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "bad dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1712,7 +2057,11 @@ fn seq_actors_no_horizontal_overlap() {
             }
         }
     }
-    assert!(failures.is_empty(), "actor overlaps:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "actor overlaps:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1744,14 +2093,20 @@ fn seq_messages_advance_downward() {
             }
         }
     }
-    assert!(failures.is_empty(), "message order:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "message order:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
 fn seq_messages_below_actor_boxes() {
     let mut failures = Vec::new();
     for sr in SEQUENCES.iter() {
-        if sr.layout.actors.is_empty() { continue; }
+        if sr.layout.actors.is_empty() {
+            continue;
+        }
         let actor_bottom = sr.layout.actors[0].y + sr.layout.actors[0].height;
         for msg in &sr.layout.messages {
             if msg.y < actor_bottom - 1.0 {
@@ -1762,7 +2117,11 @@ fn seq_messages_below_actor_boxes() {
             }
         }
     }
-    assert!(failures.is_empty(), "message position:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "message position:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1778,7 +2137,11 @@ fn seq_lifelines_span_actor_to_bottom() {
             }
         }
     }
-    assert!(failures.is_empty(), "lifeline spans:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "lifeline spans:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1794,7 +2157,11 @@ fn seq_activations_positive_height() {
             }
         }
     }
-    assert!(failures.is_empty(), "activation heights:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "activation heights:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1822,7 +2189,11 @@ fn seq_fragments_enclose_child_messages() {
             }
         }
     }
-    assert!(failures.is_empty(), "fragment containment:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "fragment containment:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1832,7 +2203,9 @@ fn seq_bottom_actors_mirror_top() {
         if sr.layout.actors.len() != sr.layout.bottom_actors.len() {
             failures.push(format!(
                 "{}: top {} != bottom {} actor count",
-                sr.stem, sr.layout.actors.len(), sr.layout.bottom_actors.len()
+                sr.stem,
+                sr.layout.actors.len(),
+                sr.layout.bottom_actors.len()
             ));
             continue;
         }
@@ -1854,7 +2227,11 @@ fn seq_bottom_actors_mirror_top() {
             }
         }
     }
-    assert!(failures.is_empty(), "bottom actor mirror:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "bottom actor mirror:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1870,7 +2247,11 @@ fn seq_notes_have_positive_dimensions() {
             }
         }
     }
-    assert!(failures.is_empty(), "note dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "note dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1886,7 +2267,11 @@ fn seq_fragments_have_positive_dimensions() {
             }
         }
     }
-    assert!(failures.is_empty(), "fragment dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "fragment dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -1896,7 +2281,12 @@ fn seq_all_within_canvas() {
     for sr in SEQUENCES.iter() {
         let w = sr.layout.width;
         let h = sr.layout.height;
-        for a in sr.layout.actors.iter().chain(sr.layout.bottom_actors.iter()) {
+        for a in sr
+            .layout
+            .actors
+            .iter()
+            .chain(sr.layout.bottom_actors.iter())
+        {
             let right = a.x + a.width / 2.0;
             let bottom = a.y + a.height;
             if right > w + tol || bottom > h + tol {
@@ -1907,7 +2297,11 @@ fn seq_all_within_canvas() {
             }
         }
     }
-    assert!(failures.is_empty(), "canvas bounds:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "canvas bounds:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -2000,7 +2394,11 @@ fn seq_fragment_sections_ordered_by_y() {
                 if sec.y < frag.y || sec.y > frag.y + frag.height {
                     failures.push(format!(
                         "{}: fragment {:?} section y={:.1} outside [{:.1}..{:.1}]",
-                        sr.stem, frag.kind, sec.y, frag.y, frag.y + frag.height
+                        sr.stem,
+                        frag.kind,
+                        sec.y,
+                        frag.y,
+                        frag.y + frag.height
                     ));
                 }
             }
@@ -2067,7 +2465,12 @@ fn seq_no_messages_without_autonumber_have_numbers() {
     for sr in SEQUENCES.iter() {
         // If no messages have numbers, that's fine (autonumber not enabled).
         // If some do, ALL must (autonumber applies to all messages).
-        let has_number: Vec<bool> = sr.layout.messages.iter().map(|m| m.number.is_some()).collect();
+        let has_number: Vec<bool> = sr
+            .layout
+            .messages
+            .iter()
+            .map(|m| m.number.is_some())
+            .collect();
         if has_number.is_empty() {
             continue;
         }

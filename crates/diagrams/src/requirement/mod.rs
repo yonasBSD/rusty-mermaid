@@ -3,13 +3,13 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, CurveType, MarkerType, Point, Primitive, Scene, Style, TextAnchor,
-    TextStyle, Theme, interpolate,
+    BBox, CurveType, MarkerType, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
+    interpolate,
 };
 
-use bridge::LayoutResult;
 use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::{render_edge_label, shorten_path_for_markers};
+use bridge::LayoutResult;
 
 pub fn to_scene(layout: &LayoutResult) -> Scene {
     to_scene_themed(layout, &Theme::default())
@@ -38,7 +38,8 @@ fn render_nodes(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         });
 
         let top = node.y - node.height / 2.0;
-        let line_height = theme.font_size_node * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
+        let line_height =
+            theme.font_size_node * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
         let mut y = top + 8.0 + line_height * 0.7;
 
         // Node name (bold)
@@ -75,7 +76,9 @@ fn render_nodes(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for edge_layout in &layout.edges {
         let edge = &edge_layout.edge;
-        if edge.points.len() < 2 { continue; }
+        if edge.points.len() < 2 {
+            continue;
+        }
 
         let mut segments = interpolate(&edge.points, CurveType::Basis);
         let marker_end = Some(MarkerType::ArrowPoint);
@@ -117,23 +120,31 @@ mod tests {
 
     #[test]
     fn scene_has_primitives() {
-        let scene = render("requirementDiagram\n    requirement REQ {\n        id: R1\n        text: \"Test\"\n    }");
+        let scene = render(
+            "requirementDiagram\n    requirement REQ {\n        id: R1\n        text: \"Test\"\n    }",
+        );
         assert!(scene.len() >= 3, "rect + name + info lines");
     }
 
     #[test]
     fn scene_with_edge() {
-        let scene = render("requirementDiagram\n    requirement A {\n        id: A\n    }\n    requirement B {\n        id: B\n    }\n    A - contains -> B");
+        let scene = render(
+            "requirementDiagram\n    requirement A {\n        id: A\n    }\n    requirement B {\n        id: B\n    }\n    A - contains -> B",
+        );
         assert!(scene.len() >= 5);
     }
 
     #[test]
     fn dashed_edge_has_dasharray() {
-        let scene = render("requirementDiagram\n    requirement A {\n        id: A\n    }\n    requirement B {\n        id: B\n    }\n    A - satisfies -> B");
+        let scene = render(
+            "requirementDiagram\n    requirement A {\n        id: A\n    }\n    requirement B {\n        id: B\n    }\n    A - satisfies -> B",
+        );
         let has_dashed = scene.elements().iter().any(|e| {
             if let Primitive::Path { style, .. } = &e.primitive {
                 style.stroke_dasharray.is_some()
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(has_dashed);
     }

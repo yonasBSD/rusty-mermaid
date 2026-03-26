@@ -22,12 +22,16 @@ fn parse_mindmap(input: &mut &str) -> ModalResult<MindmapDiagram> {
     loop {
         // Don't use skip — we need to preserve indentation
         skip_empty_and_comments(input);
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         let raw_line = take_raw_line(input);
         let indent = count_indent(raw_line);
         let content = raw_line.trim();
-        if content.is_empty() || content.starts_with("%%") { continue; }
+        if content.is_empty() || content.starts_with("%%") {
+            continue;
+        }
 
         let mut node = parse_node_content(content);
 
@@ -35,7 +39,9 @@ fn parse_mindmap(input: &mut &str) -> ModalResult<MindmapDiagram> {
         loop {
             let checkpoint = *input;
             skip_empty_and_comments(input);
-            if input.is_empty() { break; }
+            if input.is_empty() {
+                break;
+            }
             let peek = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
             if peek.starts_with("::icon(") {
                 let raw = take_raw_line(input);
@@ -63,7 +69,9 @@ fn parse_mindmap(input: &mut &str) -> ModalResult<MindmapDiagram> {
     }
 
     if lines.is_empty() {
-        return Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()));
+        return Err(winnow::error::ErrMode::Backtrack(
+            winnow::error::ContextError::new(),
+        ));
     }
 
     // Build tree from indentation levels
@@ -73,7 +81,11 @@ fn parse_mindmap(input: &mut &str) -> ModalResult<MindmapDiagram> {
     Ok(MindmapDiagram { root })
 }
 
-fn build_tree(mut parent: MindmapNode, lines: &mut Vec<(usize, MindmapNode)>, parent_indent: usize) -> MindmapNode {
+fn build_tree(
+    mut parent: MindmapNode,
+    lines: &mut Vec<(usize, MindmapNode)>,
+    parent_indent: usize,
+) -> MindmapNode {
     while !lines.is_empty() {
         let (indent, _) = lines[0];
         if indent <= parent_indent {
@@ -93,27 +105,45 @@ fn parse_node_content(content: &str) -> MindmapNode {
     // Order matters: check multi-char delimiters first
     if content.starts_with("((") && content.ends_with("))") {
         let text = &content[2..content.len() - 2];
-        return MindmapNode { shape: MindmapShape::Circle, ..MindmapNode::new(text.trim()) };
+        return MindmapNode {
+            shape: MindmapShape::Circle,
+            ..MindmapNode::new(text.trim())
+        };
     }
     if content.starts_with("))") && content.ends_with("((") {
         let text = &content[2..content.len() - 2];
-        return MindmapNode { shape: MindmapShape::Bang, ..MindmapNode::new(text.trim()) };
+        return MindmapNode {
+            shape: MindmapShape::Bang,
+            ..MindmapNode::new(text.trim())
+        };
     }
     if content.starts_with("{{") && content.ends_with("}}") {
         let text = &content[2..content.len() - 2];
-        return MindmapNode { shape: MindmapShape::Hexagon, ..MindmapNode::new(text.trim()) };
+        return MindmapNode {
+            shape: MindmapShape::Hexagon,
+            ..MindmapNode::new(text.trim())
+        };
     }
     if content.starts_with(')') && content.ends_with('(') {
         let text = &content[1..content.len() - 1];
-        return MindmapNode { shape: MindmapShape::Cloud, ..MindmapNode::new(text.trim()) };
+        return MindmapNode {
+            shape: MindmapShape::Cloud,
+            ..MindmapNode::new(text.trim())
+        };
     }
     if content.starts_with('[') && content.ends_with(']') {
         let text = &content[1..content.len() - 1];
-        return MindmapNode { shape: MindmapShape::Rect, ..MindmapNode::new(text.trim()) };
+        return MindmapNode {
+            shape: MindmapShape::Rect,
+            ..MindmapNode::new(text.trim())
+        };
     }
     if content.starts_with('(') && content.ends_with(')') {
         let text = &content[1..content.len() - 1];
-        return MindmapNode { shape: MindmapShape::RoundedRect, ..MindmapNode::new(text.trim()) };
+        return MindmapNode {
+            shape: MindmapShape::RoundedRect,
+            ..MindmapNode::new(text.trim())
+        };
     }
 
     // Default: no shape delimiters
@@ -127,17 +157,27 @@ fn count_indent(line: &str) -> usize {
 fn take_raw_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = &input[..end];
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 
 fn skip_empty_and_comments(input: &mut &str) {
     loop {
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
         let line_end = input.find('\n').unwrap_or(input.len());
         let line = input[..line_end].trim();
         if line.is_empty() || line.starts_with("%%") {
-            *input = if line_end < input.len() { &input[line_end + 1..] } else { "" };
+            *input = if line_end < input.len() {
+                &input[line_end + 1..]
+            } else {
+                ""
+            };
         } else {
             break;
         }
@@ -158,7 +198,9 @@ mod tests {
 
     #[test]
     fn parse_deep_tree() {
-        let d = parse("mindmap\n    Root\n        A\n            A1\n                A1a\n        B").unwrap();
+        let d =
+            parse("mindmap\n    Root\n        A\n            A1\n                A1a\n        B")
+                .unwrap();
         assert_eq!(d.root.children.len(), 2);
         assert_eq!(d.root.children[0].children[0].children[0].text, "A1a");
     }
@@ -196,13 +238,15 @@ mod tests {
 
     #[test]
     fn parse_wide_tree() {
-        let d = parse("mindmap\n    Center\n        A\n        B\n        C\n        D\n        E").unwrap();
+        let d = parse("mindmap\n    Center\n        A\n        B\n        C\n        D\n        E")
+            .unwrap();
         assert_eq!(d.root.children.len(), 5);
     }
 
     #[test]
     fn total_node_count() {
-        let d = parse("mindmap\n    Root\n        A\n            A1\n        B\n        C").unwrap();
+        let d =
+            parse("mindmap\n    Root\n        A\n            A1\n        B\n        C").unwrap();
         assert_eq!(d.root.count(), 5);
     }
 

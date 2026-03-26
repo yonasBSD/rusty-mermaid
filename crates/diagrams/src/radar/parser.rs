@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{Graticule, RadarAxis, RadarChart, RadarCurve};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<RadarChart, ParseError> {
     let mut chart = RadarChart::default();
@@ -71,7 +71,11 @@ pub fn parse(input: &str) -> Result<RadarChart, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     Ok(chart)
@@ -92,7 +96,10 @@ fn parse_axes(s: &str) -> Vec<RadarAxis> {
                     .to_string();
                 RadarAxis { id, label }
             } else {
-                RadarAxis { id: part.to_string(), label: part.to_string() }
+                RadarAxis {
+                    id: part.to_string(),
+                    label: part.to_string(),
+                }
             }
         })
         .filter(|a| !a.id.is_empty())
@@ -180,7 +187,8 @@ mod tests {
 
     #[test]
     fn parse_options() {
-        let c = parse("radar-beta\nticks 3\nmin 1\nmax 10\ngraticule circle\naxis A\ncurve x{5}").unwrap();
+        let c = parse("radar-beta\nticks 3\nmin 1\nmax 10\ngraticule circle\naxis A\ncurve x{5}")
+            .unwrap();
         assert_eq!(c.ticks, 3);
         assert!((c.min - 1.0).abs() < f64::EPSILON);
         assert!((c.max.unwrap() - 10.0).abs() < f64::EPSILON);

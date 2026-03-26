@@ -2,8 +2,8 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
-    TextStyle, Theme, Transform,
+    BBox, Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
+    Transform,
 };
 
 use ir::{AxisDef, PlotType, XyChart};
@@ -56,7 +56,11 @@ pub fn to_scene(chart: &XyChart) -> Scene {
 }
 
 pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
-    let title_h = if chart.title.is_some() { theme.font_size_title + 20.0 } else { 0.0 };
+    let title_h = if chart.title.is_some() {
+        theme.font_size_title + 20.0
+    } else {
+        0.0
+    };
     let width = MARGIN_LEFT + CHART_W + MARGIN_RIGHT;
     let height = title_h + MARGIN_TOP + CHART_H + MARGIN_BOTTOM;
 
@@ -97,9 +101,18 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
 
     // Plot area background
     scene.push(Primitive::Rect {
-        bbox: BBox::new(area.plot_left + CHART_W / 2.0, area.plot_top + CHART_H / 2.0, CHART_W, CHART_H),
-        rx: 0.0, ry: 0.0,
-        style: Style { fill: Some(Color::rgba(245, 245, 250, 200)), ..Default::default() },
+        bbox: BBox::new(
+            area.plot_left + CHART_W / 2.0,
+            area.plot_top + CHART_H / 2.0,
+            CHART_W,
+            CHART_H,
+        ),
+        rx: 0.0,
+        ry: 0.0,
+        style: Style {
+            fill: Some(Color::rgba(245, 245, 250, 200)),
+            ..Default::default()
+        },
     });
 
     draw_y_axis(&mut scene, chart, theme, &area, y_min, y_max);
@@ -109,14 +122,25 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
     scene
 }
 
-fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotArea, y_min: f64, y_max: f64) {
+fn draw_y_axis(
+    scene: &mut Scene,
+    chart: &XyChart,
+    theme: &Theme,
+    area: &PlotArea,
+    y_min: f64,
+    y_max: f64,
+) {
     // Axis line
     scene.push(Primitive::Path {
         segments: vec![
             PathSegment::MoveTo(Point::new(area.plot_left, area.plot_top)),
             PathSegment::LineTo(Point::new(area.plot_left, area.plot_bottom)),
         ],
-        style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
+        style: Style {
+            stroke: Some(theme.edge_stroke),
+            stroke_width: Some(1.0),
+            ..Default::default()
+        },
         marker_start: None,
         marker_end: None,
     });
@@ -131,7 +155,11 @@ fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
                 PathSegment::MoveTo(Point::new(area.plot_left - TICK_LEN, y)),
                 PathSegment::LineTo(Point::new(area.plot_left, y)),
             ],
-            style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
+            style: Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(1.0),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: None,
         });
@@ -142,7 +170,12 @@ fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
                 PathSegment::LineTo(Point::new(area.plot_right, y)),
             ],
             style: Style {
-                stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 80)),
+                stroke: Some(Color::rgba(
+                    theme.grid_stroke.r,
+                    theme.grid_stroke.g,
+                    theme.grid_stroke.b,
+                    80,
+                )),
                 stroke_width: Some(0.5),
                 stroke_dasharray: Some(vec![4.0, 3.0]),
                 ..Default::default()
@@ -151,7 +184,11 @@ fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
             marker_end: None,
         });
         // Label
-        let label = if val == val.floor() { format!("{:.0}", val) } else { format!("{:.1}", val) };
+        let label = if val == val.floor() {
+            format!("{:.0}", val)
+        } else {
+            format!("{:.1}", val)
+        };
         scene.push(Primitive::Text {
             position: Point::new(area.plot_left - TICK_LEN - 4.0, y),
             content: label,
@@ -165,11 +202,18 @@ fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
     }
 
     // Y-axis title -- rotated 90 degrees on the left, vertically centered
-    if let AxisDef::Linear { title: Some(title), .. } = &chart.y_axis {
+    if let AxisDef::Linear {
+        title: Some(title), ..
+    } = &chart.y_axis
+    {
         let title_x = 15.0;
         let title_y = area.plot_top + CHART_H / 2.0;
         scene.push(Primitive::Group {
-            transform: Transform::Rotate { degrees: -90.0, cx: title_x, cy: title_y },
+            transform: Transform::Rotate {
+                degrees: -90.0,
+                cx: title_x,
+                cy: title_y,
+            },
             children: vec![Primitive::Text {
                 position: Point::new(title_x, title_y),
                 content: title.clone(),
@@ -191,7 +235,11 @@ fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
             PathSegment::MoveTo(Point::new(area.plot_left, area.plot_bottom)),
             PathSegment::LineTo(Point::new(area.plot_right, area.plot_bottom)),
         ],
-        style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
+        style: Style {
+            stroke: Some(theme.edge_stroke),
+            stroke_width: Some(1.0),
+            ..Default::default()
+        },
         marker_start: None,
         marker_end: None,
     });
@@ -209,7 +257,11 @@ fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
                 PathSegment::MoveTo(Point::new(x, area.plot_bottom)),
                 PathSegment::LineTo(Point::new(x, area.plot_bottom + TICK_LEN)),
             ],
-            style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
+            style: Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(1.0),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: None,
         });
@@ -232,7 +284,10 @@ fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
     };
     if let Some(title) = x_title {
         scene.push(Primitive::Text {
-            position: Point::new(area.plot_left + CHART_W / 2.0, area.plot_bottom + MARGIN_BOTTOM - 10.0),
+            position: Point::new(
+                area.plot_left + CHART_W / 2.0,
+                area.plot_bottom + MARGIN_BOTTOM - 10.0,
+            ),
             content: title,
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -245,7 +300,10 @@ fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
 }
 
 fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64, theme: &Theme) {
-    let bar_plots: Vec<usize> = chart.plots.iter().enumerate()
+    let bar_plots: Vec<usize> = chart
+        .plots
+        .iter()
+        .enumerate()
         .filter(|(_, p)| p.plot_type == PlotType::Bar)
         .map(|(i, _)| i)
         .collect();
@@ -262,22 +320,30 @@ fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64, t
                 let bar_offset = -group_width / 2.0 + bar_group_idx as f64 * bar_w;
 
                 for (i, &val) in plot.values.iter().enumerate() {
-                    if i >= area.n_cats { break; }
+                    if i >= area.n_cats {
+                        break;
+                    }
                     let x = area.cat_to_x(i) + bar_offset + bar_w / 2.0;
                     let y_top = area.val_to_y(val);
                     let y_bottom = area.val_to_y(y_min.max(0.0));
                     let h = (y_bottom - y_top).abs();
                     scene.push(Primitive::Rect {
                         bbox: BBox::new(x, y_top + h / 2.0, bar_w * 0.9, h),
-                        rx: 1.0, ry: 1.0,
-                        style: Style { fill: Some(color), ..Default::default() },
+                        rx: 1.0,
+                        ry: 1.0,
+                        style: Style {
+                            fill: Some(color),
+                            ..Default::default()
+                        },
                     });
                 }
             }
             PlotType::Line => {
                 let mut segments = Vec::new();
                 for (i, &val) in plot.values.iter().enumerate() {
-                    if i >= area.n_cats { break; }
+                    if i >= area.n_cats {
+                        break;
+                    }
                     let x = area.cat_to_x(i);
                     let y = area.val_to_y(val);
                     if i == 0 {
@@ -289,18 +355,29 @@ fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64, t
                 if !segments.is_empty() {
                     scene.push(Primitive::Path {
                         segments,
-                        style: Style { stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
+                        style: Style {
+                            stroke: Some(color),
+                            stroke_width: Some(2.0),
+                            ..Default::default()
+                        },
                         marker_start: None,
                         marker_end: None,
                     });
                 }
                 // Data points
                 for (i, &val) in plot.values.iter().enumerate() {
-                    if i >= area.n_cats { break; }
+                    if i >= area.n_cats {
+                        break;
+                    }
                     scene.push(Primitive::Circle {
                         center: Point::new(area.cat_to_x(i), area.val_to_y(val)),
                         radius: 3.5,
-                        style: Style { fill: Some(color), stroke: Some(theme.background), stroke_width: Some(1.5), ..Default::default() },
+                        style: Style {
+                            fill: Some(color),
+                            stroke: Some(theme.background),
+                            stroke_width: Some(1.5),
+                            ..Default::default()
+                        },
                     });
                 }
             }
@@ -314,11 +391,15 @@ fn resolve_y_range(chart: &XyChart) -> (f64, f64) {
         _ => (None, None),
     };
 
-    let data_min = chart.plots.iter()
+    let data_min = chart
+        .plots
+        .iter()
         .flat_map(|p| &p.values)
         .copied()
         .fold(f64::INFINITY, f64::min);
-    let data_max = chart.plots.iter()
+    let data_max = chart
+        .plots
+        .iter()
         .flat_map(|p| &p.values)
         .copied()
         .fold(f64::NEG_INFINITY, f64::max);
@@ -330,14 +411,21 @@ fn resolve_y_range(chart: &XyChart) -> (f64, f64) {
 
 fn compute_nice_ticks(min: f64, max: f64, target_count: usize) -> Vec<f64> {
     let range = max - min;
-    if range <= 0.0 { return vec![min]; }
+    if range <= 0.0 {
+        return vec![min];
+    }
 
     let rough_step = range / target_count as f64;
     let magnitude = 10.0f64.powf(rough_step.log10().floor());
-    let nice_step = if rough_step / magnitude < 1.5 { magnitude }
-        else if rough_step / magnitude < 3.5 { magnitude * 2.0 }
-        else if rough_step / magnitude < 7.5 { magnitude * 5.0 }
-        else { magnitude * 10.0 };
+    let nice_step = if rough_step / magnitude < 1.5 {
+        magnitude
+    } else if rough_step / magnitude < 3.5 {
+        magnitude * 2.0
+    } else if rough_step / magnitude < 7.5 {
+        magnitude * 5.0
+    } else {
+        magnitude * 10.0
+    };
 
     let start = (min / nice_step).floor() * nice_step;
     let mut ticks = Vec::new();
@@ -370,7 +458,11 @@ mod tests {
     fn scene_with_title() {
         let scene = render("xychart-beta\n    title \"Chart\"\n    bar [10, 20]");
         let has_title = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "Chart" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "Chart"
+            } else {
+                false
+            }
         });
         assert!(has_title);
     }
@@ -378,15 +470,27 @@ mod tests {
     #[test]
     fn bar_plot_renders_rects() {
         let scene = render("xychart-beta\n    x-axis [A, B, C]\n    bar [10, 20, 30]");
-        let rects: Vec<_> = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).collect();
+        let rects: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .collect();
         assert!(rects.len() >= 4, "plot bg + 3 bars");
     }
 
     #[test]
     fn line_plot_renders_path_and_dots() {
         let scene = render("xychart-beta\n    x-axis [A, B, C]\n    line [10, 20, 30]");
-        let paths: Vec<_> = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Path { .. })).collect();
-        let circles: Vec<_> = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Circle { .. })).collect();
+        let paths: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Path { .. }))
+            .collect();
+        let circles: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .collect();
         assert!(paths.len() >= 3, "axes + line path");
         assert_eq!(circles.len(), 3, "3 data point dots");
     }
@@ -396,7 +500,10 @@ mod tests {
         let ticks = compute_nice_ticks(0.0, 100.0, 5);
         assert!(ticks.len() >= 3);
         for &t in &ticks {
-            assert!((t % 10.0).abs() < 1e-6 || (t % 20.0).abs() < 1e-6, "tick {t} should be round");
+            assert!(
+                (t % 10.0).abs() < 1e-6 || (t % 20.0).abs() < 1e-6,
+                "tick {t} should be round"
+            );
         }
     }
 }

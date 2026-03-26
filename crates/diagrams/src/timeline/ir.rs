@@ -10,7 +10,11 @@ pub struct TimelineDiagram {
 
 impl TimelineDiagram {
     pub fn new() -> Self {
-        Self { title: None, direction: Direction::LR, sections: Vec::new() }
+        Self {
+            title: None,
+            direction: Direction::LR,
+            sections: Vec::new(),
+        }
     }
 }
 
@@ -50,8 +54,14 @@ mod tests {
         let section = TimelineSection {
             name: Some("Phase 1".into()),
             tasks: vec![
-                TimelineTask { name: "Start".into(), events: vec!["Kickoff".into()] },
-                TimelineTask { name: "Plan".into(), events: vec!["Draft".into(), "Review".into()] },
+                TimelineTask {
+                    name: "Start".into(),
+                    events: vec!["Kickoff".into()],
+                },
+                TimelineTask {
+                    name: "Plan".into(),
+                    events: vec!["Draft".into(), "Review".into()],
+                },
             ],
         };
         assert_eq!(section.tasks.len(), 2);
@@ -60,14 +70,20 @@ mod tests {
 
     #[test]
     fn section_unnamed() {
-        let section = TimelineSection { name: None, tasks: vec![] };
+        let section = TimelineSection {
+            name: None,
+            tasks: vec![],
+        };
         assert!(section.name.is_none());
         assert!(section.tasks.is_empty());
     }
 
     #[test]
     fn task_with_no_events() {
-        let task = TimelineTask { name: "Milestone".into(), events: vec![] };
+        let task = TimelineTask {
+            name: "Milestone".into(),
+            events: vec![],
+        };
         assert_eq!(task.name, "Milestone");
         assert!(task.events.is_empty());
     }

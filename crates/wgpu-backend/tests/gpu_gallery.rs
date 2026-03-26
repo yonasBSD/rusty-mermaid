@@ -38,7 +38,9 @@ fn generate_gpu_gallery() {
 
     for type_entry in fs::read_dir(&gdir).unwrap() {
         let type_path = type_entry.unwrap().path();
-        if !type_path.is_dir() { continue; }
+        if !type_path.is_dir() {
+            continue;
+        }
         let type_name = type_path.file_name().unwrap().to_str().unwrap().to_string();
         let type_outdir = outdir.join(&type_name);
         fs::create_dir_all(&type_outdir).unwrap();
@@ -54,12 +56,17 @@ fn generate_gpu_gallery() {
             let path = entry.path();
             let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
             let input = fs::read_to_string(&path).unwrap();
-            let Ok(scene) = render_to_scene(&input) else { continue };
+            let Ok(scene) = render_to_scene(&input) else {
+                continue;
+            };
 
             let png = gpu.render_scene_to_png(&scene, &theme, 2.0);
             let out_path = type_outdir.join(format!("{stem}.png"));
             fs::write(&out_path, &png).unwrap();
-            entries.push((format!("{type_name}/{stem}"), format!("{type_name}/{stem}.png")));
+            entries.push((
+                format!("{type_name}/{stem}"),
+                format!("{type_name}/{stem}.png"),
+            ));
             eprintln!("  rendered {type_name}/{stem}");
         }
     }
@@ -67,7 +74,8 @@ fn generate_gpu_gallery() {
     entries.sort();
 
     // Generate HTML index
-    let mut html = String::from(r#"<!DOCTYPE html>
+    let mut html = String::from(
+        r#"<!DOCTYPE html>
 <html><head><title>rusty-mermaid GPU Gallery (vello/wgpu)</title>
 <style>
   body { font-family: system-ui; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
@@ -78,7 +86,8 @@ fn generate_gpu_gallery() {
 </style></head><body>
 <h1>rusty-mermaid GPU Gallery (vello/wgpu)</h1>
 <p>Rendered via vello compute shaders on GPU (Metal/Vulkan/DX12). Single device, batch rendering.</p>
-"#);
+"#,
+    );
 
     for (name, img_path) in &entries {
         html.push_str(&format!(
@@ -88,5 +97,9 @@ fn generate_gpu_gallery() {
     html.push_str("</body></html>");
     fs::write(outdir.join("index.html"), html).unwrap();
 
-    eprintln!("GPU gallery: {} diagrams → {}", entries.len(), outdir.display());
+    eprintln!(
+        "GPU gallery: {} diagrams → {}",
+        entries.len(),
+        outdir.display()
+    );
 }

@@ -44,8 +44,7 @@ pub(crate) fn parent_dummy_chains(
                 // or find a compound whose maxRank covers the current rank
                 while path_idx < path.len() && path[path_idx] != lca {
                     if let Some(path_node) = path[path_idx] {
-                        let max_rank =
-                            graph.node(path_node).and_then(|n| n.max_rank).unwrap_or(0);
+                        let max_rank = graph.node(path_node).and_then(|n| n.max_rank).unwrap_or(0);
                         if max_rank >= node_rank {
                             break;
                         }
@@ -62,8 +61,10 @@ pub(crate) fn parent_dummy_chains(
                 // Walk down through destination's ancestors
                 while path_idx + 1 < path.len() {
                     if let Some(next) = path[path_idx + 1] {
-                        let min_rank =
-                            graph.node(next).and_then(|n| n.min_rank).unwrap_or(i32::MAX);
+                        let min_rank = graph
+                            .node(next)
+                            .and_then(|n| n.min_rank)
+                            .unwrap_or(i32::MAX);
                         if min_rank > node_rank {
                             break;
                         }
@@ -77,10 +78,11 @@ pub(crate) fn parent_dummy_chains(
             // Parent the dummy: Some(id) → parent to that compound,
             // None → leave unparented (at graph root level)
             if path_idx < path.len()
-                && let Some(parent_id) = path[path_idx] {
-                    graph.set_parent(v, parent_id);
-                }
-                // None means graph root — dummy stays unparented
+                && let Some(parent_id) = path[path_idx]
+            {
+                graph.set_parent(v, parent_id);
+            }
+            // None means graph root — dummy stays unparented
 
             // Move to next dummy in chain
             let next: Vec<_> = graph.successors(v).collect();

@@ -14,10 +14,7 @@ fn golden_dir() -> std::path::PathBuf {
 
 /// Files with known unsupported syntax (click bindings, directives).
 /// These are tracked as future work, not regressions.
-const KNOWN_UNSUPPORTED: &[&str] = &[
-    "click_bindings",
-    "mixed_statements",
-];
+const KNOWN_UNSUPPORTED: &[&str] = &["click_bindings", "mixed_statements"];
 
 /// Auto-discover and test ALL .mmd files across all diagram types.
 /// Every .mmd file must: parse successfully, produce a non-empty Scene.
@@ -30,7 +27,9 @@ fn all_golden_mmd_parse_and_render() {
 
     for type_entry in fs::read_dir(&gdir).unwrap() {
         let type_path = type_entry.unwrap().path();
-        if !type_path.is_dir() { continue; }
+        if !type_path.is_dir() {
+            continue;
+        }
         let type_name = type_path.file_name().unwrap().to_str().unwrap().to_string();
 
         let mut files: Vec<_> = fs::read_dir(&type_path)

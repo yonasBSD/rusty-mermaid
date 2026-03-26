@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{JourneyDiagram, JourneySection, JourneyTask};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<JourneyDiagram, ParseError> {
     let mut diagram = JourneyDiagram::default();
@@ -42,7 +42,11 @@ pub fn parse(input: &str) -> Result<JourneyDiagram, ParseError> {
             let name = name_part.trim().to_string();
             let (score, actors) = parse_task_rest(rest);
 
-            let task = JourneyTask { name, score, actors };
+            let task = JourneyTask {
+                name,
+                score,
+                actors,
+            };
 
             if let Some(ref mut sec) = current_section {
                 sec.tasks.push(task);
@@ -63,7 +67,11 @@ pub fn parse(input: &str) -> Result<JourneyDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     Ok(diagram)

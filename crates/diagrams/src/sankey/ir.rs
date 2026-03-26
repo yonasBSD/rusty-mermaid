@@ -39,9 +39,21 @@ mod tests {
     fn node_names_preserves_order() {
         let d = SankeyDiagram {
             links: vec![
-                SankeyLink { source: "A".into(), target: "B".into(), value: 10.0 },
-                SankeyLink { source: "A".into(), target: "C".into(), value: 5.0 },
-                SankeyLink { source: "B".into(), target: "D".into(), value: 8.0 },
+                SankeyLink {
+                    source: "A".into(),
+                    target: "B".into(),
+                    value: 10.0,
+                },
+                SankeyLink {
+                    source: "A".into(),
+                    target: "C".into(),
+                    value: 5.0,
+                },
+                SankeyLink {
+                    source: "B".into(),
+                    target: "D".into(),
+                    value: 8.0,
+                },
             ],
         };
         assert_eq!(d.node_names(), vec!["A", "B", "C", "D"]);
@@ -51,8 +63,16 @@ mod tests {
     fn node_names_deduplicates() {
         let d = SankeyDiagram {
             links: vec![
-                SankeyLink { source: "X".into(), target: "Y".into(), value: 1.0 },
-                SankeyLink { source: "X".into(), target: "Y".into(), value: 2.0 },
+                SankeyLink {
+                    source: "X".into(),
+                    target: "Y".into(),
+                    value: 1.0,
+                },
+                SankeyLink {
+                    source: "X".into(),
+                    target: "Y".into(),
+                    value: 2.0,
+                },
             ],
         };
         assert_eq!(d.node_names(), vec!["X", "Y"]);
@@ -66,7 +86,11 @@ mod tests {
 
     #[test]
     fn link_construction() {
-        let link = SankeyLink { source: "Power".into(), target: "Heat".into(), value: 42.5 };
+        let link = SankeyLink {
+            source: "Power".into(),
+            target: "Heat".into(),
+            value: 42.5,
+        };
         assert_eq!(link.source, "Power");
         assert_eq!(link.target, "Heat");
         assert!((link.value - 42.5).abs() < f64::EPSILON);
@@ -75,7 +99,11 @@ mod tests {
     #[test]
     fn node_names_single_link() {
         let d = SankeyDiagram {
-            links: vec![SankeyLink { source: "In".into(), target: "Out".into(), value: 100.0 }],
+            links: vec![SankeyLink {
+                source: "In".into(),
+                target: "Out".into(),
+                value: 100.0,
+            }],
         };
         assert_eq!(d.node_names(), vec!["In", "Out"]);
     }

@@ -152,19 +152,36 @@ pub fn layout(diagram: &SequenceDiagram, text: &impl TextMeasure) -> SequenceLay
         .unwrap_or(0.0);
     let actor_top_y = DIAGRAM_MARGIN + title_height;
 
-    let mut actors = build_actor_layouts(diagram, &actor_centers, &actor_dims, actor_height, actor_top_y);
+    let mut actors = build_actor_layouts(
+        diagram,
+        &actor_centers,
+        &actor_dims,
+        actor_height,
+        actor_top_y,
+    );
 
     let (cursor_y, mut messages, mut activations, mut notes, mut fragments, max_self_label_right) =
-        run_layout_pass(&actors, diagram, text, style.clone(), actor_top_y, actor_height);
+        run_layout_pass(
+            &actors,
+            diagram,
+            text,
+            style.clone(),
+            actor_top_y,
+            actor_height,
+        );
 
     let max_right = apply_bounds_shift(
-        n, &mut actors, &mut messages, &mut activations,
-        &mut notes, &mut fragments, max_self_label_right,
+        n,
+        &mut actors,
+        &mut messages,
+        &mut activations,
+        &mut notes,
+        &mut fragments,
+        max_self_label_right,
     );
 
-    let (bottom_actors, lifelines) = build_bottom_actors_and_lifelines(
-        &actors, cursor_y, actor_top_y, actor_height,
-    );
+    let (bottom_actors, lifelines) =
+        build_bottom_actors_and_lifelines(&actors, cursor_y, actor_top_y, actor_height);
 
     let (total_width, total_height) = compute_dimensions(n, max_right, cursor_y, actor_height);
 
@@ -205,7 +222,13 @@ fn compute_actor_positions(
 ) -> Vec<f64> {
     let n = diagram.participants.len();
     let mut gaps = vec![ACTOR_MARGIN; n.saturating_sub(1)];
-    widen_gaps_for_labels(&diagram.items, &diagram.participants, &mut gaps, text, style);
+    widen_gaps_for_labels(
+        &diagram.items,
+        &diagram.participants,
+        &mut gaps,
+        text,
+        style,
+    );
     place_actors_x(actor_dims, &gaps)
 }
 
@@ -239,7 +262,14 @@ fn run_layout_pass(
     style: TextStyle,
     actor_top_y: f64,
     actor_height: f64,
-) -> (f64, Vec<MessageLayout>, Vec<ActivationLayout>, Vec<NoteLayout>, Vec<FragmentLayout>, f64) {
+) -> (
+    f64,
+    Vec<MessageLayout>,
+    Vec<ActivationLayout>,
+    Vec<NoteLayout>,
+    Vec<FragmentLayout>,
+    f64,
+) {
     let mut pass = LayoutPass {
         actors,
         text,
@@ -257,7 +287,14 @@ fn run_layout_pass(
     pass.close_remaining_activations();
 
     let cursor_y = pass.cursor_y + ACTOR_BOTTOM_MARGIN;
-    (cursor_y, pass.messages, pass.activations, pass.notes, pass.fragments, pass.max_self_label_right)
+    (
+        cursor_y,
+        pass.messages,
+        pass.activations,
+        pass.notes,
+        pass.fragments,
+        pass.max_self_label_right,
+    )
 }
 
 fn apply_bounds_shift(
@@ -283,11 +320,22 @@ fn apply_bounds_shift(
     max_right = max_right.max(max_self_label_right);
     let shift = if min_x < 0.0 { -min_x } else { 0.0 };
     if shift > 0.0 {
-        for a in actors.iter_mut() { a.x += shift; }
-        for m in messages.iter_mut() { m.from_x += shift; m.to_x += shift; }
-        for act in activations.iter_mut() { act.x += shift; }
-        for note in notes.iter_mut() { note.x += shift; }
-        for frag in fragments.iter_mut() { frag.x += shift; }
+        for a in actors.iter_mut() {
+            a.x += shift;
+        }
+        for m in messages.iter_mut() {
+            m.from_x += shift;
+            m.to_x += shift;
+        }
+        for act in activations.iter_mut() {
+            act.x += shift;
+        }
+        for note in notes.iter_mut() {
+            note.x += shift;
+        }
+        for frag in fragments.iter_mut() {
+            frag.x += shift;
+        }
         max_right += shift;
     }
     max_right
@@ -301,7 +349,10 @@ fn build_bottom_actors_and_lifelines(
 ) -> (Vec<ActorLayout>, Vec<LifelineLayout>) {
     let bottom_actors: Vec<ActorLayout> = actors
         .iter()
-        .map(|a| ActorLayout { y: bottom_y, ..a.clone() })
+        .map(|a| ActorLayout {
+            y: bottom_y,
+            ..a.clone()
+        })
         .collect();
 
     let lifeline_top = actor_top_y + actor_height;
@@ -535,7 +586,10 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
             let ax = actor_center_x(&ids[0], self.actors);
             return ax - note_w / 2.0;
         }
-        let xs: Vec<f64> = ids.iter().map(|id| actor_center_x(id, self.actors)).collect();
+        let xs: Vec<f64> = ids
+            .iter()
+            .map(|id| actor_center_x(id, self.actors))
+            .collect();
         let min_x = xs.iter().copied().fold(f64::INFINITY, f64::min);
         let max_x = xs.iter().copied().fold(f64::NEG_INFINITY, f64::max);
         let span_center = (min_x + max_x) / 2.0;
@@ -575,15 +629,18 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
         self.cursor_y += FRAGMENT_PADDING;
 
         let (frag_left, frag_right) = self.fragment_bounds();
-        self.fragments.insert(slot, FragmentLayout {
-            x: frag_left,
-            y: frag_start_y,
-            width: frag_right - frag_left,
-            height: self.cursor_y - frag_start_y,
-            kind: frag.kind,
-            label: frag.label.clone(),
-            sections: section_layouts,
-        });
+        self.fragments.insert(
+            slot,
+            FragmentLayout {
+                x: frag_left,
+                y: frag_start_y,
+                width: frag_right - frag_left,
+                height: self.cursor_y - frag_start_y,
+                kind: frag.kind,
+                label: frag.label.clone(),
+                sections: section_layouts,
+            },
+        );
     }
 
     fn fragment_bounds(&self) -> (f64, f64) {
@@ -619,7 +676,11 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
     fn close_remaining_activations(&mut self) {
         let ids: Vec<String> = self.activation_stack.keys().cloned().collect();
         for id in ids {
-            while self.activation_stack.get(&id).is_some_and(|s| !s.is_empty()) {
+            while self
+                .activation_stack
+                .get(&id)
+                .is_some_and(|s| !s.is_empty())
+            {
                 self.close_activation(&id);
             }
         }

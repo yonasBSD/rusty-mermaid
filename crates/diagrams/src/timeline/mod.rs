@@ -36,7 +36,7 @@ pub fn to_scene(diagram: &TimelineDiagram) -> Scene {
 pub fn to_scene_themed(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     match diagram.direction {
         Direction::TB => render_horizontal(diagram, theme), // TB = vertical axis (tasks top-to-bottom)
-        _ => render_vertical(diagram, theme),               // LR default = horizontal axis (time left-to-right)
+        _ => render_vertical(diagram, theme), // LR default = horizontal axis (time left-to-right)
     }
 }
 
@@ -50,7 +50,10 @@ struct TaskPos {
 }
 
 fn title_width(title: &str, theme: &Theme) -> f64 {
-    let style = TextStyle { font_size: theme.font_size_title, ..Default::default() };
+    let style = TextStyle {
+        font_size: theme.font_size_title,
+        ..Default::default()
+    };
     SimpleTextMeasure::measure_raw(title, &style).width
 }
 
@@ -65,8 +68,13 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     }
 
     // Compute max event box width from content
-    let event_style = TextStyle { font_size: theme.font_size_edge_label, ..Default::default() };
-    let event_box_w = diagram.sections.iter()
+    let event_style = TextStyle {
+        font_size: theme.font_size_edge_label,
+        ..Default::default()
+    };
+    let event_box_w = diagram
+        .sections
+        .iter()
         .flat_map(|s| s.tasks.iter())
         .flat_map(|t| t.events.iter())
         .map(|e| SimpleTextMeasure::measure_raw(e, &event_style).width + GAP)
@@ -78,35 +86,63 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
 
     for (si, section) in diagram.sections.iter().enumerate() {
         let start = y;
-        if section.name.is_some() { y += SECTION_HEADER_H + GAP / 2.0; }
+        if section.name.is_some() {
+            y += SECTION_HEADER_H + GAP / 2.0;
+        }
         for task in &section.tasks {
             let h = task_event_height(task.events.len());
-            tasks.push(TaskPos { axis_pos: y + h / 2.0, name: task.name.clone(), events: task.events.clone(), section_idx: si });
+            tasks.push(TaskPos {
+                axis_pos: y + h / 2.0,
+                name: task.name.clone(),
+                events: task.events.clone(),
+                section_idx: si,
+            });
             y += h + GAP;
         }
         section_ranges.push((start, y - GAP, section.name.clone(), si));
     }
 
     let content_w = axis_x + GAP + event_box_w + MARGIN;
-    let title_w = diagram.title.as_ref().map(|t| title_width(t, theme) + MARGIN * 2.0).unwrap_or(0.0);
+    let title_w = diagram
+        .title
+        .as_ref()
+        .map(|t| title_width(t, theme) + MARGIN * 2.0)
+        .unwrap_or(0.0);
     let width = content_w.max(title_w);
     // Bottom extends to last task + its events
-    let last_bottom = tasks.last().map(|t| {
-        let eh = task_event_height(t.events.len());
-        t.axis_pos + eh / 2.0
-    }).unwrap_or(y);
+    let last_bottom = tasks
+        .last()
+        .map(|t| {
+            let eh = task_event_height(t.events.len());
+            t.axis_pos + eh / 2.0
+        })
+        .unwrap_or(y);
     let height = last_bottom + MARGIN;
     let mut scene = Scene::new(width, height);
 
     // Title
     if let Some(title) = &diagram.title {
-        render_title(&mut scene, title, width / 2.0, MARGIN + theme.font_size_title * 0.4, theme);
+        render_title(
+            &mut scene,
+            title,
+            width / 2.0,
+            MARGIN + theme.font_size_title * 0.4,
+            theme,
+        );
     }
 
     // Vertical axis — extends from first task to last task
-    let axis_start = tasks.first().map(|t| t.axis_pos - task_event_height(t.events.len()) / 2.0 - GAP / 2.0).unwrap_or(title_bottom);
+    let axis_start = tasks
+        .first()
+        .map(|t| t.axis_pos - task_event_height(t.events.len()) / 2.0 - GAP / 2.0)
+        .unwrap_or(title_bottom);
     let axis_end = last_bottom + MARGIN / 2.0;
-    render_axis_line(&mut scene, Point::new(axis_x, axis_start), Point::new(axis_x, axis_end), theme);
+    render_axis_line(
+        &mut scene,
+        Point::new(axis_x, axis_start),
+        Point::new(axis_x, axis_end),
+        theme,
+    );
 
     // Sections
     let label_x = MARGIN + 8.0; // left-aligned, away from axis
@@ -115,7 +151,14 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         let sec_h = *end - *start + GAP;
         render_section_bg(&mut scene, width / 2.0, sec_cy, width - MARGIN, sec_h, *si);
         if let Some(name) = name {
-            render_section_label_left(&mut scene, label_x, *start + SECTION_HEADER_H * 0.4, name, *si, theme);
+            render_section_label_left(
+                &mut scene,
+                label_x,
+                *start + SECTION_HEADER_H * 0.4,
+                name,
+                *si,
+                theme,
+            );
         }
     }
 
@@ -123,7 +166,16 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     for tp in &tasks {
         let color = SECTION_COLORS[tp.section_idx % SECTION_COLORS.len()];
         let task_x = axis_x - GAP - TASK_BOX_W / 2.0;
-        render_box(&mut scene, &BoxSpec { bbox: BBox::new(task_x, tp.axis_pos, TASK_BOX_W, TASK_BOX_H), color, bold: true }, &tp.name, theme);
+        render_box(
+            &mut scene,
+            &BoxSpec {
+                bbox: BBox::new(task_x, tp.axis_pos, TASK_BOX_W, TASK_BOX_H),
+                color,
+                bold: true,
+            },
+            &tp.name,
+            theme,
+        );
         render_dot(&mut scene, axis_x, tp.axis_pos, color);
 
         let event_x = axis_x + GAP + event_box_w / 2.0;
@@ -131,8 +183,22 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         let start_y = tp.axis_pos - total_h / 2.0 + EVENT_BOX_H / 2.0;
         for (ei, event) in tp.events.iter().enumerate() {
             let ey = start_y + ei as f64 * (EVENT_BOX_H + 4.0);
-            render_connector(&mut scene, Point::new(axis_x + 5.0, tp.axis_pos), Point::new(event_x - event_box_w / 2.0, ey), theme);
-            render_box(&mut scene, &BoxSpec { bbox: BBox::new(event_x, ey, event_box_w, EVENT_BOX_H), color, bold: false }, event, theme);
+            render_connector(
+                &mut scene,
+                Point::new(axis_x + 5.0, tp.axis_pos),
+                Point::new(event_x - event_box_w / 2.0, ey),
+                theme,
+            );
+            render_box(
+                &mut scene,
+                &BoxSpec {
+                    bbox: BBox::new(event_x, ey, event_box_w, EVENT_BOX_H),
+                    color,
+                    bold: false,
+                },
+                event,
+                theme,
+            );
         }
     }
 
@@ -142,22 +208,37 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
 // ── TB layout: horizontal axis, tasks above, events below ──
 
 fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
-    let title_offset = if diagram.title.is_some() { theme.font_size_title + GAP * 2.0 } else { 0.0 };
+    let title_offset = if diagram.title.is_some() {
+        theme.font_size_title + GAP * 2.0
+    } else {
+        0.0
+    };
     let has_sections = diagram.sections.iter().any(|s| s.name.is_some());
-    let section_label_h = if has_sections { SECTION_HEADER_H + GAP } else { 0.0 };
+    let section_label_h = if has_sections {
+        SECTION_HEADER_H + GAP
+    } else {
+        0.0
+    };
     let axis_y = MARGIN + title_offset + section_label_h + TASK_BOX_H + GAP;
     let mut x = MARGIN;
 
     // Compute max event box width from content
-    let event_style = TextStyle { font_size: theme.font_size_edge_label, ..Default::default() };
-    let event_box_w = diagram.sections.iter()
+    let event_style = TextStyle {
+        font_size: theme.font_size_edge_label,
+        ..Default::default()
+    };
+    let event_box_w = diagram
+        .sections
+        .iter()
         .flat_map(|s| s.tasks.iter())
         .flat_map(|t| t.events.iter())
         .map(|e| SimpleTextMeasure::measure_raw(e, &event_style).width + GAP)
         .fold(EVENT_BOX_W, f64::max);
 
     // Compute max events per task for height
-    let max_events = diagram.sections.iter()
+    let max_events = diagram
+        .sections
+        .iter()
         .flat_map(|s| s.tasks.iter())
         .map(|t| t.events.len())
         .max()
@@ -170,7 +251,12 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         let start = x;
         for task in &section.tasks {
             let w = TASK_BOX_W.max(event_box_w);
-            tasks.push(TaskPos { axis_pos: x + w / 2.0, name: task.name.clone(), events: task.events.clone(), section_idx: si });
+            tasks.push(TaskPos {
+                axis_pos: x + w / 2.0,
+                name: task.name.clone(),
+                events: task.events.clone(),
+                section_idx: si,
+            });
             x += w + GAP;
         }
         if !section.tasks.is_empty() {
@@ -179,7 +265,11 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         section_ranges.push((start, x - GAP * 2.0, section.name.clone(), si));
     }
 
-    let title_w = diagram.title.as_ref().map(|t| title_width(t, theme) + MARGIN * 2.0).unwrap_or(0.0);
+    let title_w = diagram
+        .title
+        .as_ref()
+        .map(|t| title_width(t, theme) + MARGIN * 2.0)
+        .unwrap_or(0.0);
     let width = (x + MARGIN).max(title_w);
     let events_h = max_events as f64 * (EVENT_BOX_H + 4.0);
     let height = axis_y + GAP + events_h + MARGIN;
@@ -187,13 +277,30 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
 
     // Title
     if let Some(title) = &diagram.title {
-        render_title(&mut scene, title, width / 2.0, MARGIN + theme.font_size_title * 0.4, theme);
+        render_title(
+            &mut scene,
+            title,
+            width / 2.0,
+            MARGIN + theme.font_size_title * 0.4,
+            theme,
+        );
     }
 
     // Horizontal axis — from first task to last task
-    let axis_start = tasks.first().map(|t| t.axis_pos - TASK_BOX_W / 2.0 - GAP / 2.0).unwrap_or(MARGIN);
-    let axis_end = tasks.last().map(|t| t.axis_pos + TASK_BOX_W / 2.0 + GAP / 2.0).unwrap_or(width - MARGIN);
-    render_axis_line(&mut scene, Point::new(axis_start, axis_y), Point::new(axis_end, axis_y), theme);
+    let axis_start = tasks
+        .first()
+        .map(|t| t.axis_pos - TASK_BOX_W / 2.0 - GAP / 2.0)
+        .unwrap_or(MARGIN);
+    let axis_end = tasks
+        .last()
+        .map(|t| t.axis_pos + TASK_BOX_W / 2.0 + GAP / 2.0)
+        .unwrap_or(width - MARGIN);
+    render_axis_line(
+        &mut scene,
+        Point::new(axis_start, axis_y),
+        Point::new(axis_end, axis_y),
+        theme,
+    );
 
     // Section label boxes + backgrounds — equal padding top and bottom
     let section_box_y = axis_y - TASK_BOX_H - GAP * 2.0 - SECTION_HEADER_H / 2.0;
@@ -210,7 +317,16 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         render_section_bg(&mut scene, sec_cx, bg_cy, sec_w, bg_h, *si);
         if let Some(name) = name {
             let color = SECTION_COLORS[*si % SECTION_COLORS.len()];
-            render_box(&mut scene, &BoxSpec { bbox: BBox::new(sec_cx, section_box_y, sec_w - GAP, SECTION_HEADER_H), color, bold: true }, name, theme);
+            render_box(
+                &mut scene,
+                &BoxSpec {
+                    bbox: BBox::new(sec_cx, section_box_y, sec_w - GAP, SECTION_HEADER_H),
+                    color,
+                    bold: true,
+                },
+                name,
+                theme,
+            );
         }
     }
 
@@ -219,18 +335,41 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     for tp in &tasks {
         let color = SECTION_COLORS[tp.section_idx % SECTION_COLORS.len()];
         let task_y = axis_y - GAP - TASK_BOX_H / 2.0;
-        render_box(&mut scene, &BoxSpec { bbox: BBox::new(tp.axis_pos, task_y, TASK_BOX_W, TASK_BOX_H), color, bold: true }, &tp.name, theme);
+        render_box(
+            &mut scene,
+            &BoxSpec {
+                bbox: BBox::new(tp.axis_pos, task_y, TASK_BOX_W, TASK_BOX_H),
+                color,
+                bold: true,
+            },
+            &tp.name,
+            theme,
+        );
         render_dot(&mut scene, tp.axis_pos, axis_y, color);
 
         // Vertical line from axis to bottom of events area
         if !tp.events.is_empty() {
-            render_connector(&mut scene, Point::new(tp.axis_pos, axis_y + 5.0), Point::new(tp.axis_pos, events_bottom), theme);
+            render_connector(
+                &mut scene,
+                Point::new(tp.axis_pos, axis_y + 5.0),
+                Point::new(tp.axis_pos, events_bottom),
+                theme,
+            );
         }
 
         let start_y = axis_y + GAP + EVENT_BOX_H / 2.0;
         for (ei, event) in tp.events.iter().enumerate() {
             let ey = start_y + ei as f64 * (EVENT_BOX_H + 4.0);
-            render_box(&mut scene, &BoxSpec { bbox: BBox::new(tp.axis_pos, ey, event_box_w, EVENT_BOX_H), color, bold: false }, event, theme);
+            render_box(
+                &mut scene,
+                &BoxSpec {
+                    bbox: BBox::new(tp.axis_pos, ey, event_box_w, EVENT_BOX_H),
+                    color,
+                    bold: false,
+                },
+                event,
+                theme,
+            );
         }
     }
 
@@ -240,7 +379,11 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
 // ── Shared rendering helpers ──
 
 fn task_event_height(n_events: usize) -> f64 {
-    if n_events == 0 { TASK_BOX_H } else { (n_events as f64 * (EVENT_BOX_H + 4.0)).max(TASK_BOX_H) }
+    if n_events == 0 {
+        TASK_BOX_H
+    } else {
+        (n_events as f64 * (EVENT_BOX_H + 4.0)).max(TASK_BOX_H)
+    }
 }
 
 fn render_title(scene: &mut Scene, title: &str, x: f64, y: f64, theme: &Theme) {
@@ -260,7 +403,11 @@ fn render_title(scene: &mut Scene, title: &str, x: f64, y: f64, theme: &Theme) {
 fn render_axis_line(scene: &mut Scene, from: Point, to: Point, theme: &Theme) {
     scene.push(Primitive::Path {
         segments: vec![PathSegment::MoveTo(from), PathSegment::LineTo(to)],
-        style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(2.0), ..Default::default() },
+        style: Style {
+            stroke: Some(theme.edge_stroke),
+            stroke_width: Some(2.0),
+            ..Default::default()
+        },
         marker_start: None,
         marker_end: None,
     });
@@ -270,12 +417,23 @@ fn render_section_bg(scene: &mut Scene, cx: f64, cy: f64, w: f64, h: f64, idx: u
     let color = SECTION_COLORS[idx % SECTION_COLORS.len()];
     scene.push(Primitive::Rect {
         bbox: BBox::new(cx, cy, w, h),
-        rx: 4.0, ry: 4.0,
-        style: Style { fill: Some(Color::rgba(color.r, color.g, color.b, 30)), ..Default::default() },
+        rx: 4.0,
+        ry: 4.0,
+        style: Style {
+            fill: Some(Color::rgba(color.r, color.g, color.b, 30)),
+            ..Default::default()
+        },
     });
 }
 
-fn render_section_label_left(scene: &mut Scene, x: f64, y: f64, name: &str, idx: usize, theme: &Theme) {
+fn render_section_label_left(
+    scene: &mut Scene,
+    x: f64,
+    y: f64,
+    name: &str,
+    idx: usize,
+    theme: &Theme,
+) {
     let color = SECTION_COLORS[idx % SECTION_COLORS.len()];
     scene.push(Primitive::Text {
         position: Point::new(x, y),
@@ -298,23 +456,40 @@ struct BoxSpec {
 
 fn render_box(scene: &mut Scene, spec: &BoxSpec, text: &str, theme: &Theme) {
     let (rx, fill) = if spec.bold {
-        (4.0, Color::rgba(spec.color.r, spec.color.g, spec.color.b, 80))
+        (
+            4.0,
+            Color::rgba(spec.color.r, spec.color.g, spec.color.b, 80),
+        )
     } else {
         (12.0, theme.node_fill)
     };
     scene.push(Primitive::Rect {
         bbox: BBox::new(spec.bbox.x, spec.bbox.y, spec.bbox.width, spec.bbox.height),
-        rx, ry: rx,
-        style: Style { fill: Some(fill), stroke: Some(spec.color), stroke_width: Some(1.0), ..Default::default() },
+        rx,
+        ry: rx,
+        style: Style {
+            fill: Some(fill),
+            stroke: Some(spec.color),
+            stroke_width: Some(1.0),
+            ..Default::default()
+        },
     });
     scene.push(Primitive::Text {
         position: Point::new(spec.bbox.x, spec.bbox.y),
         content: text.to_string(),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: if spec.bold { theme.font_size_node } else { theme.font_size_edge_label },
+            font_size: if spec.bold {
+                theme.font_size_node
+            } else {
+                theme.font_size_edge_label
+            },
             fill: Some(theme.node_text),
-            font_weight: if spec.bold { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
+            font_weight: if spec.bold {
+                rusty_mermaid_core::FontWeight::Bold
+            } else {
+                rusty_mermaid_core::FontWeight::Normal
+            },
             ..Default::default()
         },
     });
@@ -324,7 +499,10 @@ fn render_dot(scene: &mut Scene, x: f64, y: f64, color: Color) {
     scene.push(Primitive::Circle {
         center: Point::new(x, y),
         radius: DOT_RADIUS,
-        style: Style { fill: Some(color), ..Default::default() },
+        style: Style {
+            fill: Some(color),
+            ..Default::default()
+        },
     });
 }
 
@@ -361,23 +539,37 @@ mod tests {
     fn scene_with_title() {
         let scene = render("timeline\n    title History\n    2020 : X");
         let has_title = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "History" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "History"
+            } else {
+                false
+            }
         });
         assert!(has_title);
     }
 
     #[test]
     fn scene_with_sections() {
-        let scene = render("timeline\n    section Era1\n        2020 : X\n    section Era2\n        2021 : Y");
+        let scene = render(
+            "timeline\n    section Era1\n        2020 : X\n    section Era2\n        2021 : Y",
+        );
         assert!(scene.len() >= 8);
     }
 
     #[test]
     fn multiple_events_per_task() {
         let scene = render("timeline\n    2020 : A : B : C");
-        let event_boxes: Vec<_> = scene.elements().iter().filter(|e| {
-            if let Primitive::Rect { bbox, .. } = &e.primitive { (bbox.width - EVENT_BOX_W).abs() < 1.0 } else { false }
-        }).collect();
+        let event_boxes: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Rect { bbox, .. } = &e.primitive {
+                    (bbox.width - EVENT_BOX_W).abs() < 1.0
+                } else {
+                    false
+                }
+            })
+            .collect();
         assert_eq!(event_boxes.len(), 3);
     }
 
@@ -386,13 +578,21 @@ mod tests {
         let scene = render("timeline TB\n    2020 : X\n    2021 : Y");
         // TB has horizontal axis — check scene has content
         assert!(scene.len() >= 5);
-        assert!(scene.width > scene.height || scene.width > 100.0, "TB should be wider");
+        assert!(
+            scene.width > scene.height || scene.width > 100.0,
+            "TB should be wider"
+        );
     }
 
     #[test]
     fn title_expands_width() {
-        let scene = render("timeline\n    title A Very Long Title That Should Expand The Scene Width\n    2020 : X");
+        let scene = render(
+            "timeline\n    title A Very Long Title That Should Expand The Scene Width\n    2020 : X",
+        );
         let short = render("timeline\n    title Hi\n    2020 : X");
-        assert!(scene.width > short.width, "long title should produce wider scene");
+        assert!(
+            scene.width > short.width,
+            "long title should produce wider scene"
+        );
     }
 }

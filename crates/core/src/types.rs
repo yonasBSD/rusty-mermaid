@@ -31,7 +31,12 @@ impl BBox {
     pub fn new(x: f64, y: f64, width: f64, height: f64) -> Self {
         debug_assert!(width >= 0.0, "BBox width must be non-negative: {width}");
         debug_assert!(height >= 0.0, "BBox height must be non-negative: {height}");
-        Self { x, y, width, height }
+        Self {
+            x,
+            y,
+            width,
+            height,
+        }
     }
 
     pub fn left(&self) -> f64 {
@@ -108,8 +113,11 @@ impl Color {
 
         fn linearize(c: u8) -> f64 {
             let s = c as f64 / 255.0;
-            if s <= GAMMA_THRESHOLD { s / GAMMA_LINEAR_SCALE }
-            else { ((s + GAMMA_OFFSET) / GAMMA_DIVISOR).powf(GAMMA_EXPONENT) }
+            if s <= GAMMA_THRESHOLD {
+                s / GAMMA_LINEAR_SCALE
+            } else {
+                ((s + GAMMA_OFFSET) / GAMMA_DIVISOR).powf(GAMMA_EXPONENT)
+            }
         }
         LUM_R * linearize(self.r) + LUM_G * linearize(self.g) + LUM_B * linearize(self.b)
     }

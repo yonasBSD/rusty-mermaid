@@ -38,10 +38,7 @@ impl ConstraintGraph {
 ///
 /// Based on Forster, "A Fast and Simple Heuristic for Constrained Two-Level
 /// Crossing Reduction."
-pub(crate) fn resolve_conflicts(
-    entries: &[BaryEntry],
-    cg: &ConstraintGraph,
-) -> Vec<ResolvedEntry> {
+pub(crate) fn resolve_conflicts(entries: &[BaryEntry], cg: &ConstraintGraph) -> Vec<ResolvedEntry> {
     // Build per-node entries
     let mut mapped: BTreeMap<NodeId, MappedEntry> = BTreeMap::new();
     for (i, entry) in entries.iter().enumerate() {
@@ -102,7 +99,9 @@ pub(crate) fn resolve_conflicts(
         // Handle outgoing: decrement indegree, add to source set if zero
         let outgoing: Vec<NodeId> = mapped[&v_id].outgoing.clone();
         for w_id in outgoing {
-            let Some(w) = mapped.get_mut(&w_id) else { continue };
+            let Some(w) = mapped.get_mut(&w_id) else {
+                continue;
+            };
             w.indegree -= 1;
             if w.indegree == 0 {
                 source_set.push(w_id);
@@ -131,7 +130,9 @@ fn merge_entries(mapped: &mut BTreeMap<NodeId, MappedEntry>, target_id: NodeId, 
     let mut sum = 0.0;
     let mut weight = 0.0;
 
-    let Some(target) = mapped.get_mut(&target_id) else { return };
+    let Some(target) = mapped.get_mut(&target_id) else {
+        return;
+    };
     if target.weight > 0.0
         && let Some(bc) = target.barycenter
     {

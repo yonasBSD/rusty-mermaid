@@ -1,9 +1,8 @@
 use std::collections::{BTreeMap, HashSet};
 
 use rusty_mermaid_core::{
-    BBox, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
-    intersect_circle, intersect_line_circle, intersect_line_ellipse, intersect_polygon,
-    intersect_rect,
+    BBox, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle, intersect_circle,
+    intersect_line_circle, intersect_line_ellipse, intersect_polygon, intersect_rect,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
@@ -49,7 +48,10 @@ pub fn layout(diagram: &FlowDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let (mut graph, id_map) = build_flow_graph(diagram, measurer);
 
-    let config = DagreConfig { rankdir: diagram.direction, ..Default::default() };
+    let config = DagreConfig {
+        rankdir: diagram.direction,
+        ..Default::default()
+    };
     let extracted = extract_directed_subgraphs(diagram, &mut graph, &id_map, measurer);
 
     rusty_mermaid_dagre::pipeline::layout(&mut graph, &config);
@@ -60,7 +62,8 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
     let node_styles = resolve_node_styles(diagram);
     let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
 
-    let (mut nodes, mut max_x, mut max_y) = extract_flow_nodes(diagram, &graph, &id_map, &node_styles);
+    let (mut nodes, mut max_x, mut max_y) =
+        extract_flow_nodes(diagram, &graph, &id_map, &node_styles);
     let mut edges = extract_edge_layouts(diagram, &graph, &nid_to_id, measurer);
     let (mut subgraphs, sg_max_x, sg_max_y) = extract_subgraph_layouts(diagram, &graph, &id_map);
     max_x = max_x.max(sg_max_x);
@@ -81,7 +84,13 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
         }
     }
 
-    LayoutResult { nodes, edges, subgraphs, width: max_x, height: max_y }
+    LayoutResult {
+        nodes,
+        edges,
+        subgraphs,
+        width: max_x,
+        height: max_y,
+    }
 }
 
 fn apply_subgraph_positions(
@@ -90,31 +99,49 @@ fn apply_subgraph_positions(
     graph: &mut Graph<NodeLabel, EdgeLabel>,
 ) {
     for ex in extracted {
-        let Some(&sg_nid) = id_map.get(ex.sg_id.as_str()) else { continue };
-        let Some(sg) = graph.node(sg_nid) else { continue };
+        let Some(&sg_nid) = id_map.get(ex.sg_id.as_str()) else {
+            continue;
+        };
+        let Some(sg) = graph.node(sg_nid) else {
+            continue;
+        };
         let sg_cx = sg.x;
         let sg_cy = sg.y;
         for (nid, rel_x, rel_y, w, h) in &ex.inner_nodes {
-            let Some(&node_nid) = id_map.get(nid.as_str()) else { continue };
-            let Some(n) = graph.node_mut(node_nid) else { continue };
+            let Some(&node_nid) = id_map.get(nid.as_str()) else {
+                continue;
+            };
+            let Some(n) = graph.node_mut(node_nid) else {
+                continue;
+            };
             n.x = sg_cx + rel_x;
             n.y = sg_cy + rel_y;
             n.width = *w;
             n.height = *h;
         }
         for (sg_id, rel_x, rel_y, w, h) in &ex.inner_subgraphs {
-            let Some(&nid) = id_map.get(sg_id.as_str()) else { continue };
-            let Some(n) = graph.node_mut(nid) else { continue };
+            let Some(&nid) = id_map.get(sg_id.as_str()) else {
+                continue;
+            };
+            let Some(n) = graph.node_mut(nid) else {
+                continue;
+            };
             n.x = sg_cx + rel_x;
             n.y = sg_cy + rel_y;
             n.width = *w;
             n.height = *h;
         }
         for edge in &ex.inner_edges {
-            let Some(&src) = id_map.get(edge.src.as_str()) else { continue };
-            let Some(&dst) = id_map.get(edge.dst.as_str()) else { continue };
+            let Some(&src) = id_map.get(edge.src.as_str()) else {
+                continue;
+            };
+            let Some(&dst) = id_map.get(edge.dst.as_str()) else {
+                continue;
+            };
             let mut label = EdgeLabel::default();
-            label.points = edge.points.iter()
+            label.points = edge
+                .points
+                .iter()
                 .map(|&(px, py)| Point::new(sg_cx + px, sg_cy + py))
                 .collect();
             graph.add_edge(src, dst, label);
@@ -132,7 +159,9 @@ fn recenter_compounds(
         if extracted.iter().any(|ex| ex.sg_id == sg.id) {
             continue;
         }
-        let Some(&nid) = id_map.get(sg.id.as_str()) else { continue };
+        let Some(&nid) = id_map.get(sg.id.as_str()) else {
+            continue;
+        };
         let mut min_x = f64::INFINITY;
         let mut max_x = f64::NEG_INFINITY;
         for child in graph.children(nid).collect::<Vec<_>>() {
@@ -142,7 +171,10 @@ fn recenter_compounds(
                 max_x = max_x.max(c.x + c.width / 2.0);
             }
         }
-        if min_x.is_finite() && max_x.is_finite() && let Some(n) = graph.node_mut(nid) {
+        if min_x.is_finite()
+            && max_x.is_finite()
+            && let Some(n) = graph.node_mut(nid)
+        {
             n.x = (min_x + max_x) / 2.0;
         }
     }
@@ -226,7 +258,9 @@ fn compute_edge_bounds_min(edges: &[EdgeLayout]) -> (f64, f64) {
             min_y = min_y.min(pt.y);
         }
         if let Some(size) = edge.label_size {
-            if edge.points.len() < 2 { continue; }
+            if edge.points.len() < 2 {
+                continue;
+            }
             let mid = edge.points[edge.points.len() / 2];
             let lw = size.0 + label_pad * 2.0;
             let lh = size.1 + label_pad * 2.0;
@@ -255,7 +289,9 @@ fn expand_bounds_and_shift(
             *max_y = max_y.max(pt.y);
         }
         if let Some(size) = edge.label_size {
-            if edge.points.len() < 2 { continue; }
+            if edge.points.len() < 2 {
+                continue;
+            }
             let mid = edge.points[edge.points.len() / 2];
             let lw = size.0 + label_pad * 2.0;
             let lh = size.1 + label_pad * 2.0;
@@ -333,7 +369,9 @@ fn build_flow_graph<'a>(
         id_map.insert(&sg.id, sg_nid);
     }
     for sg in &diagram.subgraphs {
-        let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
+        let Some(&sg_nid) = id_map.get(sg.id.as_str()) else {
+            continue;
+        };
         for child_id in &sg.node_ids {
             if let Some(&child_nid) = id_map.get(child_id.as_str())
                 && graph.parent(child_nid).is_none()
@@ -351,8 +389,12 @@ fn build_flow_graph<'a>(
     }
 
     for edge in &diagram.edges {
-        let Some(&src) = id_map.get(edge.src.as_str()) else { continue };
-        let Some(&dst) = id_map.get(edge.dst.as_str()) else { continue };
+        let Some(&src) = id_map.get(edge.src.as_str()) else {
+            continue;
+        };
+        let Some(&dst) = id_map.get(edge.dst.as_str()) else {
+            continue;
+        };
         let mut label = EdgeLabel::default();
         label.minlen = edge.minlen.min(10);
         if let Some(text) = &edge.label {
@@ -383,7 +425,9 @@ fn extract_edge_layouts(
     let mut edges = Vec::new();
 
     for eid in graph.edge_ids() {
-        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
+        let Some((src, dst)) = graph.edge_endpoints(eid) else {
+            continue;
+        };
         let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) else {
             continue;
         };
@@ -391,7 +435,9 @@ fn extract_edge_layouts(
         let mut points: Vec<Point> = e.points.clone();
 
         if points.len() >= 2 {
-            let Some(src_node) = graph.node(src) else { continue };
+            let Some(src_node) = graph.node(src) else {
+                continue;
+            };
             let src_shape = vertex_shape.get(src_id).copied().unwrap_or(Shape::Rect);
             let src_bbox = BBox::new(src_node.x, src_node.y, src_node.width, src_node.height);
             if let Some(p) = shape_intersect(src_shape, src_bbox, points[1]) {
@@ -399,7 +445,9 @@ fn extract_edge_layouts(
             }
 
             let last = points.len() - 1;
-            let Some(dst_node) = graph.node(dst) else { continue };
+            let Some(dst_node) = graph.node(dst) else {
+                continue;
+            };
             let dst_shape = vertex_shape.get(dst_id).copied().unwrap_or(Shape::Rect);
             let dst_bbox = BBox::new(dst_node.x, dst_node.y, dst_node.width, dst_node.height);
             if let Some(p) = shape_intersect(dst_shape, dst_bbox, points[last - 1]) {
@@ -420,7 +468,10 @@ fn extract_edge_layouts(
         let flow_edge = edge_idx.map(|i| &diagram.edges[i]);
         let label = flow_edge.and_then(|fe| fe.label.clone());
         let label_size = label.as_ref().map(|text| {
-            let edge_style = TextStyle { font_size: EDGE_LABEL_FONT_SIZE, ..Default::default() };
+            let edge_style = TextStyle {
+                font_size: EDGE_LABEL_FONT_SIZE,
+                ..Default::default()
+            };
             let ts = measurer.measure(text, &edge_style);
             (ts.width, ts.height)
         });
@@ -491,7 +542,9 @@ fn extract_directed_subgraphs(
     // Process bottom-up (inner subgraphs first).
     for sg in diagram.subgraphs.iter().rev() {
         let Some(dir) = sg.direction else { continue };
-        let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
+        let Some(&sg_nid) = id_map.get(sg.id.as_str()) else {
+            continue;
+        };
 
         let descendants = collect_descendants(graph, sg_nid);
         if descendants.is_empty() {
@@ -501,7 +554,9 @@ fn extract_directed_subgraphs(
         // Check for external connections: any edge with one endpoint
         // inside (descendant) and the other outside.
         let has_external = graph.edge_ids().any(|eid| {
-            let Some((src, dst)) = graph.edge_endpoints(eid) else { return false };
+            let Some((src, dst)) = graph.edge_endpoints(eid) else {
+                return false;
+            };
             let s_in = descendants.contains(&src);
             let d_in = descendants.contains(&dst);
             s_in ^ d_in
@@ -534,28 +589,35 @@ fn extract_directed_subgraphs(
 
         // Add internal edges.
         for eid in graph.edge_ids().collect::<Vec<_>>() {
-            let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
+            let Some((src, dst)) = graph.edge_endpoints(eid) else {
+                continue;
+            };
             if descendants.contains(&src)
                 && descendants.contains(&dst)
                 && let (Some(&inner_src), Some(&inner_dst)) =
                     (inner_map.get(&src), inner_map.get(&dst))
             {
-                let Some(label) = graph.edge(eid).cloned() else { continue };
+                let Some(label) = graph.edge(eid).cloned() else {
+                    continue;
+                };
                 inner_g.add_edge(inner_src, inner_dst, label);
             }
         }
 
         // Run dagre with the subgraph's direction.
-        let inner_config = DagreConfig { rankdir: dir, ..Default::default() };
+        let inner_config = DagreConfig {
+            rankdir: dir,
+            ..Default::default()
+        };
         rusty_mermaid_dagre::pipeline::layout(&mut inner_g, &inner_config);
 
         // Compute bounding box of inner layout.
-        let reverse_map: BTreeMap<NodeId, NodeId> = inner_map.iter()
+        let reverse_map: BTreeMap<NodeId, NodeId> = inner_map
+            .iter()
             .map(|(&outer, &inner)| (inner, outer))
             .collect();
-        let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter()
-            .map(|(&id, &nid)| (nid, id))
-            .collect();
+        let nid_to_id: BTreeMap<NodeId, &str> =
+            id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
 
         let mut min_x = f64::INFINITY;
         let mut min_y = f64::INFINITY;
@@ -563,15 +625,21 @@ fn extract_directed_subgraphs(
         let mut max_y = f64::NEG_INFINITY;
 
         for &inner_nid in inner_map.values() {
-            let Some(n) = inner_g.node(inner_nid) else { continue };
-            if n.width <= 0.0 && n.height <= 0.0 { continue; }
+            let Some(n) = inner_g.node(inner_nid) else {
+                continue;
+            };
+            if n.width <= 0.0 && n.height <= 0.0 {
+                continue;
+            }
             min_x = min_x.min(n.x - n.width / 2.0);
             min_y = min_y.min(n.y - n.height / 2.0);
             max_x = max_x.max(n.x + n.width / 2.0);
             max_y = max_y.max(n.y + n.height / 2.0);
         }
 
-        if !min_x.is_finite() { continue; }
+        if !min_x.is_finite() {
+            continue;
+        }
 
         let center_x = (min_x + max_x) / 2.0;
         let center_y = (min_y + max_y) / 2.0;
@@ -579,7 +647,9 @@ fn extract_directed_subgraphs(
         // Padding: border + label space (matching dagre compound style).
         let pad = 16.0;
         let label_h = if sg.label.is_some() {
-            let lh = measurer.measure(sg.label.as_deref().unwrap_or(""), &style).height;
+            let lh = measurer
+                .measure(sg.label.as_deref().unwrap_or(""), &style)
+                .height;
             lh + 8.0
         } else {
             0.0
@@ -594,8 +664,12 @@ fn extract_directed_subgraphs(
         let mut inner_subgraphs = Vec::new();
 
         for (&outer_nid, &inner_nid) in &inner_map {
-            let Some(n) = inner_g.node(inner_nid) else { continue };
-            let Some(&str_id) = nid_to_id.get(&outer_nid) else { continue };
+            let Some(n) = inner_g.node(inner_nid) else {
+                continue;
+            };
+            let Some(&str_id) = nid_to_id.get(&outer_nid) else {
+                continue;
+            };
             let rel_x = n.x - center_x;
             let rel_y = n.y - adj_center_y;
 
@@ -612,13 +686,25 @@ fn extract_directed_subgraphs(
         // Store inner edge points relative to center.
         let mut inner_edges = Vec::new();
         for eid in inner_g.edge_ids() {
-            let Some((src, dst)) = inner_g.edge_endpoints(eid) else { continue };
-            let Some(&outer_src) = reverse_map.get(&src) else { continue };
-            let Some(&outer_dst) = reverse_map.get(&dst) else { continue };
-            let Some(&src_id) = nid_to_id.get(&outer_src) else { continue };
-            let Some(&dst_id) = nid_to_id.get(&outer_dst) else { continue };
+            let Some((src, dst)) = inner_g.edge_endpoints(eid) else {
+                continue;
+            };
+            let Some(&outer_src) = reverse_map.get(&src) else {
+                continue;
+            };
+            let Some(&outer_dst) = reverse_map.get(&dst) else {
+                continue;
+            };
+            let Some(&src_id) = nid_to_id.get(&outer_src) else {
+                continue;
+            };
+            let Some(&dst_id) = nid_to_id.get(&outer_dst) else {
+                continue;
+            };
             let Some(e) = inner_g.edge(eid) else { continue };
-            let points: Vec<(f64, f64)> = e.points.iter()
+            let points: Vec<(f64, f64)> = e
+                .points
+                .iter()
                 .map(|p| (p.x - center_x, p.y - adj_center_y))
                 .collect();
             inner_edges.push(InnerEdgeLayout {
@@ -633,11 +719,14 @@ fn extract_directed_subgraphs(
             graph.remove_parent(nid);
         }
         // Remove internal edges from main graph.
-        let internal_eids: Vec<_> = graph.edge_ids().filter(|&eid| {
-            graph.edge_endpoints(eid).is_some_and(|(s, d)| {
-                descendants.contains(&s) && descendants.contains(&d)
+        let internal_eids: Vec<_> = graph
+            .edge_ids()
+            .filter(|&eid| {
+                graph
+                    .edge_endpoints(eid)
+                    .is_some_and(|(s, d)| descendants.contains(&s) && descendants.contains(&d))
             })
-        }).collect();
+            .collect();
         for eid in internal_eids {
             graph.remove_edge(eid);
         }
@@ -661,8 +750,15 @@ fn extract_directed_subgraphs(
 /// Resolve all style sources into a single `Style` per node.
 /// Priority (last wins): classDef "default" → classDef via class/:::class → style statement.
 fn resolve_node_styles(diagram: &FlowDiagram) -> BTreeMap<&str, Style> {
-    let entities = diagram.vertices.iter().map(|v| (v.id.as_str(), v.classes.as_slice()));
-    crate::common::rendering::resolve_entity_styles(entities, &diagram.class_defs, &diagram.style_stmts)
+    let entities = diagram
+        .vertices
+        .iter()
+        .map(|v| (v.id.as_str(), v.classes.as_slice()));
+    crate::common::rendering::resolve_entity_styles(
+        entities,
+        &diagram.class_defs,
+        &diagram.style_stmts,
+    )
 }
 
 /// Resolve linkStyle statements into a per-edge-index Style map.

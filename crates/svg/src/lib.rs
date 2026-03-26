@@ -220,7 +220,10 @@ mod tests {
             marker_end: Some(MarkerType::ArrowPoint),
         });
         let svg = SvgRenderer::new().render(&scene);
-        assert!(svg.contains("arrow-point-9370db"), "marker ID should include edge color");
+        assert!(
+            svg.contains("arrow-point-9370db"),
+            "marker ID should include edge color"
+        );
         assert!(svg.contains(r#"marker-end="url(#arrow-point-9370db)""#));
     }
 }

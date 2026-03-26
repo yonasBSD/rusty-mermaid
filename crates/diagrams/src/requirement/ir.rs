@@ -157,7 +157,10 @@ mod tests {
     #[test]
     fn requirement_type_labels() {
         assert_eq!(RequirementType::Requirement.label(), "Requirement");
-        assert_eq!(RequirementType::DesignConstraint.label(), "Design Constraint");
+        assert_eq!(
+            RequirementType::DesignConstraint.label(),
+            "Design Constraint"
+        );
     }
 
     #[test]

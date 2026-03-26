@@ -2,31 +2,31 @@
 //! node counts, edge counts, shapes, and connectivity.
 
 use rusty_mermaid_core::Shape;
-use rusty_mermaid_diagrams::class::parser as class_parser;
-use rusty_mermaid_diagrams::er::parser as er_parser;
-use rusty_mermaid_diagrams::requirement::parser as req_parser;
-use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
-use rusty_mermaid_diagrams::sequence::parser as sequence_parser;
-use rusty_mermaid_diagrams::state::parser as state_parser;
-use rusty_mermaid_diagrams::pie::parser as pie_parser;
-use rusty_mermaid_diagrams::sankey::parser as sankey_parser;
-use rusty_mermaid_diagrams::packet::parser as packet_parser;
-use rusty_mermaid_diagrams::mindmap::parser as mindmap_parser;
-use rusty_mermaid_diagrams::quadrant::parser as quadrant_parser;
-use rusty_mermaid_diagrams::venn::parser as venn_parser;
-use rusty_mermaid_diagrams::radar::parser as radar_parser;
-use rusty_mermaid_diagrams::journey::parser as journey_parser;
-use rusty_mermaid_diagrams::treeview::parser as treeview_parser;
-use rusty_mermaid_diagrams::treemap::parser as treemap_parser;
+use rusty_mermaid_diagrams::architecture::parser as arch_parser;
 use rusty_mermaid_diagrams::block::parser as block_parser;
 use rusty_mermaid_diagrams::c4::parser as c4_parser;
-use rusty_mermaid_diagrams::architecture::parser as arch_parser;
+use rusty_mermaid_diagrams::class::parser as class_parser;
+use rusty_mermaid_diagrams::er::parser as er_parser;
+use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
 use rusty_mermaid_diagrams::gantt::parser as gantt_parser;
 use rusty_mermaid_diagrams::gitgraph::parser as gitgraph_parser;
-use rusty_mermaid_diagrams::timeline::parser as timeline_parser;
-use rusty_mermaid_diagrams::kanban::parser as kanban_parser;
-use rusty_mermaid_diagrams::xychart::parser as xychart_parser;
 use rusty_mermaid_diagrams::ishikawa::parser as ishikawa_parser;
+use rusty_mermaid_diagrams::journey::parser as journey_parser;
+use rusty_mermaid_diagrams::kanban::parser as kanban_parser;
+use rusty_mermaid_diagrams::mindmap::parser as mindmap_parser;
+use rusty_mermaid_diagrams::packet::parser as packet_parser;
+use rusty_mermaid_diagrams::pie::parser as pie_parser;
+use rusty_mermaid_diagrams::quadrant::parser as quadrant_parser;
+use rusty_mermaid_diagrams::radar::parser as radar_parser;
+use rusty_mermaid_diagrams::requirement::parser as req_parser;
+use rusty_mermaid_diagrams::sankey::parser as sankey_parser;
+use rusty_mermaid_diagrams::sequence::parser as sequence_parser;
+use rusty_mermaid_diagrams::state::parser as state_parser;
+use rusty_mermaid_diagrams::timeline::parser as timeline_parser;
+use rusty_mermaid_diagrams::treemap::parser as treemap_parser;
+use rusty_mermaid_diagrams::treeview::parser as treeview_parser;
+use rusty_mermaid_diagrams::venn::parser as venn_parser;
+use rusty_mermaid_diagrams::xychart::parser as xychart_parser;
 
 use std::fs;
 use std::path::Path;
@@ -90,7 +90,12 @@ fn flowchart_diamond_flow_branching() {
     assert_eq!(d.vertex("B").unwrap().shape, Shape::Diamond);
     assert_eq!(d.vertex("C").unwrap().shape, Shape::Diamond);
     // B branches to C and D
-    let b_dsts: Vec<_> = d.edges.iter().filter(|e| e.src == "B").map(|e| &*e.dst).collect();
+    let b_dsts: Vec<_> = d
+        .edges
+        .iter()
+        .filter(|e| e.src == "B")
+        .map(|e| &*e.dst)
+        .collect();
     assert!(b_dsts.contains(&"C"));
     assert!(b_dsts.contains(&"D"));
 }
@@ -141,10 +146,20 @@ fn flowchart_chain_branching_fan_out() {
     assert_eq!(d.vertices.len(), 7, "A B C D E F G");
     assert_eq!(d.edges.len(), 8);
     // A fans out to B and C
-    let a_dsts: Vec<_> = d.edges.iter().filter(|e| e.src == "A").map(|e| &*e.dst).collect();
+    let a_dsts: Vec<_> = d
+        .edges
+        .iter()
+        .filter(|e| e.src == "A")
+        .map(|e| &*e.dst)
+        .collect();
     assert_eq!(a_dsts.len(), 2);
     // D fans out to E and F
-    let d_dsts: Vec<_> = d.edges.iter().filter(|e| e.src == "D").map(|e| &*e.dst).collect();
+    let d_dsts: Vec<_> = d
+        .edges
+        .iter()
+        .filter(|e| e.src == "D")
+        .map(|e| &*e.dst)
+        .collect();
     assert_eq!(d_dsts.len(), 2);
 }
 
@@ -163,18 +178,42 @@ fn flowchart_style_classdef_resolution() {
     assert_eq!(d.vertices.len(), 5, "A B C D E");
     assert_eq!(d.class_defs.len(), 2, "highlight + dimmed");
     // A and C have class "highlight", B has "dimmed"
-    assert!(d.vertex("A").unwrap().classes.contains(&"highlight".to_string()));
-    assert!(d.vertex("C").unwrap().classes.contains(&"highlight".to_string()));
-    assert!(d.vertex("B").unwrap().classes.contains(&"dimmed".to_string()));
+    assert!(
+        d.vertex("A")
+            .unwrap()
+            .classes
+            .contains(&"highlight".to_string())
+    );
+    assert!(
+        d.vertex("C")
+            .unwrap()
+            .classes
+            .contains(&"highlight".to_string())
+    );
+    assert!(
+        d.vertex("B")
+            .unwrap()
+            .classes
+            .contains(&"dimmed".to_string())
+    );
     // D has inline :::highlight
-    assert!(d.vertex("D").unwrap().classes.contains(&"highlight".to_string()));
+    assert!(
+        d.vertex("D")
+            .unwrap()
+            .classes
+            .contains(&"highlight".to_string())
+    );
 }
 
 #[test]
 fn flowchart_combo_subgraph_styled() {
     let d = flowchart_parser::parse(&read_golden("flowchart", "combo_subgraph_styled")).unwrap();
     assert_eq!(d.subgraphs.len(), 3, "inputs, processing, outputs");
-    assert_eq!(d.class_defs.len(), 5, "primary, warning, danger, success, info");
+    assert_eq!(
+        d.class_defs.len(),
+        5,
+        "primary, warning, danger, success, info"
+    );
     assert!(!d.link_styles.is_empty(), "linkStyle statements present");
 }
 
@@ -208,8 +247,15 @@ fn state_composite_nesting() {
     let d = state_parser::parse(text).unwrap();
     // At least one composite state
     use rusty_mermaid_diagrams::state::ir::StateKind;
-    let composites: Vec<_> = d.states.iter().filter(|s| matches!(s.kind, StateKind::Composite { .. })).collect();
-    assert!(!composites.is_empty(), "should have at least one composite state");
+    let composites: Vec<_> = d
+        .states
+        .iter()
+        .filter(|s| matches!(s.kind, StateKind::Composite { .. }))
+        .collect();
+    assert!(
+        !composites.is_empty(),
+        "should have at least one composite state"
+    );
 }
 
 #[test]
@@ -218,10 +264,21 @@ fn state_concurrent_regions() {
     let d = state_parser::parse(text).unwrap();
     // Concurrent state has regions separated by --
     use rusty_mermaid_diagrams::state::ir::StateKind;
-    let concurrent: Vec<_> = d.states.iter().filter(|s| {
-        if let StateKind::Composite { regions, .. } = &s.kind { regions.len() > 1 } else { false }
-    }).collect();
-    assert!(!concurrent.is_empty(), "should have a concurrent composite with >1 region");
+    let concurrent: Vec<_> = d
+        .states
+        .iter()
+        .filter(|s| {
+            if let StateKind::Composite { regions, .. } = &s.kind {
+                regions.len() > 1
+            } else {
+                false
+            }
+        })
+        .collect();
+    assert!(
+        !concurrent.is_empty(),
+        "should have a concurrent composite with >1 region"
+    );
 }
 
 #[test]
@@ -250,10 +307,21 @@ fn sequence_all_arrow_types() {
     let text = &read_golden("sequence", "seq_arrows");
     let d = sequence_parser::parse(text).unwrap();
     use rusty_mermaid_diagrams::sequence::ir::{ArrowHead, LineStyle, SequenceItem};
-    let messages: Vec<_> = d.items.iter().filter_map(|item| {
-        if let SequenceItem::Message(m) = item { Some(m) } else { None }
-    }).collect();
-    assert!(messages.len() >= 4, "should have multiple arrow type messages");
+    let messages: Vec<_> = d
+        .items
+        .iter()
+        .filter_map(|item| {
+            if let SequenceItem::Message(m) = item {
+                Some(m)
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert!(
+        messages.len() >= 4,
+        "should have multiple arrow type messages"
+    );
     // Check we have both solid and dotted lines
     let has_solid = messages.iter().any(|m| m.arrow.line == LineStyle::Solid);
     let has_dotted = messages.iter().any(|m| m.arrow.line == LineStyle::Dotted);
@@ -271,12 +339,21 @@ fn sequence_self_message() {
     let text = &read_golden("sequence", "seq_self_msg");
     let d = sequence_parser::parse(text).unwrap();
     use rusty_mermaid_diagrams::sequence::ir::SequenceItem;
-    let self_msgs: Vec<_> = d.items.iter().filter_map(|item| {
-        if let SequenceItem::Message(m) = item {
-            if m.from == m.to { Some(m) } else { None }
-        } else { None }
-    }).collect();
-    assert!(!self_msgs.is_empty(), "should have at least one self-message");
+    let self_msgs: Vec<_> = d
+        .items
+        .iter()
+        .filter_map(|item| {
+            if let SequenceItem::Message(m) = item {
+                if m.from == m.to { Some(m) } else { None }
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert!(
+        !self_msgs.is_empty(),
+        "should have at least one self-message"
+    );
 }
 
 #[test]
@@ -284,7 +361,11 @@ fn sequence_notes() {
     let text = &read_golden("sequence", "seq_notes");
     let d = sequence_parser::parse(text).unwrap();
     use rusty_mermaid_diagrams::sequence::ir::SequenceItem;
-    let notes: Vec<_> = d.items.iter().filter(|item| matches!(item, SequenceItem::Note(_))).collect();
+    let notes: Vec<_> = d
+        .items
+        .iter()
+        .filter(|item| matches!(item, SequenceItem::Note(_)))
+        .collect();
     assert!(!notes.is_empty(), "should have note items");
 }
 
@@ -293,7 +374,11 @@ fn sequence_fragments() {
     let text = &read_golden("sequence", "seq_loop");
     let d = sequence_parser::parse(text).unwrap();
     use rusty_mermaid_diagrams::sequence::ir::SequenceItem;
-    let fragments: Vec<_> = d.items.iter().filter(|item| matches!(item, SequenceItem::Fragment(_))).collect();
+    let fragments: Vec<_> = d
+        .items
+        .iter()
+        .filter(|item| matches!(item, SequenceItem::Fragment(_)))
+        .collect();
     assert!(!fragments.is_empty(), "should have loop fragment");
 }
 
@@ -304,8 +389,8 @@ fn sequence_activation() {
     use rusty_mermaid_diagrams::sequence::ir::SequenceItem;
     // Should have activate/deactivate items or messages with +/- suffixes
     let has_activation = d.items.iter().any(|item| {
-        matches!(item, SequenceItem::Activation(_)) ||
-        matches!(item, SequenceItem::Message(m) if m.activate)
+        matches!(item, SequenceItem::Activation(_))
+            || matches!(item, SequenceItem::Message(m) if m.activate)
     });
     assert!(has_activation, "should have activation items");
 }
@@ -331,7 +416,10 @@ fn class_basic_structure() {
 #[test]
 fn class_all_relationship_types() {
     let d = class_parser::parse(&read_golden("class", "class_relationships")).unwrap();
-    assert!(d.relationships.len() >= 5, "should have all relationship types");
+    assert!(
+        d.relationships.len() >= 5,
+        "should have all relationship types"
+    );
 }
 
 #[test]
@@ -362,7 +450,9 @@ fn er_all_cardinality_types() {
     let d = er_parser::parse(&read_golden("er", "er_cardinality")).unwrap();
     assert_eq!(d.relationships.len(), 4);
     use rusty_mermaid_diagrams::er::ir::Cardinality;
-    let cards: Vec<_> = d.relationships.iter()
+    let cards: Vec<_> = d
+        .relationships
+        .iter()
         .flat_map(|r| [r.cardinality_a, r.cardinality_b])
         .collect();
     assert!(cards.contains(&Cardinality::ExactlyOne));
@@ -376,9 +466,18 @@ fn er_attributes_with_keys() {
     let d = er_parser::parse(&read_golden("er", "er_attributes")).unwrap();
     let product = d.entity("PRODUCT").unwrap();
     use rusty_mermaid_diagrams::er::ir::KeyType;
-    let has_pk = product.attributes.iter().any(|a| a.keys.contains(&KeyType::PrimaryKey));
-    let has_fk = product.attributes.iter().any(|a| a.keys.contains(&KeyType::ForeignKey));
-    let has_uk = product.attributes.iter().any(|a| a.keys.contains(&KeyType::UniqueKey));
+    let has_pk = product
+        .attributes
+        .iter()
+        .any(|a| a.keys.contains(&KeyType::PrimaryKey));
+    let has_fk = product
+        .attributes
+        .iter()
+        .any(|a| a.keys.contains(&KeyType::ForeignKey));
+    let has_uk = product
+        .attributes
+        .iter()
+        .any(|a| a.keys.contains(&KeyType::UniqueKey));
     assert!(has_pk, "should have PK attribute");
     assert!(has_fk, "should have FK attribute");
     assert!(has_uk, "should have UK attribute");
@@ -387,7 +486,11 @@ fn er_attributes_with_keys() {
 #[test]
 fn er_complex_entity_count() {
     let d = er_parser::parse(&read_golden("er", "er_complex")).unwrap();
-    assert_eq!(d.entities.len(), 5, "CUSTOMER, ORDER, LINE-ITEM, PRODUCT, CATEGORY");
+    assert_eq!(
+        d.entities.len(),
+        5,
+        "CUSTOMER, ORDER, LINE-ITEM, PRODUCT, CATEGORY"
+    );
     assert_eq!(d.relationships.len(), 4);
 }
 
@@ -398,15 +501,24 @@ fn req_basic_structure() {
     let d = req_parser::parse(&read_golden("requirement", "req_basic")).unwrap();
     assert_eq!(d.requirements.len(), 2);
     assert_eq!(d.relationships.len(), 1);
-    assert_eq!(d.requirements[0].risk, Some(rusty_mermaid_diagrams::requirement::ir::RiskLevel::High));
+    assert_eq!(
+        d.requirements[0].risk,
+        Some(rusty_mermaid_diagrams::requirement::ir::RiskLevel::High)
+    );
 }
 
 #[test]
 fn req_all_types_coverage() {
     let d = req_parser::parse(&read_golden("requirement", "req_all_types")).unwrap();
-    assert!(d.requirements.len() >= 4, "should have multiple requirement types");
+    assert!(
+        d.requirements.len() >= 4,
+        "should have multiple requirement types"
+    );
     assert_eq!(d.elements.len(), 1, "should have one element");
-    assert!(d.relationships.len() >= 5, "should have multiple relationship types");
+    assert!(
+        d.relationships.len() >= 5,
+        "should have multiple relationship types"
+    );
 }
 
 #[test]
@@ -480,7 +592,10 @@ fn sankey_quoted_node_names() {
     let d = sankey_parser::parse(&read_golden("sankey", "sankey_quoted")).unwrap();
     assert_eq!(d.links.len(), 6);
     let names = d.node_names();
-    assert!(names.contains(&"Heating & Cooling".to_string()), "quoted names with special chars");
+    assert!(
+        names.contains(&"Heating & Cooling".to_string()),
+        "quoted names with special chars"
+    );
     assert!(names.contains(&"Office Buildings".to_string()));
 }
 
@@ -511,7 +626,11 @@ fn packet_tcp_single_bit_flags() {
 fn packet_udp_fields() {
     let d = packet_parser::parse(&read_golden("packet", "packet_udp")).unwrap();
     assert_eq!(d.title.as_deref(), Some("UDP Header"));
-    assert_eq!(d.fields.len(), 4, "Source Port, Dest Port, Length, Checksum");
+    assert_eq!(
+        d.fields.len(),
+        4,
+        "Source Port, Dest Port, Length, Checksum"
+    );
     // All 16-bit fields
     for f in &d.fields {
         assert_eq!(f.bits(), 16, "{} should be 16 bits", f.label);
@@ -525,7 +644,11 @@ fn mindmap_basic_structure() {
     let d = mindmap_parser::parse(&read_golden("mindmap", "mindmap_basic")).unwrap();
     assert_eq!(d.root.text, "Programming");
     assert_eq!(d.root.children.len(), 3, "Languages, Paradigms, Tools");
-    assert_eq!(d.root.count(), 13, "root + 3 branches x 3 leaves + 3 branch nodes");
+    assert_eq!(
+        d.root.count(),
+        13,
+        "root + 3 branches x 3 leaves + 3 branch nodes"
+    );
 }
 
 #[test]
@@ -614,7 +737,11 @@ fn venn_two_sets_sizes() {
 fn radar_skills_axes_and_curves() {
     let d = radar_parser::parse(&read_golden("radar", "radar_skills")).unwrap();
     assert_eq!(d.title.as_deref(), Some("Developer Skills"));
-    assert_eq!(d.axes.len(), 6, "Rust, TypeScript, Python, SQL, DevOps, Design");
+    assert_eq!(
+        d.axes.len(),
+        6,
+        "Rust, TypeScript, Python, SQL, DevOps, Design"
+    );
     assert_eq!(d.curves.len(), 2, "Alice and Bob");
 }
 
@@ -632,7 +759,10 @@ fn radar_performance_explicit_max() {
     let d = radar_parser::parse(&read_golden("radar", "radar_performance")).unwrap();
     assert_eq!(d.axes.len(), 5, "Speed, Comfort, Safety, Economy, Style");
     assert_eq!(d.curves.len(), 3, "Sports Car, Family Sedan, SUV");
-    assert!((d.effective_max() - 10.0).abs() < f64::EPSILON, "explicit max 10");
+    assert!(
+        (d.effective_max() - 10.0).abs() < f64::EPSILON,
+        "explicit max 10"
+    );
     assert_eq!(d.ticks, 4);
 }
 
@@ -643,7 +773,11 @@ fn journey_workday_sections_and_tasks() {
     let d = journey_parser::parse(&read_golden("journey", "journey_workday")).unwrap();
     assert_eq!(d.title.as_deref(), Some("My Working Day"));
     assert_eq!(d.sections.len(), 2, "Go to work, Go home");
-    assert_eq!(d.sections[0].tasks.len(), 3, "Make tea, Go upstairs, Do work");
+    assert_eq!(
+        d.sections[0].tasks.len(),
+        3,
+        "Make tea, Go upstairs, Do work"
+    );
     assert_eq!(d.sections[1].tasks.len(), 2, "Go downstairs, Sit down");
 }
 
@@ -689,7 +823,11 @@ fn treeview_org_structure() {
     let d = treeview_parser::parse(&read_golden("treeview", "treeview_org")).unwrap();
     assert_eq!(d.roots.len(), 1, "Company is single root");
     assert_eq!(d.roots[0].name, "Company");
-    assert_eq!(d.roots[0].children.len(), 3, "Engineering, Product, Marketing");
+    assert_eq!(
+        d.roots[0].children.len(),
+        3,
+        "Engineering, Product, Marketing"
+    );
     assert_eq!(d.node_count(), 9);
 }
 
@@ -806,7 +944,12 @@ fn arch_api_gateway_grouping() {
     let d = arch_parser::parse(&read_golden("architecture", "arch_api_gateway")).unwrap();
     // All services belong to api group
     for svc in &d.services {
-        assert_eq!(svc.group.as_deref(), Some("api"), "{} should be in api group", svc.id);
+        assert_eq!(
+            svc.group.as_deref(),
+            Some("api"),
+            "{} should be in api group",
+            svc.id
+        );
     }
 }
 
@@ -816,7 +959,11 @@ fn arch_network_multiple_groups() {
     assert_eq!(d.groups.len(), 2, "cloud + internal");
     assert_eq!(d.services.len(), 5, "lb, app1, app2, cache, db");
     assert_eq!(d.edges.len(), 5);
-    let cloud_svcs: Vec<_> = d.services.iter().filter(|s| s.group.as_deref() == Some("cloud")).collect();
+    let cloud_svcs: Vec<_> = d
+        .services
+        .iter()
+        .filter(|s| s.group.as_deref() == Some("cloud"))
+        .collect();
     assert_eq!(cloud_svcs.len(), 3, "lb, app1, app2 in cloud");
 }
 
@@ -838,7 +985,11 @@ fn gantt_simple_no_sections() {
     assert_eq!(d.title.as_deref(), Some("Weekly Tasks"));
     assert_eq!(d.sections.len(), 1, "tasks in default unnamed section");
     assert!(d.sections[0].name.is_none());
-    assert_eq!(d.sections[0].tasks.len(), 4, "Research, Writing, Review, Publish");
+    assert_eq!(
+        d.sections[0].tasks.len(),
+        4,
+        "Research, Writing, Review, Publish"
+    );
 }
 
 #[test]
@@ -847,9 +998,15 @@ fn gantt_dependencies_task_tags() {
     let d = gantt_parser::parse(&read_golden("gantt", "gantt_dependencies")).unwrap();
     assert_eq!(d.sections.len(), 3, "Sprint 1, Sprint 2, Milestones");
     let design = &d.sections[0].tasks[0];
-    assert!(design.tags.contains(&TaskTag::Done), "Design should be done");
+    assert!(
+        design.tags.contains(&TaskTag::Done),
+        "Design should be done"
+    );
     let dev = &d.sections[1].tasks[0];
-    assert!(dev.tags.contains(&TaskTag::Crit), "Development should be crit");
+    assert!(
+        dev.tags.contains(&TaskTag::Crit),
+        "Development should be crit"
+    );
 }
 
 // ── Gitgraph IR assertions ──────────────────────────────────────────
@@ -858,9 +1015,17 @@ fn gantt_dependencies_task_tags() {
 fn gitgraph_basic_commits() {
     use rusty_mermaid_diagrams::gitgraph::ir::GitStatement;
     let d = gitgraph_parser::parse(&read_golden("gitgraph", "git_basic")).unwrap();
-    let commits: Vec<_> = d.statements.iter().filter(|s| matches!(s, GitStatement::Commit { .. })).collect();
+    let commits: Vec<_> = d
+        .statements
+        .iter()
+        .filter(|s| matches!(s, GitStatement::Commit { .. }))
+        .collect();
     assert_eq!(commits.len(), 6, "6 commit statements");
-    let merges: Vec<_> = d.statements.iter().filter(|s| matches!(s, GitStatement::Merge { .. })).collect();
+    let merges: Vec<_> = d
+        .statements
+        .iter()
+        .filter(|s| matches!(s, GitStatement::Merge { .. }))
+        .collect();
     assert_eq!(merges.len(), 1, "1 merge");
 }
 
@@ -868,9 +1033,17 @@ fn gitgraph_basic_commits() {
 fn gitgraph_feature_branches() {
     use rusty_mermaid_diagrams::gitgraph::ir::GitStatement;
     let d = gitgraph_parser::parse(&read_golden("gitgraph", "git_feature_branches")).unwrap();
-    let branches: Vec<_> = d.statements.iter().filter_map(|s| {
-        if let GitStatement::Branch { name, .. } = s { Some(name.as_str()) } else { None }
-    }).collect();
+    let branches: Vec<_> = d
+        .statements
+        .iter()
+        .filter_map(|s| {
+            if let GitStatement::Branch { name, .. } = s {
+                Some(name.as_str())
+            } else {
+                None
+            }
+        })
+        .collect();
     assert_eq!(branches.len(), 2, "feature-auth + feature-api");
     assert!(branches.contains(&"feature-auth"));
     assert!(branches.contains(&"feature-api"));
@@ -878,11 +1051,19 @@ fn gitgraph_feature_branches() {
 
 #[test]
 fn gitgraph_commit_types() {
-    use rusty_mermaid_diagrams::gitgraph::ir::{GitStatement, CommitType};
+    use rusty_mermaid_diagrams::gitgraph::ir::{CommitType, GitStatement};
     let d = gitgraph_parser::parse(&read_golden("gitgraph", "git_commit_types")).unwrap();
-    let commits: Vec<_> = d.statements.iter().filter_map(|s| {
-        if let GitStatement::Commit { commit_type, .. } = s { Some(*commit_type) } else { None }
-    }).collect();
+    let commits: Vec<_> = d
+        .statements
+        .iter()
+        .filter_map(|s| {
+            if let GitStatement::Commit { commit_type, .. } = s {
+                Some(*commit_type)
+            } else {
+                None
+            }
+        })
+        .collect();
     assert!(commits.contains(&CommitType::Normal));
     assert!(commits.contains(&CommitType::Reverse));
     assert!(commits.contains(&CommitType::Highlight));
@@ -989,17 +1170,33 @@ fn xychart_mixed_series() {
 fn ishikawa_quality_categories() {
     let d = ishikawa_parser::parse(&read_golden("ishikawa", "ishikawa_quality")).unwrap();
     assert_eq!(d.effect, "Low Quality Output");
-    assert_eq!(d.categories.len(), 5, "People, Process, Equipment, Materials, Environment");
+    assert_eq!(
+        d.categories.len(),
+        5,
+        "People, Process, Equipment, Materials, Environment"
+    );
     assert_eq!(d.categories[0].name, "People");
-    assert_eq!(d.categories[0].causes.len(), 3, "Lack of training, High turnover, Fatigue");
+    assert_eq!(
+        d.categories[0].causes.len(),
+        3,
+        "Lack of training, High turnover, Fatigue"
+    );
 }
 
 #[test]
 fn ishikawa_quality_subcauses() {
     let d = ishikawa_parser::parse(&read_golden("ishikawa", "ishikawa_quality")).unwrap();
     let equipment = d.categories.iter().find(|c| c.name == "Equipment").unwrap();
-    assert_eq!(equipment.causes.len(), 2, "Outdated tools, Calibration drift");
-    let cal = equipment.causes.iter().find(|c| c.name == "Calibration drift").unwrap();
+    assert_eq!(
+        equipment.causes.len(),
+        2,
+        "Outdated tools, Calibration drift"
+    );
+    let cal = equipment
+        .causes
+        .iter()
+        .find(|c| c.name == "Calibration drift")
+        .unwrap();
     assert_eq!(cal.subcauses.len(), 2, "Sensor age, No maintenance");
     assert_eq!(equipment.total_causes(), 4, "2 causes + 2 subcauses");
 }

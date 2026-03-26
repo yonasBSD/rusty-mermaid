@@ -44,11 +44,21 @@ pub fn edge_label_bg_style(theme: &Theme) -> Style {
 
 /// Overlay a custom style onto a base style, field by field.
 pub fn overlay_style(base: &mut Style, custom: &Style) {
-    if custom.fill.is_some() { base.fill = custom.fill; }
-    if custom.stroke.is_some() { base.stroke = custom.stroke; }
-    if custom.stroke_width.is_some() { base.stroke_width = custom.stroke_width; }
-    if custom.stroke_dasharray.is_some() { base.stroke_dasharray = custom.stroke_dasharray.clone(); }
-    if custom.opacity.is_some() { base.opacity = custom.opacity; }
+    if custom.fill.is_some() {
+        base.fill = custom.fill;
+    }
+    if custom.stroke.is_some() {
+        base.stroke = custom.stroke;
+    }
+    if custom.stroke_width.is_some() {
+        base.stroke_width = custom.stroke_width;
+    }
+    if custom.stroke_dasharray.is_some() {
+        base.stroke_dasharray = custom.stroke_dasharray.clone();
+    }
+    if custom.opacity.is_some() {
+        base.opacity = custom.opacity;
+    }
 }
 
 /// Merge a node's custom style onto the theme default.
@@ -64,8 +74,12 @@ pub fn merge_custom_style(custom: Option<&Style>, theme: &Theme) -> Style {
 pub fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
     for prop in props {
         match prop.key.as_str() {
-            "fill" => { style.fill = Color::from_css(&prop.value); }
-            "stroke" => { style.stroke = Color::from_css(&prop.value); }
+            "fill" => {
+                style.fill = Color::from_css(&prop.value);
+            }
+            "stroke" => {
+                style.stroke = Color::from_css(&prop.value);
+            }
             "stroke-width" => {
                 let v = prop.value.trim_end_matches("px");
                 if let Ok(w) = v.parse::<f64>() {
@@ -73,7 +87,8 @@ pub fn apply_style_properties(style: &mut Style, props: &[StyleProperty]) {
                 }
             }
             "stroke-dasharray" => {
-                let vals: Vec<f64> = prop.value
+                let vals: Vec<f64> = prop
+                    .value
                     .split_whitespace()
                     .flat_map(|s| s.split(','))
                     .filter_map(|s| s.trim().parse().ok())
@@ -148,7 +163,12 @@ pub fn render_edge_label_bg(
     const EDGE_LABEL_PAD: f64 = 4.0;
     const EDGE_LABEL_RX: f64 = 2.0;
     scene.push(Primitive::Rect {
-        bbox: BBox::new(center.x, center.y, label_size.0 + EDGE_LABEL_PAD * 2.0, label_size.1 + EDGE_LABEL_PAD * 2.0),
+        bbox: BBox::new(
+            center.x,
+            center.y,
+            label_size.0 + EDGE_LABEL_PAD * 2.0,
+            label_size.1 + EDGE_LABEL_PAD * 2.0,
+        ),
         rx: EDGE_LABEL_RX,
         ry: EDGE_LABEL_RX,
         style: edge_label_bg_style(theme),

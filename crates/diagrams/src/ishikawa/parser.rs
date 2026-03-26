@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{Category, Cause, IshikawaDiagram};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<IshikawaDiagram, ParseError> {
     let mut header_found = false;
@@ -15,21 +15,38 @@ pub fn parse(input: &str) -> Result<IshikawaDiagram, ParseError> {
                 header_found = true;
                 continue;
             }
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..1, input));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                0..1,
+                input,
+            ));
         }
         let indent = raw_line.len() - raw_line.trim_start().len();
         entries.push((indent, trimmed.trim_matches('"').to_string()));
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
     if entries.is_empty() {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedEof, input.len()..input.len(), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedEof,
+            input.len()..input.len(),
+            input,
+        ));
     }
 
     // Normalize indents
-    let min_indent = entries.iter().map(|(i, _)| *i).filter(|&i| i > 0).min().unwrap_or(4);
+    let min_indent = entries
+        .iter()
+        .map(|(i, _)| *i)
+        .filter(|&i| i > 0)
+        .min()
+        .unwrap_or(4);
     let entries: Vec<(usize, String)> = entries
         .into_iter()
         .map(|(indent, name)| (indent / min_indent.max(1), name))
@@ -52,7 +69,10 @@ pub fn parse(input: &str) -> Result<IshikawaDiagram, ParseError> {
                 causes.push(cause);
                 i = next_i;
             }
-            categories.push(Category { name: cat_name, causes });
+            categories.push(Category {
+                name: cat_name,
+                causes,
+            });
         } else {
             i += 1;
         }
@@ -92,7 +112,10 @@ mod tests {
 
     #[test]
     fn parse_nested_causes() {
-        let d = parse("ishikawa-beta\n    Effect\n    Cat\n        Cause\n            SubA\n            SubB").unwrap();
+        let d = parse(
+            "ishikawa-beta\n    Effect\n    Cat\n        Cause\n            SubA\n            SubB",
+        )
+        .unwrap();
         assert_eq!(d.categories[0].causes[0].subcauses.len(), 2);
     }
 

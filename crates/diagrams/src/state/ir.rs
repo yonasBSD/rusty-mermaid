@@ -163,13 +163,16 @@ mod tests {
     #[test]
     fn composite_state() {
         let inner = StateNode::new("A", StateKind::Normal);
-        let composite = StateNode::new("parent", StateKind::Composite {
-            direction: Some(Direction::LR),
-            children: vec![inner],
-            transitions: vec![],
-            notes: vec![],
-            regions: vec![],
-        });
+        let composite = StateNode::new(
+            "parent",
+            StateKind::Composite {
+                direction: Some(Direction::LR),
+                children: vec![inner],
+                transitions: vec![],
+                notes: vec![],
+                regions: vec![],
+            },
+        );
         assert!(composite.is_composite());
     }
 

@@ -53,8 +53,12 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
     }
 
     // Compute branch label widths
-    let label_style = TextStyle { font_size: theme.font_size_small, ..Default::default() };
-    let max_label_w = branch_lanes.keys()
+    let label_style = TextStyle {
+        font_size: theme.font_size_small,
+        ..Default::default()
+    };
+    let max_label_w = branch_lanes
+        .keys()
         .map(|name| SimpleTextMeasure::measure_raw(name, &label_style).width + LABEL_PAD * 2.0)
         .fold(60.0f64, f64::max);
     let label_area = max_label_w + MARGIN / 2.0;
@@ -72,13 +76,30 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
         (w, h)
     };
 
-    let ctx = GitLayoutCtx { is_horizontal, label_area };
+    let ctx = GitLayoutCtx {
+        is_horizontal,
+        label_area,
+    };
     let mut scene = Scene::new(width, height);
 
-    render_branch_labels(&mut scene, &branch_lanes, &final_branch, &label_style, &ctx, theme);
+    render_branch_labels(
+        &mut scene,
+        &branch_lanes,
+        &final_branch,
+        &label_style,
+        &ctx,
+        theme,
+    );
     render_branch_lines(&mut scene, &commits, &branch_lanes, &ctx);
     render_merge_lines(&mut scene, &commits, &branch_lanes, &ctx);
-    render_commits(&mut scene, &commits, &branch_lanes, &label_style, &ctx, theme);
+    render_commits(
+        &mut scene,
+        &commits,
+        &branch_lanes,
+        &label_style,
+        &ctx,
+        theme,
+    );
 
     scene
 }
@@ -128,8 +149,12 @@ fn render_branch_labels(
 
         scene.push(Primitive::Rect {
             bbox: BBox::new(x, y, label_w, 20.0),
-            rx: 4.0, ry: 4.0,
-            style: Style { fill: Some(color), ..Default::default() },
+            rx: 4.0,
+            ry: 4.0,
+            style: Style {
+                fill: Some(color),
+                ..Default::default()
+            },
         });
         scene.push(Primitive::Text {
             position: Point::new(x, y),
@@ -138,7 +163,11 @@ fn render_branch_labels(
             style: TextStyle {
                 font_size: theme.font_size_small,
                 fill: Some(theme.background),
-                font_weight: if is_final { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
+                font_weight: if is_final {
+                    rusty_mermaid_core::FontWeight::Bold
+                } else {
+                    rusty_mermaid_core::FontWeight::Normal
+                },
                 ..Default::default()
             },
         });
@@ -153,7 +182,9 @@ fn render_branch_lines(
 ) {
     for (name, &lane) in branch_lanes {
         let color = LANE_COLORS[lane % LANE_COLORS.len()];
-        let branch_commits: Vec<usize> = commits.iter().enumerate()
+        let branch_commits: Vec<usize> = commits
+            .iter()
+            .enumerate()
             .filter(|(_, c)| c.branch == *name)
             .map(|(i, _)| i)
             .collect();
@@ -166,7 +197,11 @@ fn render_branch_lines(
                     PathSegment::MoveTo(Point::new(x1, y1)),
                     PathSegment::LineTo(Point::new(x2, y2)),
                 ],
-                style: Style { stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
+                style: Style {
+                    stroke: Some(color),
+                    stroke_width: Some(2.0),
+                    ..Default::default()
+                },
                 marker_start: None,
                 marker_end: None,
             });
@@ -190,15 +225,25 @@ fn render_merge_lines(
                 let color = LANE_COLORS[commit_lane % LANE_COLORS.len()];
 
                 let (cp1, cp2) = if ctx.is_horizontal {
-                    (Point::new((x1 + x2) / 2.0, y1), Point::new((x1 + x2) / 2.0, y2))
+                    (
+                        Point::new((x1 + x2) / 2.0, y1),
+                        Point::new((x1 + x2) / 2.0, y2),
+                    )
                 } else {
-                    (Point::new(x1, (y1 + y2) / 2.0), Point::new(x2, (y1 + y2) / 2.0))
+                    (
+                        Point::new(x1, (y1 + y2) / 2.0),
+                        Point::new(x2, (y1 + y2) / 2.0),
+                    )
                 };
 
                 scene.push(Primitive::Path {
                     segments: vec![
                         PathSegment::MoveTo(Point::new(x1, y1)),
-                        PathSegment::CubicTo { cp1, cp2, to: Point::new(x2, y2) },
+                        PathSegment::CubicTo {
+                            cp1,
+                            cp2,
+                            to: Point::new(x2, y2),
+                        },
                     ],
                     style: Style {
                         stroke: Some(color),
@@ -232,14 +277,24 @@ fn render_commits(
                 scene.push(Primitive::Circle {
                     center: Point::new(cx, cy),
                     radius: COMMIT_RADIUS,
-                    style: Style { fill: Some(color), stroke: Some(theme.background), stroke_width: Some(2.0), ..Default::default() },
+                    style: Style {
+                        fill: Some(color),
+                        stroke: Some(theme.background),
+                        stroke_width: Some(2.0),
+                        ..Default::default()
+                    },
                 });
             }
             CommitType::Reverse => {
                 scene.push(Primitive::Circle {
                     center: Point::new(cx, cy),
                     radius: COMMIT_RADIUS,
-                    style: Style { fill: Some(theme.background), stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
+                    style: Style {
+                        fill: Some(theme.background),
+                        stroke: Some(color),
+                        stroke_width: Some(2.0),
+                        ..Default::default()
+                    },
                 });
                 let s = COMMIT_RADIUS * 0.5;
                 scene.push(Primitive::Path {
@@ -249,7 +304,11 @@ fn render_commits(
                         PathSegment::MoveTo(Point::new(cx + s, cy - s)),
                         PathSegment::LineTo(Point::new(cx - s, cy + s)),
                     ],
-                    style: Style { stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
+                    style: Style {
+                        stroke: Some(color),
+                        stroke_width: Some(2.0),
+                        ..Default::default()
+                    },
                     marker_start: None,
                     marker_end: None,
                 });
@@ -258,8 +317,14 @@ fn render_commits(
                 let s = COMMIT_RADIUS * 0.9;
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(cx, cy, s * 2.0, s * 2.0),
-                    rx: 2.0, ry: 2.0,
-                    style: Style { fill: Some(color), stroke: Some(theme.background), stroke_width: Some(2.0), ..Default::default() },
+                    rx: 2.0,
+                    ry: 2.0,
+                    style: Style {
+                        fill: Some(color),
+                        stroke: Some(theme.background),
+                        stroke_width: Some(2.0),
+                        ..Default::default()
+                    },
                 });
             }
         }
@@ -268,7 +333,10 @@ fn render_commits(
             scene.push(Primitive::Circle {
                 center: Point::new(cx, cy),
                 radius: COMMIT_RADIUS * 0.35,
-                style: Style { fill: Some(theme.background), ..Default::default() },
+                style: Style {
+                    fill: Some(theme.background),
+                    ..Default::default()
+                },
             });
         }
 
@@ -281,8 +349,14 @@ fn render_commits(
             };
             scene.push(Primitive::Rect {
                 bbox: BBox::new(tx, ty, tag_w, TAG_HEIGHT),
-                rx: 3.0, ry: 3.0,
-                style: Style { fill: Some(theme.note_fill), stroke: Some(color), stroke_width: Some(1.0), ..Default::default() },
+                rx: 3.0,
+                ry: 3.0,
+                style: Style {
+                    fill: Some(theme.note_fill),
+                    stroke: Some(color),
+                    stroke_width: Some(1.0),
+                    ..Default::default()
+                },
             });
             scene.push(Primitive::Text {
                 position: Point::new(tx, ty),
@@ -335,7 +409,11 @@ fn build_commits(graph: &GitGraph) -> Vec<BuiltCommit> {
 
     for stmt in &graph.statements {
         match stmt {
-            GitStatement::Commit { id, tag, commit_type } => {
+            GitStatement::Commit {
+                id,
+                tag,
+                commit_type,
+            } => {
                 let parent_idx = branch_heads.get(&current_branch).copied();
                 let idx = commits.len();
                 commits.push(BuiltCommit {
@@ -357,7 +435,12 @@ fn build_commits(graph: &GitGraph) -> Vec<BuiltCommit> {
             GitStatement::Checkout(name) => {
                 current_branch = name.clone();
             }
-            GitStatement::Merge { branch, id, tag, commit_type } => {
+            GitStatement::Merge {
+                branch,
+                id,
+                tag,
+                commit_type,
+            } => {
                 let parent_idx = branch_heads.get(branch).copied();
                 let idx = commits.len();
                 commits.push(BuiltCommit {
@@ -418,13 +501,17 @@ mod tests {
 
     #[test]
     fn scene_with_branches() {
-        let scene = render("gitGraph\n    commit\n    branch develop\n    commit\n    checkout main\n    commit");
+        let scene = render(
+            "gitGraph\n    commit\n    branch develop\n    commit\n    checkout main\n    commit",
+        );
         assert!(scene.len() >= 8);
     }
 
     #[test]
     fn scene_with_merge() {
-        let scene = render("gitGraph\n    commit\n    branch feature\n    commit\n    checkout main\n    merge feature");
+        let scene = render(
+            "gitGraph\n    commit\n    branch feature\n    commit\n    checkout main\n    merge feature",
+        );
         assert!(scene.len() >= 8);
     }
 
@@ -432,7 +519,11 @@ mod tests {
     fn scene_with_tags() {
         let scene = render("gitGraph\n    commit tag: \"v1.0\"\n    commit");
         let has_tag = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "v1.0" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "v1.0"
+            } else {
+                false
+            }
         });
         assert!(has_tag);
     }
@@ -445,7 +536,9 @@ mod tests {
 
     #[test]
     fn final_branch_detected() {
-        let g = parser::parse("gitGraph\n    commit\n    branch dev\n    commit\n    checkout main").unwrap();
+        let g =
+            parser::parse("gitGraph\n    commit\n    branch dev\n    commit\n    checkout main")
+                .unwrap();
         assert_eq!(find_final_branch(&g), "main");
     }
 

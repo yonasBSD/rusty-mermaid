@@ -43,7 +43,12 @@ pub fn to_scene_themed(diagram: &ir::TreemapDiagram, theme: &Theme) -> Scene {
     let mut scene = Scene::new(scene_w, scene_h);
 
     // Treat all roots as children of a virtual root
-    let rect = LayoutRect { x: SCENE_PAD, y: SCENE_PAD, w: CHART_W, h: CHART_H };
+    let rect = LayoutRect {
+        x: SCENE_PAD,
+        y: SCENE_PAD,
+        w: CHART_W,
+        h: CHART_H,
+    };
     layout_children(&diagram.roots, rect, 0, &mut scene, theme);
 
     scene
@@ -77,7 +82,12 @@ fn layout_children(
     let rects = squarify(nodes, rect, total);
 
     for (node, r) in nodes.iter().zip(rects.iter()) {
-        let color = COLORS[(depth + nodes.iter().position(|n| std::ptr::eq(n, node)).unwrap_or(0)) % COLORS.len()];
+        let color = COLORS[(depth
+            + nodes
+                .iter()
+                .position(|n| std::ptr::eq(n, node))
+                .unwrap_or(0))
+            % COLORS.len()];
 
         if node.is_leaf() {
             render_leaf(scene, node, *r, color, theme);
@@ -89,21 +99,39 @@ fn layout_children(
 
 /// Squarified treemap: greedily fill rows along the shorter side.
 fn squarify(nodes: &[TreemapNode], rect: LayoutRect, total: f64) -> Vec<LayoutRect> {
-    let mut result = vec![LayoutRect { x: 0.0, y: 0.0, w: 0.0, h: 0.0 }; nodes.len()];
+    let mut result = vec![
+        LayoutRect {
+            x: 0.0,
+            y: 0.0,
+            w: 0.0,
+            h: 0.0
+        };
+        nodes.len()
+    ];
 
     // Sort indices by value descending
     let mut indices: Vec<usize> = (0..nodes.len()).collect();
     indices.sort_by(|&a, &b| {
-        nodes[b].total_value().partial_cmp(&nodes[a].total_value()).unwrap_or(std::cmp::Ordering::Equal)
+        nodes[b]
+            .total_value()
+            .partial_cmp(&nodes[a].total_value())
+            .unwrap_or(std::cmp::Ordering::Equal)
     });
 
-    let mut remaining = LayoutRect { x: rect.x, y: rect.y, w: rect.w, h: rect.h };
+    let mut remaining = LayoutRect {
+        x: rect.x,
+        y: rect.y,
+        w: rect.w,
+        h: rect.h,
+    };
     let mut remaining_value = total;
     let mut i = 0;
 
     while i < indices.len() {
         let shorter = remaining.w.min(remaining.h);
-        if shorter <= 0.0 { break; }
+        if shorter <= 0.0 {
+            break;
+        }
 
         // Build a row: keep adding items while aspect ratio improves
         let mut row = vec![indices[i]];
@@ -114,7 +142,14 @@ fn squarify(nodes: &[TreemapNode], rect: LayoutRect, total: f64) -> Vec<LayoutRe
             let next_val = nodes[indices[i]].total_value();
             let with = worst_aspect(nodes, &row, row_value, shorter, remaining_value, &remaining);
             row.push(indices[i]);
-            let with_next = worst_aspect(nodes, &row, row_value + next_val, shorter, remaining_value, &remaining);
+            let with_next = worst_aspect(
+                nodes,
+                &row,
+                row_value + next_val,
+                shorter,
+                remaining_value,
+                &remaining,
+            );
             if with_next > with {
                 row.pop();
                 break;
@@ -193,11 +228,18 @@ fn worst_aspect(
 }
 
 fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Color, theme: &Theme) {
-    if r.w < 1.0 || r.h < 1.0 { return; } // skip degenerate rects
+    if r.w < 1.0 || r.h < 1.0 {
+        return;
+    } // skip degenerate rects
     let fill = tint_color(color, TINT);
 
     scene.push(Primitive::Rect {
-        bbox: BBox::new(r.x + r.w / 2.0, r.y + r.h / 2.0, (r.w - INNER_PAD).max(1.0), (r.h - INNER_PAD).max(1.0)),
+        bbox: BBox::new(
+            r.x + r.w / 2.0,
+            r.y + r.h / 2.0,
+            (r.w - INNER_PAD).max(1.0),
+            (r.h - INNER_PAD).max(1.0),
+        ),
         rx: 3.0,
         ry: 3.0,
         style: Style {
@@ -211,7 +253,10 @@ fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Colo
     // Label: name + value, centered
     let _label = format!("{}\n{:.0}", node.name, node.total_value());
     let font_size = (r.h * 0.25).clamp(MIN_LABEL_SIZE, theme.font_size_node);
-    let style = TextStyle { font_size, ..Default::default() };
+    let style = TextStyle {
+        font_size,
+        ..Default::default()
+    };
     let label_w = SimpleTextMeasure::measure_raw(&node.name, &style).width;
 
     if label_w < r.w - 8.0 {
@@ -247,12 +292,19 @@ fn render_section(
     depth: usize,
     theme: &Theme,
 ) {
-    if r.w < 1.0 || r.h < 1.0 { return; }
+    if r.w < 1.0 || r.h < 1.0 {
+        return;
+    }
     let fill = tint_color(color, TINT * 0.5);
 
     // Section background
     scene.push(Primitive::Rect {
-        bbox: BBox::new(r.x + r.w / 2.0, r.y + r.h / 2.0, r.w - INNER_PAD, r.h - INNER_PAD),
+        bbox: BBox::new(
+            r.x + r.w / 2.0,
+            r.y + r.h / 2.0,
+            r.w - INNER_PAD,
+            r.h - INNER_PAD,
+        ),
         rx: 3.0,
         ry: 3.0,
         style: Style {
@@ -310,7 +362,11 @@ mod tests {
     #[test]
     fn has_rects_for_leaves() {
         let scene = render("treemap\n    A: 60\n    B: 40");
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert_eq!(rects, 2, "two leaf rects");
     }
 
@@ -318,23 +374,36 @@ mod tests {
     fn section_with_children() {
         let scene = render("treemap\n    Section\n        A: 60\n        B: 40");
         // 1 section rect + 2 leaf rects = 3
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert_eq!(rects, 3);
     }
 
     #[test]
     fn larger_value_gets_more_area() {
         let scene = render("treemap\n    Big: 90\n    Small: 10");
-        let rects: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Rect { bbox, .. } = &e.primitive { Some(bbox.width * bbox.height) } else { None }
-        }).collect();
+        let rects: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Rect { bbox, .. } = &e.primitive {
+                    Some(bbox.width * bbox.height)
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert_eq!(rects.len(), 2);
         assert!(rects[0] > rects[1], "bigger value should get larger rect");
     }
 
     #[test]
     fn all_positions_finite() {
-        let scene = render("treemap\n    Sec\n        A: 50\n        B: 30\n        C: 20\n    D: 40");
+        let scene =
+            render("treemap\n    Sec\n        A: 50\n        B: 30\n        C: 20\n    D: 40");
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Rect { bbox, .. } => {
@@ -352,11 +421,28 @@ mod tests {
     #[test]
     fn squarify_produces_valid_rects() {
         let nodes = vec![
-            TreemapNode { name: "A".into(), value: Some(60.0), children: vec![] },
-            TreemapNode { name: "B".into(), value: Some(30.0), children: vec![] },
-            TreemapNode { name: "C".into(), value: Some(10.0), children: vec![] },
+            TreemapNode {
+                name: "A".into(),
+                value: Some(60.0),
+                children: vec![],
+            },
+            TreemapNode {
+                name: "B".into(),
+                value: Some(30.0),
+                children: vec![],
+            },
+            TreemapNode {
+                name: "C".into(),
+                value: Some(10.0),
+                children: vec![],
+            },
         ];
-        let rect = LayoutRect { x: 0.0, y: 0.0, w: 600.0, h: 400.0 };
+        let rect = LayoutRect {
+            x: 0.0,
+            y: 0.0,
+            w: 600.0,
+            h: 400.0,
+        };
         let rects = squarify(&nodes, rect, 100.0);
         assert_eq!(rects.len(), 3);
         for r in &rects {

@@ -64,7 +64,9 @@ mod tests {
     fn effective_max_auto() {
         let mut c = RadarChart::default();
         c.curves.push(RadarCurve {
-            id: "a".into(), label: "A".into(), values: vec![3.0, 7.0, 5.0],
+            id: "a".into(),
+            label: "A".into(),
+            values: vec![3.0, 7.0, 5.0],
         });
         assert!((c.effective_max() - 7.0).abs() < f64::EPSILON);
     }
@@ -74,7 +76,9 @@ mod tests {
         let mut c = RadarChart::default();
         c.max = Some(10.0);
         c.curves.push(RadarCurve {
-            id: "a".into(), label: "A".into(), values: vec![3.0, 7.0],
+            id: "a".into(),
+            label: "A".into(),
+            values: vec![3.0, 7.0],
         });
         assert!((c.effective_max() - 10.0).abs() < f64::EPSILON);
     }
@@ -106,8 +110,16 @@ mod tests {
     #[test]
     fn effective_max_multiple_curves() {
         let mut c = RadarChart::default();
-        c.curves.push(RadarCurve { id: "a".into(), label: "A".into(), values: vec![1.0, 2.0] });
-        c.curves.push(RadarCurve { id: "b".into(), label: "B".into(), values: vec![5.0, 3.0] });
+        c.curves.push(RadarCurve {
+            id: "a".into(),
+            label: "A".into(),
+            values: vec![1.0, 2.0],
+        });
+        c.curves.push(RadarCurve {
+            id: "b".into(),
+            label: "B".into(),
+            values: vec![5.0, 3.0],
+        });
         assert!((c.effective_max() - 5.0).abs() < f64::EPSILON);
     }
 }

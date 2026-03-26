@@ -31,7 +31,10 @@ impl Style {
     /// Returns (color, width) with theme fallback for the unset field.
     pub fn resolve_stroke_opt(&self, theme: &Theme) -> Option<(Color, f64)> {
         if self.has_explicit_stroke() {
-            Some((self.resolved_stroke(theme), self.resolved_stroke_width(theme)))
+            Some((
+                self.resolved_stroke(theme),
+                self.resolved_stroke_width(theme),
+            ))
         } else {
             None
         }
@@ -110,32 +113,32 @@ impl Theme {
     /// Mermaid.js-aligned light theme with lavender fills and purple borders.
     pub fn light() -> Self {
         Self {
-            node_fill: Color::rgba(236, 236, 255, 178),   // lavender @ 70%
-            node_stroke: Color::rgb(147, 112, 219),       // #9370DB purple
-            node_text: Color::rgb(51, 51, 51),            // #333333
-            edge_stroke: Color::rgb(51, 51, 51),          // #333333
-            edge_label_text: Color::rgb(51, 51, 51),      // #333333
+            node_fill: Color::rgba(236, 236, 255, 178), // lavender @ 70%
+            node_stroke: Color::rgb(147, 112, 219),     // #9370DB purple
+            node_text: Color::rgb(51, 51, 51),          // #333333
+            edge_stroke: Color::rgb(51, 51, 51),        // #333333
+            edge_label_text: Color::rgb(51, 51, 51),    // #333333
             edge_label_bg: Color::rgba(245, 243, 255, 191), // frosted lavender @ 75%
-            start_fill: Color::rgb(51, 51, 51),           // #333333
-            end_inner_fill: Color::rgb(147, 112, 219),    // #9370DB purple
+            start_fill: Color::rgb(51, 51, 51),         // #333333
+            end_inner_fill: Color::rgb(147, 112, 219),  // #9370DB purple
             composite_fill: Color::rgba(255, 255, 255, 204), // white @ 80%
-            composite_stroke: Color::rgb(147, 112, 219),  // #9370DB
+            composite_stroke: Color::rgb(147, 112, 219), // #9370DB
             composite_label: Color::rgb(51, 51, 51),
-            note_fill: Color::rgba(255, 248, 200, 178),   // warm yellow @ 70%
-            note_stroke: Color::rgb(170, 170, 51),        // #aaaa33
+            note_fill: Color::rgba(255, 248, 200, 178), // warm yellow @ 70%
+            note_stroke: Color::rgb(170, 170, 51),      // #aaaa33
             note_text: Color::rgb(51, 51, 51),
             subgraph_fill: Color::rgba(236, 242, 220, 153), // sage @ 60%
-            subgraph_stroke: Color::rgb(168, 174, 142),   // #a8ae8e muted olive
+            subgraph_stroke: Color::rgb(168, 174, 142),     // #a8ae8e muted olive
             subgraph_label: Color::rgb(51, 51, 51),
-            divider_stroke: Color::rgb(128, 128, 128),    // #808080
-            region_stroke: Color::rgb(128, 128, 128),     // #808080
-            lifeline_stroke: Color::rgb(175, 165, 200),   // gray-lavender blend
+            divider_stroke: Color::rgb(128, 128, 128), // #808080
+            region_stroke: Color::rgb(128, 128, 128),  // #808080
+            lifeline_stroke: Color::rgb(175, 165, 200), // gray-lavender blend
             activation_fill: Color::rgba(200, 190, 230, 180), // light lavender
             activation_stroke: Color::rgb(153, 153, 153), // #999999
-            grid_stroke: Color::rgb(200, 200, 200),      // #c8c8c8 light gray
-            muted_text: Color::rgb(120, 120, 120),        // #787878
-            face_fill: Color::rgb(255, 248, 220),         // cream
-            detail_stroke: Color::rgb(80, 80, 80),        // #505050
+            grid_stroke: Color::rgb(200, 200, 200),    // #c8c8c8 light gray
+            muted_text: Color::rgb(120, 120, 120),     // #787878
+            face_fill: Color::rgb(255, 248, 220),      // cream
+            detail_stroke: Color::rgb(80, 80, 80),     // #505050
             font_size_node: 14.0,
             font_size_edge_label: 12.0,
             font_size_label: 13.0,
@@ -151,32 +154,32 @@ impl Theme {
     /// Dark theme for dark backgrounds.
     pub fn dark() -> Self {
         Self {
-            node_fill: Color::rgb(45, 45, 68),            // #2d2d44
-            node_stroke: Color::rgb(124, 111, 189),       // #7c6fbd
-            node_text: Color::rgb(205, 214, 244),         // #cdd6f4
-            edge_stroke: Color::rgb(166, 173, 200),       // #a6adc8
-            edge_label_text: Color::rgb(186, 194, 222),   // #bac2de
-            edge_label_bg: Color::rgba(30, 30, 46, 204),  // dark semi-transparent
-            start_fill: Color::rgb(205, 214, 244),        // #cdd6f4
-            end_inner_fill: Color::rgb(124, 111, 189),    // #7c6fbd
-            composite_fill: Color::rgb(37, 37, 56),       // #252538
+            node_fill: Color::rgb(45, 45, 68),           // #2d2d44
+            node_stroke: Color::rgb(124, 111, 189),      // #7c6fbd
+            node_text: Color::rgb(205, 214, 244),        // #cdd6f4
+            edge_stroke: Color::rgb(166, 173, 200),      // #a6adc8
+            edge_label_text: Color::rgb(186, 194, 222),  // #bac2de
+            edge_label_bg: Color::rgba(30, 30, 46, 204), // dark semi-transparent
+            start_fill: Color::rgb(205, 214, 244),       // #cdd6f4
+            end_inner_fill: Color::rgb(124, 111, 189),   // #7c6fbd
+            composite_fill: Color::rgb(37, 37, 56),      // #252538
             composite_stroke: Color::rgb(124, 111, 189),
             composite_label: Color::rgb(186, 194, 222),
-            note_fill: Color::rgb(62, 60, 40),            // dark yellow-brown
+            note_fill: Color::rgb(62, 60, 40), // dark yellow-brown
             note_stroke: Color::rgb(170, 170, 51),
             note_text: Color::rgb(205, 214, 244),
-            subgraph_fill: Color::rgb(40, 43, 35),        // #282b23 dark sage
-            subgraph_stroke: Color::rgb(105, 112, 85),    // #697055 muted dark olive
+            subgraph_fill: Color::rgb(40, 43, 35), // #282b23 dark sage
+            subgraph_stroke: Color::rgb(105, 112, 85), // #697055 muted dark olive
             subgraph_label: Color::rgb(205, 214, 244),
             divider_stroke: Color::rgb(88, 91, 112),
             region_stroke: Color::rgb(88, 91, 112),
-            lifeline_stroke: Color::rgb(100, 95, 130),    // muted purple-gray
+            lifeline_stroke: Color::rgb(100, 95, 130), // muted purple-gray
             activation_fill: Color::rgba(60, 55, 85, 180), // dark lavender
-            activation_stroke: Color::rgb(88, 91, 112),   // #585b70
-            grid_stroke: Color::rgb(68, 71, 90),          // #44475a muted dark
-            muted_text: Color::rgb(147, 153, 178),        // #9399b2
-            face_fill: Color::rgb(62, 60, 40),            // dark warm
-            detail_stroke: Color::rgb(166, 173, 200),     // #a6adc8 light
+            activation_stroke: Color::rgb(88, 91, 112), // #585b70
+            grid_stroke: Color::rgb(68, 71, 90),       // #44475a muted dark
+            muted_text: Color::rgb(147, 153, 178),     // #9399b2
+            face_fill: Color::rgb(62, 60, 40),         // dark warm
+            detail_stroke: Color::rgb(166, 173, 200),  // #a6adc8 light
             font_size_node: 14.0,
             font_size_edge_label: 12.0,
             font_size_label: 13.0,
@@ -184,7 +187,7 @@ impl Theme {
             font_size_title: 16.0,
             default_stroke_width: 1.5,
             padding: 20.0,
-            background: Color::rgb(30, 30, 46),  // #1e1e2e
+            background: Color::rgb(30, 30, 46), // #1e1e2e
             custom_font: None,
         }
     }
@@ -316,7 +319,10 @@ mod tests {
     #[test]
     fn resolved_stroke_uses_explicit() {
         let theme = Theme::light();
-        let s = Style { stroke: Some(Color::rgb(255, 0, 0)), ..Default::default() };
+        let s = Style {
+            stroke: Some(Color::rgb(255, 0, 0)),
+            ..Default::default()
+        };
         assert_eq!(s.resolved_stroke(&theme), Color::rgb(255, 0, 0));
     }
 
@@ -330,7 +336,10 @@ mod tests {
     #[test]
     fn resolved_stroke_width_uses_explicit() {
         let theme = Theme::light();
-        let s = Style { stroke_width: Some(3.0), ..Default::default() };
+        let s = Style {
+            stroke_width: Some(3.0),
+            ..Default::default()
+        };
         assert!((s.resolved_stroke_width(&theme) - 3.0).abs() < f64::EPSILON);
     }
 
@@ -338,7 +347,9 @@ mod tests {
     fn resolved_stroke_width_falls_back_to_theme() {
         let theme = Theme::light();
         let s = Style::default();
-        assert!((s.resolved_stroke_width(&theme) - theme.default_stroke_width).abs() < f64::EPSILON);
+        assert!(
+            (s.resolved_stroke_width(&theme) - theme.default_stroke_width).abs() < f64::EPSILON
+        );
     }
 
     #[test]
@@ -348,7 +359,10 @@ mod tests {
 
     #[test]
     fn has_explicit_stroke_color_only() {
-        let s = Style { stroke: Some(Color::BLACK), ..Default::default() };
+        let s = Style {
+            stroke: Some(Color::BLACK),
+            ..Default::default()
+        };
         assert!(s.has_explicit_stroke());
     }
 
@@ -361,7 +375,10 @@ mod tests {
     #[test]
     fn resolve_stroke_opt_some_with_color_only() {
         let theme = Theme::light();
-        let s = Style { stroke: Some(Color::rgb(0, 128, 0)), ..Default::default() };
+        let s = Style {
+            stroke: Some(Color::rgb(0, 128, 0)),
+            ..Default::default()
+        };
         let (color, width) = s.resolve_stroke_opt(&theme).unwrap();
         assert_eq!(color, Color::rgb(0, 128, 0));
         assert!((width - theme.default_stroke_width).abs() < f64::EPSILON);
@@ -370,7 +387,10 @@ mod tests {
     #[test]
     fn resolve_stroke_opt_some_with_width_only() {
         let theme = Theme::light();
-        let s = Style { stroke_width: Some(5.0), ..Default::default() };
+        let s = Style {
+            stroke_width: Some(5.0),
+            ..Default::default()
+        };
         let (color, width) = s.resolve_stroke_opt(&theme).unwrap();
         assert_eq!(color, theme.edge_stroke);
         assert!((width - 5.0).abs() < f64::EPSILON);

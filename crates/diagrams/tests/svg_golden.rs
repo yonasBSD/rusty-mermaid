@@ -93,7 +93,9 @@ fn svg_golden_regression() {
                 }
                 let detail = match diff_line {
                     Some((line, actual, expected)) => {
-                        format!("  first diff at line {line}:\n    actual:   {actual}\n    expected: {expected}")
+                        format!(
+                            "  first diff at line {line}:\n    actual:   {actual}\n    expected: {expected}"
+                        )
                     }
                     None => "  (unknown diff)".to_string(),
                 };

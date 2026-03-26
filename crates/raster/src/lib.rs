@@ -81,7 +81,9 @@ fn encode_png(pixmap: &tiny_skia::Pixmap) -> Vec<u8> {
     encoder.set_color(png::ColorType::Rgba);
     encoder.set_depth(png::BitDepth::Eight);
     let mut writer = encoder.write_header().expect("PNG header write failed");
-    writer.write_image_data(pixmap.data()).expect("PNG data write failed");
+    writer
+        .write_image_data(pixmap.data())
+        .expect("PNG data write failed");
     writer.finish().expect("PNG finish failed");
     buf
 }

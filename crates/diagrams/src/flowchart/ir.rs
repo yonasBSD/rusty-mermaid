@@ -84,7 +84,9 @@ impl FlowDiagram {
 
     /// Find the subgraph containing a given node ID (if any).
     pub fn parent_subgraph(&self, node_id: &str) -> Option<&FlowSubGraph> {
-        self.subgraphs.iter().find(|sg| sg.node_ids.contains(&node_id.to_string()))
+        self.subgraphs
+            .iter()
+            .find(|sg| sg.node_ids.contains(&node_id.to_string()))
     }
 }
 

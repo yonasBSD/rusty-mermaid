@@ -17,14 +17,21 @@ fn parse_gantt(input: &mut &str) -> ModalResult<GanttChart> {
     "gantt".parse_next(input)?;
 
     let mut chart = GanttChart::new();
-    let mut current_section = GanttSection { name: None, tasks: Vec::new() };
+    let mut current_section = GanttSection {
+        name: None,
+        tasks: Vec::new(),
+    };
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         let line = take_line(input);
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
 
         // Directives
         if let Some(rest) = line.strip_prefix("title") {
@@ -44,15 +51,23 @@ fn parse_gantt(input: &mut &str) -> ModalResult<GanttChart> {
             if !current_section.tasks.is_empty() || current_section.name.is_some() {
                 chart.sections.push(current_section);
             }
-            current_section = GanttSection { name: Some(rest.trim().to_string()), tasks: Vec::new() };
+            current_section = GanttSection {
+                name: Some(rest.trim().to_string()),
+                tasks: Vec::new(),
+            };
             continue;
         }
 
         // Skip other directives we don't handle yet
-        if line.starts_with("excludes") || line.starts_with("includes")
-            || line.starts_with("todayMarker") || line.starts_with("inclusiveEndDates")
-            || line.starts_with("topAxis") || line.starts_with("weekday")
-            || line.starts_with("weekend") || line.starts_with("tickInterval") {
+        if line.starts_with("excludes")
+            || line.starts_with("includes")
+            || line.starts_with("todayMarker")
+            || line.starts_with("inclusiveEndDates")
+            || line.starts_with("topAxis")
+            || line.starts_with("weekday")
+            || line.starts_with("weekend")
+            || line.starts_with("tickInterval")
+        {
             continue;
         }
 
@@ -86,7 +101,11 @@ fn parse_task_line(line: &str) -> Option<GanttTask> {
         });
     };
 
-    let parts: Vec<&str> = specs.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+    let parts: Vec<&str> = specs
+        .split(',')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
 
     let mut tags = Vec::new();
     let mut start = TaskStart::Auto;
@@ -180,21 +199,27 @@ fn interpret_date_parts(
 
 fn is_duration(s: &str) -> bool {
     let s = s.trim();
-    s.len() >= 2 && s[..s.len()-1].chars().all(|c| c.is_ascii_digit())
+    s.len() >= 2
+        && s[..s.len() - 1].chars().all(|c| c.is_ascii_digit())
         && matches!(s.chars().last(), Some('d' | 'w' | 'h' | 'm'))
 }
 
 fn looks_like_date(s: &str) -> bool {
     let s = s.trim();
     // YYYY-MM-DD or similar patterns
-    s.len() >= 8 && s.chars().any(|c| c == '-' || c == '/')
+    s.len() >= 8
+        && s.chars().any(|c| c == '-' || c == '/')
         && s.chars().filter(|c| c.is_ascii_digit()).count() >= 4
 }
 
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 

@@ -28,7 +28,9 @@ fn all_golden_files() -> Vec<(String, PathBuf)> {
     let mut files = Vec::new();
     for type_entry in fs::read_dir(&mmd_dir).unwrap() {
         let type_path = type_entry.unwrap().path();
-        if !type_path.is_dir() { continue; }
+        if !type_path.is_dir() {
+            continue;
+        }
         let type_name = type_path.file_name().unwrap().to_str().unwrap().to_string();
         for entry in fs::read_dir(&type_path).unwrap() {
             let path = entry.unwrap().path();
@@ -48,7 +50,10 @@ fn check_scene_invariants(scene: &Scene, label: &str) -> Vec<String> {
 
     // 1. Positive dimensions
     if scene.width <= 0.0 || scene.height <= 0.0 {
-        failures.push(format!("{}: scene dimensions {}x{}", label, scene.width, scene.height));
+        failures.push(format!(
+            "{}: scene dimensions {}x{}",
+            label, scene.width, scene.height
+        ));
     }
 
     // 2. Non-empty
@@ -62,18 +67,29 @@ fn check_scene_invariants(scene: &Scene, label: &str) -> Vec<String> {
         match &elem.primitive {
             Primitive::Rect { bbox, .. } => {
                 if !bbox.x.is_finite() || !bbox.y.is_finite() {
-                    failures.push(format!("{}: rect at NaN/Inf ({}, {})", label, bbox.x, bbox.y));
+                    failures.push(format!(
+                        "{}: rect at NaN/Inf ({}, {})",
+                        label, bbox.x, bbox.y
+                    ));
                 }
                 if bbox.width < 0.0 || bbox.height < 0.0 {
-                    failures.push(format!("{}: rect negative size {}x{}", label, bbox.width, bbox.height));
+                    failures.push(format!(
+                        "{}: rect negative size {}x{}",
+                        label, bbox.width, bbox.height
+                    ));
                 }
             }
             Primitive::Text { position, .. } => {
                 if !position.x.is_finite() || !position.y.is_finite() {
-                    failures.push(format!("{}: text at NaN/Inf ({}, {})", label, position.x, position.y));
+                    failures.push(format!(
+                        "{}: text at NaN/Inf ({}, {})",
+                        label, position.x, position.y
+                    ));
                 }
-                if position.x < -tol || position.y < -tol
-                    || position.x > scene.width + tol || position.y > scene.height + tol
+                if position.x < -tol
+                    || position.y < -tol
+                    || position.x > scene.width + tol
+                    || position.y > scene.height + tol
                 {
                     failures.push(format!(
                         "{}: text at ({:.0}, {:.0}) outside scene {}x{}",
@@ -91,13 +107,16 @@ fn check_scene_invariants(scene: &Scene, label: &str) -> Vec<String> {
                     let points = match seg {
                         rusty_mermaid_core::PathSegment::MoveTo(p) => vec![p],
                         rusty_mermaid_core::PathSegment::LineTo(p) => vec![p],
-                        rusty_mermaid_core::PathSegment::CubicTo { cp1, cp2, to } => vec![cp1, cp2, to],
+                        rusty_mermaid_core::PathSegment::CubicTo { cp1, cp2, to } => {
+                            vec![cp1, cp2, to]
+                        }
                         rusty_mermaid_core::PathSegment::QuadTo { cp, to } => vec![cp, to],
                         _ => vec![],
                     };
                     for p in points {
                         if !p.x.is_finite() || !p.y.is_finite() {
-                            failures.push(format!("{}: path point NaN/Inf ({}, {})", label, p.x, p.y));
+                            failures
+                                .push(format!("{}: path point NaN/Inf ({}, {})", label, p.x, p.y));
                         }
                     }
                 }
@@ -105,7 +124,10 @@ fn check_scene_invariants(scene: &Scene, label: &str) -> Vec<String> {
             Primitive::Polygon { points, .. } => {
                 for p in points {
                     if !p.x.is_finite() || !p.y.is_finite() {
-                        failures.push(format!("{}: polygon point NaN/Inf ({}, {})", label, p.x, p.y));
+                        failures.push(format!(
+                            "{}: polygon point NaN/Inf ({}, {})",
+                            label, p.x, p.y
+                        ));
                     }
                 }
             }
@@ -144,7 +166,11 @@ fn all_golden_scenes_have_positive_dimensions() {
             failures.push(format!("{}: {}x{}", label, scene.width, scene.height));
         }
     }
-    assert!(failures.is_empty(), "Scenes with non-positive dimensions:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "Scenes with non-positive dimensions:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -161,7 +187,11 @@ fn all_golden_scenes_are_non_empty() {
             failures.push(label.clone());
         }
     }
-    assert!(failures.is_empty(), "Empty scenes:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "Empty scenes:\n{}",
+        failures.join("\n")
+    );
 }
 
 #[test]
@@ -177,7 +207,11 @@ fn all_golden_scenes_have_finite_coordinates() {
         let failures = check_scene_invariants(&scene, label);
         all_failures.extend(failures);
     }
-    assert!(all_failures.is_empty(), "Invariant violations:\n{}", all_failures.join("\n"));
+    assert!(
+        all_failures.is_empty(),
+        "Invariant violations:\n{}",
+        all_failures.join("\n")
+    );
 }
 
 #[test]
@@ -195,5 +229,9 @@ fn all_golden_scenes_have_reasonable_size() {
             failures.push(format!("{}: {}x{}", label, scene.width, scene.height));
         }
     }
-    assert!(failures.is_empty(), "Oversized scenes:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "Oversized scenes:\n{}",
+        failures.join("\n")
+    );
 }

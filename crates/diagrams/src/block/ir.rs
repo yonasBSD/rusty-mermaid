@@ -45,7 +45,11 @@ pub enum EdgeStyle {
 
 impl Default for BlockDiagram {
     fn default() -> Self {
-        Self { columns: 0, blocks: Vec::new(), edges: Vec::new() }
+        Self {
+            columns: 0,
+            blocks: Vec::new(),
+            edges: Vec::new(),
+        }
     }
 }
 
@@ -69,9 +73,14 @@ mod tests {
     #[test]
     fn block_shape_variants() {
         let shapes = [
-            BlockShape::Rect, BlockShape::Round, BlockShape::Stadium,
-            BlockShape::Diamond, BlockShape::Hexagon, BlockShape::Circle,
-            BlockShape::Cylinder, BlockShape::Space,
+            BlockShape::Rect,
+            BlockShape::Round,
+            BlockShape::Stadium,
+            BlockShape::Diamond,
+            BlockShape::Hexagon,
+            BlockShape::Circle,
+            BlockShape::Cylinder,
+            BlockShape::Space,
         ];
         for (i, a) in shapes.iter().enumerate() {
             for (j, b) in shapes.iter().enumerate() {
@@ -90,12 +99,18 @@ mod tests {
     #[test]
     fn block_with_children() {
         let child = Block {
-            id: "c1".into(), label: "Child".into(), shape: BlockShape::Rect,
-            children: vec![], span: 1,
+            id: "c1".into(),
+            label: "Child".into(),
+            shape: BlockShape::Rect,
+            children: vec![],
+            span: 1,
         };
         let parent = Block {
-            id: "p1".into(), label: "Parent".into(), shape: BlockShape::Round,
-            children: vec![child], span: 2,
+            id: "p1".into(),
+            label: "Parent".into(),
+            shape: BlockShape::Round,
+            children: vec![child],
+            span: 2,
         };
         assert_eq!(parent.children.len(), 1);
         assert_eq!(parent.span, 2);

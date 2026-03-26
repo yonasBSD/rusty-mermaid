@@ -119,9 +119,7 @@ pub(crate) fn sort_subgraph(
         if let (Some(bl_node), Some(br_node)) = (bl_ref, br_ref) {
             let bl_order = graph.node(bl_node).map_or(0, |n| n.order) as f64;
             let br_order = graph.node(br_node).map_or(0, |n| n.order) as f64;
-            bc = Some(
-                (bc.unwrap_or(0.0) * wt + bl_order + br_order) / (wt + 2.0),
-            );
+            bc = Some((bc.unwrap_or(0.0) * wt + bl_order + br_order) / (wt + 2.0));
             wt += 2.0;
         }
     }

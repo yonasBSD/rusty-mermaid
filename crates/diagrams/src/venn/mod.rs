@@ -3,9 +3,7 @@ pub mod parser;
 
 use std::f64::consts::TAU;
 
-use rusty_mermaid_core::{
-    Color, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
-};
+use rusty_mermaid_core::{Color, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme};
 
 use ir::VennDiagram;
 
@@ -37,15 +35,33 @@ pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
     }
 
     let max_size = diagram.sets.iter().map(|s| s.size).fold(0.0f64, f64::max);
-    let radii: Vec<f64> = diagram.sets.iter()
+    let radii: Vec<f64> = diagram
+        .sets
+        .iter()
         .map(|s| BASE_RADIUS * (s.size / max_size.max(1.0)).sqrt())
         .collect();
     let centers = compute_centers(n, &radii);
 
-    let min_x = centers.iter().zip(&radii).map(|(&(cx, _), &r)| cx - r).fold(f64::INFINITY, f64::min);
-    let max_x = centers.iter().zip(&radii).map(|(&(cx, _), &r)| cx + r).fold(f64::NEG_INFINITY, f64::max);
-    let min_y = centers.iter().zip(&radii).map(|(&(_, cy), &r)| cy - r).fold(f64::INFINITY, f64::min);
-    let max_y = centers.iter().zip(&radii).map(|(&(_, cy), &r)| cy + r).fold(f64::NEG_INFINITY, f64::max);
+    let min_x = centers
+        .iter()
+        .zip(&radii)
+        .map(|(&(cx, _), &r)| cx - r)
+        .fold(f64::INFINITY, f64::min);
+    let max_x = centers
+        .iter()
+        .zip(&radii)
+        .map(|(&(cx, _), &r)| cx + r)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let min_y = centers
+        .iter()
+        .zip(&radii)
+        .map(|(&(_, cy), &r)| cy - r)
+        .fold(f64::INFINITY, f64::min);
+    let max_y = centers
+        .iter()
+        .zip(&radii)
+        .map(|(&(_, cy), &r)| cy + r)
+        .fold(f64::NEG_INFINITY, f64::max);
 
     let title_h = if diagram.title.is_some() { 30.0 } else { 0.0 };
     let ox = -min_x + SCENE_PAD;
@@ -104,7 +120,11 @@ fn render_circles(
             },
         });
 
-        let (lx, ly) = if n == 1 { (cx, cy) } else { label_position(cx, cy, r, centers, i) };
+        let (lx, ly) = if n == 1 {
+            (cx, cy)
+        } else {
+            label_position(cx, cy, r, centers, i)
+        };
 
         scene.push(Primitive::Text {
             position: Point::new(lx + ox, ly + oy),
@@ -133,17 +153,23 @@ fn render_union_labels(
     for union in &diagram.unions {
         let Some(label) = &union.label else { continue };
 
-        let indices: Vec<usize> = union.set_ids.iter()
+        let indices: Vec<usize> = union
+            .set_ids
+            .iter()
             .filter_map(|id| diagram.sets.iter().position(|s| s.id == *id))
             .collect();
-        if indices.is_empty() { continue; }
+        if indices.is_empty() {
+            continue;
+        }
 
         let (mut lx, mut ly) = intersection_center(&indices, centers, radii);
 
         let non_members: Vec<usize> = (0..n).filter(|i| !indices.contains(i)).collect();
         if !non_members.is_empty() {
-            let non_cx: f64 = non_members.iter().map(|&i| centers[i].0).sum::<f64>() / non_members.len() as f64;
-            let non_cy: f64 = non_members.iter().map(|&i| centers[i].1).sum::<f64>() / non_members.len() as f64;
+            let non_cx: f64 =
+                non_members.iter().map(|&i| centers[i].0).sum::<f64>() / non_members.len() as f64;
+            let non_cy: f64 =
+                non_members.iter().map(|&i| centers[i].1).sum::<f64>() / non_members.len() as f64;
             let dx = lx - non_cx;
             let dy = ly - non_cy;
             let dist = (dx * dx + dy * dy).sqrt().max(1.0);
@@ -191,11 +217,7 @@ fn compute_centers(n: usize, radii: &[f64]) -> Vec<(f64, f64)> {
 ///
 /// For 2 circles: uses the radical axis point (exact lens center).
 /// For 3+: weighted centroid favoring smaller circles.
-fn intersection_center(
-    indices: &[usize],
-    centers: &[(f64, f64)],
-    radii: &[f64],
-) -> (f64, f64) {
+fn intersection_center(indices: &[usize], centers: &[(f64, f64)], radii: &[f64]) -> (f64, f64) {
     if indices.len() == 2 {
         let (i, j) = (indices[0], indices[1]);
         let (c1x, c1y) = centers[i];
@@ -214,8 +236,14 @@ fn intersection_center(
     } else {
         // Weighted centroid: weight by 1/r² (favors smaller circles)
         let total_w: f64 = indices.iter().map(|&i| 1.0 / (radii[i] * radii[i])).sum();
-        let wx: f64 = indices.iter().map(|&i| centers[i].0 / (radii[i] * radii[i])).sum();
-        let wy: f64 = indices.iter().map(|&i| centers[i].1 / (radii[i] * radii[i])).sum();
+        let wx: f64 = indices
+            .iter()
+            .map(|&i| centers[i].0 / (radii[i] * radii[i]))
+            .sum();
+        let wy: f64 = indices
+            .iter()
+            .map(|&i| centers[i].1 / (radii[i] * radii[i]))
+            .sum();
         (wx / total_w, wy / total_w)
     }
 }
@@ -223,14 +251,20 @@ fn intersection_center(
 /// Position label away from other circles but well inside the circle border.
 /// Places at 35% of radius toward the outer edge (away from other circles).
 fn label_position(cx: f64, cy: f64, r: f64, centers: &[(f64, f64)], idx: usize) -> (f64, f64) {
-    let other_cx: f64 = centers.iter().enumerate()
+    let other_cx: f64 = centers
+        .iter()
+        .enumerate()
         .filter(|&(i, _)| i != idx)
         .map(|(_, &(x, _))| x)
-        .sum::<f64>() / (centers.len() - 1).max(1) as f64;
-    let other_cy: f64 = centers.iter().enumerate()
+        .sum::<f64>()
+        / (centers.len() - 1).max(1) as f64;
+    let other_cy: f64 = centers
+        .iter()
+        .enumerate()
         .filter(|&(i, _)| i != idx)
         .map(|(_, &(_, y))| y)
-        .sum::<f64>() / (centers.len() - 1).max(1) as f64;
+        .sum::<f64>()
+        / (centers.len() - 1).max(1) as f64;
 
     let dx = cx - other_cx;
     let dy = cy - other_cy;
@@ -259,18 +293,22 @@ mod tests {
     #[test]
     fn has_circles() {
         let scene = render("venn-beta\n  set A\n  set B");
-        let circles = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Circle { .. })
-        }).count();
+        let circles = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .count();
         assert_eq!(circles, 2);
     }
 
     #[test]
     fn three_set_renders() {
         let scene = render("venn-beta\n  set A:30\n  set B:20\n  set C:15");
-        let circles = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Circle { .. })
-        }).count();
+        let circles = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .count();
         assert_eq!(circles, 3);
     }
 
@@ -278,7 +316,11 @@ mod tests {
     fn union_label_renders() {
         let scene = render("venn-beta\n  set A\n  set B\n  union A,B[\"Overlap\"]");
         let has_overlap = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "Overlap" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "Overlap"
+            } else {
+                false
+            }
         });
         assert!(has_overlap);
     }
@@ -286,15 +328,25 @@ mod tests {
     #[test]
     fn circles_overlap() {
         let scene = render("venn-beta\n  set A:20\n  set B:20");
-        let circles: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Circle { center, radius, .. } = &e.primitive {
-                Some((center.x, center.y, *radius))
-            } else { None }
-        }).collect();
+        let circles: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Circle { center, radius, .. } = &e.primitive {
+                    Some((center.x, center.y, *radius))
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert_eq!(circles.len(), 2);
-        let dist = ((circles[1].0 - circles[0].0).powi(2) + (circles[1].1 - circles[0].1).powi(2)).sqrt();
+        let dist =
+            ((circles[1].0 - circles[0].0).powi(2) + (circles[1].1 - circles[0].1).powi(2)).sqrt();
         let sum_r = circles[0].2 + circles[1].2;
-        assert!(dist < sum_r, "circles should overlap: dist={dist} sum_r={sum_r}");
+        assert!(
+            dist < sum_r,
+            "circles should overlap: dist={dist} sum_r={sum_r}"
+        );
     }
 
     #[test]
@@ -305,7 +357,8 @@ mod tests {
 
     #[test]
     fn all_positions_finite() {
-        let scene = render("venn-beta\n  set A:30\n  set B:20\n  set C:15\n  union A,B:8\n  union B,C:5");
+        let scene =
+            render("venn-beta\n  set A:30\n  set B:20\n  set C:15\n  union A,B:8\n  union B,C:5");
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Circle { center, .. } => {

@@ -37,7 +37,9 @@ fn position_y(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
             .fold(0.0f64, f64::max);
 
         for &v in layer {
-            let Some(node) = graph.node_mut(v) else { continue };
+            let Some(node) = graph.node_mut(v) else {
+                continue;
+            };
             node.y = match config.rankalign {
                 RankAlign::Top => prev_y + node.height / 2.0,
                 RankAlign::Bottom => prev_y + max_height - node.height / 2.0,

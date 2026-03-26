@@ -68,14 +68,25 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
     let mut start_angle: f64 = -TAU / 4.0; // start at top (12 o'clock)
     for (i, slice) in chart.slices.iter().enumerate() {
         let fraction = slice.value / total;
-        if fraction < 0.001 { continue; } // skip negligible slices
+        if fraction < 0.001 {
+            continue;
+        } // skip negligible slices
 
         let sweep = fraction * TAU;
         let end_angle = start_angle + sweep;
         let color = PIE_COLORS[i % PIE_COLORS.len()];
 
         // Arc slice as path
-        render_arc_slice(&mut scene, CENTER_X, CENTER_Y, RADIUS, start_angle, end_angle, color, theme);
+        render_arc_slice(
+            &mut scene,
+            CENTER_X,
+            CENTER_Y,
+            RADIUS,
+            start_angle,
+            end_angle,
+            color,
+            theme,
+        );
 
         // Percentage label on slice
         let mid_angle = start_angle + sweep / 2.0;
@@ -114,7 +125,10 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
             ),
             rx: 2.0,
             ry: 2.0,
-            style: Style { fill: Some(color), ..Default::default() },
+            style: Style {
+                fill: Some(color),
+                ..Default::default()
+            },
         });
 
         // Label text
@@ -123,7 +137,10 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
             label.push_str(&format!(" [{}]", slice.value));
         }
         scene.push(Primitive::Text {
-            position: Point::new(legend_x + LEGEND_SWATCH_SIZE + 8.0, legend_y + LEGEND_SWATCH_SIZE / 2.0),
+            position: Point::new(
+                legend_x + LEGEND_SWATCH_SIZE + 8.0,
+                legend_y + LEGEND_SWATCH_SIZE / 2.0,
+            ),
             content: label,
             anchor: TextAnchor::Start,
             style: TextStyle {
@@ -141,9 +158,13 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
 
 fn render_arc_slice(
     scene: &mut Scene,
-    cx: f64, cy: f64, r: f64,
-    start: f64, end: f64,
-    fill: Color, theme: &Theme,
+    cx: f64,
+    cy: f64,
+    r: f64,
+    start: f64,
+    end: f64,
+    fill: Color,
+    theme: &Theme,
 ) {
     let sweep = end - start;
     let large_arc = sweep.abs() > std::f64::consts::PI;
@@ -199,7 +220,9 @@ mod tests {
         let has_title = scene.elements().iter().any(|e| {
             if let Primitive::Text { content, .. } = &e.primitive {
                 content == "My Chart"
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(has_title);
     }
@@ -207,20 +230,28 @@ mod tests {
     #[test]
     fn three_slices_three_labels() {
         let scene = render("pie\n    \"X\" : 30\n    \"Y\" : 40\n    \"Z\" : 30");
-        let pct_labels: Vec<_> = scene.elements().iter().filter(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive {
-                content.ends_with('%')
-            } else { false }
-        }).collect();
+        let pct_labels: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    content.ends_with('%')
+                } else {
+                    false
+                }
+            })
+            .collect();
         assert_eq!(pct_labels.len(), 3);
     }
 
     #[test]
     fn legend_has_swatches() {
         let scene = render("pie\n    \"A\" : 50\n    \"B\" : 50");
-        let rects: Vec<_> = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Rect { .. })
-        }).collect();
+        let rects: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .collect();
         assert!(rects.len() >= 2, "at least 2 legend swatches");
     }
 
@@ -230,7 +261,9 @@ mod tests {
         let has_value = scene.elements().iter().any(|e| {
             if let Primitive::Text { content, .. } = &e.primitive {
                 content.contains("[40]")
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(has_value, "showData should show values in legend");
     }

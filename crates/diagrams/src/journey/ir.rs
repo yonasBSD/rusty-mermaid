@@ -21,7 +21,10 @@ pub struct JourneyTask {
 
 impl Default for JourneyDiagram {
     fn default() -> Self {
-        Self { title: None, sections: Vec::new() }
+        Self {
+            title: None,
+            sections: Vec::new(),
+        }
     }
 }
 
@@ -53,8 +56,16 @@ mod tests {
             sections: vec![JourneySection {
                 name: "S".into(),
                 tasks: vec![
-                    JourneyTask { name: "T1".into(), score: 5, actors: vec!["A".into(), "B".into()] },
-                    JourneyTask { name: "T2".into(), score: 3, actors: vec!["B".into(), "C".into()] },
+                    JourneyTask {
+                        name: "T1".into(),
+                        score: 5,
+                        actors: vec!["A".into(), "B".into()],
+                    },
+                    JourneyTask {
+                        name: "T2".into(),
+                        score: 3,
+                        actors: vec!["B".into(), "C".into()],
+                    },
                 ],
             }],
         };
@@ -81,11 +92,19 @@ mod tests {
             sections: vec![
                 JourneySection {
                     name: "S1".into(),
-                    tasks: vec![JourneyTask { name: "T1".into(), score: 4, actors: vec!["Alice".into()] }],
+                    tasks: vec![JourneyTask {
+                        name: "T1".into(),
+                        score: 4,
+                        actors: vec!["Alice".into()],
+                    }],
                 },
                 JourneySection {
                     name: "S2".into(),
-                    tasks: vec![JourneyTask { name: "T2".into(), score: 2, actors: vec!["Bob".into(), "Alice".into()] }],
+                    tasks: vec![JourneyTask {
+                        name: "T2".into(),
+                        score: 2,
+                        actors: vec!["Bob".into(), "Alice".into()],
+                    }],
                 },
             ],
         };
@@ -94,9 +113,17 @@ mod tests {
 
     #[test]
     fn task_score_range() {
-        let task = JourneyTask { name: "happy".into(), score: 5, actors: vec![] };
+        let task = JourneyTask {
+            name: "happy".into(),
+            score: 5,
+            actors: vec![],
+        };
         assert_eq!(task.score, 5);
-        let task_low = JourneyTask { name: "sad".into(), score: 0, actors: vec![] };
+        let task_low = JourneyTask {
+            name: "sad".into(),
+            score: 0,
+            actors: vec![],
+        };
         assert_eq!(task_low.score, 0);
     }
 }

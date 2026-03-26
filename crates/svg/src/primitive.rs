@@ -1,7 +1,9 @@
-use rusty_mermaid_core::{parse_inline_markdown, Element, MarkerType, MdSpan, Primitive, TextAnchor, Transform};
+use rusty_mermaid_core::{
+    Element, MarkerType, MdSpan, Primitive, TextAnchor, Transform, parse_inline_markdown,
+};
 
 use crate::SvgConfig;
-use crate::document::{fmt_f64, write_f64, SvgDocument};
+use crate::document::{SvgDocument, fmt_f64, write_f64};
 use crate::markers::marker_id;
 use crate::path::segments_to_d;
 use crate::style::{push_style_attrs, push_text_style_attrs};
@@ -9,33 +11,81 @@ use crate::style::{push_style_attrs, push_text_style_attrs};
 /// Render a single Primitive into the SVG document.
 pub fn render_primitive(doc: &mut SvgDocument, prim: &Primitive, config: &SvgConfig) {
     match prim {
-        Primitive::Rect { bbox, rx, ry, style } => render_rect(doc, bbox, *rx, *ry, style),
-        Primitive::Circle { center, radius, style } => render_circle(doc, center, *radius, style),
-        Primitive::Ellipse { center, rx, ry, style } => render_ellipse(doc, center, *rx, *ry, style),
-        Primitive::Path { segments, style, marker_start, marker_end } => {
+        Primitive::Rect {
+            bbox,
+            rx,
+            ry,
+            style,
+        } => render_rect(doc, bbox, *rx, *ry, style),
+        Primitive::Circle {
+            center,
+            radius,
+            style,
+        } => render_circle(doc, center, *radius, style),
+        Primitive::Ellipse {
+            center,
+            rx,
+            ry,
+            style,
+        } => render_ellipse(doc, center, *rx, *ry, style),
+        Primitive::Path {
+            segments,
+            style,
+            marker_start,
+            marker_end,
+        } => {
             render_path(doc, segments, style, *marker_start, *marker_end, config);
         }
-        Primitive::Text { position, content, anchor, style } => {
+        Primitive::Text {
+            position,
+            content,
+            anchor,
+            style,
+        } => {
             render_text(doc, position, content, *anchor, style);
         }
         Primitive::Polygon { points, style } => render_polygon(doc, points, style),
-        Primitive::Group { transform, children } => {
+        Primitive::Group {
+            transform,
+            children,
+        } => {
             render_group(doc, transform, children, config);
         }
-        Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
-            render_arc(doc, center, *inner_r, *outer_r, *start_angle, *end_angle, style, config);
+        Primitive::Arc {
+            center,
+            inner_r,
+            outer_r,
+            start_angle,
+            end_angle,
+            style,
+        } => {
+            render_arc(
+                doc,
+                center,
+                *inner_r,
+                *outer_r,
+                *start_angle,
+                *end_angle,
+                style,
+                config,
+            );
         }
     }
 }
 
 fn emit_tag(doc: &mut SvgDocument, tag: &str, attrs: &[(String, String)]) {
-    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let refs: Vec<(&str, &str)> = attrs
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
     doc.empty_tag(tag, &refs);
 }
 
 fn render_rect(
     doc: &mut SvgDocument,
-    bbox: &rusty_mermaid_core::BBox, rx: f64, ry: f64,
+    bbox: &rusty_mermaid_core::BBox,
+    rx: f64,
+    ry: f64,
     style: &rusty_mermaid_core::Style,
 ) {
     let mut attrs: Vec<(String, String)> = vec![
@@ -44,15 +94,20 @@ fn render_rect(
         ("width".into(), fmt_f64(bbox.width)),
         ("height".into(), fmt_f64(bbox.height)),
     ];
-    if rx > 0.0 { attrs.push(("rx".into(), fmt_f64(rx))); }
-    if ry > 0.0 { attrs.push(("ry".into(), fmt_f64(ry))); }
+    if rx > 0.0 {
+        attrs.push(("rx".into(), fmt_f64(rx)));
+    }
+    if ry > 0.0 {
+        attrs.push(("ry".into(), fmt_f64(ry)));
+    }
     push_style_attrs(&mut attrs, style);
     emit_tag(doc, "rect", &attrs);
 }
 
 fn render_circle(
     doc: &mut SvgDocument,
-    center: &rusty_mermaid_core::Point, radius: f64,
+    center: &rusty_mermaid_core::Point,
+    radius: f64,
     style: &rusty_mermaid_core::Style,
 ) {
     let mut attrs: Vec<(String, String)> = vec![
@@ -66,7 +121,9 @@ fn render_circle(
 
 fn render_ellipse(
     doc: &mut SvgDocument,
-    center: &rusty_mermaid_core::Point, rx: f64, ry: f64,
+    center: &rusty_mermaid_core::Point,
+    rx: f64,
+    ry: f64,
     style: &rusty_mermaid_core::Style,
 ) {
     let mut attrs: Vec<(String, String)> = vec![
@@ -101,10 +158,16 @@ fn render_path(
 
     let stroke_color = style.stroke.unwrap_or(config.default_stroke).to_string();
     if let Some(m) = marker_start {
-        attrs.push(("marker-start".into(), format!("url(#{})", marker_id(m, &stroke_color))));
+        attrs.push((
+            "marker-start".into(),
+            format!("url(#{})", marker_id(m, &stroke_color)),
+        ));
     }
     if let Some(m) = marker_end {
-        attrs.push(("marker-end".into(), format!("url(#{})", marker_id(m, &stroke_color))));
+        attrs.push((
+            "marker-end".into(),
+            format!("url(#{})", marker_id(m, &stroke_color)),
+        ));
     }
     emit_tag(doc, "path", &attrs);
 }
@@ -133,7 +196,10 @@ fn render_text(
             ("dominant-baseline".into(), "central".into()),
         ];
         push_text_style_attrs(&mut attrs, style);
-        let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+        let refs: Vec<(&str, &str)> = attrs
+            .iter()
+            .map(|(k, v)| (k.as_str(), v.as_str()))
+            .collect();
         if let Some(spans) = parse_inline_markdown(content) {
             doc.open_tag("text", &refs);
             render_md_spans(doc, &spans);
@@ -156,7 +222,10 @@ fn render_text(
         ("dominant-baseline".into(), "central".into()),
     ];
     push_text_style_attrs(&mut attrs, style);
-    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let refs: Vec<(&str, &str)> = attrs
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
     doc.open_tag("text", &refs);
 
     let x_str = fmt_f64(position.x);
@@ -182,7 +251,9 @@ fn render_polygon(
 ) {
     let mut pts = String::with_capacity(points.len() * 16);
     for (i, p) in points.iter().enumerate() {
-        if i > 0 { pts.push(' '); }
+        if i > 0 {
+            pts.push(' ');
+        }
         write_f64(&mut pts, p.x);
         pts.push(',');
         write_f64(&mut pts, p.y);
@@ -203,7 +274,10 @@ fn render_group(
     if !transform_str.is_empty() {
         attrs.push(("transform".into(), transform_str));
     }
-    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let refs: Vec<(&str, &str)> = attrs
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
     doc.open_tag("g", &refs);
     for child in children {
         render_primitive(doc, child, config);
@@ -212,7 +286,10 @@ fn render_group(
 }
 
 /// Collect all (MarkerType, color_string) pairs from scene elements.
-pub fn collect_marker_colors(elements: &[Element], config: &SvgConfig) -> Vec<(MarkerType, String)> {
+pub fn collect_marker_colors(
+    elements: &[Element],
+    config: &SvgConfig,
+) -> Vec<(MarkerType, String)> {
     let mut result = Vec::new();
     for elem in elements {
         collect_markers_prim(&elem.primitive, config, &mut result);
@@ -220,17 +297,15 @@ pub fn collect_marker_colors(elements: &[Element], config: &SvgConfig) -> Vec<(M
     result
 }
 
-fn collect_markers_prim(
-    prim: &Primitive,
-    config: &SvgConfig,
-    out: &mut Vec<(MarkerType, String)>,
-) {
+fn collect_markers_prim(prim: &Primitive, config: &SvgConfig, out: &mut Vec<(MarkerType, String)>) {
     match prim {
-        Primitive::Path { style, marker_start, marker_end, .. } => {
-            let color = style
-                .stroke
-                .unwrap_or(config.default_stroke)
-                .to_string();
+        Primitive::Path {
+            style,
+            marker_start,
+            marker_end,
+            ..
+        } => {
+            let color = style.stroke.unwrap_or(config.default_stroke).to_string();
             if let Some(m) = marker_start {
                 let pair = (*m, color.clone());
                 if !out.contains(&pair) {
@@ -259,7 +334,12 @@ fn transform_to_attr(t: &Transform) -> String {
         Transform::Translate(x, y) => format!("translate({}, {})", fmt_f64(*x), fmt_f64(*y)),
         Transform::Scale(sx, sy) => format!("scale({}, {})", fmt_f64(*sx), fmt_f64(*sy)),
         Transform::Rotate { degrees, cx, cy } => {
-            format!("rotate({}, {}, {})", fmt_f64(*degrees), fmt_f64(*cx), fmt_f64(*cy))
+            format!(
+                "rotate({}, {}, {})",
+                fmt_f64(*degrees),
+                fmt_f64(*cx),
+                fmt_f64(*cy)
+            )
         }
     }
 }
@@ -274,19 +354,29 @@ fn render_arc(
     style: &rusty_mermaid_core::Style,
     config: &SvgConfig,
 ) {
-    debug_assert!(inner_r == 0.0, "SVG arc rendering does not support inner radius yet");
+    debug_assert!(
+        inner_r == 0.0,
+        "SVG arc rendering does not support inner radius yet"
+    );
     let x1 = center.x + outer_r * start_angle.cos();
     let y1 = center.y + outer_r * start_angle.sin();
     let x2 = center.x + outer_r * end_angle.cos();
     let y2 = center.y + outer_r * end_angle.sin();
-    let large_arc = if (end_angle - start_angle).abs() > std::f64::consts::PI { 1 } else { 0 };
+    let large_arc = if (end_angle - start_angle).abs() > std::f64::consts::PI {
+        1
+    } else {
+        0
+    };
 
     let d = format!(
         "M{} {} A{} {} 0 {} 1 {} {}",
-        fmt_f64(x1), fmt_f64(y1),
-        fmt_f64(outer_r), fmt_f64(outer_r),
+        fmt_f64(x1),
+        fmt_f64(y1),
+        fmt_f64(outer_r),
+        fmt_f64(outer_r),
         large_arc,
-        fmt_f64(x2), fmt_f64(y2),
+        fmt_f64(x2),
+        fmt_f64(y2),
     );
 
     let mut attrs: Vec<(String, String)> = vec![("d".into(), d)];
@@ -297,7 +387,10 @@ fn render_arc(
     if style.stroke.is_none() {
         attrs.push(("stroke".into(), config.default_stroke.to_string()));
     }
-    let refs: Vec<(&str, &str)> = attrs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let refs: Vec<(&str, &str)> = attrs
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
     doc.empty_tag("path", &refs);
 }
 
@@ -311,13 +404,18 @@ fn normalize_line_breaks(s: &str) -> std::borrow::Cow<'_, str> {
     let mut i = 0;
     let bytes = s.as_bytes();
     while i < bytes.len() {
-        if i + 3 < bytes.len() && bytes[i] == b'<'
+        if i + 3 < bytes.len()
+            && bytes[i] == b'<'
             && bytes[i + 1].eq_ignore_ascii_case(&b'b')
             && bytes[i + 2].eq_ignore_ascii_case(&b'r')
         {
             let mut j = i + 3;
-            while j < bytes.len() && bytes[j] == b' ' { j += 1; }
-            if j < bytes.len() && bytes[j] == b'/' { j += 1; }
+            while j < bytes.len() && bytes[j] == b' ' {
+                j += 1;
+            }
+            if j < bytes.len() && bytes[j] == b'/' {
+                j += 1;
+            }
             if j < bytes.len() && bytes[j] == b'>' {
                 result.push('\n');
                 i = j + 1;
@@ -528,8 +626,14 @@ mod tests {
             &config,
         );
         let svg = doc.finish();
-        assert!(svg.contains(r##"stroke="#0000ff""##), "should use config default_stroke");
-        assert!(svg.contains(r#"stroke-width="2""#), "should use config default_stroke_width");
+        assert!(
+            svg.contains(r##"stroke="#0000ff""##),
+            "should use config default_stroke"
+        );
+        assert!(
+            svg.contains(r#"stroke-width="2""#),
+            "should use config default_stroke_width"
+        );
     }
 
     #[test]
@@ -542,23 +646,58 @@ mod tests {
     fn parse_md_bold() {
         let spans = parse_inline_markdown("hello **world**").unwrap();
         assert_eq!(spans.len(), 2);
-        assert_eq!(spans[0], MdSpan { text: "hello ".into(), bold: false, italic: false });
-        assert_eq!(spans[1], MdSpan { text: "world".into(), bold: true, italic: false });
+        assert_eq!(
+            spans[0],
+            MdSpan {
+                text: "hello ".into(),
+                bold: false,
+                italic: false
+            }
+        );
+        assert_eq!(
+            spans[1],
+            MdSpan {
+                text: "world".into(),
+                bold: true,
+                italic: false
+            }
+        );
     }
 
     #[test]
     fn parse_md_italic() {
         let spans = parse_inline_markdown("hello *world*").unwrap();
         assert_eq!(spans.len(), 2);
-        assert_eq!(spans[0], MdSpan { text: "hello ".into(), bold: false, italic: false });
-        assert_eq!(spans[1], MdSpan { text: "world".into(), bold: false, italic: true });
+        assert_eq!(
+            spans[0],
+            MdSpan {
+                text: "hello ".into(),
+                bold: false,
+                italic: false
+            }
+        );
+        assert_eq!(
+            spans[1],
+            MdSpan {
+                text: "world".into(),
+                bold: false,
+                italic: true
+            }
+        );
     }
 
     #[test]
     fn parse_md_bold_italic() {
         let spans = parse_inline_markdown("***both***").unwrap();
         assert_eq!(spans.len(), 1);
-        assert_eq!(spans[0], MdSpan { text: "both".into(), bold: true, italic: true });
+        assert_eq!(
+            spans[0],
+            MdSpan {
+                text: "both".into(),
+                bold: true,
+                italic: true
+            }
+        );
     }
 
     #[test]

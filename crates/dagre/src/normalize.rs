@@ -14,8 +14,12 @@ pub(crate) fn run(graph: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
         let Some((src, dst)) = graph.edge_endpoints(eid) else {
             continue;
         };
-        let Some(src_node) = graph.node(src) else { continue };
-        let Some(dst_node) = graph.node(dst) else { continue };
+        let Some(src_node) = graph.node(src) else {
+            continue;
+        };
+        let Some(dst_node) = graph.node(dst) else {
+            continue;
+        };
         let src_rank = src_node.rank;
         let dst_rank = dst_node.rank;
 
@@ -236,7 +240,9 @@ mod tests {
                     g.add_edge(
                         nodes[src_idx],
                         nodes[dst_idx],
-                        EdgeLabel::new().with_minlen(minlen).with_weight(weight as f64),
+                        EdgeLabel::new()
+                            .with_minlen(minlen)
+                            .with_weight(weight as f64),
                     );
                 }
                 crate::acyclic::run(&mut g, Acyclicer::Dfs);

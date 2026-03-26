@@ -27,7 +27,8 @@ fn two_layer_cross_count(
     }
 
     // Map south layer nodes to their position
-    let south_pos: BTreeMap<NodeId, usize> = south.iter().enumerate().map(|(i, &v)| (v, i)).collect();
+    let south_pos: BTreeMap<NodeId, usize> =
+        south.iter().enumerate().map(|(i, &v)| (v, i)).collect();
 
     // Collect south-layer positions for edges from each north node, sorted
     let mut south_entries = Vec::new();

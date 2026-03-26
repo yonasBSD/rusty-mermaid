@@ -217,7 +217,9 @@ impl PathSegment {
     pub fn endpoint(&self) -> Option<Point> {
         match self {
             Self::MoveTo(p) | Self::LineTo(p) => Some(*p),
-            Self::CubicTo { to, .. } | Self::QuadTo { to, .. } | Self::ArcTo { to, .. } => Some(*to),
+            Self::CubicTo { to, .. } | Self::QuadTo { to, .. } | Self::ArcTo { to, .. } => {
+                Some(*to)
+            }
             Self::Close => None,
         }
     }
@@ -228,7 +230,9 @@ impl PathSegment {
 /// For a cubic bezier, the tangent at t=0 points from the start toward cp1.
 /// Returns (start_point, angle_in_radians) pointing away from the path.
 pub fn path_start_tangent(segments: &[PathSegment]) -> Option<(Point, f64)> {
-    if segments.len() < 2 { return None; }
+    if segments.len() < 2 {
+        return None;
+    }
     let p0 = match &segments[0] {
         PathSegment::MoveTo(p) => *p,
         _ => return None,
@@ -236,9 +240,9 @@ pub fn path_start_tangent(segments: &[PathSegment]) -> Option<(Point, f64)> {
     // The tangent at the start is from p0 toward the first control/target point
     let toward = match &segments[1] {
         PathSegment::LineTo(p) | PathSegment::MoveTo(p) => *p,
-        PathSegment::CubicTo { cp1, .. } => *cp1,     // tangent at t=0
-        PathSegment::QuadTo { cp, .. } => *cp,         // tangent at t=0
-        PathSegment::ArcTo { to, .. } => *to,          // approximation
+        PathSegment::CubicTo { cp1, .. } => *cp1, // tangent at t=0
+        PathSegment::QuadTo { cp, .. } => *cp,    // tangent at t=0
+        PathSegment::ArcTo { to, .. } => *to,     // approximation
         PathSegment::Close => return None,
     };
     // Marker points AWAY from the path (opposite to travel direction)
@@ -700,7 +704,10 @@ mod tests {
         assert!((pt.x - 57.0).abs() < 1e-10);
         // Tangent from cp2(97,136.7) → to(57,126.8): pointing LEFT and slightly UP
         // angle should be ~π (pointing left), not ~π/2 (pointing down)
-        assert!(angle.abs() > 2.0, "angle {angle} should point roughly left, not down");
+        assert!(
+            angle.abs() > 2.0,
+            "angle {angle} should point roughly left, not down"
+        );
     }
 
     #[test]
@@ -717,7 +724,10 @@ mod tests {
         assert!((pt.x - 57.0).abs() < 1e-10);
         // Start tangent: from (57,96.8) AWAY from cp1(97,86.9)
         // cp1 is to the right and slightly up → away is left and slightly down
-        assert!(angle.abs() > 2.0, "start angle {angle} should point away from curve");
+        assert!(
+            angle.abs() > 2.0,
+            "start angle {angle} should point away from curve"
+        );
     }
 
     #[test]

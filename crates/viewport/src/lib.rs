@@ -234,7 +234,13 @@ mod tests {
         let center = Point::new(200.0, 200.0);
         let scene_before = screen_to_scene(center, &vp);
 
-        let next = apply(&vp, &ViewportAction::Zoom { factor: 2.0, center });
+        let next = apply(
+            &vp,
+            &ViewportAction::Zoom {
+                factor: 2.0,
+                center,
+            },
+        );
         let scene_after = screen_to_scene(center, &next);
 
         assert!((scene_before.x - scene_after.x).abs() < 1e-10);
@@ -248,18 +254,27 @@ mod tests {
             ..Default::default()
         };
         // Zoom down to below 0.1
-        let next = apply(&vp, &ViewportAction::Zoom {
-            factor: 0.1,
-            center: Point::new(0.0, 0.0),
-        });
+        let next = apply(
+            &vp,
+            &ViewportAction::Zoom {
+                factor: 0.1,
+                center: Point::new(0.0, 0.0),
+            },
+        );
         assert!((next.zoom - 0.1).abs() < f64::EPSILON);
 
         // Zoom up past 10.0
-        let vp2 = ViewportState { zoom: 9.0, ..Default::default() };
-        let next2 = apply(&vp2, &ViewportAction::Zoom {
-            factor: 2.0,
-            center: Point::new(0.0, 0.0),
-        });
+        let vp2 = ViewportState {
+            zoom: 9.0,
+            ..Default::default()
+        };
+        let next2 = apply(
+            &vp2,
+            &ViewportAction::Zoom {
+                factor: 2.0,
+                center: Point::new(0.0, 0.0),
+            },
+        );
         assert!((next2.zoom - 10.0).abs() < f64::EPSILON);
     }
 

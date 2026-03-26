@@ -81,8 +81,12 @@ mod tests {
     #[test]
     fn shape_variants_distinct() {
         let shapes = [
-            MindmapShape::Default, MindmapShape::Rect, MindmapShape::RoundedRect,
-            MindmapShape::Circle, MindmapShape::Cloud, MindmapShape::Bang,
+            MindmapShape::Default,
+            MindmapShape::Rect,
+            MindmapShape::RoundedRect,
+            MindmapShape::Circle,
+            MindmapShape::Cloud,
+            MindmapShape::Bang,
             MindmapShape::Hexagon,
         ];
         for (i, a) in shapes.iter().enumerate() {

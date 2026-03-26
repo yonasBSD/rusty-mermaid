@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{VennDiagram, VennSet, VennUnion};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 /// Parse a venn diagram.
 ///
@@ -52,7 +52,8 @@ pub fn parse(input: &str) -> Result<VennDiagram, ParseError> {
         if let Some(rest) = line.strip_prefix("union") {
             let rest = rest.trim();
             if let Some((ids_part, remainder)) = split_at_bracket_or_colon(rest) {
-                let set_ids: Vec<String> = ids_part.split(',').map(|s| s.trim().to_string()).collect();
+                let set_ids: Vec<String> =
+                    ids_part.split(',').map(|s| s.trim().to_string()).collect();
                 let (label, size) = parse_label_size(remainder);
                 let default_size = 10.0 / (set_ids.len() as f64).powi(2);
                 diagram.unions.push(VennUnion {
@@ -68,7 +69,11 @@ pub fn parse(input: &str) -> Result<VennDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     Ok(diagram)
@@ -142,7 +147,10 @@ mod tests {
 
     #[test]
     fn parse_with_labels_and_sizes() {
-        let d = parse("venn-beta\n  set A[\"Alpha\"]:20\n  set B[\"Beta\"]:12\n  union A,B[\"Both\"]:5").unwrap();
+        let d = parse(
+            "venn-beta\n  set A[\"Alpha\"]:20\n  set B[\"Beta\"]:12\n  union A,B[\"Both\"]:5",
+        )
+        .unwrap();
         assert_eq!(d.sets[0].label, "Alpha");
         assert!((d.sets[0].size - 20.0).abs() < f64::EPSILON);
         assert_eq!(d.unions[0].label.as_deref(), Some("Both"));

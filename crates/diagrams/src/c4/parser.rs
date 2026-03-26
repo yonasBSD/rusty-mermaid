@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::*;
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<C4Diagram, ParseError> {
     let mut diagram = C4Diagram::default();
@@ -18,7 +18,13 @@ pub fn parse(input: &str) -> Result<C4Diagram, ParseError> {
                 l if l.starts_with("C4Container") => C4Level::Container,
                 l if l.starts_with("C4Component") => C4Level::Component,
                 l if l.starts_with("C4Dynamic") => C4Level::Dynamic,
-                _ => return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..1, input)),
+                _ => {
+                    return Err(ParseError::new(
+                        ParseErrorKind::UnexpectedToken,
+                        0..1,
+                        input,
+                    ));
+                }
             };
             header_found = true;
             continue;
@@ -62,14 +68,23 @@ pub fn parse(input: &str) -> Result<C4Diagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     Ok(diagram)
 }
 
 fn try_parse_boundary(line: &str) -> Option<C4Boundary> {
-    let prefixes = ["System_Boundary", "Enterprise_Boundary", "Container_Boundary", "Boundary"];
+    let prefixes = [
+        "System_Boundary",
+        "Enterprise_Boundary",
+        "Container_Boundary",
+        "Boundary",
+    ];
     for prefix in prefixes {
         if let Some(rest) = line.strip_prefix(prefix) {
             let args = extract_args(rest.trim())?;
@@ -137,8 +152,13 @@ fn try_parse_element(line: &str) -> Option<C4Element> {
                 let technology = args.get(2).cloned();
                 let description = args.get(3).cloned();
                 return Some(C4Element {
-                    alias, label, technology, description,
-                    shape, external, boundary: None,
+                    alias,
+                    label,
+                    technology,
+                    description,
+                    shape,
+                    external,
+                    boundary: None,
                 });
             }
         }
@@ -151,7 +171,9 @@ fn extract_args(s: &str) -> Option<Vec<String>> {
     let s = s.trim();
     let open = s.find('(')?;
     let close = s.rfind(')')?;
-    if close <= open { return None; }
+    if close <= open {
+        return None;
+    }
     let inner = &s[open + 1..close];
     Some(
         inner
@@ -176,14 +198,19 @@ mod tests {
 
     #[test]
     fn parse_boundary() {
-        let d = parse("C4Container\n  System_Boundary(bank, \"Bank\") {\n    Container(web, \"Web\")\n  }").unwrap();
+        let d = parse(
+            "C4Container\n  System_Boundary(bank, \"Bank\") {\n    Container(web, \"Web\")\n  }",
+        )
+        .unwrap();
         assert_eq!(d.boundaries.len(), 1);
         assert_eq!(d.elements[0].boundary.as_deref(), Some("bank"));
     }
 
     #[test]
     fn parse_shapes() {
-        let d = parse("C4Context\n  Person(p, \"P\")\n  SystemDb(db, \"DB\")\n  SystemQueue(q, \"Q\")").unwrap();
+        let d =
+            parse("C4Context\n  Person(p, \"P\")\n  SystemDb(db, \"DB\")\n  SystemQueue(q, \"Q\")")
+                .unwrap();
         assert_eq!(d.elements[0].shape, C4Shape::Person);
         assert_eq!(d.elements[1].shape, C4Shape::Database);
         assert_eq!(d.elements[2].shape, C4Shape::Queue);

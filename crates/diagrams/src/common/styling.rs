@@ -34,23 +34,29 @@ pub struct ClassApply {
 
 /// Parse a style property key (allows hyphens: `stroke-width`).
 fn style_key<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
-    take_while(1.., |c: char| c.is_ascii_alphanumeric() || c == '-' || c == '_')
-        .parse_next(input)
+    take_while(1.., |c: char| {
+        c.is_ascii_alphanumeric() || c == '-' || c == '_'
+    })
+    .parse_next(input)
 }
 
 /// Parse a style property value (everything until `,` or end of statement).
 fn style_value<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
-    take_while(1.., |c: char| c != ',' && c != ';' && c != '\n' && c != '\r')
-        .parse_next(input)
+    take_while(1.., |c: char| {
+        c != ',' && c != ';' && c != '\n' && c != '\r'
+    })
+    .parse_next(input)
 }
 
 /// Parse `key:value`.
 fn style_property(input: &mut &str) -> ModalResult<StyleProperty> {
     (style_key, opt(ws), ':', opt(ws), style_value)
-        .map(|(key, _, _, _, value): (&str, _, _, _, &str)| StyleProperty {
-            key: key.to_string(),
-            value: value.trim().to_string(),
-        })
+        .map(
+            |(key, _, _, _, value): (&str, _, _, _, &str)| StyleProperty {
+                key: key.to_string(),
+                value: value.trim().to_string(),
+            },
+        )
         .parse_next(input)
 }
 
@@ -61,8 +67,12 @@ pub fn style_properties(input: &mut &str) -> ModalResult<Vec<StyleProperty>> {
 
 /// Parse comma-separated identifiers: `nodeId1,nodeId2`.
 fn id_list(input: &mut &str) -> ModalResult<Vec<String>> {
-    separated(1.., identifier.map(|s: &str| s.to_string()), (opt(ws), ',', opt(ws)))
-        .parse_next(input)
+    separated(
+        1..,
+        identifier.map(|s: &str| s.to_string()),
+        (opt(ws), ',', opt(ws)),
+    )
+    .parse_next(input)
 }
 
 /// Parse `classDef className fill:#f9f,stroke:#333`.
@@ -71,7 +81,9 @@ pub fn class_def_body(input: &mut &str) -> ModalResult<ClassDef> {
     (
         ws,
         // "default" is a valid class name in mermaid
-        take_while(1.., |c: char| c.is_ascii_alphanumeric() || c == '_' || c == '-'),
+        take_while(1.., |c: char| {
+            c.is_ascii_alphanumeric() || c == '_' || c == '-'
+        }),
         ws,
         style_properties,
     )

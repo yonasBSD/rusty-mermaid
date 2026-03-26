@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{TreeNode, TreeView};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<TreeView, ParseError> {
     let mut header_found = false;
@@ -28,11 +28,20 @@ pub fn parse(input: &str) -> Result<TreeView, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     // Normalize indents to levels (find the indent unit)
-    let min_indent = entries.iter().map(|(i, _)| *i).filter(|&i| i > 0).min().unwrap_or(4);
+    let min_indent = entries
+        .iter()
+        .map(|(i, _)| *i)
+        .filter(|&i| i > 0)
+        .min()
+        .unwrap_or(4);
     let entries: Vec<(usize, String)> = entries
         .into_iter()
         .map(|(indent, name)| (indent / min_indent.max(1), name))

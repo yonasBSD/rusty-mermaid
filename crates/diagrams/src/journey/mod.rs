@@ -6,7 +6,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
-use crate::common::palette::{BORDER_RADIUS, STROKE_WIDTH, MAX_SCORE, tint_color};
+use crate::common::palette::{BORDER_RADIUS, MAX_SCORE, STROKE_WIDTH, tint_color};
 use ir::JourneyDiagram;
 
 const TASK_W: f64 = 120.0;
@@ -73,11 +73,19 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
     let score_bot = score_top + SCORE_RANGE_H + FACE_R * 2.0;
 
     let layout = JourneyLayout {
-        ox: SCENE_PAD, oy, task_top, actor_row_y, score_top, score_bot, scene_w,
+        ox: SCENE_PAD,
+        oy,
+        task_top,
+        actor_row_y,
+        score_top,
+        score_bot,
+        scene_w,
     };
 
     let actors = diagram.all_actors();
-    let actor_colors: Vec<Color> = actors.iter().enumerate()
+    let actor_colors: Vec<Color> = actors
+        .iter()
+        .enumerate()
         .map(|(i, _)| SECTION_COLORS[i % SECTION_COLORS.len()])
         .collect();
 
@@ -89,7 +97,12 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
     scene
 }
 
-fn render_journey_title(scene: &mut Scene, diagram: &JourneyDiagram, layout: &JourneyLayout, theme: &Theme) {
+fn render_journey_title(
+    scene: &mut Scene,
+    diagram: &JourneyDiagram,
+    layout: &JourneyLayout,
+    theme: &Theme,
+) {
     if let Some(title) = &diagram.title {
         scene.push(Primitive::Text {
             position: Point::new(layout.scene_w / 2.0, SCENE_PAD + 10.0),
@@ -121,9 +134,18 @@ fn render_sections(
 
         let fill = tint_color(color, TINT);
         scene.push(Primitive::Rect {
-            bbox: BBox::new(x + section_w / 2.0, layout.oy + SECTION_HEADER_H / 2.0, section_w, SECTION_HEADER_H),
-            rx: BORDER_RADIUS, ry: BORDER_RADIUS,
-            style: Style { fill: Some(fill), ..Default::default() },
+            bbox: BBox::new(
+                x + section_w / 2.0,
+                layout.oy + SECTION_HEADER_H / 2.0,
+                section_w,
+                SECTION_HEADER_H,
+            ),
+            rx: BORDER_RADIUS,
+            ry: BORDER_RADIUS,
+            style: Style {
+                fill: Some(fill),
+                ..Default::default()
+            },
         });
 
         scene.push(Primitive::Text {
@@ -140,7 +162,16 @@ fn render_sections(
 
         for task in &section.tasks {
             let task_cx = x + TASK_W / 2.0;
-            render_task(scene, task, task_cx, layout, color, actors, actor_colors, theme);
+            render_task(
+                scene,
+                task,
+                task_cx,
+                layout,
+                color,
+                actors,
+                actor_colors,
+                theme,
+            );
             x += TASK_W + TASK_GAP;
         }
 
@@ -163,14 +194,21 @@ fn render_task(
     let task_fill = tint_color(color, TINT * 0.7);
     scene.push(Primitive::Rect {
         bbox: BBox::new(task_cx, layout.task_top + TASK_H / 2.0, TASK_W, TASK_H),
-        rx: BORDER_RADIUS, ry: BORDER_RADIUS,
+        rx: BORDER_RADIUS,
+        ry: BORDER_RADIUS,
         style: Style {
-            fill: Some(task_fill), stroke: Some(color), stroke_width: Some(1.0),
+            fill: Some(task_fill),
+            stroke: Some(color),
+            stroke_width: Some(1.0),
             ..Default::default()
         },
     });
 
-    let label_style = TextStyle { font_size: 11.0, fill: Some(theme.node_text), ..Default::default() };
+    let label_style = TextStyle {
+        font_size: 11.0,
+        fill: Some(theme.node_text),
+        ..Default::default()
+    };
     let label_w = SimpleTextMeasure::measure_raw(&task.name, &label_style).width;
     if label_w < TASK_W - 8.0 {
         scene.push(Primitive::Text {
@@ -205,13 +243,16 @@ fn render_task(
     for (ai, actor) in task.actors.iter().enumerate() {
         if let Some(idx) = actors.iter().position(|a| a == actor) {
             let spacing = ACTOR_R * 2.0 + 4.0;
-            let dot_x = task_cx - (task.actors.len() as f64 - 1.0) * spacing / 2.0
-                + ai as f64 * spacing;
+            let dot_x =
+                task_cx - (task.actors.len() as f64 - 1.0) * spacing / 2.0 + ai as f64 * spacing;
             let dot_y = layout.actor_row_y + ACTOR_ROW_H / 2.0;
             scene.push(Primitive::Circle {
                 center: Point::new(dot_x, dot_y),
                 radius: ACTOR_R,
-                style: Style { fill: Some(actor_colors[idx]), ..Default::default() },
+                style: Style {
+                    fill: Some(actor_colors[idx]),
+                    ..Default::default()
+                },
             });
         }
     }
@@ -230,16 +271,31 @@ fn render_actor_legend(
         scene.push(Primitive::Circle {
             center: Point::new(lx + ACTOR_R, legend_y),
             radius: ACTOR_R,
-            style: Style { fill: Some(actor_colors[i]), ..Default::default() },
+            style: Style {
+                fill: Some(actor_colors[i]),
+                ..Default::default()
+            },
         });
         scene.push(Primitive::Text {
             position: Point::new(lx + ACTOR_R * 2.0 + 4.0, legend_y),
             content: actor.clone(),
             anchor: TextAnchor::Start,
-            style: TextStyle { font_size: 11.0, fill: Some(theme.node_text), ..Default::default() },
+            style: TextStyle {
+                font_size: 11.0,
+                fill: Some(theme.node_text),
+                ..Default::default()
+            },
         });
-        lx += SimpleTextMeasure::measure_raw(actor, &TextStyle { font_size: 11.0, ..Default::default() }).width
-            + ACTOR_R * 2.0 + 16.0;
+        lx += SimpleTextMeasure::measure_raw(
+            actor,
+            &TextStyle {
+                font_size: 11.0,
+                ..Default::default()
+            },
+        )
+        .width
+            + ACTOR_R * 2.0
+            + 16.0;
     }
 }
 
@@ -263,7 +319,10 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color, the
         scene.push(Primitive::Circle {
             center: Point::new(cx + dx, cy - 3.0),
             radius: 1.5,
-            style: Style { fill: Some(theme.detail_stroke), ..Default::default() },
+            style: Style {
+                fill: Some(theme.detail_stroke),
+                ..Default::default()
+            },
         });
     }
 
@@ -343,11 +402,17 @@ mod tests {
     #[test]
     fn has_task_rects() {
         let scene = render("journey\n  section S\n    A: 4\n    B: 2\n    C: 5");
-        let rects = scene.elements().iter().filter(|e| {
-            if let Primitive::Rect { style, .. } = &e.primitive {
-                style.stroke.is_some()
-            } else { false }
-        }).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Rect { style, .. } = &e.primitive {
+                    style.stroke.is_some()
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(rects, 3, "3 task rects");
     }
 
@@ -355,9 +420,11 @@ mod tests {
     fn face_emojis_per_task() {
         let scene = render("journey\n  section S\n    Happy: 5\n    Sad: 1\n    Meh: 3");
         // Each face has 1 face circle + 2 eye circles = 3 circles per task
-        let circles = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Circle { .. })
-        }).count();
+        let circles = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .count();
         assert!(circles >= 9, "at least 9 circles (3 faces × 3 parts)");
     }
 
@@ -365,34 +432,57 @@ mod tests {
     fn score_positions_ordered() {
         let scene = render("journey\n  section S\n    High: 5\n    Low: 1");
         // Face circles: the high-score face should be higher (smaller y)
-        let face_circles: Vec<f64> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Circle { center, radius, .. } = &e.primitive {
-                if (*radius - FACE_R).abs() < 0.1 { Some(center.y) } else { None }
-            } else { None }
-        }).collect();
+        let face_circles: Vec<f64> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Circle { center, radius, .. } = &e.primitive {
+                    if (*radius - FACE_R).abs() < 0.1 {
+                        Some(center.y)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert_eq!(face_circles.len(), 2);
-        assert!(face_circles[0] < face_circles[1], "score 5 should be above score 1");
+        assert!(
+            face_circles[0] < face_circles[1],
+            "score 5 should be above score 1"
+        );
     }
 
     #[test]
     fn multiple_sections() {
         let scene = render("journey\n  section A\n    T1: 4\n  section B\n    T2: 2");
-        let section_labels: Vec<&str> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, style, .. } = &e.primitive {
-                if style.font_weight == rusty_mermaid_core::FontWeight::Bold
-                    && (content == "A" || content == "B")
-                {
-                    Some(content.as_str())
-                } else { None }
-            } else { None }
-        }).collect();
+        let section_labels: Vec<&str> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, style, .. } = &e.primitive {
+                    if style.font_weight == rusty_mermaid_core::FontWeight::Bold
+                        && (content == "A" || content == "B")
+                    {
+                        Some(content.as_str())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert!(section_labels.contains(&"A"));
         assert!(section_labels.contains(&"B"));
     }
 
     #[test]
     fn all_positions_finite() {
-        let scene = render("journey\n  section Go\n    Walk: 4: Me\n    Run: 2: Me, You\n  section Rest\n    Sit: 5: Me");
+        let scene = render(
+            "journey\n  section Go\n    Walk: 4: Me\n    Run: 2: Me, You\n  section Rest\n    Sit: 5: Me",
+        );
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Rect { bbox, .. } => {

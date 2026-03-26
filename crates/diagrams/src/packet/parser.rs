@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{PacketDiagram, PacketField};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 /// Parse a packet diagram.
 ///
@@ -49,7 +49,10 @@ pub fn parse(input: &str) -> Result<PacketDiagram, ParseError> {
 
         let (start, end) = if let Some(bits_str) = range_part.strip_prefix('+') {
             // Relative: +N
-            let bits: usize = bits_str.trim().parse().map_err(|_| make_err(input, line_no, raw_line.len()))?;
+            let bits: usize = bits_str
+                .trim()
+                .parse()
+                .map_err(|_| make_err(input, line_no, raw_line.len()))?;
             if bits == 0 {
                 return Err(make_err(input, line_no, raw_line.len()));
             }
@@ -57,15 +60,23 @@ pub fn parse(input: &str) -> Result<PacketDiagram, ParseError> {
             (s, s + bits - 1)
         } else if let Some((s_str, e_str)) = range_part.split_once('-') {
             // Absolute range: start-end
-            let s: usize = s_str.trim().parse().map_err(|_| make_err(input, line_no, raw_line.len()))?;
-            let e: usize = e_str.trim().parse().map_err(|_| make_err(input, line_no, raw_line.len()))?;
+            let s: usize = s_str
+                .trim()
+                .parse()
+                .map_err(|_| make_err(input, line_no, raw_line.len()))?;
+            let e: usize = e_str
+                .trim()
+                .parse()
+                .map_err(|_| make_err(input, line_no, raw_line.len()))?;
             if e < s {
                 return Err(make_err(input, line_no, raw_line.len()));
             }
             (s, e)
         } else {
             // Single bit: N
-            let b: usize = range_part.parse().map_err(|_| make_err(input, line_no, raw_line.len()))?;
+            let b: usize = range_part
+                .parse()
+                .map_err(|_| make_err(input, line_no, raw_line.len()))?;
             (b, b)
         };
 
@@ -79,10 +90,18 @@ pub fn parse(input: &str) -> Result<PacketDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
     if diagram.fields.is_empty() {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedEof, input.len()..input.len(), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedEof,
+            input.len()..input.len(),
+            input,
+        ));
     }
 
     Ok(diagram)

@@ -101,7 +101,11 @@ fn clip_path_entering(
                         find_cubic_rect_crossing(&cursor, cp1, cp2, to, left, right, top, bottom)
                     {
                         let s = de_casteljau_split(&cursor, cp1, cp2, to, t);
-                        result.push(PathSegment::CubicTo { cp1: s.left_cp1, cp2: s.left_cp2, to: s.mid });
+                        result.push(PathSegment::CubicTo {
+                            cp1: s.left_cp1,
+                            cp2: s.left_cp2,
+                            to: s.mid,
+                        });
                     }
                     return result;
                 }
@@ -151,7 +155,11 @@ fn clip_path_exiting(
                     let s = de_casteljau_split(&cursor, cp1, cp2, to, t);
                     let mut result = vec![
                         PathSegment::MoveTo(s.mid),
-                        PathSegment::CubicTo { cp1: s.right_cp1, cp2: s.right_cp2, to: *to },
+                        PathSegment::CubicTo {
+                            cp1: s.right_cp1,
+                            cp2: s.right_cp2,
+                            to: *to,
+                        },
                     ];
                     result.extend_from_slice(&segments[i + 1..]);
                     return result;
@@ -191,7 +199,13 @@ fn de_casteljau_split(p0: &Point, p1: &Point, p2: &Point, p3: &Point, t: f64) ->
     let d = lerp(&a, &b, t);
     let e = lerp(&b, &c, t);
     let f = lerp(&d, &e, t);
-    CubicSplit { left_cp1: a, left_cp2: d, mid: f, right_cp1: e, right_cp2: c }
+    CubicSplit {
+        left_cp1: a,
+        left_cp2: d,
+        mid: f,
+        right_cp1: e,
+        right_cp2: c,
+    }
 }
 
 #[allow(clippy::too_many_arguments)]

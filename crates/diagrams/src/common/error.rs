@@ -18,7 +18,9 @@ impl std::fmt::Display for ParseErrorKind {
         match self {
             Self::UnexpectedToken => write!(f, "unexpected token"),
             Self::UnexpectedEof => write!(f, "unexpected end of input"),
-            Self::InvalidDirection => write!(f, "invalid direction (expected TB, BT, LR, RL, or TD)"),
+            Self::InvalidDirection => {
+                write!(f, "invalid direction (expected TB, BT, LR, RL, or TD)")
+            }
             Self::InvalidShape => write!(f, "unrecognized node shape"),
             Self::InvalidEdge => write!(f, "malformed edge syntax"),
             Self::UnclosedString => write!(f, "unclosed string"),
@@ -41,11 +43,18 @@ impl ParseError {
         let start = snap_to_char_boundary(input, span.start.min(input.len()));
         let end = snap_to_char_boundary(input, (start + 40).min(input.len()));
         let snippet = input[start..end].to_string();
-        Self { kind, span, snippet }
+        Self {
+            kind,
+            span,
+            snippet,
+        }
     }
 
     /// Build from a winnow error and the full original input.
-    pub fn from_winnow(err: &winnow::error::ParseError<&str, winnow::error::ContextError>, full_input: &str) -> Self {
+    pub fn from_winnow(
+        err: &winnow::error::ParseError<&str, winnow::error::ContextError>,
+        full_input: &str,
+    ) -> Self {
         let offset = err.offset();
         let kind = ParseErrorKind::UnexpectedToken;
         Self::new(kind, offset..offset, full_input)
@@ -66,9 +75,13 @@ impl std::error::Error for ParseError {}
 
 /// Snap a byte index to the nearest char boundary (rounding down).
 fn snap_to_char_boundary(s: &str, idx: usize) -> usize {
-    if idx >= s.len() { return s.len(); }
+    if idx >= s.len() {
+        return s.len();
+    }
     let mut i = idx;
-    while i > 0 && !s.is_char_boundary(i) { i -= 1; }
+    while i > 0 && !s.is_char_boundary(i) {
+        i -= 1;
+    }
     i
 }
 
@@ -124,14 +137,14 @@ mod tests {
     #[test]
     fn snap_mid_2byte_char() {
         // 'é' is 2 bytes: [0xC3, 0xA9]
-        let s = "aé";  // bytes: [a=0x61, 0xC3, 0xA9]
+        let s = "aé"; // bytes: [a=0x61, 0xC3, 0xA9]
         assert_eq!(snap_to_char_boundary(s, 2), 1); // byte 2 is mid-é → snaps to 1
     }
 
     #[test]
     fn snap_mid_3byte_char() {
         // '你' is 3 bytes: [0xE4, 0xBD, 0xA0]
-        let s = "a你b";  // bytes: a(1) + 你(3) + b(1) = 5
+        let s = "a你b"; // bytes: a(1) + 你(3) + b(1) = 5
         assert_eq!(snap_to_char_boundary(s, 2), 1); // mid-你, byte 2 → snaps to 1
         assert_eq!(snap_to_char_boundary(s, 3), 1); // mid-你, byte 3 → snaps to 1
         assert_eq!(snap_to_char_boundary(s, 4), 4); // 'b' start, already valid
@@ -140,7 +153,7 @@ mod tests {
     #[test]
     fn snap_mid_4byte_char() {
         // '😀' is 4 bytes: [0xF0, 0x9F, 0x98, 0x80]
-        let s = "😀x";  // bytes: 😀(4) + x(1) = 5
+        let s = "😀x"; // bytes: 😀(4) + x(1) = 5
         assert_eq!(snap_to_char_boundary(s, 1), 0); // mid-emoji → snaps to 0
         assert_eq!(snap_to_char_boundary(s, 2), 0);
         assert_eq!(snap_to_char_boundary(s, 3), 0);

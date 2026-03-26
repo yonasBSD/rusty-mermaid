@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{SankeyDiagram, SankeyLink};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 /// Parse a sankey diagram from mermaid syntax.
 ///
@@ -24,7 +24,11 @@ pub fn parse(input: &str) -> Result<SankeyDiagram, ParseError> {
                 header_found = true;
                 continue;
             }
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..line.len().min(10), input));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                0..line.len().min(10),
+                input,
+            ));
         }
 
         // Parse CSV line: source, target, value
@@ -61,11 +65,19 @@ pub fn parse(input: &str) -> Result<SankeyDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     if links.is_empty() {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedEof, input.len()..input.len(), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedEof,
+            input.len()..input.len(),
+            input,
+        ));
     }
 
     Ok(SankeyDiagram { links })

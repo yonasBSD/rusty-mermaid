@@ -42,10 +42,7 @@ pub fn intersect_circle(center: Point, radius: f64, point: Point) -> Point {
         return Point::new(center.x + radius, center.y);
     }
 
-    Point::new(
-        center.x + radius * dx / dist,
-        center.y + radius * dy / dist,
-    )
+    Point::new(center.x + radius * dx / dist, center.y + radius * dy / dist)
 }
 
 /// Find the intersection point where a ray from `center` toward `point`
@@ -61,10 +58,7 @@ pub fn intersect_ellipse(center: Point, rx: f64, ry: f64, point: Point) -> Point
     // Parametric: (rx*cos(t), ry*sin(t))
     // Ray direction angle
     let angle = dy.atan2(dx);
-    Point::new(
-        center.x + rx * angle.cos(),
-        center.y + ry * angle.sin(),
-    )
+    Point::new(center.x + rx * angle.cos(), center.y + ry * angle.sin())
 }
 
 /// Find the intersection point where a ray from `center` toward `target`
@@ -191,7 +185,11 @@ pub fn arc_sector_segments(
     for i in 0..=steps {
         let t = start_angle + span * (i as f64 / steps as f64);
         let p = Point::new(center.x + outer_r * t.cos(), center.y + outer_r * t.sin());
-        if i == 0 { segs.push(PathSegment::MoveTo(p)); } else { segs.push(PathSegment::LineTo(p)); }
+        if i == 0 {
+            segs.push(PathSegment::MoveTo(p));
+        } else {
+            segs.push(PathSegment::LineTo(p));
+        }
     }
 
     if inner_r > 0.0 {

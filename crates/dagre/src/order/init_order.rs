@@ -29,7 +29,9 @@ pub(crate) fn init_order(graph: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<Nod
     // Assign order from layer positions
     for layer in &layers {
         for (i, &nid) in layer.iter().enumerate() {
-            let Some(node) = graph.node_mut(nid) else { continue };
+            let Some(node) = graph.node_mut(nid) else {
+                continue;
+            };
             node.order = i;
         }
     }

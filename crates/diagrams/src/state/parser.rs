@@ -5,7 +5,7 @@ use winnow::token::take_while;
 use rusty_mermaid_core::Direction;
 
 use crate::common::error::{ParseError, ParseErrorKind};
-use crate::common::styling::{class_apply_body, class_def_body, style_stmt_body, ClassDef};
+use crate::common::styling::{ClassDef, class_apply_body, class_def_body, style_stmt_body};
 use crate::common::tokens::{identifier, skip, unescape_unicode, ws};
 
 use super::ir::*;
@@ -55,11 +55,7 @@ fn parse_state_diagram(input: &mut &str) -> ModalResult<StateDiagram> {
 }
 
 fn header(input: &mut &str) -> ModalResult<()> {
-    alt((
-        "stateDiagram-v2".void(),
-        "stateDiagram".void(),
-    ))
-    .parse_next(input)
+    alt(("stateDiagram-v2".void(), "stateDiagram".void())).parse_next(input)
 }
 
 /// Parse statements in the current scope (top-level or inside a composite state).
@@ -251,8 +247,10 @@ fn parse_multiline_note_body(input: &mut &str) -> ModalResult<String> {
     let mut lines = Vec::new();
     loop {
         // Skip to next line
-        take_while(0.., |c: char| c == '\n' || c == '\r' || c == ' ' || c == '\t')
-            .parse_next(input)?;
+        take_while(0.., |c: char| {
+            c == '\n' || c == '\r' || c == ' ' || c == '\t'
+        })
+        .parse_next(input)?;
         if input.starts_with("end note") {
             "end note".parse_next(input)?;
             break;
@@ -267,10 +265,7 @@ fn parse_multiline_note_body(input: &mut &str) -> ModalResult<String> {
 }
 
 /// Parse `state "Label" as Name {` or `state Name {`.
-fn parse_composite_state(
-    input: &mut &str,
-    outer_ctx: &mut ParseCtx,
-) -> ModalResult<StateNode> {
+fn parse_composite_state(input: &mut &str, outer_ctx: &mut ParseCtx) -> ModalResult<StateNode> {
     "state".parse_next(input)?;
     ws.parse_next(input)?;
 
@@ -309,8 +304,12 @@ fn parse_composite_state(
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
-        if opt('}').parse_next(input)?.is_some() { break; }
+        if input.is_empty() {
+            break;
+        }
+        if opt('}').parse_next(input)?.is_some() {
+            break;
+        }
 
         if input.starts_with("--") && !input.starts_with("-->") {
             "--".parse_next(input)?;
@@ -331,9 +330,7 @@ fn parse_composite_state(
         // Parse into region buffers via inner ctx
         inner_ctx.states = std::mem::take(&mut region_children);
         inner_ctx.transitions = std::mem::take(&mut region_trans);
-        if !try_parse_statement(input, &mut inner_ctx, false)?
-            && !input.is_empty()
-        {
+        if !try_parse_statement(input, &mut inner_ctx, false)? && !input.is_empty() {
             *input = &input[1..];
         }
         region_children = std::mem::take(&mut inner_ctx.states);
@@ -367,13 +364,16 @@ fn parse_composite_state(
 
     let node = StateNode {
         label,
-        ..StateNode::new(id, StateKind::Composite {
-            direction: composite_direction,
-            children,
-            transitions: trans,
-            notes,
-            regions,
-        })
+        ..StateNode::new(
+            id,
+            StateKind::Composite {
+                direction: composite_direction,
+                children,
+                transitions: trans,
+                notes,
+                regions,
+            },
+        )
     };
     Ok(node)
 }

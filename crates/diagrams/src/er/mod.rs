@@ -7,10 +7,10 @@ use rusty_mermaid_core::{
     interpolate,
 };
 
-use bridge::LayoutResult;
-use ir::{Cardinality, Identification};
 use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::render_edge_label;
+use bridge::LayoutResult;
+use ir::{Cardinality, Identification};
 
 /// Convert an ER diagram layout result into a Scene with default theme.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
@@ -93,15 +93,18 @@ fn render_entity(entity: &bridge::EntityLayout, scene: &mut Scene, theme: &Theme
             let is_last = i == entity.attributes.len() - 1;
 
             // Every row gets a fill rect — even rows use entity fill, odd use alternate
-            let fill = if i % 2 == 1 { theme.composite_fill } else { theme.node_fill };
-            let row_h = if is_last { entity.row_height - row_inset } else { entity.row_height };
+            let fill = if i % 2 == 1 {
+                theme.composite_fill
+            } else {
+                theme.node_fill
+            };
+            let row_h = if is_last {
+                entity.row_height - row_inset
+            } else {
+                entity.row_height
+            };
             scene.push(Primitive::Rect {
-                bbox: BBox::new(
-                    entity.x,
-                    row_y + row_h / 2.0,
-                    row_fill_width,
-                    row_h,
-                ),
+                bbox: BBox::new(entity.x, row_y + row_h / 2.0, row_fill_width, row_h),
                 rx: 0.0,
                 ry: 0.0,
                 style: Style {
@@ -144,7 +147,9 @@ const MARKER_GAP: f64 = 2.0;
 fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for edge_layout in &layout.edges {
         let edge = &edge_layout.edge;
-        if edge.points.len() < 2 { continue; }
+        if edge.points.len() < 2 {
+            continue;
+        }
 
         // Shorten edge to leave room for crow's foot markers
         let segments = interpolate(&edge.points, CurveType::Basis);
@@ -190,11 +195,19 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 ///
 /// `endpoint` is the point on the node boundary.
 /// `neighbor` is the next point along the edge (toward the interior).
-fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: Cardinality, theme: &Theme) {
+fn render_crowsfoot(
+    scene: &mut Scene,
+    endpoint: Point,
+    neighbor: Point,
+    card: Cardinality,
+    theme: &Theme,
+) {
     let dx = neighbor.x - endpoint.x;
     let dy = neighbor.y - endpoint.y;
     let len = (dx * dx + dy * dy).sqrt();
-    if len < 1e-6 { return; }
+    if len < 1e-6 {
+        return;
+    }
 
     // Unit tangent (pointing inward along edge) and perpendicular
     let tx = dx / len;
@@ -208,10 +221,7 @@ fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: C
         ..Default::default()
     };
 
-    let _base = Point::new(
-        endpoint.x + tx * MARKER_GAP,
-        endpoint.y + ty * MARKER_GAP,
-    );
+    let _base = Point::new(endpoint.x + tx * MARKER_GAP, endpoint.y + ty * MARKER_GAP);
 
     match card {
         Cardinality::ExactlyOne => {
@@ -223,8 +233,14 @@ fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: C
                 let cy = endpoint.y + ty * offset;
                 scene.push(Primitive::Path {
                     segments: vec![
-                        PathSegment::MoveTo(Point::new(cx + nx * MARKER_SIZE * 0.5, cy + ny * MARKER_SIZE * 0.5)),
-                        PathSegment::LineTo(Point::new(cx - nx * MARKER_SIZE * 0.5, cy - ny * MARKER_SIZE * 0.5)),
+                        PathSegment::MoveTo(Point::new(
+                            cx + nx * MARKER_SIZE * 0.5,
+                            cy + ny * MARKER_SIZE * 0.5,
+                        )),
+                        PathSegment::LineTo(Point::new(
+                            cx - nx * MARKER_SIZE * 0.5,
+                            cy - ny * MARKER_SIZE * 0.5,
+                        )),
                     ],
                     style: stroke_style.clone(),
                     marker_start: None,
@@ -253,8 +269,14 @@ fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: C
             let cy = endpoint.y + ty * line_offset;
             scene.push(Primitive::Path {
                 segments: vec![
-                    PathSegment::MoveTo(Point::new(cx + nx * MARKER_SIZE * 0.5, cy + ny * MARKER_SIZE * 0.5)),
-                    PathSegment::LineTo(Point::new(cx - nx * MARKER_SIZE * 0.5, cy - ny * MARKER_SIZE * 0.5)),
+                    PathSegment::MoveTo(Point::new(
+                        cx + nx * MARKER_SIZE * 0.5,
+                        cy + ny * MARKER_SIZE * 0.5,
+                    )),
+                    PathSegment::LineTo(Point::new(
+                        cx - nx * MARKER_SIZE * 0.5,
+                        cy - ny * MARKER_SIZE * 0.5,
+                    )),
                 ],
                 style: stroke_style,
                 marker_start: None,
@@ -269,8 +291,14 @@ fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: C
             let cy = endpoint.y + ty * line_offset;
             scene.push(Primitive::Path {
                 segments: vec![
-                    PathSegment::MoveTo(Point::new(cx + nx * MARKER_SIZE * 0.5, cy + ny * MARKER_SIZE * 0.5)),
-                    PathSegment::LineTo(Point::new(cx - nx * MARKER_SIZE * 0.5, cy - ny * MARKER_SIZE * 0.5)),
+                    PathSegment::MoveTo(Point::new(
+                        cx + nx * MARKER_SIZE * 0.5,
+                        cy + ny * MARKER_SIZE * 0.5,
+                    )),
+                    PathSegment::LineTo(Point::new(
+                        cx - nx * MARKER_SIZE * 0.5,
+                        cy - ny * MARKER_SIZE * 0.5,
+                    )),
                 ],
                 style: stroke_style,
                 marker_start: None,
@@ -299,7 +327,15 @@ fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: C
 }
 
 /// Render the crow's foot fork (three prongs converging). Returns the fork tip offset.
-fn render_fork(scene: &mut Scene, endpoint: Point, tx: f64, ty: f64, nx: f64, ny: f64, style: &Style) -> f64 {
+fn render_fork(
+    scene: &mut Scene,
+    endpoint: Point,
+    tx: f64,
+    ty: f64,
+    nx: f64,
+    ny: f64,
+    style: &Style,
+) -> f64 {
     let fork_base = MARKER_GAP;
     let fork_tip = MARKER_GAP + MARKER_SIZE * 0.6;
     let base_pt = Point::new(endpoint.x + tx * fork_tip, endpoint.y + ty * fork_tip);
@@ -309,10 +345,7 @@ fn render_fork(scene: &mut Scene, endpoint: Point, tx: f64, ty: f64, nx: f64, ny
             endpoint.y + ty * fork_base + ny * MARKER_SIZE * spread,
         );
         scene.push(Primitive::Path {
-            segments: vec![
-                PathSegment::MoveTo(base_pt),
-                PathSegment::LineTo(prong_end),
-            ],
+            segments: vec![PathSegment::MoveTo(base_pt), PathSegment::LineTo(prong_end)],
             style: style.clone(),
             marker_start: None,
             marker_end: None,
@@ -333,8 +366,12 @@ mod tests {
 
     #[test]
     fn scene_has_primitives() {
-        let scene = render("erDiagram\n    CUSTOMER {\n        string name\n        int age\n    }");
-        assert!(scene.len() >= 4, "entity needs rect + title + separator + attribute rows");
+        let scene =
+            render("erDiagram\n    CUSTOMER {\n        string name\n        int age\n    }");
+        assert!(
+            scene.len() >= 4,
+            "entity needs rect + title + separator + attribute rows"
+        );
     }
 
     #[test]
@@ -345,11 +382,14 @@ mod tests {
 
     #[test]
     fn alternating_row_backgrounds() {
-        let scene = render("erDiagram\n    T {\n        int a\n        int b\n        int c\n    }");
+        let scene =
+            render("erDiagram\n    T {\n        int a\n        int b\n        int c\n    }");
         // Should have striped backgrounds for odd rows
-        let rects: Vec<_> = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Rect { .. })
-        }).collect();
+        let rects: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .collect();
         assert!(rects.len() >= 2, "main rect + at least one striped row");
     }
 
@@ -357,9 +397,11 @@ mod tests {
     fn crowsfoot_exactly_one() {
         let scene = render("erDiagram\n    A ||--|| B : is");
         // ExactlyOne markers produce perpendicular lines (Path primitives)
-        let paths: Vec<_> = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Path { .. })
-        }).collect();
+        let paths: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Path { .. }))
+            .collect();
         assert!(paths.len() >= 5, "edge + 4 marker lines (2 per side)");
     }
 
@@ -367,9 +409,11 @@ mod tests {
     fn crowsfoot_zero_or_more() {
         let scene = render("erDiagram\n    A ||--o{ B : has");
         // ZeroOrMore marker has circles
-        let circles: Vec<_> = scene.elements().iter().filter(|e| {
-            matches!(&e.primitive, Primitive::Circle { .. })
-        }).collect();
+        let circles: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .collect();
         assert!(circles.len() >= 1, "zero-or-more should have circle");
     }
 
@@ -379,7 +423,9 @@ mod tests {
         let has_dashed = scene.elements().iter().any(|e| {
             if let Primitive::Path { style, .. } = &e.primitive {
                 style.stroke_dasharray.is_some()
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(has_dashed, "non-identifying should have dashed line");
     }
@@ -390,7 +436,9 @@ mod tests {
         let has_bold = scene.elements().iter().any(|e| {
             if let Primitive::Text { style, .. } = &e.primitive {
                 style.font_weight == rusty_mermaid_core::FontWeight::Bold
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(has_bold, "entity title should be bold");
     }

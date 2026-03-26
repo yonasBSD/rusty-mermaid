@@ -85,7 +85,12 @@ mod tests {
 
     #[test]
     fn c4_level_variants() {
-        let levels = [C4Level::Context, C4Level::Container, C4Level::Component, C4Level::Dynamic];
+        let levels = [
+            C4Level::Context,
+            C4Level::Container,
+            C4Level::Component,
+            C4Level::Dynamic,
+        ];
         for (i, a) in levels.iter().enumerate() {
             for (j, b) in levels.iter().enumerate() {
                 assert_eq!(i == j, *a == *b);
@@ -103,9 +108,13 @@ mod tests {
     #[test]
     fn element_construction() {
         let elem = C4Element {
-            alias: "web".into(), label: "Web App".into(),
-            technology: Some("React".into()), description: Some("Frontend".into()),
-            shape: C4Shape::Container, external: false, boundary: Some("sys1".into()),
+            alias: "web".into(),
+            label: "Web App".into(),
+            technology: Some("React".into()),
+            description: Some("Frontend".into()),
+            shape: C4Shape::Container,
+            external: false,
+            boundary: Some("sys1".into()),
         };
         assert_eq!(elem.alias, "web");
         assert!(!elem.external);

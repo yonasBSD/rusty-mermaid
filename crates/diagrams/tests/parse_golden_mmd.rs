@@ -1,30 +1,30 @@
 use std::fs;
 use std::path::Path;
 
-use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
-use rusty_mermaid_diagrams::state::parser as state_parser;
-use rusty_mermaid_diagrams::class::parser as class_parser;
-use rusty_mermaid_diagrams::er::parser as er_parser;
-use rusty_mermaid_diagrams::requirement::parser as req_parser;
-use rusty_mermaid_diagrams::pie::parser as pie_parser;
-use rusty_mermaid_diagrams::timeline::parser as timeline_parser;
-use rusty_mermaid_diagrams::kanban::parser as kanban_parser;
-use rusty_mermaid_diagrams::gantt::parser as gantt_parser;
-use rusty_mermaid_diagrams::gitgraph::parser as gitgraph_parser;
-use rusty_mermaid_diagrams::xychart::parser as xychart_parser;
-use rusty_mermaid_diagrams::mindmap::parser as mindmap_parser;
-use rusty_mermaid_diagrams::sankey::parser as sankey_parser;
-use rusty_mermaid_diagrams::packet::parser as packet_parser;
-use rusty_mermaid_diagrams::quadrant::parser as quadrant_parser;
-use rusty_mermaid_diagrams::venn::parser as venn_parser;
-use rusty_mermaid_diagrams::radar::parser as radar_parser;
-use rusty_mermaid_diagrams::journey::parser as journey_parser;
-use rusty_mermaid_diagrams::treeview::parser as treeview_parser;
-use rusty_mermaid_diagrams::ishikawa::parser as ishikawa_parser;
-use rusty_mermaid_diagrams::treemap::parser as treemap_parser;
+use rusty_mermaid_diagrams::architecture::parser as arch_parser;
 use rusty_mermaid_diagrams::block::parser as block_parser;
 use rusty_mermaid_diagrams::c4::parser as c4_parser;
-use rusty_mermaid_diagrams::architecture::parser as arch_parser;
+use rusty_mermaid_diagrams::class::parser as class_parser;
+use rusty_mermaid_diagrams::er::parser as er_parser;
+use rusty_mermaid_diagrams::flowchart::parser as flowchart_parser;
+use rusty_mermaid_diagrams::gantt::parser as gantt_parser;
+use rusty_mermaid_diagrams::gitgraph::parser as gitgraph_parser;
+use rusty_mermaid_diagrams::ishikawa::parser as ishikawa_parser;
+use rusty_mermaid_diagrams::journey::parser as journey_parser;
+use rusty_mermaid_diagrams::kanban::parser as kanban_parser;
+use rusty_mermaid_diagrams::mindmap::parser as mindmap_parser;
+use rusty_mermaid_diagrams::packet::parser as packet_parser;
+use rusty_mermaid_diagrams::pie::parser as pie_parser;
+use rusty_mermaid_diagrams::quadrant::parser as quadrant_parser;
+use rusty_mermaid_diagrams::radar::parser as radar_parser;
+use rusty_mermaid_diagrams::requirement::parser as req_parser;
+use rusty_mermaid_diagrams::sankey::parser as sankey_parser;
+use rusty_mermaid_diagrams::state::parser as state_parser;
+use rusty_mermaid_diagrams::timeline::parser as timeline_parser;
+use rusty_mermaid_diagrams::treemap::parser as treemap_parser;
+use rusty_mermaid_diagrams::treeview::parser as treeview_parser;
+use rusty_mermaid_diagrams::venn::parser as venn_parser;
+use rusty_mermaid_diagrams::xychart::parser as xychart_parser;
 
 fn golden_dir() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -39,12 +39,18 @@ macro_rules! parse_flowchart {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("flowchart").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("flowchart")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = flowchart_parser::parse(&text)
                 .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
-            assert!(!diagram.vertices.is_empty(), "{} should have vertices", stringify!($name));
+            assert!(
+                !diagram.vertices.is_empty(),
+                "{} should have vertices",
+                stringify!($name)
+            );
         }
     };
 }
@@ -53,12 +59,18 @@ macro_rules! parse_state {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("state").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("state")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = state_parser::parse(&text)
                 .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
-            assert!(!diagram.states.is_empty(), "{} should have states", stringify!($name));
+            assert!(
+                !diagram.states.is_empty(),
+                "{} should have states",
+                stringify!($name)
+            );
         }
     };
 }
@@ -120,12 +132,18 @@ macro_rules! parse_class {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("class").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("class")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = class_parser::parse(&text)
                 .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
-            assert!(!diagram.classes.is_empty(), "{} should have classes", stringify!($name));
+            assert!(
+                !diagram.classes.is_empty(),
+                "{} should have classes",
+                stringify!($name)
+            );
         }
     };
 }
@@ -145,12 +163,18 @@ macro_rules! parse_er {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("er").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("er")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = er_parser::parse(&text)
                 .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
-            assert!(!diagram.entities.is_empty(), "{} should have entities", stringify!($name));
+            assert!(
+                !diagram.entities.is_empty(),
+                "{} should have entities",
+                stringify!($name)
+            );
         }
     };
 }
@@ -166,13 +190,18 @@ macro_rules! parse_requirement {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("requirement").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("requirement")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             let diagram = req_parser::parse(&text)
                 .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
-            assert!(!diagram.requirements.is_empty() || !diagram.elements.is_empty(),
-                "{} should have requirements or elements", stringify!($name));
+            assert!(
+                !diagram.requirements.is_empty() || !diagram.elements.is_empty(),
+                "{} should have requirements or elements",
+                stringify!($name)
+            );
         }
     };
 }
@@ -189,11 +218,12 @@ macro_rules! parse_pie {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("pie").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("pie")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
-            pie_parser::parse(&text)
-                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            pie_parser::parse(&text).unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
         }
     };
 }
@@ -210,7 +240,9 @@ macro_rules! parse_timeline {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("timeline").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("timeline")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             timeline_parser::parse(&text)
@@ -230,7 +262,9 @@ macro_rules! parse_kanban {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("kanban").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("kanban")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             kanban_parser::parse(&text)
@@ -251,7 +285,9 @@ macro_rules! parse_gantt {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("gantt").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("gantt")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             gantt_parser::parse(&text)
@@ -272,7 +308,9 @@ macro_rules! parse_gitgraph {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("gitgraph").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("gitgraph")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             gitgraph_parser::parse(&text)
@@ -293,7 +331,9 @@ macro_rules! parse_xychart {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("xychart").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("xychart")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             xychart_parser::parse(&text)
@@ -313,7 +353,9 @@ macro_rules! parse_mindmap {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("mindmap").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("mindmap")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             mindmap_parser::parse(&text)
@@ -336,7 +378,9 @@ macro_rules! parse_sankey {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("sankey").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("sankey")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             sankey_parser::parse(&text)
@@ -356,7 +400,9 @@ macro_rules! parse_packet {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("packet").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("packet")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             packet_parser::parse(&text)
@@ -377,7 +423,9 @@ macro_rules! parse_quadrant {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("quadrant").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("quadrant")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             quadrant_parser::parse(&text)
@@ -397,11 +445,12 @@ macro_rules! parse_venn {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("venn").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("venn")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
-            venn_parser::parse(&text)
-                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            venn_parser::parse(&text).unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
         }
     };
 }
@@ -417,7 +466,9 @@ macro_rules! parse_radar {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("radar").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("radar")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             radar_parser::parse(&text)
@@ -437,7 +488,9 @@ macro_rules! parse_journey {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("journey").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("journey")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             journey_parser::parse(&text)
@@ -457,7 +510,9 @@ macro_rules! parse_treeview {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("treeview").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("treeview")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             treeview_parser::parse(&text)
@@ -477,7 +532,9 @@ macro_rules! parse_ishikawa {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("ishikawa").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("ishikawa")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             ishikawa_parser::parse(&text)
@@ -497,7 +554,9 @@ macro_rules! parse_treemap {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("treemap").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("treemap")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             treemap_parser::parse(&text)
@@ -517,7 +576,9 @@ macro_rules! parse_block {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("block").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("block")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
             block_parser::parse(&text)
@@ -538,11 +599,12 @@ macro_rules! parse_c4 {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("c4").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("c4")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
-            c4_parser::parse(&text)
-                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            c4_parser::parse(&text).unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
         }
     };
 }
@@ -559,11 +621,12 @@ macro_rules! parse_architecture {
     ($name:ident) => {
         #[test]
         fn $name() {
-            let path = golden_dir().join("architecture").join(concat!(stringify!($name), ".mmd"));
+            let path = golden_dir()
+                .join("architecture")
+                .join(concat!(stringify!($name), ".mmd"));
             let text = fs::read_to_string(&path)
                 .unwrap_or_else(|e| panic!("read {}: {}", path.display(), e));
-            arch_parser::parse(&text)
-                .unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
+            arch_parser::parse(&text).unwrap_or_else(|e| panic!("parse {}: {}", path.display(), e));
         }
     };
 }

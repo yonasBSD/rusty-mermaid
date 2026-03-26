@@ -192,8 +192,12 @@ fn peek_class_declaration(input: &str) -> bool {
     // Declaration starts with identifier optionally followed by ~, [, {, <<, or newline
     // Apply starts with identifier(s) followed by a class name (no special chars)
     // Heuristic: if after first identifier there's ~, [, {, <<, newline, or EOF → declaration
-    let end = rest.find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-').unwrap_or(rest.len());
-    if end >= rest.len() { return true; }
+    let end = rest
+        .find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-')
+        .unwrap_or(rest.len());
+    if end >= rest.len() {
+        return true;
+    }
     let next = rest[end..].trim_start();
     next.is_empty()
         || next.starts_with('~')
@@ -284,7 +288,9 @@ fn parse_class_body(input: &mut &str, node: &mut ClassNode) -> ModalResult<()> {
 
         // Member line
         let line = take_line(input);
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
         let member = parse_member_string(line);
         if member.is_method() {
             node.methods.push(member);
@@ -314,7 +320,8 @@ pub fn parse_member_string(raw: &str) -> ClassMember {
     let mut chars = s.chars().peekable();
 
     // Visibility prefix
-    let visibility = chars.peek()
+    let visibility = chars
+        .peek()
         .and_then(|&c| Visibility::from_char(c))
         .unwrap_or(Visibility::None);
     if visibility != Visibility::None {
@@ -326,9 +333,9 @@ pub fn parse_member_string(raw: &str) -> ClassMember {
 
     // Classifier suffix
     let (rest, classifier) = if rest.ends_with('$') {
-        (&rest[..rest.len()-1], Classifier::Static)
+        (&rest[..rest.len() - 1], Classifier::Static)
     } else if rest.ends_with('*') {
-        (&rest[..rest.len()-1], Classifier::Abstract)
+        (&rest[..rest.len() - 1], Classifier::Abstract)
     } else {
         (rest, Classifier::None)
     };
@@ -337,9 +344,15 @@ pub fn parse_member_string(raw: &str) -> ClassMember {
     if let Some(paren_start) = rest.find('(') {
         if let Some(paren_end) = rest[paren_start..].find(')') {
             let name = rest[..paren_start].trim().to_string();
-            let params = rest[paren_start+1..paren_start+paren_end].trim().to_string();
-            let after = rest[paren_start+paren_end+1..].trim();
-            let return_type = if after.is_empty() { None } else { Some(after.to_string()) };
+            let params = rest[paren_start + 1..paren_start + paren_end]
+                .trim()
+                .to_string();
+            let after = rest[paren_start + paren_end + 1..].trim();
+            let return_type = if after.is_empty() {
+                None
+            } else {
+                Some(after.to_string())
+            };
             return ClassMember {
                 name,
                 visibility,
@@ -372,7 +385,9 @@ fn parse_colon_member(input: &mut &str) -> ModalResult<(String, ClassMember)> {
     skip_horizontal_ws(input);
     let line = take_to_eol(input);
     if line.is_empty() {
-        return Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()));
+        return Err(winnow::error::ErrMode::Backtrack(
+            winnow::error::ContextError::new(),
+        ));
     }
     let member = parse_member_string(line);
     Ok((id.to_string(), member))
@@ -394,8 +409,10 @@ fn parse_annotation(input: &mut &str) -> ModalResult<(String, String)> {
 fn parse_namespace(input: &mut &str, diagram: &mut ClassDiagram) -> ModalResult<()> {
     "namespace".parse_next(input)?;
     ws.parse_next(input)?;
-    let ns_id = take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-' || c == '.')
-        .parse_next(input)?;
+    let ns_id = take_while(1.., |c: char| {
+        c.is_alphanumeric() || c == '_' || c == '-' || c == '.'
+    })
+    .parse_next(input)?;
     let ns_id = ns_id.to_string();
     skip.parse_next(input)?;
     '{'.parse_next(input)?;
@@ -455,14 +472,14 @@ fn parse_direction(input: &mut &str) -> ModalResult<Direction> {
         "BT".value(Direction::BT),
         "LR".value(Direction::LR),
         "RL".value(Direction::RL),
-    )).parse_next(input)
+    ))
+    .parse_next(input)
 }
 
 // ── Helpers ──
 
 pub(super) fn class_identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
-    take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-')
-        .parse_next(input)
+    take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-').parse_next(input)
 }
 
 pub(super) fn skip_horizontal_ws(input: &mut &str) {
@@ -479,13 +496,21 @@ pub(super) fn take_to_eol<'i>(input: &mut &'i str) -> &'i str {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end+1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 
 fn skip_to_eol(input: &mut &str) {
     let end = input.find('\n').unwrap_or(input.len());
-    *input = if end < input.len() { &input[end+1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
 }
 
 fn ensure_class(classes: &mut Vec<ClassNode>, id: &str, namespace: Option<&str>) {
@@ -498,11 +523,21 @@ fn ensure_class(classes: &mut Vec<ClassNode>, id: &str, namespace: Option<&str>)
 
 fn upsert_class(classes: &mut Vec<ClassNode>, node: ClassNode) {
     if let Some(existing) = classes.iter_mut().find(|c| c.id == node.id) {
-        if node.label.is_some() { existing.label = node.label; }
-        if node.generic_type.is_some() { existing.generic_type = node.generic_type; }
-        if !node.annotations.is_empty() { existing.annotations.extend(node.annotations); }
-        if !node.css_classes.is_empty() { existing.css_classes.extend(node.css_classes); }
-        if node.namespace.is_some() { existing.namespace = node.namespace; }
+        if node.label.is_some() {
+            existing.label = node.label;
+        }
+        if node.generic_type.is_some() {
+            existing.generic_type = node.generic_type;
+        }
+        if !node.annotations.is_empty() {
+            existing.annotations.extend(node.annotations);
+        }
+        if !node.css_classes.is_empty() {
+            existing.css_classes.extend(node.css_classes);
+        }
+        if node.namespace.is_some() {
+            existing.namespace = node.namespace;
+        }
         existing.members.extend(node.members);
         existing.methods.extend(node.methods);
     } else {

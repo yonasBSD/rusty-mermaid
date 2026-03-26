@@ -53,12 +53,12 @@ use crate::font_fallback::{FontSlot, font_for_char};
 pub const fn char_width_ratio(ch: char) -> f64 {
     match font_for_char(ch) {
         FontSlot::Primary => 1.0,       // Intel One Mono: 0.6em monospace
-        FontSlot::ExtendedText => 0.85,  // Noto Sans: proportional, narrower than mono
-        FontSlot::Monospace => 1.0,      // Noto Sans Mono: same width as primary
-        FontSlot::Dingbats => 1.4,       // Noto Sans Symbols 2: wider symbols
-        FontSlot::Arabic => 0.8,         // Noto Naskh Arabic: proportional, varies
+        FontSlot::ExtendedText => 0.85, // Noto Sans: proportional, narrower than mono
+        FontSlot::Monospace => 1.0,     // Noto Sans Mono: same width as primary
+        FontSlot::Dingbats => 1.4,      // Noto Sans Symbols 2: wider symbols
+        FontSlot::Arabic => 0.8,        // Noto Naskh Arabic: proportional, varies
         FontSlot::Cjk => 1.8,           // CJK: wide but proportional
-        FontSlot::Emoji => 2.0,          // Color emoji: ~2x Latin mono width
+        FontSlot::Emoji => 2.0,         // Color emoji: ~2x Latin mono width
     }
 }
 
@@ -90,10 +90,7 @@ impl TextMeasure for SimpleTextMeasure {
         let mut line_count: usize = 0;
         for line in stripped.split('\n') {
             line_count += 1;
-            let w: f64 = line
-                .chars()
-                .map(char_width_ratio)
-                .sum();
+            let w: f64 = line.chars().map(char_width_ratio).sum();
             max_width = max_width.max(w);
         }
 
@@ -151,12 +148,20 @@ pub fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
         if c == '*' && chars.peek() == Some(&'*') {
             chars.next();
             if !buf.is_empty() {
-                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
+                spans.push(MdSpan {
+                    text: std::mem::take(&mut buf),
+                    bold,
+                    italic,
+                });
             }
             bold = !bold;
         } else if c == '*' {
             if !buf.is_empty() {
-                spans.push(MdSpan { text: std::mem::take(&mut buf), bold, italic });
+                spans.push(MdSpan {
+                    text: std::mem::take(&mut buf),
+                    bold,
+                    italic,
+                });
             }
             italic = !italic;
         } else {
@@ -164,7 +169,11 @@ pub fn parse_inline_markdown(text: &str) -> Option<Vec<MdSpan>> {
         }
     }
     if !buf.is_empty() {
-        spans.push(MdSpan { text: buf, bold, italic });
+        spans.push(MdSpan {
+            text: buf,
+            bold,
+            italic,
+        });
     }
 
     if spans.iter().any(|s| s.bold || s.italic) {
@@ -284,8 +293,10 @@ mod tests {
         let m = SimpleTextMeasure::default();
         let w_plain = m.measure("bold", &default_style()).width;
         let w_md = m.measure("**bold**", &default_style()).width;
-        assert!((w_plain - w_md).abs() < f64::EPSILON,
-            "markdown markers should be stripped: plain={w_plain} md={w_md}");
+        assert!(
+            (w_plain - w_md).abs() < f64::EPSILON,
+            "markdown markers should be stripped: plain={w_plain} md={w_md}"
+        );
     }
 
     #[test]
@@ -346,12 +357,12 @@ mod tests {
 
     #[test]
     fn char_width_ratios() {
-        assert!((char_width_ratio('A') - 1.0).abs() < f64::EPSILON);   // Primary
-        assert!((char_width_ratio('你') - 1.8).abs() < f64::EPSILON);  // CJK
-        assert!((char_width_ratio('α') - 0.85).abs() < f64::EPSILON);  // ExtendedText
-        assert!((char_width_ratio('★') - 1.4).abs() < f64::EPSILON);   // Dingbats
-        assert!((char_width_ratio('→') - 1.0).abs() < f64::EPSILON);   // Monospace
-        assert!((char_width_ratio('م') - 0.8).abs() < f64::EPSILON);   // Arabic
+        assert!((char_width_ratio('A') - 1.0).abs() < f64::EPSILON); // Primary
+        assert!((char_width_ratio('你') - 1.8).abs() < f64::EPSILON); // CJK
+        assert!((char_width_ratio('α') - 0.85).abs() < f64::EPSILON); // ExtendedText
+        assert!((char_width_ratio('★') - 1.4).abs() < f64::EPSILON); // Dingbats
+        assert!((char_width_ratio('→') - 1.0).abs() < f64::EPSILON); // Monospace
+        assert!((char_width_ratio('م') - 0.8).abs() < f64::EPSILON); // Arabic
     }
 
     // ── Text measurement property tests (13.10) ──

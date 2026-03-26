@@ -40,11 +40,7 @@ pub enum MarkerShape {
         stroke_width: f64,
     },
     /// Filled circle at center.
-    FilledCircle {
-        cx: f64,
-        cy: f64,
-        r: f64,
-    },
+    FilledCircle { cx: f64, cy: f64, r: f64 },
     /// Two stroked curves (for Cross marker).
     StrokedCurves {
         curves: Vec<Vec<Point>>,
@@ -57,9 +53,12 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
     match marker {
         // Pointy arrow: M10 5 L0 10 L4 5 L0 0 Z
         MarkerType::ArrowPoint => MarkerGeometry {
-            vb_w: 10.0, vb_h: 10.0,
-            ref_x: 8.0, ref_y: 5.0,
-            marker_w: 8.0, marker_h: 8.0,
+            vb_w: 10.0,
+            vb_h: 10.0,
+            ref_x: 8.0,
+            ref_y: 5.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
             shape: MarkerShape::FilledPath(vec![
                 Point::new(10.0, 5.0),
                 Point::new(0.0, 10.0),
@@ -69,9 +68,12 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
         },
         // Barb / Open arrow: same shape, stroked with white fill
         MarkerType::ArrowBarb | MarkerType::ArrowOpen => MarkerGeometry {
-            vb_w: 10.0, vb_h: 10.0,
-            ref_x: 8.0, ref_y: 5.0,
-            marker_w: 8.0, marker_h: 8.0,
+            vb_w: 10.0,
+            vb_h: 10.0,
+            ref_x: 8.0,
+            ref_y: 5.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
             shape: MarkerShape::FilledStrokedPath {
                 points: vec![
                     Point::new(10.0, 5.0),
@@ -85,29 +87,50 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
         },
         // Circle marker
         MarkerType::Circle => MarkerGeometry {
-            vb_w: 10.0, vb_h: 10.0,
-            ref_x: 7.0, ref_y: 5.0,
-            marker_w: 8.0, marker_h: 8.0,
-            shape: MarkerShape::FilledCircle { cx: 5.0, cy: 5.0, r: 4.0 },
+            vb_w: 10.0,
+            vb_h: 10.0,
+            ref_x: 7.0,
+            ref_y: 5.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
+            shape: MarkerShape::FilledCircle {
+                cx: 5.0,
+                cy: 5.0,
+                r: 4.0,
+            },
         },
         // Cross marker: two curved strokes
         MarkerType::Cross => MarkerGeometry {
-            vb_w: 10.0, vb_h: 10.0,
-            ref_x: 6.0, ref_y: 5.0,
-            marker_w: 8.0, marker_h: 8.0,
+            vb_w: 10.0,
+            vb_h: 10.0,
+            ref_x: 6.0,
+            ref_y: 5.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
             shape: MarkerShape::StrokedCurves {
                 curves: vec![
-                    vec![Point::new(2.0, 2.0), Point::new(5.0, 4.5), Point::new(8.0, 8.0)],
-                    vec![Point::new(8.0, 2.0), Point::new(5.0, 5.5), Point::new(2.0, 8.0)],
+                    vec![
+                        Point::new(2.0, 2.0),
+                        Point::new(5.0, 4.5),
+                        Point::new(8.0, 8.0),
+                    ],
+                    vec![
+                        Point::new(8.0, 2.0),
+                        Point::new(5.0, 5.5),
+                        Point::new(2.0, 8.0),
+                    ],
                 ],
                 stroke_width: 1.5,
             },
         },
         // Aggregation: diamond, white fill
         MarkerType::Aggregation => MarkerGeometry {
-            vb_w: 12.0, vb_h: 12.0,
-            ref_x: 10.0, ref_y: 6.0,
-            marker_w: 8.0, marker_h: 8.0,
+            vb_w: 12.0,
+            vb_h: 12.0,
+            ref_x: 10.0,
+            ref_y: 6.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
             shape: MarkerShape::FilledStrokedPath {
                 points: vec![
                     Point::new(0.0, 6.0),
@@ -121,9 +144,12 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
         },
         // Composition: diamond, filled with marker color
         MarkerType::Composition => MarkerGeometry {
-            vb_w: 12.0, vb_h: 12.0,
-            ref_x: 10.0, ref_y: 6.0,
-            marker_w: 8.0, marker_h: 8.0,
+            vb_w: 12.0,
+            vb_h: 12.0,
+            ref_x: 10.0,
+            ref_y: 6.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
             shape: MarkerShape::FilledPath(vec![
                 Point::new(0.0, 6.0),
                 Point::new(6.0, 0.0),
@@ -133,9 +159,12 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
         },
         // Dependency: open arrow (stroked, no fill)
         MarkerType::Dependency => MarkerGeometry {
-            vb_w: 10.0, vb_h: 10.0,
-            ref_x: 7.0, ref_y: 5.0,
-            marker_w: 6.0, marker_h: 6.0,
+            vb_w: 10.0,
+            vb_h: 10.0,
+            ref_x: 7.0,
+            ref_y: 5.0,
+            marker_w: 6.0,
+            marker_h: 6.0,
             shape: MarkerShape::StrokedPath {
                 points: vec![
                     Point::new(0.0, 0.0),
@@ -148,9 +177,12 @@ pub fn marker_geometry(marker: MarkerType) -> MarkerGeometry {
         },
         // Extension: empty triangle (stroked, closed) for inheritance <|--
         MarkerType::Extension => MarkerGeometry {
-            vb_w: 12.0, vb_h: 12.0,
-            ref_x: 11.0, ref_y: 6.0,
-            marker_w: 8.0, marker_h: 8.0,
+            vb_w: 12.0,
+            vb_h: 12.0,
+            ref_x: 11.0,
+            ref_y: 6.0,
+            marker_w: 8.0,
+            marker_h: 8.0,
             shape: MarkerShape::FilledStrokedPath {
                 points: vec![
                     Point::new(0.0, 0.0),
@@ -192,10 +224,7 @@ pub fn transform_marker_points(
             // Translate so ref_x/ref_y is at origin, scale, then rotate+translate to tip
             let dx = (p.x - geom.ref_x) * scale_x;
             let dy = (p.y - geom.ref_y) * scale_y;
-            Point::new(
-                tip.x + dx * cos - dy * sin,
-                tip.y + dx * sin + dy * cos,
-            )
+            Point::new(tip.x + dx * cos - dy * sin, tip.y + dx * sin + dy * cos)
         })
         .collect()
 }
@@ -213,10 +242,7 @@ pub fn transform_marker_circle(
     if let MarkerShape::FilledCircle { cx, cy, r } = &geom.shape {
         let dx = (cx - geom.ref_x) * scale;
         let dy = (cy - geom.ref_y) * scale;
-        let center = Point::new(
-            tip.x + dx * cos - dy * sin,
-            tip.y + dx * sin + dy * cos,
-        );
+        let center = Point::new(tip.x + dx * cos - dy * sin, tip.y + dx * sin + dy * cos);
         (center, r * scale)
     } else {
         (tip, 0.0)
@@ -243,10 +269,7 @@ pub fn transform_marker_curves(
                     .map(|p| {
                         let dx = (p.x - geom.ref_x) * scale_x;
                         let dy = (p.y - geom.ref_y) * scale_y;
-                        Point::new(
-                            tip.x + dx * cos - dy * sin,
-                            tip.y + dx * sin + dy * cos,
-                        )
+                        Point::new(tip.x + dx * cos - dy * sin, tip.y + dx * sin + dy * cos)
                     })
                     .collect()
             })
@@ -262,9 +285,17 @@ pub enum MarkerPath {
     /// Filled closed polygon.
     FillPolygon { points: Vec<Point> },
     /// Stroked polyline (open or closed).
-    StrokePolyline { points: Vec<Point>, width: f64, closed: bool },
+    StrokePolyline {
+        points: Vec<Point>,
+        width: f64,
+        closed: bool,
+    },
     /// Filled AND stroked closed polygon. Fill color may differ from stroke.
-    FillAndStrokePolygon { points: Vec<Point>, stroke_width: f64, fill_is_marker_color: bool },
+    FillAndStrokePolygon {
+        points: Vec<Point>,
+        stroke_width: f64,
+        fill_is_marker_color: bool,
+    },
     /// Filled circle.
     FillCircle { center: Point, radius: f64 },
     /// Stroked quadratic curves (each curve is [start, control, end]).
@@ -278,10 +309,14 @@ pub fn marker_path(marker: MarkerType, tip: Point, angle: f64, stroke_width: f64
     let sw = stroke_width;
 
     match &geom.shape {
-        MarkerShape::FilledPath(_) => {
-            MarkerPath::FillPolygon { points: transform_marker_points(&geom, tip, angle, sw) }
-        }
-        MarkerShape::StrokedPath { closed, stroke_width: rel_sw, .. } => {
+        MarkerShape::FilledPath(_) => MarkerPath::FillPolygon {
+            points: transform_marker_points(&geom, tip, angle, sw),
+        },
+        MarkerShape::StrokedPath {
+            closed,
+            stroke_width: rel_sw,
+            ..
+        } => {
             let w = rel_sw * sw / geom.vb_w * geom.marker_w;
             MarkerPath::StrokePolyline {
                 points: transform_marker_points(&geom, tip, angle, sw),
@@ -289,7 +324,11 @@ pub fn marker_path(marker: MarkerType, tip: Point, angle: f64, stroke_width: f64
                 closed: *closed,
             }
         }
-        MarkerShape::FilledStrokedPath { fill_is_marker_color, stroke_width: rel_sw, .. } => {
+        MarkerShape::FilledStrokedPath {
+            fill_is_marker_color,
+            stroke_width: rel_sw,
+            ..
+        } => {
             let w = rel_sw * sw / geom.vb_w * geom.marker_w;
             MarkerPath::FillAndStrokePolygon {
                 points: transform_marker_points(&geom, tip, angle, sw),
@@ -301,10 +340,14 @@ pub fn marker_path(marker: MarkerType, tip: Point, angle: f64, stroke_width: f64
             let (center, r) = transform_marker_circle(&geom, tip, angle, sw);
             MarkerPath::FillCircle { center, radius: r }
         }
-        MarkerShape::StrokedCurves { stroke_width: rel_sw, .. } => {
+        MarkerShape::StrokedCurves {
+            stroke_width: rel_sw,
+            ..
+        } => {
             let w = rel_sw * sw / geom.vb_w * geom.marker_w;
             let raw = transform_marker_curves(&geom, tip, angle, sw);
-            let curves = raw.into_iter()
+            let curves = raw
+                .into_iter()
                 .filter(|c| c.len() >= 3)
                 .map(|c| [c[0], c[1], c[2]])
                 .collect();
@@ -351,9 +394,14 @@ mod tests {
     #[test]
     fn all_markers_have_geometry() {
         let types = [
-            MarkerType::ArrowPoint, MarkerType::ArrowBarb, MarkerType::ArrowOpen,
-            MarkerType::Circle, MarkerType::Cross,
-            MarkerType::Aggregation, MarkerType::Composition, MarkerType::Dependency,
+            MarkerType::ArrowPoint,
+            MarkerType::ArrowBarb,
+            MarkerType::ArrowOpen,
+            MarkerType::Circle,
+            MarkerType::Cross,
+            MarkerType::Aggregation,
+            MarkerType::Composition,
+            MarkerType::Dependency,
             MarkerType::Extension,
         ];
         for mt in types {
@@ -409,7 +457,12 @@ mod tests {
     #[test]
     fn marker_path_extension_is_fill_and_stroke() {
         let mp = marker_path(MarkerType::Extension, Point::new(0.0, 0.0), 0.0, 1.5);
-        if let MarkerPath::FillAndStrokePolygon { points, fill_is_marker_color, .. } = mp {
+        if let MarkerPath::FillAndStrokePolygon {
+            points,
+            fill_is_marker_color,
+            ..
+        } = mp
+        {
             assert_eq!(points.len(), 3, "extension triangle has 3 points");
             assert!(!fill_is_marker_color, "extension triangle has white fill");
         } else {
@@ -420,9 +473,14 @@ mod tests {
     #[test]
     fn marker_path_all_types_produce_nonempty() {
         let types = [
-            MarkerType::ArrowPoint, MarkerType::ArrowBarb, MarkerType::ArrowOpen,
-            MarkerType::Circle, MarkerType::Cross,
-            MarkerType::Aggregation, MarkerType::Composition, MarkerType::Dependency,
+            MarkerType::ArrowPoint,
+            MarkerType::ArrowBarb,
+            MarkerType::ArrowOpen,
+            MarkerType::Circle,
+            MarkerType::Cross,
+            MarkerType::Aggregation,
+            MarkerType::Composition,
+            MarkerType::Dependency,
             MarkerType::Extension,
         ];
         for mt in types {

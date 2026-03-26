@@ -1,8 +1,6 @@
 use std::collections::BTreeMap;
 
-use rusty_mermaid_core::{
-    intersect_rect, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
-};
+use rusty_mermaid_core::{Point, SimpleTextMeasure, Style, TextMeasure, TextStyle, intersect_rect};
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -60,7 +58,8 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
     let style = TextStyle::default();
     let line_height = measurer.measure("X", &style).height;
     let row_height = line_height * ATTR_FONT_SCALE + ROW_PADDING * 2.0;
-    let (mut graph, id_map, entity_dims) = build_er_graph(diagram, measurer, &style, line_height, row_height);
+    let (mut graph, id_map, entity_dims) =
+        build_er_graph(diagram, measurer, &style, line_height, row_height);
 
     let config = DagreConfig {
         rankdir: diagram.direction,
@@ -68,10 +67,21 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
     };
     rusty_mermaid_dagre::pipeline::layout(&mut graph, &config);
 
-    let style_entities = diagram.entities.iter().map(|e| (e.id.as_str(), e.css_classes.as_slice()));
-    let node_styles = resolve_entity_styles(style_entities, &diagram.class_defs, &diagram.style_stmts);
+    let style_entities = diagram
+        .entities
+        .iter()
+        .map(|e| (e.id.as_str(), e.css_classes.as_slice()));
+    let node_styles =
+        resolve_entity_styles(style_entities, &diagram.class_defs, &diagram.style_stmts);
 
-    let (entities, mut max_x, mut max_y) = extract_er_entities(diagram, &graph, &id_map, &entity_dims, &node_styles, row_height);
+    let (entities, mut max_x, mut max_y) = extract_er_entities(
+        diagram,
+        &graph,
+        &id_map,
+        &entity_dims,
+        &node_styles,
+        row_height,
+    );
     let edges = extract_er_edges(diagram, &graph, &id_map, measurer, &style);
 
     for edge in &edges {
@@ -81,7 +91,12 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
         }
     }
 
-    LayoutResult { entities, edges, width: max_x, height: max_y }
+    LayoutResult {
+        entities,
+        edges,
+        width: max_x,
+        height: max_y,
+    }
 }
 
 fn build_er_graph(
@@ -90,7 +105,11 @@ fn build_er_graph(
     style: &TextStyle,
     line_height: f64,
     row_height: f64,
-) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, BTreeMap<String, EntityDims>) {
+) -> (
+    Graph<NodeLabel, EdgeLabel>,
+    BTreeMap<String, NodeId>,
+    BTreeMap<String, EntityDims>,
+) {
     let mut graph: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut entity_dims: BTreeMap<String, EntityDims> = BTreeMap::new();
@@ -103,8 +122,12 @@ fn build_er_graph(
     }
 
     for rel in &diagram.relationships {
-        let Some(&src) = id_map.get(&rel.entity_a) else { continue };
-        let Some(&dst) = id_map.get(&rel.entity_b) else { continue };
+        let Some(&src) = id_map.get(&rel.entity_a) else {
+            continue;
+        };
+        let Some(&dst) = id_map.get(&rel.entity_b) else {
+            continue;
+        };
         let mut label = EdgeLabel::default();
         if let Some(text) = &rel.label {
             let ts = measurer.measure(text, style);
@@ -130,7 +153,9 @@ fn extract_er_entities(
     let mut max_y: f64 = 0.0;
 
     for entity in &diagram.entities {
-        let Some(&nid) = id_map.get(&entity.id) else { continue };
+        let Some(&nid) = id_map.get(&entity.id) else {
+            continue;
+        };
         let Some(n) = graph.node(nid) else { continue };
         let dims = &entity_dims[&entity.id];
 
@@ -162,17 +187,28 @@ fn extract_er_edges(
 ) -> Vec<ErEdgeLayout> {
     let mut edges = Vec::new();
     for rel in &diagram.relationships {
-        let Some(&src_nid) = id_map.get(&rel.entity_a) else { continue };
-        let Some(&dst_nid) = id_map.get(&rel.entity_b) else { continue };
+        let Some(&src_nid) = id_map.get(&rel.entity_a) else {
+            continue;
+        };
+        let Some(&dst_nid) = id_map.get(&rel.entity_b) else {
+            continue;
+        };
 
-        let edge_id = graph.edge_ids()
-            .find(|&eid| graph.edge_endpoints(eid).is_some_and(|(s, d)| s == src_nid && d == dst_nid));
+        let edge_id = graph.edge_ids().find(|&eid| {
+            graph
+                .edge_endpoints(eid)
+                .is_some_and(|(s, d)| s == src_nid && d == dst_nid)
+        });
         let Some(eid) = edge_id else { continue };
-        let Some(edge_label) = graph.edge(eid) else { continue };
+        let Some(edge_label) = graph.edge(eid) else {
+            continue;
+        };
 
         let mut points = edge_label.points.clone();
         if points.is_empty() {
-            let (Some(src_n), Some(dst_n)) = (graph.node(src_nid), graph.node(dst_nid)) else { continue };
+            let (Some(src_n), Some(dst_n)) = (graph.node(src_nid), graph.node(dst_nid)) else {
+                continue;
+            };
             points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
@@ -248,7 +284,9 @@ fn compute_entity_dims(
         font_size: style.font_size * ATTR_FONT_SCALE,
         ..style.clone()
     };
-    let attr_max_w = entity.attributes.iter()
+    let attr_max_w = entity
+        .attributes
+        .iter()
         .map(|a| {
             let mut text = format!("{} {}", a.attr_type, a.name);
             if !a.keys.is_empty() {
@@ -272,7 +310,11 @@ fn compute_entity_dims(
     let width = (content_w + PADDING_X * 2.0).max(MIN_ENTITY_WIDTH);
     let height = title_height + attrs_height;
 
-    EntityDims { width, height, title_height }
+    EntityDims {
+        width,
+        height,
+        title_height,
+    }
 }
 
 #[cfg(test)]
@@ -295,7 +337,9 @@ mod tests {
     #[test]
     fn entity_with_attrs_taller() {
         let r1 = parse_and_layout("erDiagram\n    A {\n        int x\n    }");
-        let r2 = parse_and_layout("erDiagram\n    A {\n        int x\n        int y\n        int z\n    }");
+        let r2 = parse_and_layout(
+            "erDiagram\n    A {\n        int x\n        int y\n        int z\n    }",
+        );
         assert!(r2.entities[0].height > r1.entities[0].height);
     }
 
@@ -327,7 +371,10 @@ mod tests {
     #[test]
     fn non_identifying_is_dotted() {
         let r = parse_and_layout("erDiagram\n    A }|..|{ B : has");
-        assert_eq!(r.edges[0].edge.stroke, crate::common::layout::StrokeType::Dotted);
+        assert_eq!(
+            r.edges[0].edge.stroke,
+            crate::common::layout::StrokeType::Dotted
+        );
     }
 
     #[test]

@@ -160,7 +160,10 @@ mod tests {
             let (src, dst) = g.edge_endpoints(eid).unwrap();
             let span = ranked(&g, dst) - ranked(&g, src);
             let minlen = g.edge(eid).unwrap().minlen;
-            assert!(span >= minlen, "edge {src}->{dst}: span={span} < minlen={minlen}");
+            assert!(
+                span >= minlen,
+                "edge {src}->{dst}: span={span} < minlen={minlen}"
+            );
         }
     }
 }

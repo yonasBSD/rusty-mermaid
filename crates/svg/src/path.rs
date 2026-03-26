@@ -49,7 +49,12 @@ pub fn segments_to_d(segments: &[PathSegment]) -> String {
                 write_f64(&mut d, to.y);
             }
             PathSegment::ArcTo {
-                rx, ry, rotation, large_arc, sweep, to,
+                rx,
+                ry,
+                rotation,
+                large_arc,
+                sweep,
+                to,
             } => {
                 d.push('A');
                 write_f64(&mut d, *rx);
@@ -57,7 +62,12 @@ pub fn segments_to_d(segments: &[PathSegment]) -> String {
                 write_f64(&mut d, *ry);
                 d.push(' ');
                 write_f64(&mut d, *rotation);
-                let _ = write!(d, " {} {} ", if *large_arc { 1 } else { 0 }, if *sweep { 1 } else { 0 });
+                let _ = write!(
+                    d,
+                    " {} {} ",
+                    if *large_arc { 1 } else { 0 },
+                    if *sweep { 1 } else { 0 }
+                );
                 write_f64(&mut d, to.x);
                 d.push(' ');
                 write_f64(&mut d, to.y);

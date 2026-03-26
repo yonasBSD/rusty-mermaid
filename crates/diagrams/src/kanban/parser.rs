@@ -21,11 +21,15 @@ fn parse_kanban(input: &mut &str) -> ModalResult<KanbanBoard> {
     let mut col_indent: Option<usize> = None;
 
     loop {
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         let line = take_line(input);
         let trimmed = line.trim();
-        if trimmed.is_empty() || trimmed.starts_with("%%") { continue; }
+        if trimmed.is_empty() || trimmed.starts_with("%%") {
+            continue;
+        }
 
         let indent = count_indent(line);
 
@@ -133,7 +137,11 @@ fn count_indent(line: &str) -> usize {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = &input[..end];
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 

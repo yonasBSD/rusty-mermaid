@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::{TreemapDiagram, TreemapNode};
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<TreemapDiagram, ParseError> {
     let mut header_found = false;
@@ -15,7 +15,11 @@ pub fn parse(input: &str) -> Result<TreemapDiagram, ParseError> {
                 header_found = true;
                 continue;
             }
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..1, input));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                0..1,
+                input,
+            ));
         }
 
         let indent = raw_line.len() - raw_line.trim_start().len();
@@ -24,11 +28,20 @@ pub fn parse(input: &str) -> Result<TreemapDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     // Normalize indents
-    let min_indent = entries.iter().map(|(i, _, _)| *i).filter(|&i| i > 0).min().unwrap_or(4);
+    let min_indent = entries
+        .iter()
+        .map(|(i, _, _)| *i)
+        .filter(|&i| i > 0)
+        .min()
+        .unwrap_or(4);
     let entries: Vec<(usize, String, Option<f64>)> = entries
         .into_iter()
         .map(|(indent, name, val)| (indent / min_indent.max(1), name, val))
@@ -56,7 +69,11 @@ fn parse_name_value(s: &str) -> (String, Option<f64>) {
     }
 }
 
-fn build_children(entries: &[(usize, String, Option<f64>)], pos: &mut usize, depth: usize) -> Vec<TreemapNode> {
+fn build_children(
+    entries: &[(usize, String, Option<f64>)],
+    pos: &mut usize,
+    depth: usize,
+) -> Vec<TreemapNode> {
     let mut nodes = Vec::new();
     while *pos < entries.len() && entries[*pos].0 >= depth {
         if entries[*pos].0 == depth {
@@ -66,7 +83,11 @@ fn build_children(entries: &[(usize, String, Option<f64>)], pos: &mut usize, dep
             let children = build_children(entries, pos, depth + 1);
             // If has children, value comes from children (section)
             let value = if children.is_empty() { value } else { None };
-            nodes.push(TreemapNode { name, value, children });
+            nodes.push(TreemapNode {
+                name,
+                value,
+                children,
+            });
         } else {
             *pos += 1;
         }
@@ -118,7 +139,10 @@ mod tests {
     #[test]
     fn section_value_from_children() {
         let d = parse("treemap\n    Section\n        A: 60\n        B: 40").unwrap();
-        assert!(d.roots[0].value.is_none(), "section should have no direct value");
+        assert!(
+            d.roots[0].value.is_none(),
+            "section should have no direct value"
+        );
         assert!((d.roots[0].total_value() - 100.0).abs() < f64::EPSILON);
     }
 

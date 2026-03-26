@@ -55,7 +55,9 @@ impl SpineLayout {
         let sin_a = angle.sin();
         let spine_len = SPINE_BASE + n_cats as f64 * SPINE_PER_CAT;
 
-        let bone_lengths: Vec<f64> = diagram.categories.iter()
+        let bone_lengths: Vec<f64> = diagram
+            .categories
+            .iter()
             .map(|cat| BONE_BASE + cat.total_causes() as f64 * BONE_PER_CHILD)
             .collect();
 
@@ -63,7 +65,10 @@ impl SpineLayout {
         let spine_right = scene_w - SCENE_PAD;
         let spine_left = spine_right - spine_len;
 
-        let label_style = TextStyle { font_size: 14.0, ..Default::default() };
+        let label_style = TextStyle {
+            font_size: 14.0,
+            ..Default::default()
+        };
         let effect_w = SimpleTextMeasure::measure_raw(&diagram.effect, &label_style).width + 24.0;
         let head_w = effect_w.max(HEAD_W);
         let spine_end_x = spine_right - head_w;
@@ -71,7 +76,16 @@ impl SpineLayout {
         let usable_spine = spine_end_x - spine_left - SCENE_PAD;
         let cat_spacing = usable_spine / (n_cats as f64 + 1.0);
 
-        Self { spine_y, spine_left, spine_end_x, head_w, bone_lengths, cos_a, sin_a, cat_spacing }
+        Self {
+            spine_y,
+            spine_left,
+            spine_end_x,
+            head_w,
+            bone_lengths,
+            cos_a,
+            sin_a,
+            cat_spacing,
+        }
     }
 }
 
@@ -82,7 +96,9 @@ pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
     }
 
     let angle = ANGLE_DEG.to_radians();
-    let bone_lengths: Vec<f64> = diagram.categories.iter()
+    let bone_lengths: Vec<f64> = diagram
+        .categories
+        .iter()
         .map(|cat| BONE_BASE + cat.total_causes() as f64 * BONE_PER_CHILD)
         .collect();
     let max_bone = bone_lengths.iter().copied().fold(0.0f64, f64::max);
@@ -102,14 +118,23 @@ pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
     scene
 }
 
-fn render_effect_head(scene: &mut Scene, diagram: &IshikawaDiagram, layout: &SpineLayout, theme: &Theme) {
+fn render_effect_head(
+    scene: &mut Scene,
+    diagram: &IshikawaDiagram,
+    layout: &SpineLayout,
+    theme: &Theme,
+) {
     let spine_right = layout.spine_end_x + layout.head_w;
     let cx = spine_right - layout.head_w / 2.0;
 
     scene.push(Primitive::Rect {
         bbox: BBox::new(cx, layout.spine_y, layout.head_w, HEAD_H),
-        rx: 4.0, ry: 4.0,
-        style: Style { fill: Some(theme.node_stroke), ..Default::default() },
+        rx: 4.0,
+        ry: 4.0,
+        style: Style {
+            fill: Some(theme.node_stroke),
+            ..Default::default()
+        },
     });
     scene.push(Primitive::Text {
         position: Point::new(cx, layout.spine_y),
@@ -140,7 +165,12 @@ fn render_spine_line(scene: &mut Scene, layout: &SpineLayout, theme: &Theme) {
     });
 }
 
-fn render_category_bones(scene: &mut Scene, diagram: &IshikawaDiagram, layout: &SpineLayout, theme: &Theme) {
+fn render_category_bones(
+    scene: &mut Scene,
+    diagram: &IshikawaDiagram,
+    layout: &SpineLayout,
+    theme: &Theme,
+) {
     for (ci, cat) in diagram.categories.iter().enumerate() {
         let color = COLORS[ci % COLORS.len()];
         let direction: f64 = if ci % 2 == 0 { -1.0 } else { 1.0 };
@@ -159,7 +189,11 @@ fn render_category_bones(scene: &mut Scene, diagram: &IshikawaDiagram, layout: &
                 PathSegment::MoveTo(Point::new(start_x, start_y)),
                 PathSegment::LineTo(Point::new(tip_x, tip_y)),
             ],
-            style: Style { stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
+            style: Style {
+                stroke: Some(color),
+                stroke_width: Some(2.0),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: None,
         });
@@ -176,7 +210,17 @@ fn render_category_bones(scene: &mut Scene, diagram: &IshikawaDiagram, layout: &
             },
         });
 
-        render_cause_bones(scene, cat, attach_x, tip_x, tip_y, layout.spine_y, direction, color, theme);
+        render_cause_bones(
+            scene,
+            cat,
+            attach_x,
+            tip_x,
+            tip_y,
+            layout.spine_y,
+            direction,
+            color,
+            theme,
+        );
     }
 }
 
@@ -203,7 +247,11 @@ fn render_cause_bones(
                 PathSegment::MoveTo(Point::new(cx, cy)),
                 PathSegment::LineTo(Point::new(cx - sub_len, cy)),
             ],
-            style: Style { stroke: Some(color), stroke_width: Some(1.2), ..Default::default() },
+            style: Style {
+                stroke: Some(color),
+                stroke_width: Some(1.2),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: None,
         });
@@ -212,7 +260,11 @@ fn render_cause_bones(
             position: Point::new(cx - sub_len - 4.0, cy),
             content: cause.name.clone(),
             anchor: TextAnchor::End,
-            style: TextStyle { font_size: LABEL_FONT, fill: Some(theme.node_text), ..Default::default() },
+            style: TextStyle {
+                font_size: LABEL_FONT,
+                fill: Some(theme.node_text),
+                ..Default::default()
+            },
         });
 
         let n_subs = cause.subcauses.len();
@@ -227,7 +279,11 @@ fn render_cause_bones(
                     PathSegment::MoveTo(Point::new(sx, cy)),
                     PathSegment::LineTo(Point::new(sx - tick_len * 0.15, sub_tip_y)),
                 ],
-                style: Style { stroke: Some(color), stroke_width: Some(0.8), ..Default::default() },
+                style: Style {
+                    stroke: Some(color),
+                    stroke_width: Some(0.8),
+                    ..Default::default()
+                },
                 marker_start: None,
                 marker_end: None,
             });
@@ -236,7 +292,11 @@ fn render_cause_bones(
                 position: Point::new(sx - tick_len * 0.15 - 3.0, sub_tip_y + direction * 10.0),
                 content: sub.name.clone(),
                 anchor: TextAnchor::End,
-                style: TextStyle { font_size: 9.0, fill: Some(theme.muted_text), ..Default::default() },
+                style: TextStyle {
+                    font_size: 9.0,
+                    fill: Some(theme.muted_text),
+                    ..Default::default()
+                },
             });
         }
     }
@@ -253,35 +313,51 @@ mod tests {
 
     #[test]
     fn basic_renders() {
-        let scene = render("ishikawa-beta\n    Problem\n    Cat A\n        C1\n    Cat B\n        C2");
+        let scene =
+            render("ishikawa-beta\n    Problem\n    Cat A\n        C1\n    Cat B\n        C2");
         assert!(!scene.is_empty());
     }
 
     #[test]
     fn has_spine_line() {
         let scene = render("ishikawa-beta\n    Effect\n    Cat\n        Cause");
-        let paths = scene.elements().iter().filter(|e| {
-            if let Primitive::Path { style, .. } = &e.primitive {
-                style.stroke_width == Some(2.5)
-            } else { false }
-        }).count();
+        let paths = scene
+            .elements()
+            .iter()
+            .filter(|e| {
+                if let Primitive::Path { style, .. } = &e.primitive {
+                    style.stroke_width == Some(2.5)
+                } else {
+                    false
+                }
+            })
+            .count();
         assert_eq!(paths, 1, "should have 1 spine line");
     }
 
     #[test]
     fn categories_alternate_above_below() {
-        let scene = render("ishikawa-beta\n    E\n    A\n        c1\n    B\n        c2\n    C\n        c3\n    D\n        c4");
+        let scene = render(
+            "ishikawa-beta\n    E\n    A\n        c1\n    B\n        c2\n    C\n        c3\n    D\n        c4",
+        );
         // Category bone endpoints should alternate y position relative to spine
-        let bone_endpoints: Vec<f64> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Path { segments, style, .. } = &e.primitive {
-                if style.stroke_width == Some(2.0) {
-                    if let Some(PathSegment::LineTo(p)) = segments.last() {
-                        return Some(p.y);
+        let bone_endpoints: Vec<f64> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Path {
+                    segments, style, ..
+                } = &e.primitive
+                {
+                    if style.stroke_width == Some(2.0) {
+                        if let Some(PathSegment::LineTo(p)) = segments.last() {
+                            return Some(p.y);
+                        }
                     }
                 }
-            }
-            None
-        }).collect();
+                None
+            })
+            .collect();
         // First should be above center, second below (or vice versa)
         assert!(bone_endpoints.len() >= 4);
         // Check alternation: signs of (y - center) should flip
@@ -289,7 +365,10 @@ mod tests {
         for w in bone_endpoints.windows(2) {
             let sign_a = (w[0] - center).signum();
             let sign_b = (w[1] - center).signum();
-            assert!(sign_a != sign_b, "consecutive bones should alternate above/below");
+            assert!(
+                sign_a != sign_b,
+                "consecutive bones should alternate above/below"
+            );
         }
     }
 
@@ -297,14 +376,20 @@ mod tests {
     fn effect_label_present() {
         let scene = render("ishikawa-beta\n    Bug\n    Code\n        Typo");
         let has_bug = scene.elements().iter().any(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { content == "Bug" } else { false }
+            if let Primitive::Text { content, .. } = &e.primitive {
+                content == "Bug"
+            } else {
+                false
+            }
         });
         assert!(has_bug);
     }
 
     #[test]
     fn all_positions_finite() {
-        let scene = render("ishikawa-beta\n    E\n    A\n        a1\n            sub1\n        a2\n    B\n        b1");
+        let scene = render(
+            "ishikawa-beta\n    E\n    A\n        a1\n            sub1\n        a2\n    B\n        b1",
+        );
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Rect { bbox, .. } => {

@@ -31,14 +31,21 @@ fn parse_timeline(input: &mut &str) -> ModalResult<TimelineDiagram> {
     }
 
     // Current section accumulator
-    let mut current_section = TimelineSection { name: None, tasks: Vec::new() };
+    let mut current_section = TimelineSection {
+        name: None,
+        tasks: Vec::new(),
+    };
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         let line = take_line(input);
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
 
         // Title
         if let Some(rest) = line.strip_prefix("title") {
@@ -63,12 +70,19 @@ fn parse_timeline(input: &mut &str) -> ModalResult<TimelineDiagram> {
         let parts: Vec<&str> = line.splitn(2, ':').collect();
         let task_name = parts[0].trim().to_string();
         let events: Vec<String> = if parts.len() > 1 {
-            parts[1].split(':').map(|e| e.trim().to_string()).filter(|e| !e.is_empty()).collect()
+            parts[1]
+                .split(':')
+                .map(|e| e.trim().to_string())
+                .filter(|e| !e.is_empty())
+                .collect()
         } else {
             Vec::new()
         };
 
-        current_section.tasks.push(TimelineTask { name: task_name, events });
+        current_section.tasks.push(TimelineTask {
+            name: task_name,
+            events,
+        });
     }
 
     // Flush last section
@@ -86,7 +100,11 @@ fn skip_horizontal_ws(input: &mut &str) {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 
@@ -96,7 +114,9 @@ mod tests {
 
     #[test]
     fn parse_basic() {
-        let d = parse("timeline\n    title History\n    2020 : Event A\n    2021 : Event B : Event C").unwrap();
+        let d =
+            parse("timeline\n    title History\n    2020 : Event A\n    2021 : Event B : Event C")
+                .unwrap();
         assert_eq!(d.title.as_deref(), Some("History"));
         assert_eq!(d.sections.len(), 1);
         assert_eq!(d.sections[0].tasks.len(), 2);

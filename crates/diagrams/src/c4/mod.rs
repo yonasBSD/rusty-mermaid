@@ -8,7 +8,9 @@ use rusty_mermaid_core::{
     TextStyle, Theme, intersect_rect,
 };
 
-use crate::common::palette::{BORDER_RADIUS, STROKE_WIDTH, DATABASE_WIDTH_RATIO, DASH_PATTERN, tint_color};
+use crate::common::palette::{
+    BORDER_RADIUS, DASH_PATTERN, DATABASE_WIDTH_RATIO, STROKE_WIDTH, tint_color,
+};
 use ir::{C4Diagram, C4Element, C4Shape};
 
 const MIN_ELEM_W: f64 = 160.0;
@@ -69,16 +71,35 @@ fn compute_positions(
     let mut cursor_y = SCENE_PAD + title_h;
     let mut max_right = 0.0f64;
 
-    layout_row(&diagram.elements, &free_elements, SCENE_PAD, &mut cursor_y, &mut positions, &mut max_right);
+    layout_row(
+        &diagram.elements,
+        &free_elements,
+        SCENE_PAD,
+        &mut cursor_y,
+        &mut positions,
+        &mut max_right,
+    );
 
     for boundary in &diagram.boundaries {
-        let elems = boundary_elements.get(&boundary.alias).cloned().unwrap_or_default();
-        if elems.is_empty() { continue; }
+        let elems = boundary_elements
+            .get(&boundary.alias)
+            .cloned()
+            .unwrap_or_default();
+        if elems.is_empty() {
+            continue;
+        }
 
         let boundary_y_start = cursor_y;
         cursor_y += 28.0;
 
-        layout_row(&diagram.elements, &elems, SCENE_PAD + BOUNDARY_PAD, &mut cursor_y, &mut positions, &mut max_right);
+        layout_row(
+            &diagram.elements,
+            &elems,
+            SCENE_PAD + BOUNDARY_PAD,
+            &mut cursor_y,
+            &mut positions,
+            &mut max_right,
+        );
 
         cursor_y += BOUNDARY_PAD;
 
@@ -113,12 +134,17 @@ fn render_c4_title(scene: &mut Scene, diagram: &C4Diagram, scene_w: f64, theme: 
     }
 }
 
-fn render_boundaries(scene: &mut Scene, diagram: &C4Diagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
+fn render_boundaries(
+    scene: &mut Scene,
+    diagram: &C4Diagram,
+    positions: &HashMap<String, (f64, f64, f64, f64)>,
+) {
     for boundary in &diagram.boundaries {
         if let Some(&(cx, cy, w, h)) = positions.get(&format!("__boundary_{}", boundary.alias)) {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, w, h),
-                rx: BORDER_RADIUS, ry: BORDER_RADIUS,
+                rx: BORDER_RADIUS,
+                ry: BORDER_RADIUS,
                 style: Style {
                     fill: Some(Color::rgba(0, 0, 0, 0)),
                     stroke: Some(BOUNDARY_COLOR),
@@ -150,17 +176,31 @@ fn render_edges(
     positions: &HashMap<String, (f64, f64, f64, f64)>,
     theme: &Theme,
 ) -> Vec<(f64, f64, String)> {
-    let visual_widths: HashMap<String, f64> = diagram.elements.iter().map(|e| {
-        let &(_, _, ew, _) = positions.get(&e.alias).unwrap_or(&(0.0, 0.0, MIN_ELEM_W, ELEM_H));
-        let vw = if e.shape == C4Shape::Database { ew * DATABASE_WIDTH_RATIO } else { ew };
-        (e.alias.clone(), vw)
-    }).collect();
+    let visual_widths: HashMap<String, f64> = diagram
+        .elements
+        .iter()
+        .map(|e| {
+            let &(_, _, ew, _) = positions
+                .get(&e.alias)
+                .unwrap_or(&(0.0, 0.0, MIN_ELEM_W, ELEM_H));
+            let vw = if e.shape == C4Shape::Database {
+                ew * DATABASE_WIDTH_RATIO
+            } else {
+                ew
+            };
+            (e.alias.clone(), vw)
+        })
+        .collect();
 
     let mut edge_labels: Vec<(f64, f64, String)> = Vec::new();
 
     for rel in &diagram.relationships {
-        let Some(&(x1, y1, _, h1)) = positions.get(&rel.from) else { continue };
-        let Some(&(x2, y2, _, h2)) = positions.get(&rel.to) else { continue };
+        let Some(&(x1, y1, _, h1)) = positions.get(&rel.from) else {
+            continue;
+        };
+        let Some(&(x2, y2, _, h2)) = positions.get(&rel.to) else {
+            continue;
+        };
         let vw1 = visual_widths.get(&rel.from).copied().unwrap_or(MIN_ELEM_W);
         let vw2 = visual_widths.get(&rel.to).copied().unwrap_or(MIN_ELEM_W);
 
@@ -199,21 +239,35 @@ fn render_edges(
     edge_labels
 }
 
-fn render_elements(scene: &mut Scene, diagram: &C4Diagram, positions: &HashMap<String, (f64, f64, f64, f64)>, theme: &Theme) {
+fn render_elements(
+    scene: &mut Scene,
+    diagram: &C4Diagram,
+    positions: &HashMap<String, (f64, f64, f64, f64)>,
+    theme: &Theme,
+) {
     for elem in &diagram.elements {
-        let Some(&(cx, cy, ew, _)) = positions.get(&elem.alias) else { continue };
+        let Some(&(cx, cy, ew, _)) = positions.get(&elem.alias) else {
+            continue;
+        };
         render_element(scene, elem, cx, cy, ew, theme);
     }
 }
 
 fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)], theme: &Theme) {
     for (lx, ly, label) in edge_labels {
-        let label_style = TextStyle { font_size: 10.0, ..Default::default() };
+        let label_style = TextStyle {
+            font_size: 10.0,
+            ..Default::default()
+        };
         let tw = SimpleTextMeasure::measure_raw(label, &label_style).width;
         scene.push(Primitive::Rect {
             bbox: BBox::new(*lx, *ly, tw + 8.0, 14.0),
-            rx: 3.0, ry: 3.0,
-            style: Style { fill: Some(theme.edge_label_bg), ..Default::default() },
+            rx: 3.0,
+            ry: 3.0,
+            style: Style {
+                fill: Some(theme.edge_label_bg),
+                ..Default::default()
+            },
         });
         scene.push(Primitive::Text {
             position: Point::new(*lx, *ly),
@@ -230,13 +284,38 @@ fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)], the
 
 /// Measure the width an element needs based on its text content.
 fn measure_elem_width(elem: &C4Element) -> f64 {
-    let style = TextStyle { font_size: 13.0, ..Default::default() };
+    let style = TextStyle {
+        font_size: 13.0,
+        ..Default::default()
+    };
     let name_w = SimpleTextMeasure::measure_raw(&elem.label, &style).width;
-    let desc_w = elem.description.as_ref()
-        .map(|d| SimpleTextMeasure::measure_raw(d, &TextStyle { font_size: 9.0, ..Default::default() }).width)
+    let desc_w = elem
+        .description
+        .as_ref()
+        .map(|d| {
+            SimpleTextMeasure::measure_raw(
+                d,
+                &TextStyle {
+                    font_size: 9.0,
+                    ..Default::default()
+                },
+            )
+            .width
+        })
         .unwrap_or(0.0);
-    let tech_w = elem.technology.as_ref()
-        .map(|t| SimpleTextMeasure::measure_raw(&format!("[{}]", t), &TextStyle { font_size: 10.0, ..Default::default() }).width)
+    let tech_w = elem
+        .technology
+        .as_ref()
+        .map(|t| {
+            SimpleTextMeasure::measure_raw(
+                &format!("[{}]", t),
+                &TextStyle {
+                    font_size: 10.0,
+                    ..Default::default()
+                },
+            )
+            .width
+        })
         .unwrap_or(0.0);
     name_w.max(desc_w).max(tech_w) + 40.0 // padding
 }
@@ -253,7 +332,8 @@ fn layout_row(
     let rows = (indices.len() + cols - 1) / cols;
 
     // Compute per-element widths, then use the max per row for uniform sizing
-    let widths: Vec<f64> = indices.iter()
+    let widths: Vec<f64> = indices
+        .iter()
         .map(|&idx| measure_elem_width(&elements[idx]).max(MIN_ELEM_W))
         .collect();
     // Use max width across all elements in this group for uniform columns
@@ -271,11 +351,21 @@ fn layout_row(
     *cursor_y += rows as f64 * (ELEM_H + GAP);
 }
 
-
-fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w: f64, theme: &Theme) {
-    let base_color = if elem.external { EXTERNAL_COLOR }
-        else if elem.shape == C4Shape::Person { PERSON_COLOR }
-        else { INTERNAL_COLOR };
+fn render_element(
+    scene: &mut Scene,
+    elem: &C4Element,
+    cx: f64,
+    cy: f64,
+    elem_w: f64,
+    theme: &Theme,
+) {
+    let base_color = if elem.external {
+        EXTERNAL_COLOR
+    } else if elem.shape == C4Shape::Person {
+        PERSON_COLOR
+    } else {
+        INTERNAL_COLOR
+    };
 
     let fill = tint_color(base_color, TINT);
     let style = Style {
@@ -289,14 +379,16 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
         C4Shape::Database => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, elem_w * DATABASE_WIDTH_RATIO, ELEM_H),
-                rx: elem_w * 0.35, ry: 8.0,
+                rx: elem_w * 0.35,
+                ry: 8.0,
                 style,
             });
         }
         _ => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, elem_w, ELEM_H),
-                rx: BORDER_RADIUS, ry: BORDER_RADIUS,
+                rx: BORDER_RADIUS,
+                ry: BORDER_RADIUS,
                 style,
             });
         }
@@ -307,13 +399,18 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
         scene.push(Primitive::Circle {
             center: Point::new(cx, cy - ELEM_H / 2.0 + 14.0),
             radius: 10.0,
-            style: Style { fill: Some(base_color), ..Default::default() },
+            style: Style {
+                fill: Some(base_color),
+                ..Default::default()
+            },
         });
     }
 
     // Labels: name (bold), then technology in brackets, then description
     let mut y = cy - 8.0;
-    if elem.shape == C4Shape::Person { y += 8.0; }
+    if elem.shape == C4Shape::Person {
+        y += 8.0;
+    }
 
     scene.push(Primitive::Text {
         position: Point::new(cx, y),
@@ -343,7 +440,10 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
 
     if let Some(desc) = &elem.description {
         y += 13.0;
-        let desc_style = TextStyle { font_size: 9.0, ..Default::default() };
+        let desc_style = TextStyle {
+            font_size: 9.0,
+            ..Default::default()
+        };
         let desc_w = SimpleTextMeasure::measure_raw(desc, &desc_style).width;
         if desc_w < elem_w - 16.0 {
             scene.push(Primitive::Text {
@@ -371,24 +471,34 @@ mod tests {
 
     #[test]
     fn basic_renders() {
-        let scene = render("C4Context\n  Person(user, \"User\")\n  System(sys, \"System\")\n  Rel(user, sys, \"Uses\")");
+        let scene = render(
+            "C4Context\n  Person(user, \"User\")\n  System(sys, \"System\")\n  Rel(user, sys, \"Uses\")",
+        );
         assert!(!scene.is_empty());
     }
 
     #[test]
     fn has_element_rects() {
         let scene = render("C4Context\n  Person(u, \"User\")\n  System(s, \"Sys\")");
-        let rects = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).count();
+        let rects = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .count();
         assert!(rects >= 2);
     }
 
     #[test]
     fn boundary_renders() {
-        let scene = render("C4Container\n  System_Boundary(b, \"Bank\") {\n    Container(web, \"Web\")\n  }");
+        let scene = render(
+            "C4Container\n  System_Boundary(b, \"Bank\") {\n    Container(web, \"Web\")\n  }",
+        );
         let dashed = scene.elements().iter().any(|e| {
             if let Primitive::Rect { style, .. } = &e.primitive {
                 style.stroke_dasharray.is_some()
-            } else { false }
+            } else {
+                false
+            }
         });
         assert!(dashed, "boundary should have dashed rect");
     }
@@ -396,25 +506,40 @@ mod tests {
     #[test]
     fn person_has_circle() {
         let scene = render("C4Context\n  Person(u, \"User\")");
-        let circles = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Circle { .. })).count();
+        let circles = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Circle { .. }))
+            .count();
         assert!(circles >= 1, "person should have circle head");
     }
 
     #[test]
     fn relationship_has_path() {
-        let scene = render("C4Context\n  Person(u, \"U\")\n  System(s, \"S\")\n  Rel(u, s, \"Uses\")");
-        let paths = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Path { .. })).count();
+        let scene =
+            render("C4Context\n  Person(u, \"U\")\n  System(s, \"S\")\n  Rel(u, s, \"Uses\")");
+        let paths = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Path { .. }))
+            .count();
         assert!(paths >= 1);
     }
 
     #[test]
     fn all_positions_finite() {
-        let scene = render("C4Context\n  title Test\n  Person(u, \"User\", \"Desc\")\n  System(s, \"System\", \"Desc\")\n  Rel(u, s, \"Uses\", \"HTTPS\")");
+        let scene = render(
+            "C4Context\n  title Test\n  Person(u, \"User\", \"Desc\")\n  System(s, \"System\", \"Desc\")\n  Rel(u, s, \"Uses\", \"HTTPS\")",
+        );
         for elem in scene.elements() {
             match &elem.primitive {
                 Primitive::Rect { bbox, .. } => assert!(bbox.x.is_finite() && bbox.y.is_finite()),
-                Primitive::Text { position, .. } => assert!(position.x.is_finite() && position.y.is_finite()),
-                Primitive::Circle { center, .. } => assert!(center.x.is_finite() && center.y.is_finite()),
+                Primitive::Text { position, .. } => {
+                    assert!(position.x.is_finite() && position.y.is_finite())
+                }
+                Primitive::Circle { center, .. } => {
+                    assert!(center.x.is_finite() && center.y.is_finite())
+                }
                 _ => {}
             }
         }

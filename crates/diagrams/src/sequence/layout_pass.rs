@@ -5,10 +5,10 @@ use rusty_mermaid_core::{TextMeasure, TextStyle};
 use crate::sequence::ir::*;
 
 use super::layout::{
-    actor_center_x, ActorLayout, ActivationLayout, FragmentLayout, FragmentSectionLayout,
-    MessageLayout, NoteLayout, ACTIVATION_WIDTH, DIAGRAM_MARGIN, FRAGMENT_LABEL_HEIGHT,
-    FRAGMENT_PADDING, MESSAGE_MARGIN, NOTE_MARGIN, NOTE_MAX_WIDTH, NOTE_PADDING, SELF_MSG_HEIGHT,
-    SELF_MSG_WIDTH,
+    ACTIVATION_WIDTH, ActivationLayout, ActorLayout, DIAGRAM_MARGIN, FRAGMENT_LABEL_HEIGHT,
+    FRAGMENT_PADDING, FragmentLayout, FragmentSectionLayout, MESSAGE_MARGIN, MessageLayout,
+    NOTE_MARGIN, NOTE_MAX_WIDTH, NOTE_PADDING, NoteLayout, SELF_MSG_HEIGHT, SELF_MSG_WIDTH,
+    actor_center_x,
 };
 
 /// Mutable state accumulated during the top-down layout pass.
@@ -143,7 +143,10 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
             let ax = actor_center_x(&ids[0], self.actors);
             return ax - note_w / 2.0;
         }
-        let xs: Vec<f64> = ids.iter().map(|id| actor_center_x(id, self.actors)).collect();
+        let xs: Vec<f64> = ids
+            .iter()
+            .map(|id| actor_center_x(id, self.actors))
+            .collect();
         let min_x = xs.iter().copied().fold(f64::INFINITY, f64::min);
         let max_x = xs.iter().copied().fold(f64::NEG_INFINITY, f64::max);
         let span_center = (min_x + max_x) / 2.0;
@@ -182,15 +185,18 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
         self.cursor_y += FRAGMENT_PADDING;
 
         let (frag_left, frag_right) = self.fragment_bounds();
-        self.fragments.insert(slot, FragmentLayout {
-            x: frag_left,
-            y: frag_start_y,
-            width: frag_right - frag_left,
-            height: self.cursor_y - frag_start_y,
-            kind: frag.kind,
-            label: frag.label.clone(),
-            sections: section_layouts,
-        });
+        self.fragments.insert(
+            slot,
+            FragmentLayout {
+                x: frag_left,
+                y: frag_start_y,
+                width: frag_right - frag_left,
+                height: self.cursor_y - frag_start_y,
+                kind: frag.kind,
+                label: frag.label.clone(),
+                sections: section_layouts,
+            },
+        );
     }
 
     fn fragment_bounds(&self) -> (f64, f64) {
@@ -226,7 +232,11 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
     pub(super) fn close_remaining_activations(&mut self) {
         let ids: Vec<String> = self.activation_stack.keys().cloned().collect();
         for id in ids {
-            while self.activation_stack.get(&id).is_some_and(|s| !s.is_empty()) {
+            while self
+                .activation_stack
+                .get(&id)
+                .is_some_and(|s| !s.is_empty())
+            {
                 self.close_activation(&id);
             }
         }

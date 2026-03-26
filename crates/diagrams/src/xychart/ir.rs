@@ -12,8 +12,15 @@ impl XyChart {
     pub fn new() -> Self {
         Self {
             title: None,
-            x_axis: AxisDef::Band { title: None, categories: Vec::new() },
-            y_axis: AxisDef::Linear { title: None, min: None, max: None },
+            x_axis: AxisDef::Band {
+                title: None,
+                categories: Vec::new(),
+            },
+            y_axis: AxisDef::Linear {
+                title: None,
+                min: None,
+                max: None,
+            },
             plots: Vec::new(),
             horizontal: false,
         }
@@ -23,8 +30,15 @@ impl XyChart {
 /// Axis definition.
 #[derive(Debug, Clone)]
 pub enum AxisDef {
-    Band { title: Option<String>, categories: Vec<String> },
-    Linear { title: Option<String>, min: Option<f64>, max: Option<f64> },
+    Band {
+        title: Option<String>,
+        categories: Vec<String>,
+    },
+    Linear {
+        title: Option<String>,
+        min: Option<f64>,
+        max: Option<f64>,
+    },
 }
 
 /// A data series.
@@ -57,7 +71,14 @@ mod tests {
         let c = XyChart::new();
         assert!(c.title.is_none());
         assert!(matches!(c.x_axis, AxisDef::Band { ref categories, .. } if categories.is_empty()));
-        assert!(matches!(c.y_axis, AxisDef::Linear { min: None, max: None, .. }));
+        assert!(matches!(
+            c.y_axis,
+            AxisDef::Linear {
+                min: None,
+                max: None,
+                ..
+            }
+        ));
     }
 
     #[test]

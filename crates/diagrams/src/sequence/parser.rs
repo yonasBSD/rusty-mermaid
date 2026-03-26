@@ -90,14 +90,12 @@ fn starts_with_keyword(input: &str, keyword: &str) -> bool {
 
 /// Case-insensitive keyword check (for "Note"/"note").
 fn starts_with_keyword_ci(input: &str, keyword: &str) -> bool {
-    input.len() >= keyword.len()
-        && input[..keyword.len()].eq_ignore_ascii_case(keyword)
-        && {
-            let rest = &input[keyword.len()..];
-            rest.is_empty()
-                || rest.starts_with(|c: char| c.is_ascii_whitespace())
-                || rest.starts_with("%%")
-        }
+    input.len() >= keyword.len() && input[..keyword.len()].eq_ignore_ascii_case(keyword) && {
+        let rest = &input[keyword.len()..];
+        rest.is_empty()
+            || rest.starts_with(|c: char| c.is_ascii_whitespace())
+            || rest.starts_with("%%")
+    }
 }
 
 fn try_parse_statement(
@@ -221,8 +219,7 @@ fn parse_autonumber(input: &mut &str) -> ModalResult<Option<AutoNumber>> {
         return Ok(None);
     }
 
-    let start_str: &str =
-        take_while(0.., |c: char| c.is_ascii_digit()).parse_next(input)?;
+    let start_str: &str = take_while(0.., |c: char| c.is_ascii_digit()).parse_next(input)?;
     let start = if start_str.is_empty() {
         1
     } else {
@@ -231,8 +228,7 @@ fn parse_autonumber(input: &mut &str) -> ModalResult<Option<AutoNumber>> {
 
     ws.parse_next(input)?;
 
-    let step_str: &str =
-        take_while(0.., |c: char| c.is_ascii_digit()).parse_next(input)?;
+    let step_str: &str = take_while(0.., |c: char| c.is_ascii_digit()).parse_next(input)?;
     let step = if step_str.is_empty() {
         1
     } else {
@@ -282,8 +278,7 @@ fn parse_as_label(input: &mut &str) -> ModalResult<Option<String>> {
         '"'.parse_next(input)?;
         Ok(Some(label.to_string()))
     } else {
-        let label =
-            take_while(1.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
+        let label = take_while(1.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
         Ok(Some(label.trim().to_string()))
     }
 }
@@ -328,8 +323,7 @@ fn parse_note(input: &mut &str) -> ModalResult<Note> {
     ws.parse_next(input)?;
     ':'.parse_next(input)?;
     ws.parse_next(input)?;
-    let text =
-        take_while(1.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
+    let text = take_while(1.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
 
     Ok(Note {
         position,
@@ -339,10 +333,7 @@ fn parse_note(input: &mut &str) -> ModalResult<Note> {
 
 // ── Fragment ───────────────────────────────────────────────
 
-fn parse_fragment(
-    input: &mut &str,
-    ctx: &mut ParseContext,
-) -> ModalResult<Fragment> {
+fn parse_fragment(input: &mut &str, ctx: &mut ParseContext) -> ModalResult<Fragment> {
     let kind = alt((
         "loop".value(FragmentKind::Loop),
         "critical".value(FragmentKind::Critical),
@@ -365,8 +356,7 @@ fn parse_fragment(
 
     // Fragment label (rest of line)
     ws.parse_next(input)?;
-    let label_text: &str =
-        take_while(0.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
+    let label_text: &str = take_while(0.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
     let label = if label_text.trim().is_empty() {
         None
     } else {
@@ -403,8 +393,7 @@ fn parse_fragment(
             *input = &input[d.len()..];
             ws.parse_next(input)?;
             let section_label: &str =
-                take_while(0.., |c: char| c != '\n' && c != '\r')
-                    .parse_next(input)?;
+                take_while(0.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
             let section_label = if section_label.trim().is_empty() {
                 None
             } else {
@@ -430,10 +419,7 @@ fn parse_fragment(
 
 // ── Message ────────────────────────────────────────────────
 
-fn parse_message(
-    input: &mut &str,
-    participants: &mut Vec<Participant>,
-) -> ModalResult<Message> {
+fn parse_message(input: &mut &str, participants: &mut Vec<Participant>) -> ModalResult<Message> {
     let from = identifier.parse_next(input)?;
     let from_str = from.to_string();
 
@@ -465,10 +451,13 @@ fn parse_message(
     let label = if input.starts_with(':') {
         *input = &input[1..];
         ws.parse_next(input)?;
-        let text =
-            take_while(0.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
+        let text = take_while(0.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
         let text = text.trim();
-        if text.is_empty() { None } else { Some(text.to_string()) }
+        if text.is_empty() {
+            None
+        } else {
+            Some(text.to_string())
+        }
     } else {
         None
     };

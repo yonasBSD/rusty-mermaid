@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use rusty_mermaid_core::{MarkerType, Primitive, Scene, Element};
-use rusty_mermaid_diagrams::{detect, render_to_scene, DiagramKind};
+use rusty_mermaid_core::{Element, MarkerType, Primitive, Scene};
+use rusty_mermaid_diagrams::{DiagramKind, detect, render_to_scene};
 
 /// Workspace root: two levels up from the diagrams crate manifest dir.
 fn workspace_root() -> PathBuf {
@@ -152,7 +152,9 @@ fn structural_fingerprint_regression() {
             }
             let text = fs::read_to_string(&path).unwrap();
             match detect(&text) {
-                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) | Some(DiagramKind::Sequence) => {}
+                Some(DiagramKind::Flowchart)
+                | Some(DiagramKind::State)
+                | Some(DiagramKind::Sequence) => {}
                 _ => continue,
             }
             let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
@@ -194,45 +196,81 @@ fn structural_fingerprint_regression() {
         if fp_path.exists() && !update_mode {
             // Compare against stored fingerprint
             let stored_json = fs::read_to_string(&fp_path).unwrap();
-            let expected: SvgFingerprint = serde_json::from_str(&stored_json).unwrap_or_else(|e| {
-                panic!("failed to parse {}: {}", fp_path.display(), e)
-            });
+            let expected: SvgFingerprint = serde_json::from_str(&stored_json)
+                .unwrap_or_else(|e| panic!("failed to parse {}: {}", fp_path.display(), e));
             if actual != expected {
                 let mut diffs = Vec::new();
                 if actual.rect_count != expected.rect_count {
-                    diffs.push(format!("  rect_count: {} vs {}", actual.rect_count, expected.rect_count));
+                    diffs.push(format!(
+                        "  rect_count: {} vs {}",
+                        actual.rect_count, expected.rect_count
+                    ));
                 }
                 if actual.circle_count != expected.circle_count {
-                    diffs.push(format!("  circle_count: {} vs {}", actual.circle_count, expected.circle_count));
+                    diffs.push(format!(
+                        "  circle_count: {} vs {}",
+                        actual.circle_count, expected.circle_count
+                    ));
                 }
                 if actual.ellipse_count != expected.ellipse_count {
-                    diffs.push(format!("  ellipse_count: {} vs {}", actual.ellipse_count, expected.ellipse_count));
+                    diffs.push(format!(
+                        "  ellipse_count: {} vs {}",
+                        actual.ellipse_count, expected.ellipse_count
+                    ));
                 }
                 if actual.path_count != expected.path_count {
-                    diffs.push(format!("  path_count: {} vs {}", actual.path_count, expected.path_count));
+                    diffs.push(format!(
+                        "  path_count: {} vs {}",
+                        actual.path_count, expected.path_count
+                    ));
                 }
                 if actual.polygon_count != expected.polygon_count {
-                    diffs.push(format!("  polygon_count: {} vs {}", actual.polygon_count, expected.polygon_count));
+                    diffs.push(format!(
+                        "  polygon_count: {} vs {}",
+                        actual.polygon_count, expected.polygon_count
+                    ));
                 }
                 if actual.text_count != expected.text_count {
-                    diffs.push(format!("  text_count: {} vs {}", actual.text_count, expected.text_count));
+                    diffs.push(format!(
+                        "  text_count: {} vs {}",
+                        actual.text_count, expected.text_count
+                    ));
                 }
                 if actual.arc_count != expected.arc_count {
-                    diffs.push(format!("  arc_count: {} vs {}", actual.arc_count, expected.arc_count));
+                    diffs.push(format!(
+                        "  arc_count: {} vs {}",
+                        actual.arc_count, expected.arc_count
+                    ));
                 }
                 if actual.text_contents != expected.text_contents {
-                    diffs.push(format!("  text_contents: {:?} vs {:?}", actual.text_contents, expected.text_contents));
+                    diffs.push(format!(
+                        "  text_contents: {:?} vs {:?}",
+                        actual.text_contents, expected.text_contents
+                    ));
                 }
                 if actual.marker_types != expected.marker_types {
-                    diffs.push(format!("  marker_types: {:?} vs {:?}", actual.marker_types, expected.marker_types));
+                    diffs.push(format!(
+                        "  marker_types: {:?} vs {:?}",
+                        actual.marker_types, expected.marker_types
+                    ));
                 }
                 if actual.has_groups != expected.has_groups {
-                    diffs.push(format!("  has_groups: {} vs {}", actual.has_groups, expected.has_groups));
+                    diffs.push(format!(
+                        "  has_groups: {} vs {}",
+                        actual.has_groups, expected.has_groups
+                    ));
                 }
                 if actual.primitive_types_sorted != expected.primitive_types_sorted {
-                    diffs.push(format!("  primitive_types_sorted: {:?} vs {:?}", actual.primitive_types_sorted, expected.primitive_types_sorted));
+                    diffs.push(format!(
+                        "  primitive_types_sorted: {:?} vs {:?}",
+                        actual.primitive_types_sorted, expected.primitive_types_sorted
+                    ));
                 }
-                failures.push(format!("{}: fingerprint mismatch (actual vs expected):\n{}", stem, diffs.join("\n")));
+                failures.push(format!(
+                    "{}: fingerprint mismatch (actual vs expected):\n{}",
+                    stem,
+                    diffs.join("\n")
+                ));
             } else {
                 verified += 1;
             }
@@ -295,7 +333,9 @@ fn update_fingerprints() {
             }
             let text = fs::read_to_string(&path).unwrap();
             match detect(&text) {
-                Some(DiagramKind::Flowchart) | Some(DiagramKind::State) | Some(DiagramKind::Sequence) => {}
+                Some(DiagramKind::Flowchart)
+                | Some(DiagramKind::State)
+                | Some(DiagramKind::Sequence) => {}
                 _ => continue,
             }
             let scene = match render_to_scene(&text) {

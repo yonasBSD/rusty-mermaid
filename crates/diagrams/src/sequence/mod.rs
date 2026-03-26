@@ -16,7 +16,6 @@ use layout::{
     stick_figure_h, stick_text_gap,
 };
 
-
 /// Convert a sequence layout into a Scene with default theme.
 pub fn to_scene(seq_layout: &SequenceLayout) -> Scene {
     to_scene_themed(seq_layout, &Theme::default())

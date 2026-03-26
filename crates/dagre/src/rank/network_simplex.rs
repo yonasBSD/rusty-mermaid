@@ -1,7 +1,7 @@
 use rusty_mermaid_graph::{Graph, NodeId};
 
 use crate::labels::{EdgeLabel, NodeLabel};
-use crate::rank::feasible_tree::{feasible_tree_mut, NsTree};
+use crate::rank::feasible_tree::{NsTree, feasible_tree_mut};
 use crate::rank::longest_path::longest_path;
 use crate::util;
 

@@ -1,5 +1,5 @@
-use crate::common::error::{ParseError, ParseErrorKind};
 use super::ir::*;
+use crate::common::error::{ParseError, ParseErrorKind};
 
 pub fn parse(input: &str) -> Result<ArchDiagram, ParseError> {
     let mut diagram = ArchDiagram::default();
@@ -7,14 +7,20 @@ pub fn parse(input: &str) -> Result<ArchDiagram, ParseError> {
 
     for (_line_no, raw_line) in input.lines().enumerate() {
         let line = raw_line.trim();
-        if line.is_empty() || line.starts_with("%%") { continue; }
+        if line.is_empty() || line.starts_with("%%") {
+            continue;
+        }
 
         if !header_found {
             if line.starts_with("architecture") {
                 header_found = true;
                 continue;
             }
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..1, input));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                0..1,
+                input,
+            ));
         }
 
         if let Some(rest) = line.strip_prefix("group ") {
@@ -47,7 +53,11 @@ pub fn parse(input: &str) -> Result<ArchDiagram, ParseError> {
     }
 
     if !header_found {
-        return Err(ParseError::new(ParseErrorKind::UnexpectedToken, 0..input.len().min(10), input));
+        return Err(ParseError::new(
+            ParseErrorKind::UnexpectedToken,
+            0..input.len().min(10),
+            input,
+        ));
     }
 
     Ok(diagram)
@@ -57,10 +67,17 @@ pub fn parse(input: &str) -> Result<ArchDiagram, ParseError> {
 fn parse_group(s: &str) -> Option<ArchGroup> {
     let (id, rest) = s.split_once('(')?;
     let (icon, rest) = rest.split_once(')')?;
-    let label = rest.trim().strip_prefix('[').and_then(|r| r.split_once(']'))
+    let label = rest
+        .trim()
+        .strip_prefix('[')
+        .and_then(|r| r.split_once(']'))
         .map(|(l, r)| (l.to_string(), r))
         .unwrap_or_else(|| (id.trim().to_string(), rest));
-    let parent = label.1.trim().strip_prefix("in ").map(|p| p.trim().to_string());
+    let parent = label
+        .1
+        .trim()
+        .strip_prefix("in ")
+        .map(|p| p.trim().to_string());
     Some(ArchGroup {
         id: id.trim().to_string(),
         icon: icon.trim().to_string(),
@@ -73,10 +90,17 @@ fn parse_group(s: &str) -> Option<ArchGroup> {
 fn parse_service(s: &str) -> Option<ArchService> {
     let (id, rest) = s.split_once('(')?;
     let (icon, rest) = rest.split_once(')')?;
-    let label = rest.trim().strip_prefix('[').and_then(|r| r.split_once(']'))
+    let label = rest
+        .trim()
+        .strip_prefix('[')
+        .and_then(|r| r.split_once(']'))
         .map(|(l, r)| (l.to_string(), r))
         .unwrap_or_else(|| (id.trim().to_string(), rest));
-    let group = label.1.trim().strip_prefix("in ").map(|p| p.trim().to_string());
+    let group = label
+        .1
+        .trim()
+        .strip_prefix("in ")
+        .map(|p| p.trim().to_string());
     Some(ArchService {
         id: id.trim().to_string(),
         icon: icon.trim().to_string(),
@@ -91,7 +115,9 @@ fn parse_junction(s: &str) -> Option<ArchJunction> {
     let id = parts[0].trim().to_string();
     let group = if parts.len() >= 3 && parts[1] == "in" {
         Some(parts[2].trim().to_string())
-    } else { None };
+    } else {
+        None
+    };
     Some(ArchJunction { id, group })
 }
 
@@ -99,12 +125,14 @@ fn parse_junction(s: &str) -> Option<ArchJunction> {
 fn parse_edge(line: &str) -> Option<ArchEdge> {
     // Split on the arrow pattern
     let (left, arrow, right) = if let Some(i) = line.find("-->") {
-        (&line[..i], &line[i..i+3], &line[i+3..])
+        (&line[..i], &line[i..i + 3], &line[i + 3..])
     } else if let Some(i) = line.find("<--") {
-        (&line[..i], &line[i..i+3], &line[i+3..])
+        (&line[..i], &line[i..i + 3], &line[i + 3..])
     } else if let Some(i) = line.find("--") {
-        (&line[..i], &line[i..i+2], &line[i+2..])
-    } else { return None };
+        (&line[..i], &line[i..i + 2], &line[i + 2..])
+    } else {
+        return None;
+    };
 
     let arrow_right = arrow.contains('>');
     let arrow_left = arrow.contains('<');
@@ -112,7 +140,14 @@ fn parse_edge(line: &str) -> Option<ArchEdge> {
     let (from_id, from_dir) = parse_endpoint(left.trim())?;
     let (to_id, to_dir) = parse_endpoint(right.trim())?;
 
-    Some(ArchEdge { from: from_id, to: to_id, from_dir, to_dir, arrow_left, arrow_right })
+    Some(ArchEdge {
+        from: from_id,
+        to: to_id,
+        from_dir,
+        to_dir,
+        arrow_left,
+        arrow_right,
+    })
 }
 
 /// Parse "id:DIR" or "DIR:id" — also handles "id{group}:DIR"
@@ -121,11 +156,15 @@ fn parse_endpoint(s: &str) -> Option<(String, Dir)> {
     // Strip {group} modifier
     let s = if let Some(brace) = s.find('{') {
         let end = s.find('}').unwrap_or(s.len());
-        format!("{}{}", &s[..brace], &s[end+1..])
-    } else { s.to_string() };
+        format!("{}{}", &s[..brace], &s[end + 1..])
+    } else {
+        s.to_string()
+    };
 
     let parts: Vec<&str> = s.split(':').collect();
-    if parts.len() != 2 { return None; }
+    if parts.len() != 2 {
+        return None;
+    }
 
     let (id, dir_str) = if parts[0].len() == 1 && "TBLR".contains(parts[0]) {
         (parts[1].trim(), parts[0].trim())
@@ -160,7 +199,9 @@ mod tests {
 
     #[test]
     fn parse_group() {
-        let d = parse("architecture-beta\n  group api(cloud)[API]\n  service db(database)[DB] in api").unwrap();
+        let d =
+            parse("architecture-beta\n  group api(cloud)[API]\n  service db(database)[DB] in api")
+                .unwrap();
         assert_eq!(d.groups.len(), 1);
         assert_eq!(d.groups[0].label, "API");
         assert_eq!(d.services[0].group.as_deref(), Some("api"));
@@ -175,7 +216,10 @@ mod tests {
 
     #[test]
     fn parse_arrows() {
-        let d = parse("architecture-beta\n  service a(server)[A]\n  service b(server)[B]\n  a:R --> L:b").unwrap();
+        let d = parse(
+            "architecture-beta\n  service a(server)[A]\n  service b(server)[B]\n  a:R --> L:b",
+        )
+        .unwrap();
         assert!(d.edges[0].arrow_right);
         assert!(!d.edges[0].arrow_left);
     }
@@ -199,7 +243,10 @@ mod tests {
 
     #[test]
     fn left_arrow() {
-        let d = parse("architecture-beta\n  service a(server)[A]\n  service b(server)[B]\n  a:R <-- L:b").unwrap();
+        let d = parse(
+            "architecture-beta\n  service a(server)[A]\n  service b(server)[B]\n  a:R <-- L:b",
+        )
+        .unwrap();
         assert!(d.edges[0].arrow_left);
         assert!(!d.edges[0].arrow_right);
     }

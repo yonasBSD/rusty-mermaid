@@ -32,7 +32,9 @@ fn parse_er_diagram(input: &mut &str) -> ModalResult<ErDiagram> {
 fn parse_statements(input: &mut &str, diagram: &mut ErDiagram) -> ModalResult<()> {
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
         if !try_parse_statement(input, diagram)? {
             if !input.is_empty() {
                 *input = &input[1..];
@@ -106,7 +108,10 @@ fn try_parse_statement(input: &mut &str, diagram: &mut ErDiagram) -> ModalResult
         if let Ok(id) = entity_identifier(input) {
             // Check it's followed by newline/EOF (not a relationship)
             let rest_trimmed = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
-            if rest_trimmed.is_empty() || rest_trimmed.starts_with('\n') || rest_trimmed.starts_with("%%") {
+            if rest_trimmed.is_empty()
+                || rest_trimmed.starts_with('\n')
+                || rest_trimmed.starts_with("%%")
+            {
                 ensure_entity(&mut diagram.entities, id);
                 return Ok(true);
             }
@@ -146,7 +151,9 @@ fn parse_entity_block(input: &mut &str) -> ModalResult<Entity> {
     // Parse attributes
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() || input.starts_with('}') { break; }
+        if input.is_empty() || input.starts_with('}') {
+            break;
+        }
         if let Some(attr) = parse_attribute(input) {
             entity.attributes.push(attr);
         } else {
@@ -161,7 +168,9 @@ fn parse_entity_block(input: &mut &str) -> ModalResult<Entity> {
 fn parse_attribute(input: &mut &str) -> Option<Attribute> {
     let line = take_line(input);
     let line = line.trim();
-    if line.is_empty() { return None; }
+    if line.is_empty() {
+        return None;
+    }
 
     let mut parts = line.splitn(2, |c: char| c == ' ' || c == '\t');
     let attr_type = parts.next()?.trim().to_string();
@@ -236,7 +245,11 @@ fn parse_relationship(input: &mut &str) -> ModalResult<ErRelation> {
         *input = &input[1..];
         skip_horizontal_ws(input);
         let text = take_to_eol(input);
-        if text.is_empty() { None } else { Some(strip_quotes(text)) }
+        if text.is_empty() {
+            None
+        } else {
+            Some(strip_quotes(text))
+        }
     } else {
         None
     };
@@ -270,7 +283,9 @@ fn parse_cardinality_left(input: &mut &str) -> ModalResult<Cardinality> {
         *input = &input[2..];
         Ok(Cardinality::ZeroOrOne)
     } else {
-        Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()))
+        Err(winnow::error::ErrMode::Backtrack(
+            winnow::error::ContextError::new(),
+        ))
     }
 }
 
@@ -293,7 +308,9 @@ fn parse_cardinality_right(input: &mut &str) -> ModalResult<Cardinality> {
         *input = &input[2..];
         Ok(Cardinality::ZeroOrOne)
     } else {
-        Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()))
+        Err(winnow::error::ErrMode::Backtrack(
+            winnow::error::ContextError::new(),
+        ))
     }
 }
 
@@ -315,7 +332,9 @@ fn try_text_cardinality(input: &mut &str) -> Option<Cardinality> {
     ] {
         if trimmed.starts_with(prefix) {
             let after = &trimmed[prefix.len()..];
-            if after.is_empty() || after.starts_with(|c: char| c == ' ' || c == '\t' || c == '-' || c == '.') {
+            if after.is_empty()
+                || after.starts_with(|c: char| c == ' ' || c == '\t' || c == '-' || c == '.')
+            {
                 let consumed = input.len() - trimmed.len() + prefix.len();
                 *input = &input[consumed..];
                 return Some(card);
@@ -346,7 +365,9 @@ fn parse_identification(input: &mut &str) -> ModalResult<Identification> {
         *input = &input[2..];
         Ok(Identification::NonIdentifying)
     } else {
-        Err(winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()))
+        Err(winnow::error::ErrMode::Backtrack(
+            winnow::error::ContextError::new(),
+        ))
     }
 }
 
@@ -359,14 +380,14 @@ fn parse_direction(input: &mut &str) -> ModalResult<Direction> {
         "BT".value(Direction::BT),
         "LR".value(Direction::LR),
         "RL".value(Direction::RL),
-    )).parse_next(input)
+    ))
+    .parse_next(input)
 }
 
 // ── Helpers ──
 
 fn entity_identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
-    take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-')
-        .parse_next(input)
+    take_while(1.., |c: char| c.is_alphanumeric() || c == '_' || c == '-').parse_next(input)
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
@@ -383,13 +404,21 @@ fn take_to_eol<'i>(input: &mut &'i str) -> &'i str {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 
 fn skip_to_eol(input: &mut &str) {
     let end = input.find('\n').unwrap_or(input.len());
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
 }
 
 fn strip_quotes(s: &str) -> String {
@@ -404,8 +433,12 @@ fn ensure_entity(entities: &mut Vec<Entity>, id: &str) {
 
 fn upsert_entity(entities: &mut Vec<Entity>, entity: Entity) {
     if let Some(existing) = entities.iter_mut().find(|e| e.id == entity.id) {
-        if entity.alias.is_some() { existing.alias = entity.alias; }
-        if !entity.css_classes.is_empty() { existing.css_classes.extend(entity.css_classes); }
+        if entity.alias.is_some() {
+            existing.alias = entity.alias;
+        }
+        if !entity.css_classes.is_empty() {
+            existing.css_classes.extend(entity.css_classes);
+        }
         existing.attributes.extend(entity.attributes);
     } else {
         entities.push(entity);

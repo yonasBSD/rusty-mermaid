@@ -33,8 +33,14 @@ mod tests {
             roots: vec![TreeNode {
                 name: "a".into(),
                 children: vec![
-                    TreeNode { name: "b".into(), children: vec![] },
-                    TreeNode { name: "c".into(), children: vec![] },
+                    TreeNode {
+                        name: "b".into(),
+                        children: vec![],
+                    },
+                    TreeNode {
+                        name: "c".into(),
+                        children: vec![],
+                    },
                 ],
             }],
         };
@@ -50,7 +56,10 @@ mod tests {
     #[test]
     fn count_single_root() {
         let t = TreeView {
-            roots: vec![TreeNode { name: "root".into(), children: vec![] }],
+            roots: vec![TreeNode {
+                name: "root".into(),
+                children: vec![],
+            }],
         };
         assert_eq!(t.node_count(), 1);
     }
@@ -59,10 +68,17 @@ mod tests {
     fn count_multiple_roots() {
         let t = TreeView {
             roots: vec![
-                TreeNode { name: "a".into(), children: vec![] },
-                TreeNode { name: "b".into(), children: vec![
-                    TreeNode { name: "b1".into(), children: vec![] },
-                ]},
+                TreeNode {
+                    name: "a".into(),
+                    children: vec![],
+                },
+                TreeNode {
+                    name: "b".into(),
+                    children: vec![TreeNode {
+                        name: "b1".into(),
+                        children: vec![],
+                    }],
+                },
             ],
         };
         assert_eq!(t.node_count(), 3);
@@ -77,7 +93,10 @@ mod tests {
                     name: "2".into(),
                     children: vec![TreeNode {
                         name: "3".into(),
-                        children: vec![TreeNode { name: "4".into(), children: vec![] }],
+                        children: vec![TreeNode {
+                            name: "4".into(),
+                            children: vec![],
+                        }],
                     }],
                 }],
             }],

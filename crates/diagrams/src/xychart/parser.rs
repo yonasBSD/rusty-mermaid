@@ -14,7 +14,9 @@ pub fn parse(input: &str) -> Result<XyChart, ParseError> {
 
 fn parse_xychart(input: &mut &str) -> ModalResult<XyChart> {
     skip.parse_next(input)?;
-    "xychart-beta".parse_next(input).or_else(|_: winnow::error::ErrMode<winnow::error::ContextError>| "xychart".parse_next(input))?;
+    "xychart-beta".parse_next(input).or_else(
+        |_: winnow::error::ErrMode<winnow::error::ContextError>| "xychart".parse_next(input),
+    )?;
 
     let mut chart = XyChart::new();
 
@@ -29,10 +31,14 @@ fn parse_xychart(input: &mut &str) -> ModalResult<XyChart> {
 
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         let line = take_line(input);
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
 
         if let Some(rest) = line.strip_prefix("title") {
             chart.title = Some(rest.trim().trim_matches('"').to_string());
@@ -74,7 +80,11 @@ fn parse_axis_def(rest: &str) -> AxisDef {
     if let Some(bracket_start) = rest.find('[') {
         let title = if bracket_start > 0 {
             let t = rest[..bracket_start].trim().trim_matches('"');
-            if t.is_empty() { None } else { Some(t.to_string()) }
+            if t.is_empty() {
+                None
+            } else {
+                Some(t.to_string())
+            }
         } else {
             None
         };
@@ -84,7 +94,10 @@ fn parse_axis_def(rest: &str) -> AxisDef {
                 .map(|s| s.trim().trim_matches('"').to_string())
                 .filter(|s| !s.is_empty())
                 .collect();
-            return AxisDef::Band { title, categories: cats };
+            return AxisDef::Band {
+                title,
+                categories: cats,
+            };
         }
     }
 
@@ -104,9 +117,17 @@ fn parse_axis_def(rest: &str) -> AxisDef {
     // Just a title
     let title = rest.trim_matches('"');
     if title.is_empty() {
-        AxisDef::Linear { title: None, min: None, max: None }
+        AxisDef::Linear {
+            title: None,
+            min: None,
+            max: None,
+        }
     } else {
-        AxisDef::Linear { title: Some(title.to_string()), min: None, max: None }
+        AxisDef::Linear {
+            title: Some(title.to_string()),
+            min: None,
+            max: None,
+        }
     }
 }
 
@@ -116,7 +137,11 @@ fn split_title_and_number(s: &str) -> (Option<String>, Option<&str>) {
     if let Some(q_end) = s.rfind('"') {
         let title = s[..=q_end].trim().trim_matches('"');
         let num = s[q_end + 1..].trim();
-        let title = if title.is_empty() { None } else { Some(title.to_string()) };
+        let title = if title.is_empty() {
+            None
+        } else {
+            Some(title.to_string())
+        };
         let num = if num.is_empty() { None } else { Some(num) };
         (title, num)
     } else {
@@ -137,7 +162,11 @@ fn parse_plot_data(rest: &str, plot_type: PlotType) -> Option<PlotData> {
 
     let (label, values_str) = if let Some(bracket_start) = rest.find('[') {
         let label_part = rest[..bracket_start].trim().trim_matches('"');
-        let label = if label_part.is_empty() { None } else { Some(label_part.to_string()) };
+        let label = if label_part.is_empty() {
+            None
+        } else {
+            Some(label_part.to_string())
+        };
         if let Some(bracket_end) = rest.rfind(']') {
             (label, &rest[bracket_start + 1..bracket_end])
         } else {
@@ -152,7 +181,11 @@ fn parse_plot_data(rest: &str, plot_type: PlotType) -> Option<PlotData> {
         .filter_map(|s| s.trim().parse().ok())
         .collect();
 
-    Some(PlotData { plot_type, label, values })
+    Some(PlotData {
+        plot_type,
+        label,
+        values,
+    })
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
@@ -162,7 +195,11 @@ fn skip_horizontal_ws(input: &mut &str) {
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
     let end = input.find('\n').unwrap_or(input.len());
     let line = input[..end].trim();
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
     line
 }
 
@@ -183,7 +220,9 @@ mod tests {
         let c = parse("xychart-beta\n    x-axis [A, B, C]").unwrap();
         if let AxisDef::Band { categories, .. } = &c.x_axis {
             assert_eq!(categories, &["A", "B", "C"]);
-        } else { panic!("expected band axis"); }
+        } else {
+            panic!("expected band axis");
+        }
     }
 
     #[test]
@@ -193,12 +232,17 @@ mod tests {
             assert_eq!(title.as_deref(), Some("Revenue"));
             assert_eq!(*min, Some(0.0));
             assert_eq!(*max, Some(500.0));
-        } else { panic!("expected linear axis"); }
+        } else {
+            panic!("expected linear axis");
+        }
     }
 
     #[test]
     fn parse_line_and_bar() {
-        let c = parse("xychart-beta\n    x-axis [A, B]\n    line \"L1\" [10, 20]\n    bar \"B1\" [5, 15]").unwrap();
+        let c = parse(
+            "xychart-beta\n    x-axis [A, B]\n    line \"L1\" [10, 20]\n    bar \"B1\" [5, 15]",
+        )
+        .unwrap();
         assert_eq!(c.plots.len(), 2);
         assert_eq!(c.plots[0].plot_type, PlotType::Line);
         assert_eq!(c.plots[1].plot_type, PlotType::Bar);

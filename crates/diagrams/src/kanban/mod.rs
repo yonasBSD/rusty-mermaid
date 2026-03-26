@@ -39,16 +39,26 @@ struct ColumnMetrics {
 
 impl ColumnMetrics {
     fn from_board(board: &KanbanBoard, theme: &Theme) -> Self {
-        let card_style = TextStyle { font_size: theme.font_size_edge_label, ..Default::default() };
-        let line_height = theme.font_size_edge_label * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
+        let card_style = TextStyle {
+            font_size: theme.font_size_edge_label,
+            ..Default::default()
+        };
+        let line_height =
+            theme.font_size_edge_label * rusty_mermaid_core::constants::LINE_HEIGHT_MULTIPLIER;
 
         let mut col_widths: Vec<f64> = Vec::new();
         let mut col_card_heights: Vec<Vec<f64>> = Vec::new();
 
         for col in &board.columns {
-            let mut max_w = SimpleTextMeasure::measure_raw(&col.label, &TextStyle {
-                font_size: theme.font_size_node, ..Default::default()
-            }).width + CARD_PADDING * 4.0;
+            let mut max_w = SimpleTextMeasure::measure_raw(
+                &col.label,
+                &TextStyle {
+                    font_size: theme.font_size_node,
+                    ..Default::default()
+                },
+            )
+            .width
+                + CARD_PADDING * 4.0;
 
             let mut card_heights = Vec::new();
             for card in &col.cards {
@@ -65,12 +75,23 @@ impl ColumnMetrics {
             col_card_heights.push(card_heights);
         }
 
-        let max_col_height: f64 = board.columns.iter().enumerate().map(|(ci, col)| {
-            let cards_h: f64 = col_card_heights[ci].iter().sum::<f64>() + col.cards.len().saturating_sub(1) as f64 * CARD_GAP;
-            HEADER_HEIGHT + CARD_GAP + cards_h + CARD_GAP
-        }).fold(0.0f64, f64::max);
+        let max_col_height: f64 = board
+            .columns
+            .iter()
+            .enumerate()
+            .map(|(ci, col)| {
+                let cards_h: f64 = col_card_heights[ci].iter().sum::<f64>()
+                    + col.cards.len().saturating_sub(1) as f64 * CARD_GAP;
+                HEADER_HEIGHT + CARD_GAP + cards_h + CARD_GAP
+            })
+            .fold(0.0f64, f64::max);
 
-        Self { col_widths, col_card_heights, max_col_height, line_height }
+        Self {
+            col_widths,
+            col_card_heights,
+            max_col_height,
+            line_height,
+        }
     }
 }
 
@@ -81,7 +102,9 @@ pub fn to_scene_themed(board: &KanbanBoard, theme: &Theme) -> Scene {
 
     let metrics = ColumnMetrics::from_board(board, theme);
 
-    let total_w: f64 = metrics.col_widths.iter().sum::<f64>() + (board.columns.len() - 1) as f64 * COLUMN_GAP + MARGIN * 2.0;
+    let total_w: f64 = metrics.col_widths.iter().sum::<f64>()
+        + (board.columns.len() - 1) as f64 * COLUMN_GAP
+        + MARGIN * 2.0;
     let total_h = metrics.max_col_height + MARGIN * 2.0;
     let mut scene = Scene::new(total_w, total_h);
 
@@ -108,7 +131,8 @@ fn render_columns(scene: &mut Scene, board: &KanbanBoard, metrics: &ColumnMetric
 fn render_column_bg(scene: &mut Scene, col_cx: f64, col_w: f64, max_col_height: f64, color: Color) {
     scene.push(Primitive::Rect {
         bbox: BBox::new(col_cx, MARGIN + max_col_height / 2.0, col_w, max_col_height),
-        rx: 8.0, ry: 8.0,
+        rx: 8.0,
+        ry: 8.0,
         style: Style {
             fill: Some(Color::rgba(color.r, color.g, color.b, 20)),
             stroke: Some(Color::rgba(color.r, color.g, color.b, 60)),
@@ -118,11 +142,22 @@ fn render_column_bg(scene: &mut Scene, col_cx: f64, col_w: f64, max_col_height: 
     });
 }
 
-fn render_column_header(scene: &mut Scene, col: &ir::KanbanColumn, col_cx: f64, col_w: f64, color: Color, theme: &Theme) {
+fn render_column_header(
+    scene: &mut Scene,
+    col: &ir::KanbanColumn,
+    col_cx: f64,
+    col_w: f64,
+    color: Color,
+    theme: &Theme,
+) {
     scene.push(Primitive::Rect {
         bbox: BBox::new(col_cx, MARGIN + HEADER_HEIGHT / 2.0, col_w, HEADER_HEIGHT),
-        rx: 8.0, ry: 8.0,
-        style: Style { fill: Some(Color::rgba(color.r, color.g, color.b, 50)), ..Default::default() },
+        rx: 8.0,
+        ry: 8.0,
+        style: Style {
+            fill: Some(Color::rgba(color.r, color.g, color.b, 50)),
+            ..Default::default()
+        },
     });
     scene.push(Primitive::Text {
         position: rusty_mermaid_core::Point::new(col_cx, MARGIN + HEADER_HEIGHT / 2.0),
@@ -137,7 +172,16 @@ fn render_column_header(scene: &mut Scene, col: &ir::KanbanColumn, col_cx: f64, 
     });
 }
 
-fn render_cards(scene: &mut Scene, col: &ir::KanbanColumn, ci: usize, col_cx: f64, col_w: f64, color: Color, metrics: &ColumnMetrics, theme: &Theme) {
+fn render_cards(
+    scene: &mut Scene,
+    col: &ir::KanbanColumn,
+    ci: usize,
+    col_cx: f64,
+    col_w: f64,
+    color: Color,
+    metrics: &ColumnMetrics,
+    theme: &Theme,
+) {
     let mut cy = MARGIN + HEADER_HEIGHT + CARD_GAP;
     for (cardi, card) in col.cards.iter().enumerate() {
         let card_h = metrics.col_card_heights[ci][cardi];
@@ -145,7 +189,8 @@ fn render_cards(scene: &mut Scene, col: &ir::KanbanColumn, ci: usize, col_cx: f6
 
         scene.push(Primitive::Rect {
             bbox: BBox::new(col_cx, card_cy, col_w - CARD_PADDING * 2.0, card_h),
-            rx: CARD_RX, ry: CARD_RX,
+            rx: CARD_RX,
+            ry: CARD_RX,
             style: Style {
                 fill: Some(theme.background),
                 stroke: Some(Color::rgba(color.r, color.g, color.b, 80)),
@@ -154,7 +199,8 @@ fn render_cards(scene: &mut Scene, col: &ir::KanbanColumn, ci: usize, col_cx: f6
             },
         });
 
-        let label_y = if card.priority.is_some() || card.assigned.is_some() || card.ticket.is_some() {
+        let label_y = if card.priority.is_some() || card.assigned.is_some() || card.ticket.is_some()
+        {
             card_cy - metrics.line_height * 0.3
         } else {
             card_cy
@@ -182,7 +228,10 @@ fn render_cards(scene: &mut Scene, col: &ir::KanbanColumn, ci: usize, col_cx: f6
         }
         if !meta_parts.is_empty() {
             scene.push(Primitive::Text {
-                position: rusty_mermaid_core::Point::new(col_cx, card_cy + metrics.line_height * 0.5),
+                position: rusty_mermaid_core::Point::new(
+                    col_cx,
+                    card_cy + metrics.line_height * 0.5,
+                ),
                 content: meta_parts.join(" · "),
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
@@ -208,24 +257,41 @@ mod tests {
 
     #[test]
     fn scene_has_primitives() {
-        let scene = render("kanban\n    Todo\n        task1[Buy milk]\n    Done\n        task2[Laundry]");
-        assert!(scene.len() >= 8, "2 columns (bg + header + label) + 2 cards");
+        let scene =
+            render("kanban\n    Todo\n        task1[Buy milk]\n    Done\n        task2[Laundry]");
+        assert!(
+            scene.len() >= 8,
+            "2 columns (bg + header + label) + 2 cards"
+        );
     }
 
     #[test]
     fn column_count_matches() {
         let scene = render("kanban\n    A\n    B\n    C");
         // 3 columns × (bg rect + header rect + label text) = 9 minimum
-        let rects: Vec<_> = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).collect();
+        let rects: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .collect();
         assert!(rects.len() >= 6, "3 columns × 2 rects each");
     }
 
     #[test]
     fn cards_rendered() {
-        let scene = render("kanban\n    Col\n        a[Card A]\n        b[Card B]\n        c[Card C]");
-        let texts: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.as_str()) } else { None }
-        }).collect();
+        let scene =
+            render("kanban\n    Col\n        a[Card A]\n        b[Card B]\n        c[Card C]");
+        let texts: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
         assert!(texts.contains(&"Card A"));
         assert!(texts.contains(&"Card B"));
         assert!(texts.contains(&"Card C"));
@@ -234,9 +300,21 @@ mod tests {
     #[test]
     fn metadata_rendered() {
         let scene = render("kanban\n    Col\n        t[Task] @{priority: high, assigned: alice}");
-        let texts: Vec<_> = scene.elements().iter().filter_map(|e| {
-            if let Primitive::Text { content, .. } = &e.primitive { Some(content.clone()) } else { None }
-        }).collect();
-        assert!(texts.iter().any(|t| t.contains("High") && t.contains("@alice")));
+        let texts: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter_map(|e| {
+                if let Primitive::Text { content, .. } = &e.primitive {
+                    Some(content.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(
+            texts
+                .iter()
+                .any(|t| t.contains("High") && t.contains("@alice"))
+        );
     }
 }

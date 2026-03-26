@@ -87,7 +87,8 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
     let axis_y = y;
     y += AXIS_HEIGHT;
 
-    let (bars, section_ranges) = compute_bar_layout(chart, &resolved, min_day, total_days, chart_left, &mut y);
+    let (bars, section_ranges) =
+        compute_bar_layout(chart, &resolved, min_day, total_days, chart_left, &mut y);
 
     let area = ChartArea {
         chart_left,
@@ -132,9 +133,8 @@ fn compute_bar_layout(
     chart_left: f64,
     y: &mut f64,
 ) -> (Vec<BarPos>, Vec<SectionRange>) {
-    let day_to_x = |day: i32| -> f64 {
-        chart_left + (day - min_day) as f64 / total_days * CHART_WIDTH
-    };
+    let day_to_x =
+        |day: i32| -> f64 { chart_left + (day - min_day) as f64 / total_days * CHART_WIDTH };
 
     let mut bars: Vec<BarPos> = Vec::new();
     let mut section_ranges: Vec<SectionRange> = Vec::new();
@@ -181,8 +181,12 @@ fn draw_sections(scene: &mut Scene, ranges: &[SectionRange], area: &ChartArea, t
                 area.full_right - area.full_left,
                 sec_h,
             ),
-            rx: 0.0, ry: 0.0,
-            style: Style { fill: Some(Color::rgba(color.r, color.g, color.b, 18)), ..Default::default() },
+            rx: 0.0,
+            ry: 0.0,
+            style: Style {
+                fill: Some(Color::rgba(color.r, color.g, color.b, 18)),
+                ..Default::default()
+            },
         });
         if let Some(name) = &sr.name {
             scene.push(Primitive::Text {
@@ -209,7 +213,11 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
             PathSegment::MoveTo(Point::new(area.chart_left, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_right, axis_line_y)),
         ],
-        style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
+        style: Style {
+            stroke: Some(theme.edge_stroke),
+            stroke_width: Some(1.0),
+            ..Default::default()
+        },
         marker_start: None,
         marker_end: None,
     });
@@ -220,7 +228,16 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
             PathSegment::MoveTo(Point::new(area.chart_right, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_right, area.height - MARGIN)),
         ],
-        style: Style { stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 100)), stroke_width: Some(0.5), ..Default::default() },
+        style: Style {
+            stroke: Some(Color::rgba(
+                theme.grid_stroke.r,
+                theme.grid_stroke.g,
+                theme.grid_stroke.b,
+                100,
+            )),
+            stroke_width: Some(0.5),
+            ..Default::default()
+        },
         marker_start: None,
         marker_end: None,
     });
@@ -231,7 +248,16 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
             PathSegment::MoveTo(Point::new(area.chart_left, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_left, area.height - MARGIN)),
         ],
-        style: Style { stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 100)), stroke_width: Some(0.5), ..Default::default() },
+        style: Style {
+            stroke: Some(Color::rgba(
+                theme.grid_stroke.r,
+                theme.grid_stroke.g,
+                theme.grid_stroke.b,
+                100,
+            )),
+            stroke_width: Some(0.5),
+            ..Default::default()
+        },
         marker_start: None,
         marker_end: None,
     });
@@ -247,7 +273,11 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
                 PathSegment::MoveTo(Point::new(x, axis_line_y - 4.0)),
                 PathSegment::LineTo(Point::new(x, axis_line_y + 4.0)),
             ],
-            style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
+            style: Style {
+                stroke: Some(theme.edge_stroke),
+                stroke_width: Some(1.0),
+                ..Default::default()
+            },
             marker_start: None,
             marker_end: None,
         });
@@ -258,7 +288,12 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
                 PathSegment::LineTo(Point::new(x, area.height - MARGIN)),
             ],
             style: Style {
-                stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 60)),
+                stroke: Some(Color::rgba(
+                    theme.grid_stroke.r,
+                    theme.grid_stroke.g,
+                    theme.grid_stroke.b,
+                    60,
+                )),
                 stroke_width: Some(0.5),
                 stroke_dasharray: Some(vec![4.0, 3.0]),
                 ..Default::default()
@@ -311,14 +346,23 @@ fn draw_bars(scene: &mut Scene, bars: &[BarPos], area: &ChartArea, theme: &Theme
                     Point::new(cx, bar.y + s),
                     Point::new(cx - s, bar.y),
                 ],
-                style: Style { fill: Some(bar_color), stroke: Some(color), stroke_width: Some(1.0), ..Default::default() },
+                style: Style {
+                    fill: Some(bar_color),
+                    stroke: Some(color),
+                    stroke_width: Some(1.0),
+                    ..Default::default()
+                },
             });
         } else {
             let bar_w = (bar.x2 - bar.x1).max(2.0);
             scene.push(Primitive::Rect {
                 bbox: BBox::new(bar.x1 + bar_w / 2.0, bar.y, bar_w, BAR_HEIGHT),
-                rx: 3.0, ry: 3.0,
-                style: Style { fill: Some(bar_color), ..Default::default() },
+                rx: 3.0,
+                ry: 3.0,
+                style: Style {
+                    fill: Some(bar_color),
+                    ..Default::default()
+                },
             });
         }
 
@@ -351,13 +395,18 @@ fn resolve_tasks(chart: &GanttChart) -> Vec<ResolvedTask> {
         for task in &section.tasks {
             let start = match &task.start {
                 TaskStart::Date(d) => parse_date_to_day(d, &chart.date_format),
-                TaskStart::After(id) => {
-                    resolved.iter().find(|r| {
-                        r.name == *id || chart.sections.iter()
-                            .flat_map(|s| &s.tasks)
-                            .any(|t| t.id.as_deref() == Some(id) && t.name == r.name)
-                    }).map(|r| r.end_day).unwrap_or(prev_end)
-                }
+                TaskStart::After(id) => resolved
+                    .iter()
+                    .find(|r| {
+                        r.name == *id
+                            || chart
+                                .sections
+                                .iter()
+                                .flat_map(|s| &s.tasks)
+                                .any(|t| t.id.as_deref() == Some(id) && t.name == r.name)
+                    })
+                    .map(|r| r.end_day)
+                    .unwrap_or(prev_end),
                 TaskStart::Auto => prev_end,
             };
 
@@ -368,7 +417,11 @@ fn resolve_tasks(chart: &GanttChart) -> Vec<ResolvedTask> {
             };
 
             prev_end = end;
-            resolved.push(ResolvedTask { name: task.name.clone(), start_day: start, end_day: end.max(start + 1) });
+            resolved.push(ResolvedTask {
+                name: task.name.clone(),
+                start_day: start,
+                end_day: end.max(start + 1),
+            });
         }
     }
 
@@ -391,9 +444,11 @@ fn parse_date_to_day(date: &str, _format: &str) -> i32 {
 
 fn parse_duration(dur: &str) -> i32 {
     let s = dur.trim();
-    if s.is_empty() { return 1; }
+    if s.is_empty() {
+        return 1;
+    }
     let unit = s.chars().last().unwrap_or('d');
-    let num: i32 = s[..s.len()-1].parse().unwrap_or(1);
+    let num: i32 = s[..s.len() - 1].parse().unwrap_or(1);
     match unit {
         'd' => num,
         'w' => num * 7,
@@ -404,11 +459,17 @@ fn parse_duration(dur: &str) -> i32 {
 }
 
 fn compute_tick_interval(total_days: i32) -> i32 {
-    if total_days <= 7 { 1 }
-    else if total_days <= 30 { 7 }
-    else if total_days <= 90 { 14 }
-    else if total_days <= 365 { 30 }
-    else { 90 }
+    if total_days <= 7 {
+        1
+    } else if total_days <= 30 {
+        7
+    } else if total_days <= 90 {
+        14
+    } else if total_days <= 365 {
+        30
+    } else {
+        90
+    }
 }
 
 /// Convert day number back to "Mon DD" label.
@@ -417,9 +478,18 @@ fn format_day_label(day: i32) -> String {
     let month = d_in_year / 30 + 1;
     let day_of_month = d_in_year % 30 + 1;
     let month_name = match month {
-        1 => "Jan", 2 => "Feb", 3 => "Mar", 4 => "Apr",
-        5 => "May", 6 => "Jun", 7 => "Jul", 8 => "Aug",
-        9 => "Sep", 10 => "Oct", 11 => "Nov", 12 => "Dec",
+        1 => "Jan",
+        2 => "Feb",
+        3 => "Mar",
+        4 => "Apr",
+        5 => "May",
+        6 => "Jun",
+        7 => "Jul",
+        8 => "Aug",
+        9 => "Sep",
+        10 => "Oct",
+        11 => "Nov",
+        12 => "Dec",
         _ => "Jan",
     };
     format!("{month_name} {day_of_month}")
@@ -436,20 +506,26 @@ mod tests {
 
     #[test]
     fn scene_has_primitives() {
-        let scene = render("gantt\n    title Plan\n    Task A :2024-01-01, 5d\n    Task B :2024-01-06, 3d");
+        let scene =
+            render("gantt\n    title Plan\n    Task A :2024-01-01, 5d\n    Task B :2024-01-06, 3d");
         assert!(scene.len() >= 5);
     }
 
     #[test]
     fn scene_with_sections() {
-        let scene = render("gantt\n    section Phase 1\n    Task A :2024-01-01, 5d\n    section Phase 2\n    Task B :2024-01-06, 3d");
+        let scene = render(
+            "gantt\n    section Phase 1\n    Task A :2024-01-01, 5d\n    section Phase 2\n    Task B :2024-01-06, 3d",
+        );
         assert!(scene.len() >= 8);
     }
 
     #[test]
     fn milestone_renders_as_polygon() {
         let scene = render("gantt\n    Milestone :milestone, 2024-01-15, 0d");
-        let has_polygon = scene.elements().iter().any(|e| matches!(&e.primitive, Primitive::Polygon { .. }));
+        let has_polygon = scene
+            .elements()
+            .iter()
+            .any(|e| matches!(&e.primitive, Primitive::Polygon { .. }));
         assert!(has_polygon);
     }
 
@@ -462,7 +538,11 @@ mod tests {
     #[test]
     fn after_dependency() {
         let scene = render("gantt\n    Task A :a1, 2024-01-01, 5d\n    Task B :after a1, 3d");
-        let rects: Vec<_> = scene.elements().iter().filter(|e| matches!(&e.primitive, Primitive::Rect { .. })).collect();
+        let rects: Vec<_> = scene
+            .elements()
+            .iter()
+            .filter(|e| matches!(&e.primitive, Primitive::Rect { .. }))
+            .collect();
         assert!(rects.len() >= 2);
     }
 

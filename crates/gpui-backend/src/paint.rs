@@ -1,11 +1,11 @@
 use gpui::{
-    point, px, quad, font, App, Bounds, BorderStyle, Edges, Font, FontStyle, FontWeight as GpuiFontWeight,
-    Hsla, PathBuilder, Pixels, Point as GpuiPoint, TextRun, Window,
+    App, BorderStyle, Bounds, Edges, Font, FontStyle, FontWeight as GpuiFontWeight, Hsla,
+    PathBuilder, Pixels, Point as GpuiPoint, TextRun, Window, font, point, px, quad,
 };
 use rusty_mermaid_core::{
-    marker_geometry, parse_inline_markdown, text_baseline_y_offset, transform_marker_circle,
-    transform_marker_curves, transform_marker_points, Color, MarkerShape, MarkerType,
-    PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
+    Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme,
+    Transform, marker_geometry, parse_inline_markdown, text_baseline_y_offset,
+    transform_marker_circle, transform_marker_curves, transform_marker_points,
 };
 use rusty_mermaid_viewport::ViewportState;
 
@@ -34,7 +34,12 @@ pub fn paint_scene(
     let ox = bx + viewport.offset.x as f32 + padding as f32;
     let oy = by + viewport.offset.y as f32 + padding as f32;
 
-    let ctx = PaintCtx { theme, zoom, ox, oy };
+    let ctx = PaintCtx {
+        theme,
+        zoom,
+        ox,
+        oy,
+    };
     for elem in scene.elements() {
         paint_primitive(&elem.primitive, &ctx, bounds, window, cx);
     }
@@ -48,25 +53,70 @@ fn paint_primitive(
     cx: &mut App,
 ) {
     match prim {
-        Primitive::Rect { bbox, rx, style, .. } => paint_rect(window, bbox, *rx, style, ctx),
-        Primitive::Circle { center, radius, style } => paint_circle(window, center, *radius, style, ctx),
-        Primitive::Ellipse { center, rx, ry, style } => paint_ellipse(window, center, *rx, *ry, style, ctx),
-        Primitive::Path { segments, style, marker_start, marker_end } => {
+        Primitive::Rect {
+            bbox, rx, style, ..
+        } => paint_rect(window, bbox, *rx, style, ctx),
+        Primitive::Circle {
+            center,
+            radius,
+            style,
+        } => paint_circle(window, center, *radius, style, ctx),
+        Primitive::Ellipse {
+            center,
+            rx,
+            ry,
+            style,
+        } => paint_ellipse(window, center, *rx, *ry, style, ctx),
+        Primitive::Path {
+            segments,
+            style,
+            marker_start,
+            marker_end,
+        } => {
             paint_path(window, segments, style, *marker_start, *marker_end, ctx);
         }
-        Primitive::Text { position, content, anchor, style } => {
+        Primitive::Text {
+            position,
+            content,
+            anchor,
+            style,
+        } => {
             paint_text(window, cx, position, content, *anchor, style, ctx);
         }
         Primitive::Polygon { points, style } => paint_polygon(window, points, style, ctx),
-        Primitive::Group { transform, children } => {
+        Primitive::Group {
+            transform,
+            children,
+        } => {
             let (nzoom, nox, noy) = apply_transform(transform, ctx.zoom, ctx.ox, ctx.oy);
-            let child_ctx = PaintCtx { theme: ctx.theme, zoom: nzoom, ox: nox, oy: noy };
+            let child_ctx = PaintCtx {
+                theme: ctx.theme,
+                zoom: nzoom,
+                ox: nox,
+                oy: noy,
+            };
             for child in children {
                 paint_primitive(child, &child_ctx, bounds, window, cx);
             }
         }
-        Primitive::Arc { center, inner_r, outer_r, start_angle, end_angle, style } => {
-            paint_arc(window, center, *inner_r, *outer_r, *start_angle, *end_angle, style, ctx);
+        Primitive::Arc {
+            center,
+            inner_r,
+            outer_r,
+            start_angle,
+            end_angle,
+            style,
+        } => {
+            paint_arc(
+                window,
+                center,
+                *inner_r,
+                *outer_r,
+                *start_angle,
+                *end_angle,
+                style,
+                ctx,
+            );
         }
     }
 }
@@ -75,8 +125,10 @@ fn paint_primitive(
 
 fn paint_rect(
     window: &mut Window,
-    bbox: &rusty_mermaid_core::BBox, rx: f64,
-    style: &Style, ctx: &PaintCtx,
+    bbox: &rusty_mermaid_core::BBox,
+    rx: f64,
+    style: &Style,
+    ctx: &PaintCtx,
 ) {
     let left = (bbox.x - bbox.width / 2.0) as f32 * ctx.zoom + ctx.ox;
     let top = (bbox.y - bbox.height / 2.0) as f32 * ctx.zoom + ctx.oy;
@@ -88,20 +140,22 @@ fn paint_rect(
         origin: point(px(left), px(top)),
         size: gpui::size(px(w), px(h)),
     };
-    let bg = style.fill.map(to_gpui_color).unwrap_or(gpui::transparent_black());
+    let bg = style
+        .fill
+        .map(to_gpui_color)
+        .unwrap_or(gpui::transparent_black());
     let (border_color, border_width) = resolve_stroke_gpui(style, ctx.theme);
     window.paint_quad(quad(
-        rect_bounds, px(r), bg,
+        rect_bounds,
+        px(r),
+        bg,
         Edges::all(px(border_width * ctx.zoom)),
-        border_color, BorderStyle::Solid,
+        border_color,
+        BorderStyle::Solid,
     ));
 }
 
-fn paint_circle(
-    window: &mut Window,
-    center: &Point, radius: f64,
-    style: &Style, ctx: &PaintCtx,
-) {
+fn paint_circle(window: &mut Window, center: &Point, radius: f64, style: &Style, ctx: &PaintCtx) {
     let cx = center.x as f32 * ctx.zoom + ctx.ox;
     let cy = center.y as f32 * ctx.zoom + ctx.oy;
     let r = radius as f32 * ctx.zoom;
@@ -119,8 +173,11 @@ fn paint_circle(
 
 fn paint_ellipse(
     window: &mut Window,
-    center: &Point, rx: f64, ry: f64,
-    style: &Style, ctx: &PaintCtx,
+    center: &Point,
+    rx: f64,
+    ry: f64,
+    style: &Style,
+    ctx: &PaintCtx,
 ) {
     let ecx = center.x as f32 * ctx.zoom + ctx.ox;
     let ecy = center.y as f32 * ctx.zoom + ctx.oy;
@@ -147,7 +204,8 @@ fn paint_path(
     ctx: &PaintCtx,
 ) {
     let (color, width) = resolve_stroke_gpui(style, ctx.theme);
-    if let Ok(path) = build_stroke_path(segments, ctx.zoom, ctx.ox, ctx.oy, width * ctx.zoom, style) {
+    if let Ok(path) = build_stroke_path(segments, ctx.zoom, ctx.ox, ctx.oy, width * ctx.zoom, style)
+    {
         window.paint_path(path, color);
     }
     if let Some(fill) = style.fill {
@@ -168,8 +226,11 @@ fn paint_path(
 }
 
 fn paint_text(
-    window: &mut Window, cx: &mut App,
-    position: &Point, content: &str, anchor: TextAnchor,
+    window: &mut Window,
+    cx: &mut App,
+    position: &Point,
+    content: &str,
+    anchor: TextAnchor,
     style: &rusty_mermaid_core::TextStyle,
     ctx: &PaintCtx,
 ) {
@@ -184,35 +245,56 @@ fn paint_text(
     let baseline_offset = text_baseline_y_offset(style.font_size, lines.len()) as f32 * ctx.zoom;
 
     for (line_idx, line) in lines.iter().enumerate() {
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
 
         let (display_text, runs) = if let Some(spans) = parse_inline_markdown(line) {
             let mut text = String::new();
             let mut runs = Vec::new();
             for span in &spans {
                 let f = Font {
-                    weight: if span.bold { GpuiFontWeight::BOLD } else { GpuiFontWeight::NORMAL },
-                    style: if span.italic { FontStyle::Italic } else { FontStyle::Normal },
+                    weight: if span.bold {
+                        GpuiFontWeight::BOLD
+                    } else {
+                        GpuiFontWeight::NORMAL
+                    },
+                    style: if span.italic {
+                        FontStyle::Italic
+                    } else {
+                        FontStyle::Normal
+                    },
                     ..font(rusty_mermaid_core::font_fallback::PRIMARY_FONT)
                 };
                 runs.push(TextRun {
-                    len: span.text.len(), font: f, color,
-                    background_color: None, underline: None, strikethrough: None,
+                    len: span.text.len(),
+                    font: f,
+                    color,
+                    background_color: None,
+                    underline: None,
+                    strikethrough: None,
                 });
                 text.push_str(&span.text);
             }
             (text, runs)
         } else {
-            (line.to_string(), vec![TextRun {
-                len: line.len(),
-                font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
-                color, background_color: None, underline: None, strikethrough: None,
-            }])
+            (
+                line.to_string(),
+                vec![TextRun {
+                    len: line.len(),
+                    font: font(rusty_mermaid_core::font_fallback::PRIMARY_FONT),
+                    color,
+                    background_color: None,
+                    underline: None,
+                    strikethrough: None,
+                }],
+            )
         };
 
-        let shaped = window.text_system().shape_line(
-            display_text.into(), px(font_size), &runs, None,
-        );
+        let shaped =
+            window
+                .text_system()
+                .shape_line(display_text.into(), px(font_size), &runs, None);
         let text_w: f32 = shaped.width.into();
         let text_x = match anchor {
             TextAnchor::Start => x,
@@ -224,25 +306,32 @@ fn paint_text(
     }
 }
 
-fn paint_polygon(
-    window: &mut Window,
-    points: &[Point], style: &Style, ctx: &PaintCtx,
-) {
-    if points.len() < 3 { return; }
+fn paint_polygon(window: &mut Window, points: &[Point], style: &Style, ctx: &PaintCtx) {
+    if points.len() < 3 {
+        return;
+    }
     let tp = |p: &Point| transform_pt(p, ctx.zoom, ctx.ox, ctx.oy);
     if let Some(fill) = style.fill {
         let mut pb = PathBuilder::fill();
         pb.move_to(tp(&points[0]));
-        for p in &points[1..] { pb.line_to(tp(p)); }
+        for p in &points[1..] {
+            pb.line_to(tp(p));
+        }
         pb.close();
-        if let Ok(path) = pb.build() { window.paint_path(path, to_gpui_color(fill)); }
+        if let Ok(path) = pb.build() {
+            window.paint_path(path, to_gpui_color(fill));
+        }
     }
     if let Some((color, width)) = resolve_stroke_opt(style, ctx.theme) {
         let mut pb = PathBuilder::stroke(px(width * ctx.zoom));
         pb.move_to(tp(&points[0]));
-        for p in &points[1..] { pb.line_to(tp(p)); }
+        for p in &points[1..] {
+            pb.line_to(tp(p));
+        }
         pb.close();
-        if let Ok(path) = pb.build() { window.paint_path(path, color); }
+        if let Ok(path) = pb.build() {
+            window.paint_path(path, color);
+        }
     }
 }
 
@@ -259,11 +348,20 @@ fn to_gpui_color(c: Color) -> Hsla {
     let l = (max + min) / 2.0;
 
     if (max - min).abs() < 1e-6 {
-        return Hsla { h: 0.0, s: 0.0, l, a };
+        return Hsla {
+            h: 0.0,
+            s: 0.0,
+            l,
+            a,
+        };
     }
 
     let d = max - min;
-    let s = if l > 0.5 { d / (2.0 - max - min) } else { d / (max + min) };
+    let s = if l > 0.5 {
+        d / (2.0 - max - min)
+    } else {
+        d / (max + min)
+    };
     let h = if (max - r).abs() < 1e-6 {
         ((g - b) / d + if g < b { 6.0 } else { 0.0 }) / 6.0
     } else if (max - g).abs() < 1e-6 {
@@ -276,11 +374,15 @@ fn to_gpui_color(c: Color) -> Hsla {
 }
 
 fn resolve_stroke_gpui(style: &Style, theme: &Theme) -> (Hsla, f32) {
-    (to_gpui_color(style.resolved_stroke(theme)), style.resolved_stroke_width(theme) as f32)
+    (
+        to_gpui_color(style.resolved_stroke(theme)),
+        style.resolved_stroke_width(theme) as f32,
+    )
 }
 
 fn resolve_stroke_opt(style: &Style, theme: &Theme) -> Option<(Hsla, f32)> {
-    style.resolve_stroke_opt(theme)
+    style
+        .resolve_stroke_opt(theme)
         .map(|(c, w)| (to_gpui_color(c), w as f32))
 }
 
@@ -327,7 +429,13 @@ fn build_fill_path(
     pb.build()
 }
 
-fn build_path_segments(pb: &mut PathBuilder, segments: &[PathSegment], zoom: f32, ox: f32, oy: f32) {
+fn build_path_segments(
+    pb: &mut PathBuilder,
+    segments: &[PathSegment],
+    zoom: f32,
+    ox: f32,
+    oy: f32,
+) {
     for seg in segments {
         match seg {
             PathSegment::MoveTo(p) => pb.move_to(transform_pt(p, zoom, ox, oy)),
@@ -345,7 +453,14 @@ fn build_path_segments(pb: &mut PathBuilder, segments: &[PathSegment], zoom: f32
                     transform_pt(cp, zoom, ox, oy),
                 );
             }
-            PathSegment::ArcTo { rx, ry, rotation, large_arc, sweep, to } => {
+            PathSegment::ArcTo {
+                rx,
+                ry,
+                rotation,
+                large_arc,
+                sweep,
+                to,
+            } => {
                 let radii = point(px(*rx as f32 * zoom), px(*ry as f32 * zoom));
                 pb.arc_to(
                     radii,
@@ -366,11 +481,21 @@ fn circle_fill_path(cx: f32, cy: f32, r: f32) -> Result<gpui::Path<Pixels>, anyh
     ellipse_fill_path(cx, cy, r, r)
 }
 
-fn circle_stroke_path(cx: f32, cy: f32, r: f32, width: f32) -> Result<gpui::Path<Pixels>, anyhow::Error> {
+fn circle_stroke_path(
+    cx: f32,
+    cy: f32,
+    r: f32,
+    width: f32,
+) -> Result<gpui::Path<Pixels>, anyhow::Error> {
     ellipse_stroke_path(cx, cy, r, r, width)
 }
 
-fn ellipse_fill_path(cx: f32, cy: f32, rx: f32, ry: f32) -> Result<gpui::Path<Pixels>, anyhow::Error> {
+fn ellipse_fill_path(
+    cx: f32,
+    cy: f32,
+    rx: f32,
+    ry: f32,
+) -> Result<gpui::Path<Pixels>, anyhow::Error> {
     let mut pb = PathBuilder::fill();
     let radii = point(px(rx), px(ry));
     pb.move_to(point(px(cx + rx), px(cy)));
@@ -380,7 +505,13 @@ fn ellipse_fill_path(cx: f32, cy: f32, rx: f32, ry: f32) -> Result<gpui::Path<Pi
     pb.build()
 }
 
-fn ellipse_stroke_path(cx: f32, cy: f32, rx: f32, ry: f32, width: f32) -> Result<gpui::Path<Pixels>, anyhow::Error> {
+fn ellipse_stroke_path(
+    cx: f32,
+    cy: f32,
+    rx: f32,
+    ry: f32,
+    width: f32,
+) -> Result<gpui::Path<Pixels>, anyhow::Error> {
     let mut pb = PathBuilder::stroke(px(width));
     let radii = point(px(rx), px(ry));
     pb.move_to(point(px(cx + rx), px(cy)));
@@ -406,39 +537,89 @@ fn paint_marker(
     let mp = rusty_mermaid_core::marker_path(marker, tip, angle, sw);
 
     let to_screen = |p: &Point| -> GpuiPoint<Pixels> {
-        point(px(p.x as f32 * ctx.zoom + ctx.ox), px(p.y as f32 * ctx.zoom + ctx.oy))
+        point(
+            px(p.x as f32 * ctx.zoom + ctx.ox),
+            px(p.y as f32 * ctx.zoom + ctx.oy),
+        )
     };
 
     match mp {
         MarkerPath::FillPolygon { points } => {
             let mut pb = PathBuilder::fill();
-            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
-            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
+            if let Some(first) = points.first() {
+                pb.move_to(to_screen(first));
+            }
+            for p in points.iter().skip(1) {
+                pb.line_to(to_screen(p));
+            }
             pb.close();
-            if let Ok(path) = pb.build() { window.paint_path(path, color); }
+            if let Ok(path) = pb.build() {
+                window.paint_path(path, color);
+            }
         }
-        MarkerPath::StrokePolyline { points, width, closed } => {
+        MarkerPath::StrokePolyline {
+            points,
+            width,
+            closed,
+        } => {
             let mut pb = PathBuilder::stroke(px(width as f32 * ctx.zoom));
-            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
-            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
-            if closed { pb.close(); }
-            if let Ok(path) = pb.build() { window.paint_path(path, color); }
+            if let Some(first) = points.first() {
+                pb.move_to(to_screen(first));
+            }
+            for p in points.iter().skip(1) {
+                pb.line_to(to_screen(p));
+            }
+            if closed {
+                pb.close();
+            }
+            if let Ok(path) = pb.build() {
+                window.paint_path(path, color);
+            }
         }
-        MarkerPath::FillAndStrokePolygon { points, stroke_width: sw, fill_is_marker_color } => {
-            let fill = if fill_is_marker_color { color } else { Hsla { h: 0.0, s: 0.0, l: 1.0, a: 1.0 } };
+        MarkerPath::FillAndStrokePolygon {
+            points,
+            stroke_width: sw,
+            fill_is_marker_color,
+        } => {
+            let fill = if fill_is_marker_color {
+                color
+            } else {
+                Hsla {
+                    h: 0.0,
+                    s: 0.0,
+                    l: 1.0,
+                    a: 1.0,
+                }
+            };
             let mut pb = PathBuilder::fill();
-            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
-            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
+            if let Some(first) = points.first() {
+                pb.move_to(to_screen(first));
+            }
+            for p in points.iter().skip(1) {
+                pb.line_to(to_screen(p));
+            }
             pb.close();
-            if let Ok(path) = pb.build() { window.paint_path(path, fill); }
+            if let Ok(path) = pb.build() {
+                window.paint_path(path, fill);
+            }
             let mut pb = PathBuilder::stroke(px(sw as f32 * ctx.zoom));
-            if let Some(first) = points.first() { pb.move_to(to_screen(first)); }
-            for p in points.iter().skip(1) { pb.line_to(to_screen(p)); }
+            if let Some(first) = points.first() {
+                pb.move_to(to_screen(first));
+            }
+            for p in points.iter().skip(1) {
+                pb.line_to(to_screen(p));
+            }
             pb.close();
-            if let Ok(path) = pb.build() { window.paint_path(path, color); }
+            if let Ok(path) = pb.build() {
+                window.paint_path(path, color);
+            }
         }
         MarkerPath::FillCircle { center, radius } => {
-            if let Ok(path) = circle_fill_path(center.x as f32 * ctx.zoom + ctx.ox, center.y as f32 * ctx.zoom + ctx.oy, radius as f32 * ctx.zoom) {
+            if let Ok(path) = circle_fill_path(
+                center.x as f32 * ctx.zoom + ctx.ox,
+                center.y as f32 * ctx.zoom + ctx.oy,
+                radius as f32 * ctx.zoom,
+            ) {
                 window.paint_path(path, color);
             }
         }
@@ -447,7 +628,9 @@ fn paint_marker(
                 let mut pb = PathBuilder::stroke(px(width as f32 * ctx.zoom));
                 pb.move_to(to_screen(start));
                 pb.curve_to(to_screen(end), to_screen(cp));
-                if let Ok(path) = pb.build() { window.paint_path(path, color); }
+                if let Ok(path) = pb.build() {
+                    window.paint_path(path, color);
+                }
             }
         }
     }
@@ -467,7 +650,11 @@ fn paint_arc(
 ) {
     if let Some(fill) = style.fill {
         let segs = rusty_mermaid_core::arc_sector_segments(
-            *center, inner_r, outer_r, start_angle, end_angle,
+            *center,
+            inner_r,
+            outer_r,
+            start_angle,
+            end_angle,
         );
         let mut pb = PathBuilder::fill();
         build_path_segments(&mut pb, &segs, ctx.zoom, ctx.ox, ctx.oy);
@@ -476,4 +663,3 @@ fn paint_arc(
         }
     }
 }
-

@@ -165,8 +165,7 @@ fn parse_subgraph_header(input: &mut &str) -> ModalResult<(String, Option<String
         }
         // No bracket — could be `subgraph Title Text`
         // Check if the rest of the line (before newline) is more text
-        let remaining = take_while(0.., |c: char| c != '\n' && c != '\r')
-            .parse_next(input)?;
+        let remaining = take_while(0.., |c: char| c != '\n' && c != '\r').parse_next(input)?;
         let full_title = format!("{}{}", id, remaining).trim().to_string();
         // Use a sanitized version as ID
         let sg_id = full_title.replace(' ', "_");
@@ -277,9 +276,10 @@ fn parse_node_ref(
 
 /// Parse node shape delimiter and label text. Returns (Shape, label).
 fn parse_node_shape(input: &mut &str) -> ModalResult<(Shape, String)> {
-    let c = input.chars().next().ok_or_else(|| {
-        winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new())
-    })?;
+    let c = input
+        .chars()
+        .next()
+        .ok_or_else(|| winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new()))?;
 
     match c {
         '[' => {
@@ -377,8 +377,7 @@ fn parse_node_shape(input: &mut &str) -> ModalResult<(Shape, String)> {
 
 /// Parse trapezoid label text until `\]` or `/]`.
 fn text_until_trap(input: &mut &str) -> ModalResult<String> {
-    let content = take_while(0.., |c: char| c != '\\' && c != '/' && c != ']')
-        .parse_next(input)?;
+    let content = take_while(0.., |c: char| c != '\\' && c != '/' && c != ']').parse_next(input)?;
     // Consume closing: `\]` or `/]`
     any.parse_next(input)?; // `\` or `/`
     ']'.parse_next(input)?;
@@ -498,7 +497,9 @@ fn parse_inline_edge_label(input: &mut &str, stop_chars: &str) -> ModalResult<Op
     if input.is_empty() {
         return Ok(None);
     }
-    let Some(next) = input.chars().next() else { return Ok(None) };
+    let Some(next) = input.chars().next() else {
+        return Ok(None);
+    };
     // If next char is a stop char or arrow endpoint, no label
     if stop_chars.contains(next) || next == '>' || next == 'x' || next == 'o' {
         return Ok(None);

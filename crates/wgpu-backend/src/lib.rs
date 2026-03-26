@@ -6,21 +6,13 @@ use rusty_mermaid_core::{Color, Scene, Theme};
 use rusty_mermaid_viewport::ViewportState;
 
 /// Convert a rusty-mermaid Scene into a vello Scene ready for GPU rendering.
-pub fn render(
-    scene: &Scene,
-    theme: &Theme,
-    viewport: &ViewportState,
-) -> vello::Scene {
+pub fn render(scene: &Scene, theme: &Theme, viewport: &ViewportState) -> vello::Scene {
     build_vello_scene(scene, theme, viewport)
 }
 
 /// Render a single Scene to PNG bytes via GPU (headless).
 /// Creates a fresh GPU context — use `GpuRenderer` for batch rendering.
-pub fn render_to_png(
-    scene: &Scene,
-    theme: &Theme,
-    scale: f64,
-) -> Vec<u8> {
+pub fn render_to_png(scene: &Scene, theme: &Theme, scale: f64) -> Vec<u8> {
     let mut gpu = GpuRenderer::new();
     gpu.render_scene_to_png(scene, theme, scale)
 }
@@ -63,16 +55,15 @@ impl GpuRenderer {
         )
         .expect("failed to create vello renderer");
 
-        Self { device, queue, renderer }
+        Self {
+            device,
+            queue,
+            renderer,
+        }
     }
 
     /// Render a Scene to PNG bytes, reusing the GPU device.
-    pub fn render_scene_to_png(
-        &mut self,
-        scene: &Scene,
-        theme: &Theme,
-        scale: f64,
-    ) -> Vec<u8> {
+    pub fn render_scene_to_png(&mut self, scene: &Scene, theme: &Theme, scale: f64) -> Vec<u8> {
         let padding = theme.padding;
         let max_dim: u32 = 8192;
 
@@ -109,7 +100,11 @@ impl GpuRenderer {
     ) -> Vec<u8> {
         let texture = self.device.create_texture(&wgpu::TextureDescriptor {
             label: Some("vello_target"),
-            size: wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
+            size: wgpu::Extent3d {
+                width,
+                height,
+                depth_or_array_layers: 1,
+            },
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
@@ -119,7 +114,12 @@ impl GpuRenderer {
         });
 
         let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
-        let bg = vello::peniko::Color::from_rgba8(background.r, background.g, background.b, background.a);
+        let bg = vello::peniko::Color::from_rgba8(
+            background.r,
+            background.g,
+            background.b,
+            background.a,
+        );
 
         self.renderer
             .render_to_texture(
@@ -161,7 +161,11 @@ impl GpuRenderer {
                     rows_per_image: None,
                 },
             },
-            wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
+            wgpu::Extent3d {
+                width,
+                height,
+                depth_or_array_layers: 1,
+            },
         );
         self.queue.submit(Some(encoder.finish()));
 
@@ -171,7 +175,9 @@ impl GpuRenderer {
             tx.send(result).expect("channel closed");
         });
         let _ = self.device.poll(wgpu::PollType::wait_indefinitely());
-        rx.recv().expect("channel closed").expect("buffer map failed");
+        rx.recv()
+            .expect("channel closed")
+            .expect("buffer map failed");
 
         let data = slice.get_mapped_range();
         let mut pixels = Vec::with_capacity((width * height * 4) as usize);
@@ -193,7 +199,9 @@ fn encode_png(pixels: &[u8], width: u32, height: u32) -> Vec<u8> {
     encoder.set_color(png::ColorType::Rgba);
     encoder.set_depth(png::BitDepth::Eight);
     let mut writer = encoder.write_header().expect("PNG header write failed");
-    writer.write_image_data(pixels).expect("PNG data write failed");
+    writer
+        .write_image_data(pixels)
+        .expect("PNG data write failed");
     writer.finish().expect("PNG finish failed");
     buf
 }

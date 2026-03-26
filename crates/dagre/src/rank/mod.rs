@@ -87,11 +87,7 @@ mod tests {
     fn ranks_start_at_zero() {
         let mut g = make_diamond();
         rank(&mut g, Ranker::NetworkSimplex);
-        let min_rank = g
-            .node_ids()
-            .map(|nid| ranked(&g, nid))
-            .min()
-            .unwrap();
+        let min_rank = g.node_ids().map(|nid| ranked(&g, nid)).min().unwrap();
         assert_eq!(min_rank, 0);
     }
 }

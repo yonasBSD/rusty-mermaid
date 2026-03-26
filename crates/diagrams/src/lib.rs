@@ -146,7 +146,33 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
 }
 
 /// Unified entry: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn", feature = "radar", feature = "user-journey", feature = "treeview", feature = "ishikawa", feature = "treemap", feature = "block", feature = "c4", feature = "architecture"))]
+#[cfg(any(
+    feature = "flowchart",
+    feature = "state",
+    feature = "sequence",
+    feature = "class",
+    feature = "er",
+    feature = "requirement",
+    feature = "pie",
+    feature = "timeline",
+    feature = "kanban",
+    feature = "gantt",
+    feature = "gitgraph",
+    feature = "xychart",
+    feature = "mindmap",
+    feature = "sankey",
+    feature = "packet",
+    feature = "quadrant",
+    feature = "venn",
+    feature = "radar",
+    feature = "user-journey",
+    feature = "treeview",
+    feature = "ishikawa",
+    feature = "treemap",
+    feature = "block",
+    feature = "c4",
+    feature = "architecture"
+))]
 pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
     render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
 }
@@ -194,7 +220,33 @@ fn preprocess(input: &str) -> String {
 }
 
 /// Unified entry with explicit theme: parse + layout → Scene.
-#[cfg(any(feature = "flowchart", feature = "state", feature = "sequence", feature = "class", feature = "er", feature = "requirement", feature = "pie", feature = "timeline", feature = "kanban", feature = "gantt", feature = "gitgraph", feature = "xychart", feature = "mindmap", feature = "sankey", feature = "packet", feature = "quadrant", feature = "venn", feature = "radar", feature = "user-journey", feature = "treeview", feature = "ishikawa", feature = "treemap", feature = "block", feature = "c4", feature = "architecture"))]
+#[cfg(any(
+    feature = "flowchart",
+    feature = "state",
+    feature = "sequence",
+    feature = "class",
+    feature = "er",
+    feature = "requirement",
+    feature = "pie",
+    feature = "timeline",
+    feature = "kanban",
+    feature = "gantt",
+    feature = "gitgraph",
+    feature = "xychart",
+    feature = "mindmap",
+    feature = "sankey",
+    feature = "packet",
+    feature = "quadrant",
+    feature = "venn",
+    feature = "radar",
+    feature = "user-journey",
+    feature = "treeview",
+    feature = "ishikawa",
+    feature = "treemap",
+    feature = "block",
+    feature = "c4",
+    feature = "architecture"
+))]
 pub fn render_to_scene_themed(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
@@ -203,11 +255,7 @@ pub fn render_to_scene_themed(
     let input = &cleaned;
 
     let kind = detect(input).ok_or_else(|| {
-        ParseError::new(
-            common::error::ParseErrorKind::UnexpectedToken,
-            0..0,
-            input,
-        )
+        ParseError::new(common::error::ParseErrorKind::UnexpectedToken, 0..0, input)
     })?;
 
     match kind {

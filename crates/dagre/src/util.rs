@@ -23,7 +23,11 @@ pub(crate) fn slack_pair(graph: &Graph<NodeLabel, EdgeLabel>, src: NodeId, dst: 
 }
 
 /// Combined weight of all parallel edges from src to dst.
-pub(crate) fn combined_weight(graph: &Graph<NodeLabel, EdgeLabel>, src: NodeId, dst: NodeId) -> f64 {
+pub(crate) fn combined_weight(
+    graph: &Graph<NodeLabel, EdgeLabel>,
+    src: NodeId,
+    dst: NodeId,
+) -> f64 {
     let mut sum = 0.0;
     for eid in graph.out_edges(src) {
         if let Some((_, d)) = graph.edge_endpoints(eid)
@@ -36,7 +40,11 @@ pub(crate) fn combined_weight(graph: &Graph<NodeLabel, EdgeLabel>, src: NodeId, 
 }
 
 /// Maximum minlen across all parallel edges from src to dst.
-pub(crate) fn effective_minlen(graph: &Graph<NodeLabel, EdgeLabel>, src: NodeId, dst: NodeId) -> i32 {
+pub(crate) fn effective_minlen(
+    graph: &Graph<NodeLabel, EdgeLabel>,
+    src: NodeId,
+    dst: NodeId,
+) -> i32 {
     let mut max = 0;
     for eid in graph.out_edges(src) {
         if let Some((_, d)) = graph.edge_endpoints(eid)
@@ -69,7 +77,8 @@ pub(crate) fn has_directed_edge(
     src: NodeId,
     dst: NodeId,
 ) -> bool {
-    graph.out_edges(src)
+    graph
+        .out_edges(src)
         .any(|eid| graph.edge_endpoints(eid).is_some_and(|(_, d)| d == dst))
 }
 
@@ -94,7 +103,8 @@ pub(crate) fn node_edges(
 
 /// Maximum rank across all nodes in the graph.
 pub fn max_rank(graph: &Graph<NodeLabel, EdgeLabel>) -> i32 {
-    graph.node_ids()
+    graph
+        .node_ids()
         .filter_map(|id| graph.node(id).map(|n| n.rank))
         .max()
         .unwrap_or(0)
@@ -123,7 +133,9 @@ fn build_layer_matrix_filtered(
         if leaves_only && graph.children(nid).next().is_some() {
             continue;
         }
-        let Some(node) = graph.node(nid) else { continue };
+        let Some(node) = graph.node(nid) else {
+            continue;
+        };
         let rank = node.rank;
         if rank >= 0 && (rank as usize) < layers.len() {
             layers[rank as usize].push(nid);

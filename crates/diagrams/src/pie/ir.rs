@@ -8,7 +8,11 @@ pub struct PieChart {
 
 impl PieChart {
     pub fn new() -> Self {
-        Self { title: None, show_data: false, slices: Vec::new() }
+        Self {
+            title: None,
+            show_data: false,
+            slices: Vec::new(),
+        }
     }
 
     pub fn total(&self) -> f64 {
@@ -30,8 +34,14 @@ mod tests {
     #[test]
     fn total() {
         let mut p = PieChart::new();
-        p.slices.push(PieSlice { label: "A".into(), value: 30.0 });
-        p.slices.push(PieSlice { label: "B".into(), value: 70.0 });
+        p.slices.push(PieSlice {
+            label: "A".into(),
+            value: 30.0,
+        });
+        p.slices.push(PieSlice {
+            label: "B".into(),
+            value: 70.0,
+        });
         assert!((p.total() - 100.0).abs() < f64::EPSILON);
     }
 
@@ -52,7 +62,10 @@ mod tests {
     #[test]
     fn total_single_slice() {
         let mut p = PieChart::new();
-        p.slices.push(PieSlice { label: "Only".into(), value: 42.5 });
+        p.slices.push(PieSlice {
+            label: "Only".into(),
+            value: 42.5,
+        });
         assert!((p.total() - 42.5).abs() < f64::EPSILON);
     }
 

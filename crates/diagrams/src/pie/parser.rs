@@ -39,7 +39,9 @@ fn parse_pie(input: &mut &str) -> ModalResult<PieChart> {
     // Parse slices
     loop {
         skip.parse_next(input)?;
-        if input.is_empty() { break; }
+        if input.is_empty() {
+            break;
+        }
 
         // title on its own line
         if input.starts_with("title") {
@@ -72,23 +74,31 @@ fn parse_pie(input: &mut &str) -> ModalResult<PieChart> {
 }
 
 fn parse_slice(input: &mut &str) -> Option<PieSlice> {
-    if !input.starts_with('"') { return None; }
+    if !input.starts_with('"') {
+        return None;
+    }
     *input = &input[1..];
     let end = input.find('"')?;
     let label = input[..end].to_string();
     *input = &input[end + 1..];
 
     skip_horizontal_ws(input);
-    if !input.starts_with(':') { return None; }
+    if !input.starts_with(':') {
+        return None;
+    }
     *input = &input[1..];
     skip_horizontal_ws(input);
 
-    let val_end = input.find(|c: char| !c.is_ascii_digit() && c != '.').unwrap_or(input.len());
+    let val_end = input
+        .find(|c: char| !c.is_ascii_digit() && c != '.')
+        .unwrap_or(input.len());
     let val_str = &input[..val_end];
     let value: f64 = val_str.parse().ok()?;
     *input = &input[val_end..];
 
-    if value < 0.0 { return None; }
+    if value < 0.0 {
+        return None;
+    }
     Some(PieSlice { label, value })
 }
 
@@ -105,7 +115,11 @@ fn take_to_eol<'i>(input: &mut &'i str) -> &'i str {
 
 fn skip_to_eol(input: &mut &str) {
     let end = input.find('\n').unwrap_or(input.len());
-    *input = if end < input.len() { &input[end + 1..] } else { "" };
+    *input = if end < input.len() {
+        &input[end + 1..]
+    } else {
+        ""
+    };
 }
 
 #[cfg(test)]
