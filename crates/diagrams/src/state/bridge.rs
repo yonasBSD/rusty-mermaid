@@ -420,11 +420,11 @@ fn resolve_pseudo(transition_id: &str, node_id: &str, is_source: bool) -> bool {
 
 /// Check if a state ID refers to a composite (compound) state.
 pub(super) fn is_compound_state(states: &[super::ir::StateNode], id: &str) -> bool {
-    for s in states {
-        if s.id == id {
-            return s.is_composite();
+    for state in states {
+        if state.id == id {
+            return state.is_composite();
         }
-        if let StateKind::Composite { children, .. } = &s.kind
+        if let StateKind::Composite { children, .. } = &state.kind
             && is_compound_state(children, id)
         {
             return true;
@@ -435,11 +435,11 @@ pub(super) fn is_compound_state(states: &[super::ir::StateNode], id: &str) -> bo
 
 /// Recursively find a state's label by ID across all nesting levels.
 fn find_state_label(states: &[super::ir::StateNode], id: &str) -> Option<String> {
-    for s in states {
-        if s.id == id {
-            return s.label.clone().or_else(|| Some(s.id.clone()));
+    for state in states {
+        if state.id == id {
+            return state.label.clone().or_else(|| Some(state.id.clone()));
         }
-        if let StateKind::Composite { children, .. } = &s.kind
+        if let StateKind::Composite { children, .. } = &state.kind
             && let Some(label) = find_state_label(children, id)
         {
             return Some(label);
@@ -499,11 +499,11 @@ fn node_shape(states: &[super::ir::StateNode], id: &str) -> Shape {
 
 /// Recursively find a state's kind by ID across all nesting levels.
 fn find_state_kind<'a>(states: &'a [super::ir::StateNode], id: &str) -> Option<&'a StateKind> {
-    for s in states {
-        if s.id == id {
-            return Some(&s.kind);
+    for state in states {
+        if state.id == id {
+            return Some(&state.kind);
         }
-        if let StateKind::Composite { children, .. } = &s.kind
+        if let StateKind::Composite { children, .. } = &state.kind
             && let Some(kind) = find_state_kind(children, id)
         {
             return Some(kind);

@@ -15,8 +15,8 @@ pub(super) fn fix_region_order(
     graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
-    for s in &diagram.states {
-        fix_region_order_for_state(s, graph, id_map);
+    for state in &diagram.states {
+        fix_region_order_for_state(state, graph, id_map);
     }
 }
 
@@ -102,8 +102,8 @@ pub(super) fn center_content(
     graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
-    for s in &diagram.states {
-        center_content_for_state(s, graph, id_map);
+    for state in &diagram.states {
+        center_content_for_state(state, graph, id_map);
     }
 }
 
@@ -225,8 +225,8 @@ pub(super) fn center_bullseyes(
         id_map,
     );
     // Recurse into composites
-    for s in &diagram.states {
-        center_bullseyes_in_state(s, graph, id_map);
+    for state in &diagram.states {
+        center_bullseyes_in_state(state, graph, id_map);
     }
 }
 
@@ -348,8 +348,8 @@ pub(super) fn center_external_connections(
     id_map: &BTreeMap<String, NodeId>,
 ) {
     center_external_in_scope(&diagram.transitions, &diagram.states, graph, id_map);
-    for s in &diagram.states {
-        center_external_in_state(s, graph, id_map);
+    for state in &diagram.states {
+        center_external_in_state(state, graph, id_map);
     }
 }
 
@@ -374,18 +374,18 @@ pub(super) fn center_external_in_scope(
     // Collect which external nodes need centering and their target x
     let mut centered: HashSet<NodeId> = HashSet::new();
 
-    for t in transitions {
-        if t.src == "[*]" || t.dst == "[*]" {
+    for trans in transitions {
+        if trans.src == "[*]" || trans.dst == "[*]" {
             continue;
         }
 
-        let src_is_composite = is_compound_state(states, &t.src);
-        let dst_is_composite = is_compound_state(states, &t.dst);
+        let src_is_composite = is_compound_state(states, &trans.src);
+        let dst_is_composite = is_compound_state(states, &trans.dst);
 
         // Composite → external: center external node on composite's x
         if src_is_composite && !dst_is_composite {
-            let Some(&comp_nid) = id_map.get(&t.src) else { continue };
-            let Some(&ext_nid) = id_map.get(&t.dst) else { continue };
+            let Some(&comp_nid) = id_map.get(&trans.src) else { continue };
+            let Some(&ext_nid) = id_map.get(&trans.dst) else { continue };
             if centered.contains(&ext_nid) {
                 continue;
             }
@@ -410,8 +410,8 @@ pub(super) fn center_external_in_scope(
         }
         // External → composite: center external node on composite's x
         if dst_is_composite && !src_is_composite {
-            let Some(&comp_nid) = id_map.get(&t.dst) else { continue };
-            let Some(&ext_nid) = id_map.get(&t.src) else { continue };
+            let Some(&comp_nid) = id_map.get(&trans.dst) else { continue };
+            let Some(&ext_nid) = id_map.get(&trans.src) else { continue };
             if centered.contains(&ext_nid) {
                 continue;
             }

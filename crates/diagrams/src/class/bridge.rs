@@ -104,11 +104,11 @@ fn build_class_graph(
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut class_dims: BTreeMap<String, ClassDims> = BTreeMap::new();
 
-    for c in &diagram.classes {
-        let dims = compute_class_dims(c, measurer, style, line_height);
+    for class in &diagram.classes {
+        let dims = compute_class_dims(class, measurer, style, line_height);
         let nid = graph.add_node(NodeLabel::new(dims.width, dims.height));
-        id_map.insert(c.id.clone(), nid);
-        class_dims.insert(c.id.clone(), dims);
+        id_map.insert(class.id.clone(), nid);
+        class_dims.insert(class.id.clone(), dims);
     }
 
     // Namespaces as compound nodes
@@ -148,18 +148,18 @@ fn extract_class_layouts(
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
 
-    for c in &diagram.classes {
-        let Some(&nid) = id_map.get(&c.id) else { continue };
+    for class in &diagram.classes {
+        let Some(&nid) = id_map.get(&class.id) else { continue };
         let Some(n) = graph.node(nid) else { continue };
-        let dims = &class_dims[&c.id];
+        let dims = &class_dims[&class.id];
 
         classes.push(ClassLayout {
-            id: c.id.clone(),
-            label: c.label.clone().unwrap_or_else(|| c.id.clone()),
-            generic_type: c.generic_type.clone(),
-            annotations: c.annotations.clone(),
-            members: c.members.clone(),
-            methods: c.methods.clone(),
+            id: class.id.clone(),
+            label: class.label.clone().unwrap_or_else(|| class.id.clone()),
+            generic_type: class.generic_type.clone(),
+            annotations: class.annotations.clone(),
+            members: class.members.clone(),
+            methods: class.methods.clone(),
             x: n.x,
             y: n.y,
             width: n.width.max(dims.width),
@@ -167,7 +167,7 @@ fn extract_class_layouts(
             title_height: dims.title_height,
             members_height: dims.members_height,
             methods_height: dims.methods_height,
-            custom_style: node_styles.get(c.id.as_str()).cloned(),
+            custom_style: node_styles.get(class.id.as_str()).cloned(),
         });
         max_x = max_x.max(n.x + n.width / 2.0);
         max_y = max_y.max(n.y + n.height / 2.0);

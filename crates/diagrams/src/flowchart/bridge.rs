@@ -159,22 +159,22 @@ fn extract_flow_nodes(
     let mut max_x: f64 = 0.0;
     let mut max_y: f64 = 0.0;
 
-    for v in &diagram.vertices {
-        if sg_ids.contains(v.id.as_str()) {
+    for vertex in &diagram.vertices {
+        if sg_ids.contains(vertex.id.as_str()) {
             continue;
         }
-        if let Some(&nid) = id_map.get(v.id.as_str()) {
+        if let Some(&nid) = id_map.get(vertex.id.as_str()) {
             let Some(n) = graph.node(nid) else { continue };
             nodes.push(NodeLayout {
-                id: v.id.clone(),
-                label: strip_html_tags(&v.label),
-                shape: v.shape,
+                id: vertex.id.clone(),
+                label: strip_html_tags(&vertex.label),
+                shape: vertex.shape,
                 x: n.x,
                 y: n.y,
                 width: n.width,
                 height: n.height,
                 is_compound: false,
-                custom_style: node_styles.get(v.id.as_str()).cloned(),
+                custom_style: node_styles.get(vertex.id.as_str()).cloned(),
                 region_count: 0,
             });
             max_x = max_x.max(n.x + n.width / 2.0);
@@ -291,13 +291,13 @@ fn build_flow_graph<'a>(
     let style = TextStyle::default();
     let mut id_map: BTreeMap<&str, NodeId> = BTreeMap::new();
 
-    for v in &diagram.vertices {
-        let text = strip_html_tags(&v.label);
+    for vertex in &diagram.vertices {
+        let text = strip_html_tags(&vertex.label);
         let ts = measurer.measure(&text, &style);
         let text_w = ts.width + PADDING_X * 2.0;
         let text_h = ts.height + PADDING_Y * 2.0;
 
-        let (width, height) = match v.shape {
+        let (width, height) = match vertex.shape {
             Shape::Circle => {
                 let d = text_w.max(text_h);
                 (d, d)
@@ -324,7 +324,7 @@ fn build_flow_graph<'a>(
         };
 
         let nid = graph.add_node(NodeLabel::new(width, height));
-        id_map.insert(&v.id, nid);
+        id_map.insert(&vertex.id, nid);
     }
 
     // Two passes: create all subgraph nodes, then set parent-child.
@@ -350,12 +350,12 @@ fn build_flow_graph<'a>(
         }
     }
 
-    for e in &diagram.edges {
-        let Some(&src) = id_map.get(e.src.as_str()) else { continue };
-        let Some(&dst) = id_map.get(e.dst.as_str()) else { continue };
+    for edge in &diagram.edges {
+        let Some(&src) = id_map.get(edge.src.as_str()) else { continue };
+        let Some(&dst) = id_map.get(edge.dst.as_str()) else { continue };
         let mut label = EdgeLabel::default();
-        label.minlen = e.minlen.min(10);
-        if let Some(text) = &e.label {
+        label.minlen = edge.minlen.min(10);
+        if let Some(text) = &edge.label {
             let ts = measurer.measure(text, &style);
             label.width = ts.width;
             label.height = ts.height;

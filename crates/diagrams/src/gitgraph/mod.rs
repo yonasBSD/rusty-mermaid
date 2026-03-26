@@ -45,9 +45,9 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
     // Assign lane indices to branches
     let mut branch_lanes: BTreeMap<String, usize> = BTreeMap::new();
     let mut next_lane: usize = 0;
-    for c in &commits {
-        if !branch_lanes.contains_key(&c.branch) {
-            branch_lanes.insert(c.branch.clone(), next_lane);
+    for commit in &commits {
+        if !branch_lanes.contains_key(&commit.branch) {
+            branch_lanes.insert(commit.branch.clone(), next_lane);
             next_lane += 1;
         }
     }
