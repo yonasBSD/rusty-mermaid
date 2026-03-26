@@ -1,0 +1,28 @@
+[package]
+name = "rusty-mermaid"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Mermaid diagram rendering in pure Rust — parse, layout, and render to SVG/PNG/GPU"
+
+[dependencies]
+# Always available: parse → Scene, types, theme
+rusty-mermaid-core = { workspace = true }
+rusty-mermaid-diagrams = { workspace = true }
+
+# Opt-in backends
+rusty-mermaid-svg = { workspace = true, optional = true }
+rusty-mermaid-raster = { workspace = true, optional = true }
+rusty-mermaid-viewport = { workspace = true, optional = true }
+
+# Heavy GPU backends — optional, not in default workspace builds
+rusty-mermaid-wgpu = { workspace = true, optional = true }
+rusty-mermaid-gpui = { workspace = true, optional = true }
+
+[features]
+default = []
+svg = ["dep:rusty-mermaid-svg"]
+raster = ["dep:rusty-mermaid-raster"]
+viewport = ["dep:rusty-mermaid-viewport"]
+wgpu = ["dep:rusty-mermaid-wgpu", "viewport"]
+gpui = ["dep:rusty-mermaid-gpui", "viewport"]

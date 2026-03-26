@@ -75,7 +75,7 @@ pub mod c4;
 #[cfg(feature = "architecture")]
 pub mod architecture;
 
-use common::error::ParseError;
+pub use common::error::ParseError;
 
 /// Supported diagram types.
 #[non_exhaustive]
