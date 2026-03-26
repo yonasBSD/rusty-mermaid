@@ -32,6 +32,24 @@ pub fn tint_color(color: Color, tint: f64) -> Color {
 /// Default tint ratio for glassy fills.
 pub const DEFAULT_TINT: f64 = 0.12;
 
+/// Standard border radius for rounded rectangles.
+pub const BORDER_RADIUS: f64 = 4.0;
+
+/// Standard stroke width for element borders.
+pub const STROKE_WIDTH: f64 = 1.5;
+
+/// Standard stroke width for thin lines (grid, dividers).
+pub const STROKE_WIDTH_THIN: f64 = 1.0;
+
+/// Standard dash pattern for boundaries/containers.
+pub const DASH_PATTERN: [f64; 2] = [7.0, 5.0];
+
+/// Max score for journey diagram face emojis.
+pub const MAX_SCORE: f64 = 5.0;
+
+/// Database width ratio relative to element width (cylinder shape).
+pub const DATABASE_WIDTH_RATIO: f64 = 0.7;
+
 #[cfg(test)]
 mod tests {
     use super::*;

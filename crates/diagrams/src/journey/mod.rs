@@ -6,6 +6,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
+use crate::common::palette::{BORDER_RADIUS, STROKE_WIDTH, MAX_SCORE, tint_color};
 use ir::JourneyDiagram;
 
 const TASK_W: f64 = 120.0;
@@ -92,11 +93,7 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
         let section_w = section.tasks.len() as f64 * (TASK_W + TASK_GAP) - TASK_GAP;
 
         // Section header background
-        let fill = Color::rgb(
-            (255.0 * (1.0 - TINT) + color.r as f64 * TINT) as u8,
-            (255.0 * (1.0 - TINT) + color.g as f64 * TINT) as u8,
-            (255.0 * (1.0 - TINT) + color.b as f64 * TINT) as u8,
-        );
+        let fill = tint_color(color, TINT);
         scene.push(Primitive::Rect {
             bbox: BBox::new(
                 x + section_w / 2.0,
@@ -104,8 +101,8 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
                 section_w,
                 SECTION_HEADER_H,
             ),
-            rx: 4.0,
-            ry: 4.0,
+            rx: BORDER_RADIUS,
+            ry: BORDER_RADIUS,
             style: Style { fill: Some(fill), ..Default::default() },
         });
 
@@ -127,15 +124,11 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
             let task_cx = x + TASK_W / 2.0;
 
             // Task box
-            let task_fill = Color::rgb(
-                (255.0 * (1.0 - TINT * 0.7) + color.r as f64 * TINT * 0.7) as u8,
-                (255.0 * (1.0 - TINT * 0.7) + color.g as f64 * TINT * 0.7) as u8,
-                (255.0 * (1.0 - TINT * 0.7) + color.b as f64 * TINT * 0.7) as u8,
-            );
+            let task_fill = tint_color(color, TINT * 0.7);
             scene.push(Primitive::Rect {
                 bbox: BBox::new(task_cx, task_top + TASK_H / 2.0, TASK_W, TASK_H),
-                rx: 4.0,
-                ry: 4.0,
+                rx: BORDER_RADIUS,
+                ry: BORDER_RADIUS,
                 style: Style {
                     fill: Some(task_fill),
                     stroke: Some(color),
@@ -163,7 +156,7 @@ pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
             // Score indicator — face center within [score_top + FACE_R, score_bot - FACE_R]
             let face_top = score_top + FACE_R;
             let face_bot = score_bot - FACE_R;
-            let score_y = face_bot - (task.score as f64 / 5.0) * (face_bot - face_top);
+            let score_y = face_bot - (task.score as f64 / MAX_SCORE) * (face_bot - face_top);
 
             scene.push(Primitive::Path {
                 segments: vec![
@@ -243,7 +236,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
         style: Style {
             fill: Some(face_fill),
             stroke: Some(color),
-            stroke_width: Some(1.5),
+            stroke_width: Some(STROKE_WIDTH),
             ..Default::default()
         },
     });
@@ -272,7 +265,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
             ],
             style: Style {
                 stroke: Some(Color::rgb(80, 80, 80)),
-                stroke_width: Some(1.5),
+                stroke_width: Some(STROKE_WIDTH),
                 ..Default::default()
             },
             marker_start: None,
@@ -291,7 +284,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
             ],
             style: Style {
                 stroke: Some(Color::rgb(80, 80, 80)),
-                stroke_width: Some(1.5),
+                stroke_width: Some(STROKE_WIDTH),
                 ..Default::default()
             },
             marker_start: None,
@@ -306,7 +299,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
             ],
             style: Style {
                 stroke: Some(Color::rgb(80, 80, 80)),
-                stroke_width: Some(1.5),
+                stroke_width: Some(STROKE_WIDTH),
                 ..Default::default()
             },
             marker_start: None,

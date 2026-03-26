@@ -8,6 +8,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme, intersect_rect,
 };
 
+use crate::common::palette::{BORDER_RADIUS, STROKE_WIDTH, DATABASE_WIDTH_RATIO, DASH_PATTERN, tint_color};
 use ir::{C4Diagram, C4Element, C4Shape};
 
 const MIN_ELEM_W: f64 = 160.0;
@@ -105,12 +106,12 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         if let Some(&(cx, cy, w, h)) = positions.get(&format!("__boundary_{}", boundary.alias)) {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, w, h),
-                rx: 4.0, ry: 4.0,
+                rx: BORDER_RADIUS, ry: BORDER_RADIUS,
                 style: Style {
                     fill: Some(Color::rgba(0, 0, 0, 0)),
                     stroke: Some(BOUNDARY_COLOR),
-                    stroke_width: Some(1.5),
-                    stroke_dasharray: Some(vec![7.0, 5.0]),
+                    stroke_width: Some(STROKE_WIDTH),
+                    stroke_dasharray: Some(DASH_PATTERN.to_vec()),
                     ..Default::default()
                 },
             });
@@ -133,7 +134,7 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
     // Compute visual widths per element (Database is narrower than its grid cell)
     let visual_widths: HashMap<String, f64> = diagram.elements.iter().map(|e| {
         let &(_, _, ew, _) = positions.get(&e.alias).unwrap_or(&(0.0, 0.0, MIN_ELEM_W, ELEM_H));
-        let vw = if e.shape == C4Shape::Database { ew * 0.7 } else { ew };
+        let vw = if e.shape == C4Shape::Database { ew * DATABASE_WIDTH_RATIO } else { ew };
         (e.alias.clone(), vw)
     }).collect();
 
@@ -263,22 +264,18 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
         else if elem.shape == C4Shape::Person { PERSON_COLOR }
         else { INTERNAL_COLOR };
 
-    let fill = Color::rgb(
-        (255.0 * (1.0 - TINT) + base_color.r as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + base_color.g as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + base_color.b as f64 * TINT) as u8,
-    );
+    let fill = tint_color(base_color, TINT);
     let style = Style {
         fill: Some(fill),
         stroke: Some(base_color),
-        stroke_width: Some(1.5),
+        stroke_width: Some(STROKE_WIDTH),
         ..Default::default()
     };
 
     match elem.shape {
         C4Shape::Database => {
             scene.push(Primitive::Rect {
-                bbox: BBox::new(cx, cy, elem_w * 0.7, ELEM_H),
+                bbox: BBox::new(cx, cy, elem_w * DATABASE_WIDTH_RATIO, ELEM_H),
                 rx: elem_w * 0.35, ry: 8.0,
                 style,
             });
@@ -286,7 +283,7 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
         _ => {
             scene.push(Primitive::Rect {
                 bbox: BBox::new(cx, cy, elem_w, ELEM_H),
-                rx: 4.0, ry: 4.0,
+                rx: BORDER_RADIUS, ry: BORDER_RADIUS,
                 style,
             });
         }
