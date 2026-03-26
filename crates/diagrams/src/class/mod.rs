@@ -1,5 +1,6 @@
 pub mod bridge;
 pub mod ir;
+mod parse_relations;
 pub mod parser;
 
 use rusty_mermaid_core::{

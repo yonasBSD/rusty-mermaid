@@ -5,21 +5,21 @@ use rusty_mermaid_core::{TextMeasure, TextStyle};
 use crate::sequence::ir::*;
 
 // Layout constants (swimlanes-inspired).
-const ACTOR_MARGIN: f64 = 60.0;
-const MESSAGE_MARGIN: f64 = 40.0;
-const ACTOR_PADDING_X: f64 = 16.0;
-const ACTOR_PADDING_Y: f64 = 10.0;
-const NOTE_PADDING: f64 = 10.0;
-const NOTE_MARGIN: f64 = 10.0;
-const ACTIVATION_WIDTH: f64 = 10.0;
-const FRAGMENT_PADDING: f64 = 12.0;
-const SELF_MSG_WIDTH: f64 = 40.0;
-const SELF_MSG_HEIGHT: f64 = 30.0;
-const DIAGRAM_MARGIN: f64 = 20.0;
+pub(super) const ACTOR_MARGIN: f64 = 60.0;
+pub(super) const MESSAGE_MARGIN: f64 = 40.0;
+pub(super) const ACTOR_PADDING_X: f64 = 16.0;
+pub(super) const ACTOR_PADDING_Y: f64 = 10.0;
+pub(super) const NOTE_PADDING: f64 = 10.0;
+pub(super) const NOTE_MARGIN: f64 = 10.0;
+pub(super) const ACTIVATION_WIDTH: f64 = 10.0;
+pub(super) const FRAGMENT_PADDING: f64 = 12.0;
+pub(super) const SELF_MSG_WIDTH: f64 = 40.0;
+pub(super) const SELF_MSG_HEIGHT: f64 = 30.0;
+pub(super) const DIAGRAM_MARGIN: f64 = 20.0;
 const ACTOR_BOTTOM_MARGIN: f64 = 20.0;
 const MIN_ACTOR_WIDTH: f64 = 50.0;
-const NOTE_MAX_WIDTH: f64 = 200.0;
-const FRAGMENT_LABEL_HEIGHT: f64 = 24.0;
+pub(super) const NOTE_MAX_WIDTH: f64 = 200.0;
+pub(super) const FRAGMENT_LABEL_HEIGHT: f64 = 24.0;
 
 // Stick figure dimensions for ParticipantKind::Actor.
 const STICK_HEAD_R: f64 = 8.0;
@@ -363,7 +363,7 @@ fn actor_idx(id: &str, participants: &[Participant]) -> Option<usize> {
     participants.iter().position(|p| p.id == id)
 }
 
-fn actor_center_x(id: &str, actors: &[ActorLayout]) -> f64 {
+pub(super) fn actor_center_x(id: &str, actors: &[ActorLayout]) -> f64 {
     actors
         .iter()
         .find(|a| a.id == id)

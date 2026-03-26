@@ -1,5 +1,6 @@
 pub mod ir;
 pub mod layout;
+mod layout_pass;
 pub mod parser;
 
 use rusty_mermaid_core::{
