@@ -52,9 +52,14 @@ fn scene_is_valid(input: &str) -> bool {
     true
 }
 
-/// Generate a random label (1-20 alphanumeric chars)
+/// Generate a random label (1-20 alphanumeric chars, may include spaces)
 fn arb_label() -> impl Strategy<Value = String> {
     "[A-Za-z][A-Za-z0-9 ]{0,15}".prop_map(|s| s.trim().to_string())
+}
+
+/// Generate a random identifier (no spaces — for state names, class IDs, etc.)
+fn arb_id() -> impl Strategy<Value = String> {
+    "[A-Za-z][A-Za-z0-9]{0,10}"
 }
 
 /// Generate a random positive number
@@ -203,5 +208,192 @@ proptest! {
             input.push_str(&format!("  b{}[\"{}\"]\n", i, labels[i]));
         }
         prop_assert!(scene_is_valid(&input), "invalid scene for block");
+    }
+
+    #[test]
+    fn flowchart_random(
+        nodes in prop::collection::vec(arb_label(), 2..6),
+    ) {
+        let mut input = "flowchart TD\n".to_string();
+        for (i, label) in nodes.iter().enumerate() {
+            input.push_str(&format!("  n{}[\"{}\"]\n", i, label));
+        }
+        for i in 0..nodes.len().saturating_sub(1) {
+            input.push_str(&format!("  n{} --> n{}\n", i, i + 1));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for flowchart");
+    }
+
+    #[test]
+    fn state_random(
+        states in prop::collection::vec(arb_id(), 2..5),
+    ) {
+        let mut input = "stateDiagram-v2\n".to_string();
+        for s in &states {
+            input.push_str(&format!("  {}\n", s));
+        }
+        for i in 0..states.len().saturating_sub(1) {
+            input.push_str(&format!("  {} --> {}\n", states[i], states[i + 1]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for state");
+    }
+
+    #[test]
+    fn sequence_random(
+        actors in prop::collection::vec(arb_id(), 2..5),
+        n_messages in 1usize..5,
+    ) {
+        let mut input = "sequenceDiagram\n".to_string();
+        for a in &actors {
+            input.push_str(&format!("  participant {}\n", a));
+        }
+        for i in 0..n_messages.min(actors.len().saturating_sub(1)) {
+            input.push_str(&format!("  {} ->> {}: msg{}\n", actors[i], actors[i + 1], i));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for sequence");
+    }
+
+    #[test]
+    fn class_random(
+        classes in prop::collection::vec(arb_id(), 2..5),
+    ) {
+        let mut input = "classDiagram\n".to_string();
+        for c in &classes {
+            input.push_str(&format!("  class {}\n", c));
+        }
+        if classes.len() >= 2 {
+            input.push_str(&format!("  {} --> {}\n", classes[0], classes[1]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for class");
+    }
+
+    #[test]
+    fn er_random(
+        entities in prop::collection::vec(arb_id(), 2..5),
+    ) {
+        let mut input = "erDiagram\n".to_string();
+        if entities.len() >= 2 {
+            input.push_str(&format!("  {} ||--o{{ {} : has\n", entities[0], entities[1]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for er");
+    }
+
+    #[test]
+    fn requirement_random(
+        reqs in prop::collection::vec(arb_id(), 1..4),
+    ) {
+        let mut input = "requirementDiagram\n".to_string();
+        for r in &reqs {
+            input.push_str(&format!("  requirement {} {{\n    id: {}\n    text: test\n  }}\n", r, r));
+        }
+        if reqs.len() >= 2 {
+            input.push_str(&format!("  {} - contains -> {}\n", reqs[0], reqs[1]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for requirement");
+    }
+
+    #[test]
+    fn timeline_random(
+        sections in prop::collection::vec(arb_label(), 1..4),
+        events in prop::collection::vec(arb_label(), 1..4),
+    ) {
+        let mut input = "timeline\n".to_string();
+        for (si, section) in sections.iter().enumerate() {
+            input.push_str(&format!("  section {}\n", section));
+            let ei = si % events.len();
+            input.push_str(&format!("    {} : {}\n", events[ei], section));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for timeline");
+    }
+
+    #[test]
+    fn gantt_random(
+        tasks in prop::collection::vec(arb_label(), 1..5),
+    ) {
+        let mut input = "gantt\n  dateFormat YYYY-MM-DD\n  section Work\n".to_string();
+        for (i, task) in tasks.iter().enumerate() {
+            input.push_str(&format!("    {} : t{}, 2024-01-{:02}, 3d\n", task, i, (i % 28) + 1));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for gantt");
+    }
+
+    #[test]
+    fn gitgraph_random(n_commits in 2usize..8) {
+        let mut input = "gitGraph\n".to_string();
+        for _ in 0..n_commits {
+            input.push_str("  commit\n");
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for gitgraph");
+    }
+
+    #[test]
+    fn ishikawa_random(
+        effect in arb_label(),
+        causes in prop::collection::vec(arb_label(), 2..5),
+        subcauses in prop::collection::vec(arb_label(), 1..3),
+    ) {
+        let mut input = format!("ishikawa-beta\n    {}\n", effect);
+        for cause in &causes {
+            input.push_str(&format!("    {}\n", cause));
+            for sc in &subcauses {
+                input.push_str(&format!("        {}\n", sc));
+            }
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for ishikawa");
+    }
+
+    #[test]
+    fn kanban_random(
+        columns in prop::collection::vec(arb_label(), 1..4),
+        cards in prop::collection::vec(arb_label(), 1..4),
+    ) {
+        let mut input = "kanban\n".to_string();
+        for (ci, col) in columns.iter().enumerate() {
+            input.push_str(&format!("    {}\n", col));
+            let card_idx = ci % cards.len();
+            input.push_str(&format!("        id{}[{}]\n", ci, cards[card_idx]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for kanban");
+    }
+
+    #[test]
+    fn architecture_random(
+        services in prop::collection::vec(arb_id(), 2..5),
+    ) {
+        let mut input = "architecture-beta\n".to_string();
+        for s in &services {
+            input.push_str(&format!("  service {}(server)[{}]\n", s, s));
+        }
+        if services.len() >= 2 {
+            input.push_str(&format!("  {}:R -- L:{}\n", services[0], services[1]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for architecture");
+    }
+
+    #[test]
+    fn c4_random(
+        elements in prop::collection::vec(arb_id(), 1..4),
+    ) {
+        let mut input = "C4Context\n".to_string();
+        for e in &elements {
+            input.push_str(&format!("  System({e}, \"{e}\", \"desc\")\n"));
+        }
+        if elements.len() >= 2 {
+            input.push_str(&format!("  Rel({}, {}, \"uses\")\n", elements[0], elements[1]));
+        }
+        prop_assert!(scene_is_valid(&input), "invalid scene for c4");
+    }
+
+    #[test]
+    fn xychart_random(
+        values in prop::collection::vec(1.0f64..100.0, 3..8),
+    ) {
+        let labels: Vec<String> = (0..values.len()).map(|i| format!("L{}", i)).collect();
+        let val_str: Vec<String> = values.iter().map(|v| format!("{:.0}", v)).collect();
+        let input = format!(
+            "xychart-beta\n  x-axis [{}]\n  y-axis 0 --> 100\n  bar [{}]\n",
+            labels.join(", "), val_str.join(", ")
+        );
+        prop_assert!(scene_is_valid(&input), "invalid scene for xychart");
     }
 }
