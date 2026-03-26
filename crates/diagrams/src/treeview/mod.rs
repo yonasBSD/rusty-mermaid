@@ -2,7 +2,7 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
+    PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
 };
 
 use ir::{TreeNode, TreeView};
@@ -11,7 +11,6 @@ const INDENT_W: f64 = 24.0;
 const LINE_H: f64 = 22.0;
 const CONNECTOR_GAP: f64 = 8.0;
 const SCENE_PAD: f64 = 16.0;
-const LINE_COLOR: Color = Color::rgb(160, 160, 160);
 
 pub fn to_scene(tree: &TreeView) -> Scene {
     to_scene_themed(tree, &Theme::default())
@@ -34,7 +33,7 @@ pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
     let mut scene = Scene::new(scene_w, scene_h);
 
     let line_style = Style {
-        stroke: Some(LINE_COLOR),
+        stroke: Some(theme.grid_stroke),
         stroke_width: Some(1.0),
         ..Default::default()
     };

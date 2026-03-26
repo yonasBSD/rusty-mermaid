@@ -232,7 +232,7 @@ fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Colo
             anchor: TextAnchor::Middle,
             style: TextStyle {
                 font_size: font_size * 0.85,
-                fill: Some(Color::rgb(100, 100, 100)),
+                fill: Some(theme.muted_text),
                 ..Default::default()
             },
         });

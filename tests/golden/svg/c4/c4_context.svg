@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 925 396" width="925" height="396">
   <defs>
-    <marker id="arrow-point-8c8c8c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#8c8c8c" />
+    <marker id="arrow-point-c8c8c8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#c8c8c8" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
     <text x="442.5" y="42" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Internet Banking System</text>
-    <path d="M285 116 L313 116" fill="none" stroke="#8c8c8c" stroke-width="1.2" marker-end="url(#arrow-point-8c8c8c)" />
-    <path d="M570 116 L598 116" fill="none" stroke="#8c8c8c" stroke-width="1.2" marker-end="url(#arrow-point-8c8c8c)" />
-    <path d="M332.88 166 L268.94 195.17" fill="none" stroke="#8c8c8c" stroke-width="1.2" marker-end="url(#arrow-point-8c8c8c)" />
+    <path d="M285 116 L313 116" fill="none" stroke="#c8c8c8" stroke-width="1.2" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M570 116 L598 116" fill="none" stroke="#c8c8c8" stroke-width="1.2" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M332.88 166 L268.94 195.17" fill="none" stroke="#c8c8c8" stroke-width="1.2" marker-end="url(#arrow-point-c8c8c8)" />
     <rect x="30" y="66" width="255" height="100" rx="4" ry="4" fill="#e6eff5" stroke="#0864a4" stroke-width="1.5" />
     <circle cx="157.5" cy="80" r="10" fill="#0864a4" />
     <text x="157.5" y="116" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#0864a4" font-weight="bold">Banking Customer</text>
@@ -22,11 +22,11 @@
     <rect x="30" y="196" width="255" height="100" rx="4" ry="4" fill="#f2f2f2" stroke="#808080" stroke-width="1.5" />
     <text x="157.5" y="238" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#808080" font-weight="bold">Core Banking System</text>
     <text x="157.5" y="252" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Stores account data]</text>
-    <rect x="248.64" y="95" width="81.71" height="14" rx="3" ry="3" fill="#ffffffc8" />
+    <rect x="248.64" y="95" width="81.71" height="14" rx="3" ry="3" fill="#f5f3ffbf" />
     <text x="289.5" y="102" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Uses [HTTPS]</text>
-    <rect x="512.14" y="95" width="124.71" height="14" rx="3" ry="3" fill="#ffffffc8" />
+    <rect x="512.14" y="95" width="124.71" height="14" rx="3" ry="3" fill="#f5f3ffbf" />
     <text x="574.5" y="102" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Sends emails [SMTP]</text>
-    <rect x="248.38" y="145" width="149.29" height="14" rx="3" ry="3" fill="#ffffffc8" />
+    <rect x="248.38" y="145" width="149.29" height="14" rx="3" ry="3" fill="#f5f3ffbf" />
     <text x="323.02" y="152" text-anchor="middle" dominant-baseline="central" font-size="10px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Gets account data [API]</text>
   </g>
 </svg>

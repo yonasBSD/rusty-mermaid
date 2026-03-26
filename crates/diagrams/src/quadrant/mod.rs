@@ -75,7 +75,7 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
 
     render_title(&mut scene, chart, &layout, theme);
     render_quadrants(&mut scene, chart, &layout);
-    render_grid(&mut scene, &layout);
+    render_grid(&mut scene, &layout, theme);
     render_axes(&mut scene, chart, &layout, theme);
     render_points(&mut scene, chart, &layout, theme);
 
@@ -131,11 +131,11 @@ fn render_quadrants(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayou
     }
 }
 
-fn render_grid(scene: &mut Scene, layout: &GridLayout) {
+fn render_grid(scene: &mut Scene, layout: &GridLayout, theme: &Theme) {
     use rusty_mermaid_core::PathSegment;
 
     let (gx, gy, half) = (layout.grid_x, layout.grid_y, layout.half);
-    let divider_color = Color::rgb(200, 200, 200);
+    let divider_color = theme.grid_stroke;
     let border_style = Style {
         stroke: Some(divider_color),
         stroke_width: Some(1.0),
@@ -147,7 +147,7 @@ fn render_grid(scene: &mut Scene, layout: &GridLayout) {
         rx: 0.0, ry: 0.0,
         style: Style {
             fill: Some(Color::rgba(0, 0, 0, 0)),
-            stroke: Some(Color::rgb(180, 180, 180)),
+            stroke: Some(theme.grid_stroke),
             stroke_width: Some(1.5),
             ..Default::default()
         },
@@ -234,7 +234,7 @@ fn render_axes(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, th
 }
 
 fn render_points(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, theme: &Theme) {
-    let point_color = Color::rgb(78, 121, 167);
+    let point_color = crate::common::palette::palette_color(0);
     for pt in &chart.points {
         let px = layout.grid_x + pt.x * CHART_SIZE;
         let py = layout.grid_y + (1.0 - pt.y) * CHART_SIZE;

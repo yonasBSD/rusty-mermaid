@@ -157,7 +157,7 @@ fn render_union_labels(
             anchor: TextAnchor::Middle,
             style: TextStyle {
                 font_size: theme.font_size_node - 1.0,
-                fill: Some(Color::rgb(80, 80, 80)),
+                fill: Some(theme.node_text),
                 ..Default::default()
             },
         });

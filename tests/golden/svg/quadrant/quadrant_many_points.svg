@@ -9,7 +9,7 @@
     <text x="173" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#3e7037">Trial</text>
     <text x="173" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a58c33">Assess</text>
     <text x="423" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a9631e">Hold</text>
-    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#b4b4b4" stroke-width="1.5" />
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
     <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
     <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
     <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Adopt</text>

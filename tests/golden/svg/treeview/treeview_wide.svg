@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 226" width="320" height="226">
   <g transform="translate(20, 20)">
-    <path d="M24 38 L24 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 71 L38 71" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 93 L38 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 115 L38 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 137 L38 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 159 L38 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 38 L24 159" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 71 L38 71" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 93 L38 93" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 115 L38 115" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 137 L38 137" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 159 L38 159" fill="none" stroke="#c8c8c8" stroke-width="1" />
     <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">src</text>
     <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">main.rs</text>
     <text x="40" y="71" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">lib.rs</text>

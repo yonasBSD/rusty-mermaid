@@ -104,7 +104,7 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
 
     draw_y_axis(&mut scene, chart, theme, &area, y_min, y_max);
     draw_x_axis(&mut scene, chart, theme, &area);
-    draw_plots(&mut scene, chart, &area, y_min);
+    draw_plots(&mut scene, chart, &area, y_min, theme);
 
     scene
 }
@@ -142,7 +142,7 @@ fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
                 PathSegment::LineTo(Point::new(area.plot_right, y)),
             ],
             style: Style {
-                stroke: Some(Color::rgba(200, 200, 200, 80)),
+                stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 80)),
                 stroke_width: Some(0.5),
                 stroke_dasharray: Some(vec![4.0, 3.0]),
                 ..Default::default()
@@ -244,7 +244,7 @@ fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
     }
 }
 
-fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64) {
+fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64, theme: &Theme) {
     let bar_plots: Vec<usize> = chart.plots.iter().enumerate()
         .filter(|(_, p)| p.plot_type == PlotType::Bar)
         .map(|(i, _)| i)
@@ -300,7 +300,7 @@ fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64) {
                     scene.push(Primitive::Circle {
                         center: Point::new(area.cat_to_x(i), area.val_to_y(val)),
                         radius: 3.5,
-                        style: Style { fill: Some(color), stroke: Some(Color::WHITE), stroke_width: Some(1.5), ..Default::default() },
+                        style: Style { fill: Some(color), stroke: Some(theme.background), stroke_width: Some(1.5), ..Default::default() },
                     });
                 }
             }

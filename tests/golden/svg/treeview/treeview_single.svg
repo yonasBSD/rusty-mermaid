@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 116" width="320" height="116">
   <g transform="translate(20, 20)">
-    <path d="M24 38 L24 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 38 L24 49" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#c8c8c8" stroke-width="1" />
     <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">root</text>
     <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">child</text>
   </g>

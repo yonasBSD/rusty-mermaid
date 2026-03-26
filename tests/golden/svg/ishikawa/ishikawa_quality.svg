@@ -24,9 +24,9 @@
     <path d="M472.99 109.52 L382.99 109.52" fill="none" stroke="#e15759" stroke-width="1.2" />
     <text x="378.99" y="109.52" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Calibration drift</text>
     <path d="M442.99 109.52 L438.79 81.52" fill="none" stroke="#e15759" stroke-width="0.8" />
-    <text x="435.79" y="71.52" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">Sensor age</text>
+    <text x="435.79" y="71.52" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Sensor age</text>
     <path d="M412.99 109.52 L409.99 89.52" fill="none" stroke="#e15759" stroke-width="0.8" />
-    <text x="406.99" y="79.52" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">No maintenance</text>
+    <text x="406.99" y="79.52" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">No maintenance</text>
     <path d="M613.75 214 L583.08 328.46" fill="none" stroke="#76b7b2" stroke-width="2" />
     <text x="583.08" y="342.46" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2" font-weight="bold">Materials</text>
     <path d="M603.78 251.19 L533.78 251.19" fill="none" stroke="#76b7b2" stroke-width="1.2" />

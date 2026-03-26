@@ -191,7 +191,7 @@ fn render_task(
             PathSegment::LineTo(Point::new(task_cx, score_y)),
         ],
         style: Style {
-            stroke: Some(Color::rgb(180, 180, 180)),
+            stroke: Some(theme.grid_stroke),
             stroke_width: Some(1.0),
             stroke_dasharray: Some(vec![4.0, 3.0]),
             ..Default::default()
@@ -200,7 +200,7 @@ fn render_task(
         marker_end: None,
     });
 
-    render_face(scene, task_cx, score_y, task.score, color);
+    render_face(scene, task_cx, score_y, task.score, color, theme);
 
     for (ai, actor) in task.actors.iter().enumerate() {
         if let Some(idx) = actors.iter().position(|a| a == actor) {
@@ -243,8 +243,8 @@ fn render_actor_legend(
     }
 }
 
-fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
-    let face_fill = Color::rgb(255, 248, 220); // cream
+fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color, theme: &Theme) {
+    let face_fill = theme.face_fill;
 
     // Face circle
     scene.push(Primitive::Circle {
@@ -263,7 +263,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
         scene.push(Primitive::Circle {
             center: Point::new(cx + dx, cy - 3.0),
             radius: 1.5,
-            style: Style { fill: Some(Color::rgb(80, 80, 80)), ..Default::default() },
+            style: Style { fill: Some(theme.detail_stroke), ..Default::default() },
         });
     }
 
@@ -281,7 +281,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
                 },
             ],
             style: Style {
-                stroke: Some(Color::rgb(80, 80, 80)),
+                stroke: Some(theme.detail_stroke),
                 stroke_width: Some(STROKE_WIDTH),
                 ..Default::default()
             },
@@ -300,7 +300,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
                 },
             ],
             style: Style {
-                stroke: Some(Color::rgb(80, 80, 80)),
+                stroke: Some(theme.detail_stroke),
                 stroke_width: Some(STROKE_WIDTH),
                 ..Default::default()
             },
@@ -315,7 +315,7 @@ fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color) {
                 PathSegment::LineTo(Point::new(cx + 4.0, mouth_y + 1.0)),
             ],
             style: Style {
-                stroke: Some(Color::rgb(80, 80, 80)),
+                stroke: Some(theme.detail_stroke),
                 stroke_width: Some(STROKE_WIDTH),
                 ..Default::default()
             },

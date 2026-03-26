@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710.27 522.92" width="710.27" height="522.92">
   <g transform="translate(20, 20)">
-    <path d="M140 201.72 L256.91 235.82" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M229.66 362.92 L262.65 246.15" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M272.91 238.63 L395.07 246" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M404.84 238.48 L431.03 120" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M411.07 248.16 L530.27 273.16" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
+    <path d="M140 201.72 L256.91 235.82" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M229.66 362.92 L262.65 246.15" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M272.91 238.63 L395.07 246" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M404.84 238.48 L431.03 120" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M411.07 248.16 L530.27 273.16" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
     <rect x="40" y="147.14" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="90" cy="175.14" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
     <text x="90" y="175.14" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
@@ -21,7 +21,7 @@
     <circle cx="580.27" cy="271.65" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
     <text x="580.27" y="271.65" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DB</text>
     <text x="580.27" y="303.65" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Database</text>
-    <rect x="256.91" y="230.15" width="16" height="16" rx="2" ry="2" fill="#646464" />
-    <rect x="395.07" y="238.48" width="16" height="16" rx="2" ry="2" fill="#646464" />
+    <rect x="256.91" y="230.15" width="16" height="16" rx="2" ry="2" fill="#787878" />
+    <rect x="395.07" y="238.48" width="16" height="16" rx="2" ry="2" fill="#787878" />
   </g>
 </svg>

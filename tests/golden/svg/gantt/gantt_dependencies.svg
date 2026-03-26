@@ -8,19 +8,19 @@
     <rect x="20" y="256" width="780" height="55" fill="#59a14f12" />
     <text x="24" y="267" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Milestones</text>
     <path d="M180 76 L780 76" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M780 76 L780 316" fill="none" stroke="#b4b4b464" stroke-width="0.5" />
-    <path d="M180 76 L180 316" fill="none" stroke="#b4b4b464" stroke-width="0.5" />
+    <path d="M780 76 L780 316" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
+    <path d="M180 76 L180 316" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 72 L180 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M180 76 L180 316" fill="none" stroke="#b4b4b43c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M180 76 L180 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="180" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 1</text>
     <path d="M348 72 L348 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M348 76 L348 316" fill="none" stroke="#b4b4b43c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M348 76 L348 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="348" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 8</text>
     <path d="M516 72 L516 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M516 76 L516 316" fill="none" stroke="#b4b4b43c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M516 76 L516 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="516" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 15</text>
     <path d="M684 72 L684 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M684 76 L684 316" fill="none" stroke="#b4b4b43c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M684 76 L684 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="684" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 22</text>
     <rect x="180" y="96" width="120" height="24" rx="3" ry="3" fill="#4e79a78c" />
     <text x="172" y="108" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design</text>

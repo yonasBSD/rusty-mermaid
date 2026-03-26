@@ -19,7 +19,7 @@
     <circle cx="362.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
     <circle cx="362.3" cy="60" r="2.8" fill="#ffffff" />
     <circle cx="412.3" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
-    <rect x="392.79" y="25" width="39.03" height="18" rx="3" ry="3" fill="#ffffc8dc" stroke="#4e79a7" stroke-width="1" />
+    <rect x="392.79" y="25" width="39.03" height="18" rx="3" ry="3" fill="#fff8c8b2" stroke="#4e79a7" stroke-width="1" />
     <text x="412.3" y="34" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">v1.0</text>
   </g>
 </svg>

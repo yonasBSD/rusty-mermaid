@@ -4,6 +4,6 @@
     <text x="24" y="29.2" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Root (100)</text>
     <rect x="21.5" y="43.5" width="589" height="367" rx="3" ry="3" fill="#fce8d4" stroke="#f28e2c" stroke-width="1" />
     <text x="316" y="222.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Child</text>
-    <text x="316" y="238.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">100</text>
+    <text x="316" y="238.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">100</text>
   </g>
 </svg>

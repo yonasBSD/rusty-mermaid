@@ -137,7 +137,7 @@ fn render_branch_labels(
             anchor: TextAnchor::Middle,
             style: TextStyle {
                 font_size: theme.font_size_small,
-                fill: Some(Color::WHITE),
+                fill: Some(theme.background),
                 font_weight: if is_final { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
                 ..Default::default()
             },
@@ -232,14 +232,14 @@ fn render_commits(
                 scene.push(Primitive::Circle {
                     center: Point::new(cx, cy),
                     radius: COMMIT_RADIUS,
-                    style: Style { fill: Some(color), stroke: Some(Color::WHITE), stroke_width: Some(2.0), ..Default::default() },
+                    style: Style { fill: Some(color), stroke: Some(theme.background), stroke_width: Some(2.0), ..Default::default() },
                 });
             }
             CommitType::Reverse => {
                 scene.push(Primitive::Circle {
                     center: Point::new(cx, cy),
                     radius: COMMIT_RADIUS,
-                    style: Style { fill: Some(Color::WHITE), stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
+                    style: Style { fill: Some(theme.background), stroke: Some(color), stroke_width: Some(2.0), ..Default::default() },
                 });
                 let s = COMMIT_RADIUS * 0.5;
                 scene.push(Primitive::Path {
@@ -259,7 +259,7 @@ fn render_commits(
                 scene.push(Primitive::Rect {
                     bbox: BBox::new(cx, cy, s * 2.0, s * 2.0),
                     rx: 2.0, ry: 2.0,
-                    style: Style { fill: Some(color), stroke: Some(Color::WHITE), stroke_width: Some(2.0), ..Default::default() },
+                    style: Style { fill: Some(color), stroke: Some(theme.background), stroke_width: Some(2.0), ..Default::default() },
                 });
             }
         }
@@ -268,7 +268,7 @@ fn render_commits(
             scene.push(Primitive::Circle {
                 center: Point::new(cx, cy),
                 radius: COMMIT_RADIUS * 0.35,
-                style: Style { fill: Some(Color::WHITE), ..Default::default() },
+                style: Style { fill: Some(theme.background), ..Default::default() },
             });
         }
 
@@ -282,7 +282,7 @@ fn render_commits(
             scene.push(Primitive::Rect {
                 bbox: BBox::new(tx, ty, tag_w, TAG_HEIGHT),
                 rx: 3.0, ry: 3.0,
-                style: Style { fill: Some(Color::rgba(255, 255, 200, 220)), stroke: Some(color), stroke_width: Some(1.0), ..Default::default() },
+                style: Style { fill: Some(theme.note_fill), stroke: Some(color), stroke_width: Some(1.0), ..Default::default() },
             });
             scene.push(Primitive::Text {
                 position: Point::new(tx, ty),
@@ -308,7 +308,7 @@ fn render_commits(
                 anchor,
                 style: TextStyle {
                     font_size: theme.font_size_small,
-                    fill: Some(Color::rgb(130, 130, 130)),
+                    fill: Some(theme.muted_text),
                     ..Default::default()
                 },
             });

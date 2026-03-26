@@ -1,30 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 490" width="368" height="490">
   <g transform="translate(20, 20)">
-    <path d="M24 38 L24 357" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 104 L48 225" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 148 L72 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 236 L72 269" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 302 L48 335" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 368 L48 401" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 412 L72 423" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 49 L38 49" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 71 L38 71" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 93 L38 93" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 115 L62 115" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 137 L62 137" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 159 L86 159" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 181 L86 181" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 203 L86 203" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 225 L62 225" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 247 L86 247" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 269 L86 269" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 291 L38 291" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 313 L62 313" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 335 L62 335" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M24 357 L38 357" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 379 L62 379" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M48 401 L62 401" fill="none" stroke="#a0a0a0" stroke-width="1" />
-    <path d="M72 423 L86 423" fill="none" stroke="#a0a0a0" stroke-width="1" />
+    <path d="M24 38 L24 357" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 104 L48 225" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 148 L72 203" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 236 L72 269" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 302 L48 335" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 368 L48 401" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 412 L72 423" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 49 L38 49" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 71 L38 71" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 93 L38 93" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 115 L62 115" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 137 L62 137" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 159 L86 159" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 181 L86 181" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 203 L86 203" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 225 L62 225" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 247 L86 247" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 269 L86 269" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 291 L38 291" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 313 L62 313" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 335 L62 335" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M24 357 L38 357" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 379 L62 379" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 401 L62 401" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M72 423 L86 423" fill="none" stroke="#c8c8c8" stroke-width="1" />
     <text x="16" y="27" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">my-app</text>
     <text x="40" y="49" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">package.json</text>
     <text x="40" y="71" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">tsconfig.json</text>

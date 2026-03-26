@@ -11,17 +11,17 @@
     <path d="M205.54 60 C230.54 60 230.54 100 255.54 100" fill="none" stroke="#f28e2c" stroke-width="2" stroke-dasharray="5 3" />
     <path d="M255.54 100 C280.54 100 280.54 60 305.54 60" fill="none" stroke="#4e79a7" stroke-width="2" stroke-dasharray="5 3" />
     <circle cx="105.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
-    <text x="105.54" y="82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#828282">normal</text>
+    <text x="105.54" y="82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">normal</text>
     <circle cx="155.54" cy="60" r="8" fill="#ffffff" stroke="#4e79a7" stroke-width="2" />
     <path d="M151.54 56 L159.54 64 M159.54 56 L151.54 64" fill="none" stroke="#4e79a7" stroke-width="2" />
-    <text x="155.54" y="82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#828282">rev</text>
+    <text x="155.54" y="82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">rev</text>
     <rect x="198.34" y="52.8" width="14.4" height="14.4" rx="2" ry="2" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
-    <text x="205.54" y="82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#828282">hl</text>
+    <text x="205.54" y="82" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">hl</text>
     <circle cx="255.54" cy="100" r="8" fill="#f28e2c" stroke="#ffffff" stroke-width="2" />
-    <text x="255.54" y="122" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#828282">fix-1</text>
+    <text x="255.54" y="122" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">fix-1</text>
     <circle cx="305.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
     <circle cx="305.54" cy="60" r="2.8" fill="#ffffff" />
-    <rect x="286.03" y="25" width="39.03" height="18" rx="3" ry="3" fill="#ffffc8dc" stroke="#4e79a7" stroke-width="1" />
+    <rect x="286.03" y="25" width="39.03" height="18" rx="3" ry="3" fill="#fff8c8b2" stroke="#4e79a7" stroke-width="1" />
     <text x="305.54" y="34" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">v1.1</text>
     <circle cx="355.54" cy="60" r="8" fill="#4e79a7" stroke="#ffffff" stroke-width="2" />
   </g>

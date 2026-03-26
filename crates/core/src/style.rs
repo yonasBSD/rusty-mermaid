@@ -75,6 +75,14 @@ pub struct Theme {
     pub lifeline_stroke: Color,
     pub activation_fill: Color,
     pub activation_stroke: Color,
+    /// Grid lines, axis ticks, light structural lines.
+    pub grid_stroke: Color,
+    /// Secondary/muted text (bit numbers, sublabels).
+    pub muted_text: Color,
+    /// Face/icon fill for journey emojis.
+    pub face_fill: Color,
+    /// Detail strokes for face features, thin decorative elements.
+    pub detail_stroke: Color,
     // -- Typography --
     pub font_size_node: f64,
     pub font_size_edge_label: f64,
@@ -124,6 +132,10 @@ impl Theme {
             lifeline_stroke: Color::rgb(175, 165, 200),   // gray-lavender blend
             activation_fill: Color::rgba(200, 190, 230, 180), // light lavender
             activation_stroke: Color::rgb(153, 153, 153), // #999999
+            grid_stroke: Color::rgb(200, 200, 200),      // #c8c8c8 light gray
+            muted_text: Color::rgb(120, 120, 120),        // #787878
+            face_fill: Color::rgb(255, 248, 220),         // cream
+            detail_stroke: Color::rgb(80, 80, 80),        // #505050
             font_size_node: 14.0,
             font_size_edge_label: 12.0,
             font_size_label: 13.0,
@@ -161,6 +173,10 @@ impl Theme {
             lifeline_stroke: Color::rgb(100, 95, 130),    // muted purple-gray
             activation_fill: Color::rgba(60, 55, 85, 180), // dark lavender
             activation_stroke: Color::rgb(88, 91, 112),   // #585b70
+            grid_stroke: Color::rgb(68, 71, 90),          // #44475a muted dark
+            muted_text: Color::rgb(147, 153, 178),        // #9399b2
+            face_fill: Color::rgb(62, 60, 40),            // dark warm
+            detail_stroke: Color::rgb(166, 173, 200),     // #a6adc8 light
             font_size_node: 14.0,
             font_size_edge_label: 12.0,
             font_size_label: 13.0,

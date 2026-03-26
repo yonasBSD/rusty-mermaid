@@ -5,7 +5,7 @@
     <text x="220" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Go to work</text>
     <rect x="30" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="90" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Make tea</text>
-    <path d="M90 154 L90 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M90 154 L90 166" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="90" cy="166" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="86.5" cy="163" r="1.5" fill="#505050" />
     <circle cx="93.5" cy="163" r="1.5" fill="#505050" />
@@ -13,7 +13,7 @@
     <circle cx="90" cy="138" r="5" fill="#4e79a7" />
     <rect x="160" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="220" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go upstairs</text>
-    <path d="M220 154 L220 214" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M220 154 L220 214" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="220" cy="214" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="216.5" cy="211" r="1.5" fill="#505050" />
     <circle cx="223.5" cy="211" r="1.5" fill="#505050" />
@@ -21,7 +21,7 @@
     <circle cx="220" cy="138" r="5" fill="#4e79a7" />
     <rect x="290" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="350" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Do work</text>
-    <path d="M350 154 L350 262" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M350 154 L350 262" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="350" cy="262" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="346.5" cy="259" r="1.5" fill="#505050" />
     <circle cx="353.5" cy="259" r="1.5" fill="#505050" />
@@ -32,7 +32,7 @@
     <text x="565" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Go home</text>
     <rect x="440" y="86" width="120" height="32" rx="4" ry="4" fill="#fdf5ed" stroke="#f28e2c" stroke-width="1" />
     <text x="500" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go downstairs</text>
-    <path d="M500 154 L500 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M500 154 L500 166" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="500" cy="166" r="12" fill="#fff8dc" stroke="#f28e2c" stroke-width="1.5" />
     <circle cx="496.5" cy="163" r="1.5" fill="#505050" />
     <circle cx="503.5" cy="163" r="1.5" fill="#505050" />
@@ -40,7 +40,7 @@
     <circle cx="500" cy="138" r="5" fill="#4e79a7" />
     <rect x="570" y="86" width="120" height="32" rx="4" ry="4" fill="#fdf5ed" stroke="#f28e2c" stroke-width="1" />
     <text x="630" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sit down</text>
-    <path d="M630 154 L630 214" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M630 154 L630 214" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="630" cy="214" r="12" fill="#fff8dc" stroke="#f28e2c" stroke-width="1.5" />
     <circle cx="626.5" cy="211" r="1.5" fill="#505050" />
     <circle cx="633.5" cy="211" r="1.5" fill="#505050" />

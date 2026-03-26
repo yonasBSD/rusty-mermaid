@@ -41,9 +41,9 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
 
     render_c4_title(&mut scene, diagram, scene_w, theme);
     render_boundaries(&mut scene, diagram, &positions);
-    let edge_labels = render_edges(&mut scene, diagram, &positions);
+    let edge_labels = render_edges(&mut scene, diagram, &positions, theme);
     render_elements(&mut scene, diagram, &positions, theme);
-    render_edge_labels(&mut scene, &edge_labels);
+    render_edge_labels(&mut scene, &edge_labels, theme);
 
     scene
 }
@@ -148,6 +148,7 @@ fn render_edges(
     scene: &mut Scene,
     diagram: &C4Diagram,
     positions: &HashMap<String, (f64, f64, f64, f64)>,
+    theme: &Theme,
 ) -> Vec<(f64, f64, String)> {
     let visual_widths: HashMap<String, f64> = diagram.elements.iter().map(|e| {
         let &(_, _, ew, _) = positions.get(&e.alias).unwrap_or(&(0.0, 0.0, MIN_ELEM_W, ELEM_H));
@@ -173,7 +174,7 @@ fn render_edges(
         scene.push(Primitive::Path {
             segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
             style: Style {
-                stroke: Some(Color::rgb(140, 140, 140)),
+                stroke: Some(theme.grid_stroke),
                 stroke_width: Some(1.2),
                 ..Default::default()
             },
@@ -205,15 +206,14 @@ fn render_elements(scene: &mut Scene, diagram: &C4Diagram, positions: &HashMap<S
     }
 }
 
-fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)]) {
-    let label_bg = Color::rgba(255, 255, 255, 200);
+fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)], theme: &Theme) {
     for (lx, ly, label) in edge_labels {
         let label_style = TextStyle { font_size: 10.0, ..Default::default() };
         let tw = SimpleTextMeasure::measure_raw(label, &label_style).width;
         scene.push(Primitive::Rect {
             bbox: BBox::new(*lx, *ly, tw + 8.0, 14.0),
             rx: 3.0, ry: 3.0,
-            style: Style { fill: Some(label_bg), ..Default::default() },
+            style: Style { fill: Some(theme.edge_label_bg), ..Default::default() },
         });
         scene.push(Primitive::Text {
             position: Point::new(*lx, *ly),
@@ -221,7 +221,7 @@ fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)]) {
             anchor: TextAnchor::Middle,
             style: TextStyle {
                 font_size: 10.0,
-                fill: Some(Color::rgb(80, 80, 80)),
+                fill: Some(theme.detail_stroke),
                 ..Default::default()
             },
         });
@@ -272,7 +272,7 @@ fn layout_row(
 }
 
 
-fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w: f64, _theme: &Theme) {
+fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w: f64, theme: &Theme) {
     let base_color = if elem.external { EXTERNAL_COLOR }
         else if elem.shape == C4Shape::Person { PERSON_COLOR }
         else { INTERNAL_COLOR };
@@ -335,7 +335,7 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
             anchor: TextAnchor::Middle,
             style: TextStyle {
                 font_size: 10.0,
-                fill: Some(Color::rgb(120, 120, 120)),
+                fill: Some(theme.muted_text),
                 ..Default::default()
             },
         });
@@ -352,7 +352,7 @@ fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w:
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
                     font_size: 9.0,
-                    fill: Some(Color::rgb(100, 100, 100)),
+                    fill: Some(theme.muted_text),
                     ..Default::default()
                 },
             });

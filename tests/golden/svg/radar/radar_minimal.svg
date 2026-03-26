@@ -12,11 +12,11 @@
     <text x="398.01" y="377" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Y</text>
     <path d="M230 280 L74.12 370" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
     <text x="61.99" y="377" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Z</text>
-    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">1</text>
-    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">3</text>
-    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">4</text>
-    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">6</text>
-    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#969696">7</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">1</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">3</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">4</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">6</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">7</text>
     <polygon points="230,151.43 296.81,318.57 74.12,370" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
     <circle cx="230" cy="151.43" r="3" fill="#4e79a7" />
     <circle cx="296.81" cy="318.57" r="3" fill="#4e79a7" />

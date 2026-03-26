@@ -5,7 +5,7 @@
     <text x="155" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Do</text>
     <rect x="30" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="90" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step one</text>
-    <path d="M90 154 L90 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M90 154 L90 166" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="90" cy="166" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="86.5" cy="163" r="1.5" fill="#505050" />
     <circle cx="93.5" cy="163" r="1.5" fill="#505050" />
@@ -13,7 +13,7 @@
     <circle cx="90" cy="138" r="5" fill="#4e79a7" />
     <rect x="160" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="220" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step two</text>
-    <path d="M220 154 L220 214" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M220 154 L220 214" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="220" cy="214" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="216.5" cy="211" r="1.5" fill="#505050" />
     <circle cx="223.5" cy="211" r="1.5" fill="#505050" />

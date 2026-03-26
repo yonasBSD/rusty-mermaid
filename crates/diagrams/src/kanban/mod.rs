@@ -187,7 +187,7 @@ fn render_cards(scene: &mut Scene, col: &ir::KanbanColumn, ci: usize, col_cx: f6
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
                     font_size: theme.font_size_small,
-                    fill: Some(Color::rgb(140, 140, 140)),
+                    fill: Some(theme.muted_text),
                     ..Default::default()
                 },
             });

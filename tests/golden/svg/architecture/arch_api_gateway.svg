@@ -2,9 +2,9 @@
   <g transform="translate(20, 20)">
     <rect x="10" y="10" width="421.25" height="459.77" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
     <text x="20" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">API</text>
-    <path d="M176.89 183.73 L264.36 268.04" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M140 357.01 L255.86 322.8" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M301.25 94.76 L185.4 128.97" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
+    <path d="M176.89 183.73 L264.36 268.04" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M140 357.01 L255.86 322.8" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M301.25 94.76 L185.4 128.97" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
     <rect x="85.4" y="103.73" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="135.4" cy="131.73" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
     <text x="135.4" y="131.73" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">DB</text>

@@ -5,6 +5,6 @@
     <text x="121" y="200" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Frontend</text>
     <circle cx="342.39" cy="200" r="125.22" fill="#f28e2c32" stroke="#f28e2c" stroke-width="2" />
     <text x="386.22" y="200" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Backend</text>
-    <text x="267.57" y="200" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Full-Stack</text>
+    <text x="267.57" y="200" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Full-Stack</text>
   </g>
 </svg>

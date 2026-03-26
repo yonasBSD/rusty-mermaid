@@ -5,7 +5,7 @@
     <text x="155" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Report</text>
     <rect x="30" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="90" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Submit ticket</text>
-    <path d="M90 154 L90 214" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M90 154 L90 214" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="90" cy="214" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="86.5" cy="211" r="1.5" fill="#505050" />
     <circle cx="93.5" cy="211" r="1.5" fill="#505050" />
@@ -13,7 +13,7 @@
     <circle cx="90" cy="138" r="5" fill="#4e79a7" />
     <rect x="160" y="86" width="120" height="32" rx="4" ry="4" fill="#f0f3f7" stroke="#4e79a7" stroke-width="1" />
     <text x="220" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Acknowledge</text>
-    <path d="M220 154 L220 190" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M220 154 L220 190" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="220" cy="190" r="12" fill="#fff8dc" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="216.5" cy="187" r="1.5" fill="#505050" />
     <circle cx="223.5" cy="187" r="1.5" fill="#505050" />
@@ -23,7 +23,7 @@
     <text x="435" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Investigate</text>
     <rect x="310" y="86" width="120" height="32" rx="4" ry="4" fill="#fdf5ed" stroke="#f28e2c" stroke-width="1" />
     <text x="370" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Reproduce bug</text>
-    <path d="M370 154 L370 238" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M370 154 L370 238" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="370" cy="238" r="12" fill="#fff8dc" stroke="#f28e2c" stroke-width="1.5" />
     <circle cx="366.5" cy="235" r="1.5" fill="#505050" />
     <circle cx="373.5" cy="235" r="1.5" fill="#505050" />
@@ -32,7 +32,7 @@
     <circle cx="377" cy="138" r="5" fill="#e15759" />
     <rect x="440" y="86" width="120" height="32" rx="4" ry="4" fill="#fdf5ed" stroke="#f28e2c" stroke-width="1" />
     <text x="500" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Identify fix</text>
-    <path d="M500 154 L500 190" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M500 154 L500 190" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="500" cy="190" r="12" fill="#fff8dc" stroke="#f28e2c" stroke-width="1.5" />
     <circle cx="496.5" cy="187" r="1.5" fill="#505050" />
     <circle cx="503.5" cy="187" r="1.5" fill="#505050" />
@@ -42,7 +42,7 @@
     <text x="715" y="64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Resolve</text>
     <rect x="590" y="86" width="120" height="32" rx="4" ry="4" fill="#fcf0f1" stroke="#e15759" stroke-width="1" />
     <text x="650" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Deploy fix</text>
-    <path d="M650 154 L650 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M650 154 L650 166" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="650" cy="166" r="12" fill="#fff8dc" stroke="#e15759" stroke-width="1.5" />
     <circle cx="646.5" cy="163" r="1.5" fill="#505050" />
     <circle cx="653.5" cy="163" r="1.5" fill="#505050" />
@@ -51,7 +51,7 @@
     <circle cx="657" cy="138" r="5" fill="#76b7b2" />
     <rect x="720" y="86" width="120" height="32" rx="4" ry="4" fill="#fcf0f1" stroke="#e15759" stroke-width="1" />
     <text x="780" y="102" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Close ticket</text>
-    <path d="M780 154 L780 166" fill="none" stroke="#b4b4b4" stroke-width="1" stroke-dasharray="4 3" />
+    <path d="M780 154 L780 166" fill="none" stroke="#c8c8c8" stroke-width="1" stroke-dasharray="4 3" />
     <circle cx="780" cy="166" r="12" fill="#fff8dc" stroke="#e15759" stroke-width="1.5" />
     <circle cx="776.5" cy="163" r="1.5" fill="#505050" />
     <circle cx="783.5" cy="163" r="1.5" fill="#505050" />

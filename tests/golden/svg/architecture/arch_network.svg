@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 668.93 495.26" width="668.93" height="495.26">
   <defs>
-    <marker id="arrow-point-8c8c8c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#8c8c8c" />
+    <marker id="arrow-point-c8c8c8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#c8c8c8" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
@@ -9,11 +9,11 @@
     <text x="258.51" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Cloud Platform</text>
     <rect x="10" y="207.4" width="370.29" height="265.86" rx="6" ry="6" fill="none" stroke="#f28e2c" stroke-width="1.5" stroke-dasharray="7 5" />
     <text x="20" y="221.4" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Internal Network</text>
-    <path d="M533.46 120 L517.01 240.37" fill="none" stroke="#8c8c8c" stroke-width="1.5" marker-end="url(#arrow-point-8c8c8c)" />
-    <path d="M488.93 102.65 L378.51 152.68" fill="none" stroke="#8c8c8c" stroke-width="1.5" marker-end="url(#arrow-point-8c8c8c)" />
-    <path d="M461.54 302.83 L350.29 352.8" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M322.87 215.33 L305.93 335.26" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
-    <path d="M250.29 351.99 L140 300.67" fill="none" stroke="#8c8c8c" stroke-width="1.5" />
+    <path d="M533.46 120 L517.01 240.37" fill="none" stroke="#c8c8c8" stroke-width="1.5" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M488.93 102.65 L378.51 152.68" fill="none" stroke="#c8c8c8" stroke-width="1.5" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M461.54 302.83 L350.29 352.8" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M322.87 215.33 L305.93 335.26" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M250.29 351.99 L140 300.67" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
     <rect x="488.93" y="40" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
     <circle cx="538.93" cy="68" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
     <text x="538.93" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>

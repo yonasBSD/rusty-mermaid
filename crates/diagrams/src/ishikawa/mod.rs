@@ -117,7 +117,7 @@ fn render_effect_head(scene: &mut Scene, diagram: &IshikawaDiagram, layout: &Spi
         anchor: TextAnchor::Middle,
         style: TextStyle {
             font_size: theme.font_size_node,
-            fill: Some(Color::WHITE),
+            fill: Some(theme.background),
             font_weight: rusty_mermaid_core::FontWeight::Bold,
             ..Default::default()
         },
@@ -236,7 +236,7 @@ fn render_cause_bones(
                 position: Point::new(sx - tick_len * 0.15 - 3.0, sub_tip_y + direction * 10.0),
                 content: sub.name.clone(),
                 anchor: TextAnchor::End,
-                style: TextStyle { font_size: 9.0, fill: Some(Color::rgb(100, 100, 100)), ..Default::default() },
+                style: TextStyle { font_size: 9.0, fill: Some(theme.muted_text), ..Default::default() },
             });
         }
     }

@@ -2,21 +2,21 @@
   <g transform="translate(20, 20)">
     <rect x="17.5" y="17.5" width="227.77" height="397" rx="3" ry="3" fill="#dbe4ed" stroke="#4e79a7" stroke-width="1" />
     <text x="131.38" y="211.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">A</text>
-    <text x="131.38" y="227.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">50</text>
+    <text x="131.38" y="227.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">50</text>
     <rect x="248.27" y="17.5" width="218.54" height="247" rx="3" ry="3" fill="#fce8d4" stroke="#f28e2c" stroke-width="1" />
     <text x="357.54" y="136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">B</text>
-    <text x="357.54" y="152.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">30</text>
+    <text x="357.54" y="152.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">30</text>
     <rect x="469.81" y="17.5" width="144.69" height="247" rx="3" ry="3" fill="#f9dddd" stroke="#e15759" stroke-width="1" />
     <text x="542.15" y="136.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">C</text>
-    <text x="542.15" y="152.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">20</text>
+    <text x="542.15" y="152.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">20</text>
     <rect x="248.27" y="267.5" width="181.62" height="147" rx="3" ry="3" fill="#e3f0ef" stroke="#76b7b2" stroke-width="1" />
     <text x="339.08" y="336.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">D</text>
-    <text x="339.08" y="352.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">15</text>
+    <text x="339.08" y="352.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">15</text>
     <rect x="432.88" y="267.5" width="120.08" height="147" rx="3" ry="3" fill="#ddecdb" stroke="#59a14f" stroke-width="1" />
     <text x="492.92" y="336.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">E</text>
-    <text x="492.92" y="352.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">10</text>
+    <text x="492.92" y="352.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">10</text>
     <rect x="555.96" y="267.5" width="58.54" height="147" rx="3" ry="3" fill="#fbf4da" stroke="#edc949" stroke-width="1" />
     <text x="585.23" y="336.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">F</text>
-    <text x="585.23" y="352.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">5</text>
+    <text x="585.23" y="352.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">5</text>
   </g>
 </svg>

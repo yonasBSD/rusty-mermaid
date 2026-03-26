@@ -9,6 +9,6 @@
     <text x="222.81" y="427.64" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Procedural</text>
     <circle cx="128.99" cy="293.82" r="98.99" fill="#76b7b232" stroke="#76b7b2" stroke-width="2" />
     <text x="94.35" y="293.82" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2" font-weight="bold">Logic</text>
-    <text x="293.81" y="242.84" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Multi</text>
+    <text x="293.81" y="242.84" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Multi</text>
   </g>
 </svg>

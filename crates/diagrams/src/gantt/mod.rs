@@ -220,7 +220,7 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
             PathSegment::MoveTo(Point::new(area.chart_right, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_right, area.height - MARGIN)),
         ],
-        style: Style { stroke: Some(Color::rgba(180, 180, 180, 100)), stroke_width: Some(0.5), ..Default::default() },
+        style: Style { stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 100)), stroke_width: Some(0.5), ..Default::default() },
         marker_start: None,
         marker_end: None,
     });
@@ -231,7 +231,7 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
             PathSegment::MoveTo(Point::new(area.chart_left, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_left, area.height - MARGIN)),
         ],
-        style: Style { stroke: Some(Color::rgba(180, 180, 180, 100)), stroke_width: Some(0.5), ..Default::default() },
+        style: Style { stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 100)), stroke_width: Some(0.5), ..Default::default() },
         marker_start: None,
         marker_end: None,
     });
@@ -258,7 +258,7 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
                 PathSegment::LineTo(Point::new(x, area.height - MARGIN)),
             ],
             style: Style {
-                stroke: Some(Color::rgba(180, 180, 180, 60)),
+                stroke: Some(Color::rgba(theme.grid_stroke.r, theme.grid_stroke.g, theme.grid_stroke.b, 60)),
                 stroke_width: Some(0.5),
                 stroke_dasharray: Some(vec![4.0, 3.0]),
                 ..Default::default()

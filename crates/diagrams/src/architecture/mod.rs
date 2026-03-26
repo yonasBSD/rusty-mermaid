@@ -55,9 +55,9 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     let mut scene = Scene::new(scene_w, scene_h);
 
     render_groups(&mut scene, diagram, &positions);
-    render_arch_edges(&mut scene, diagram, &positions);
+    render_arch_edges(&mut scene, diagram, &positions, theme);
     render_services(&mut scene, diagram, &positions, theme);
-    render_junctions(&mut scene, diagram, &positions);
+    render_junctions(&mut scene, diagram, &positions, theme);
 
     scene
 }
@@ -174,7 +174,7 @@ fn render_groups(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<S
     }
 }
 
-fn render_arch_edges(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
+fn render_arch_edges(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>, theme: &Theme) {
     for edge in &diagram.edges {
         let Some(&(x1, y1, w1, h1)) = positions.get(&edge.from) else { continue };
         let Some(&(x2, y2, w2, h2)) = positions.get(&edge.to) else { continue };
@@ -188,7 +188,7 @@ fn render_arch_edges(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashM
         scene.push(Primitive::Path {
             segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
             style: Style {
-                stroke: Some(Color::rgb(140, 140, 140)),
+                stroke: Some(theme.grid_stroke),
                 stroke_width: Some(1.5),
                 ..Default::default()
             },
@@ -206,13 +206,13 @@ fn render_services(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap
     }
 }
 
-fn render_junctions(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>) {
+fn render_junctions(scene: &mut Scene, diagram: &ArchDiagram, positions: &HashMap<String, (f64, f64, f64, f64)>, theme: &Theme) {
     for junc in &diagram.junctions {
         let Some(&(cx, cy, _, _)) = positions.get(&junc.id) else { continue };
         scene.push(Primitive::Rect {
             bbox: BBox::new(cx, cy, JUNCTION_SIZE, JUNCTION_SIZE),
             rx: 2.0, ry: 2.0,
-            style: Style { fill: Some(Color::rgb(100, 100, 100)), ..Default::default() },
+            style: Style { fill: Some(theme.muted_text), ..Default::default() },
         });
     }
 }

@@ -8,9 +8,9 @@
     <path d="M265.1 180.35 L175.1 180.35" fill="none" stroke="#4e79a7" stroke-width="1.2" />
     <text x="171.1" y="180.35" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Confusing signup</text>
     <path d="M235.1 180.35 L230.9 152.35" fill="none" stroke="#4e79a7" stroke-width="0.8" />
-    <text x="227.9" y="142.35" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">Too many fields</text>
+    <text x="227.9" y="142.35" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Too many fields</text>
     <path d="M205.1 180.35 L202.1 160.35" fill="none" stroke="#4e79a7" stroke-width="0.8" />
-    <text x="199.1" y="150.35" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">No progress indicator</text>
+    <text x="199.1" y="150.35" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">No progress indicator</text>
     <path d="M251.29 128.83 L181.29 128.83" fill="none" stroke="#4e79a7" stroke-width="1.2" />
     <text x="177.29" y="128.83" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Slow verification</text>
     <path d="M397.41 233.32 L351.21 405.73" fill="none" stroke="#f28e2c" stroke-width="2" />
@@ -18,13 +18,13 @@
     <path d="M382.27 289.82 L292.27 289.82" fill="none" stroke="#f28e2c" stroke-width="1.2" />
     <text x="288.27" y="289.82" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Long wait times</text>
     <path d="M352.27 289.82 L348.07 317.82" fill="none" stroke="#f28e2c" stroke-width="0.8" />
-    <text x="345.07" y="327.82" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">Understaffed</text>
+    <text x="345.07" y="327.82" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Understaffed</text>
     <path d="M322.27 289.82 L319.27 309.82" fill="none" stroke="#f28e2c" stroke-width="0.8" />
-    <text x="316.27" y="319.82" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">No chatbot</text>
+    <text x="316.27" y="319.82" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">No chatbot</text>
     <path d="M366.74 347.78 L286.74 347.78" fill="none" stroke="#f28e2c" stroke-width="1.2" />
     <text x="282.74" y="347.78" text-anchor="end" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Unresolved tickets</text>
     <path d="M336.74 347.78 L333.74 367.78" fill="none" stroke="#f28e2c" stroke-width="0.8" />
-    <text x="330.74" y="377.78" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#646464">Missing knowledge base</text>
+    <text x="330.74" y="377.78" text-anchor="end" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Missing knowledge base</text>
     <path d="M516.31 230.42 L485.64 115.96" fill="none" stroke="#e15759" stroke-width="2" />
     <text x="485.64" y="101.96" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Pricing</text>
     <path d="M506.35 193.23 L436.35 193.23" fill="none" stroke="#e15759" stroke-width="1.2" />

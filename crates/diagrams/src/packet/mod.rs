@@ -100,7 +100,7 @@ fn render_packet_block(scene: &mut Scene, block: &Block, bpr: usize, ox: f64, oy
         });
     }
 
-    let bit_style = TextStyle { font_size: BIT_FONT_SIZE, fill: Some(Color::rgb(120, 120, 120)), ..Default::default() };
+    let bit_style = TextStyle { font_size: BIT_FONT_SIZE, fill: Some(theme.muted_text), ..Default::default() };
     if block.start == block.end {
         scene.push(Primitive::Text {
             position: Point::new(x + width / 2.0, y + BIT_FONT_SIZE + 1.0),

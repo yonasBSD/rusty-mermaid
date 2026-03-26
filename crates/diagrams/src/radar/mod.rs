@@ -86,7 +86,7 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
         });
     }
 
-    draw_graticule(&mut scene, chart, &area);
+    draw_graticule(&mut scene, chart, &area, theme);
     draw_axes(&mut scene, chart, &area, theme);
     draw_curves(&mut scene, chart, &area);
     draw_legend(&mut scene, chart, &area, theme);
@@ -94,8 +94,8 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
     scene
 }
 
-fn draw_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
-    let grid_color = Color::rgb(200, 200, 200);
+fn draw_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
+    let grid_color = theme.grid_stroke;
     let grid_style = Style {
         stroke: Some(grid_color),
         stroke_width: Some(0.8),
@@ -128,7 +128,7 @@ fn draw_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
 }
 
 fn draw_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
-    let grid_color = Color::rgb(200, 200, 200);
+    let grid_color = theme.grid_stroke;
 
     for (i, axis) in chart.axes.iter().enumerate() {
         let a = area.angle(i);
@@ -182,7 +182,7 @@ fn draw_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Th
             anchor: TextAnchor::Start,
             style: TextStyle {
                 font_size: 9.0,
-                fill: Some(Color::rgb(150, 150, 150)),
+                fill: Some(theme.muted_text),
                 ..Default::default()
             },
         });
