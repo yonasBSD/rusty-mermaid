@@ -8,6 +8,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
+use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::shorten_path_for_markers;
 use ir::{ArrowHead, LineStyle, ParticipantKind};
 use layout::{
@@ -60,7 +61,7 @@ fn render_fragments(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
                 fill: Some(theme.subgraph_fill),
                 stroke: Some(theme.subgraph_stroke),
                 stroke_width: Some(1.0),
-                stroke_dasharray: Some(vec![6.0, 4.0]),
+                stroke_dasharray: Some(DOTTED_PATTERN.to_vec()),
                 ..Default::default()
             },
         });
@@ -116,7 +117,7 @@ fn render_fragments(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
                 style: Style {
                     stroke: Some(theme.subgraph_stroke),
                     stroke_width: Some(0.5),
-                    stroke_dasharray: Some(vec![6.0, 4.0]),
+                    stroke_dasharray: Some(DOTTED_PATTERN.to_vec()),
                     ..Default::default()
                 },
                 marker_start: None,
@@ -208,7 +209,7 @@ fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme)
         ..Default::default()
     };
     if msg.arrow.line == LineStyle::Dotted {
-        style.stroke_dasharray = Some(vec![6.0, 4.0]);
+        style.stroke_dasharray = Some(DOTTED_PATTERN.to_vec());
     }
     let marker_end = arrow_marker(msg.arrow.head);
     let mut segments = vec![
@@ -250,7 +251,7 @@ fn render_self_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
         ..Default::default()
     };
     if msg.arrow.line == LineStyle::Dotted {
-        style.stroke_dasharray = Some(vec![6.0, 4.0]);
+        style.stroke_dasharray = Some(DOTTED_PATTERN.to_vec());
     }
 
     // Cubic bezier loop-back, matching mermaid.js self-message curve.

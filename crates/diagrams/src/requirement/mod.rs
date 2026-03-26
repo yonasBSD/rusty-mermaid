@@ -8,6 +8,7 @@ use rusty_mermaid_core::{
 };
 
 use bridge::LayoutResult;
+use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::{render_edge_label, shorten_path_for_markers};
 
 pub fn to_scene(layout: &LayoutResult) -> Scene {
@@ -87,7 +88,7 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             ..Default::default()
         };
         if edge_layout.rel_type.is_dashed() {
-            style.stroke_dasharray = Some(vec![6.0, 4.0]);
+            style.stroke_dasharray = Some(DOTTED_PATTERN.to_vec());
         }
 
         scene.push(Primitive::Path {

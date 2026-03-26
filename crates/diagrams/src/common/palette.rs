@@ -50,6 +50,21 @@ pub const MAX_SCORE: f64 = 5.0;
 /// Database width ratio relative to element width (cylinder shape).
 pub const DATABASE_WIDTH_RATIO: f64 = 0.7;
 
+/// Standard label padding around edge/node text.
+pub const LABEL_PAD: f64 = 4.0;
+
+/// Standard edge label font size.
+pub const EDGE_LABEL_FONT: f64 = 12.0;
+
+/// Dotted line dash pattern (shorter than boundary DASH_PATTERN).
+pub const DOTTED_PATTERN: [f64; 2] = [6.0, 4.0];
+
+/// Marker inset — pull arrow endpoint back to avoid piercing.
+pub const MARKER_INSET: f64 = 3.0;
+
+/// Standard title extra height when present.
+pub const TITLE_HEIGHT: f64 = 36.0;
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -9,6 +9,7 @@ use rusty_mermaid_core::{
 
 use bridge::LayoutResult;
 use ir::{Cardinality, Identification};
+use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::render_edge_label;
 
 /// Convert an ER diagram layout result into a Scene with default theme.
@@ -155,7 +156,7 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             ..Default::default()
         };
         if edge_layout.identification == Identification::NonIdentifying {
-            style.stroke_dasharray = Some(vec![6.0, 4.0]);
+            style.stroke_dasharray = Some(DOTTED_PATTERN.to_vec());
         }
 
         scene.push(Primitive::Path {
