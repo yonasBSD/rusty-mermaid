@@ -69,7 +69,7 @@ pub fn to_scene(chart: &GanttChart) -> Scene {
 pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
     let resolved = resolve_tasks(chart);
     if resolved.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let min_day = resolved.iter().map(|t| t.start_day).min().unwrap_or(0);

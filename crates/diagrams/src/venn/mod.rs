@@ -33,7 +33,7 @@ pub fn to_scene(diagram: &VennDiagram) -> Scene {
 pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
     let n = diagram.sets.len();
     if n == 0 {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let max_size = diagram.sets.iter().map(|s| s.size).fold(0.0f64, f64::max);

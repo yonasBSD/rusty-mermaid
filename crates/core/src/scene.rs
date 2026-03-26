@@ -84,6 +84,10 @@ impl Scene {
         }
     }
 
+    pub fn empty() -> Self {
+        Self::new(100.0, 50.0)
+    }
+
     pub fn push(&mut self, primitive: Primitive) {
         self.elements.push(Element {
             primitive,

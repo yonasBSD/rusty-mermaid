@@ -53,7 +53,7 @@ pub fn to_scene(chart: &RadarChart) -> Scene {
 pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
     let n_axes = chart.axes.len();
     if n_axes < 3 {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let title_h = if chart.title.is_some() { 50.0 } else { 0.0 };

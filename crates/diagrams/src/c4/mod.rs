@@ -30,7 +30,7 @@ pub fn to_scene(diagram: &C4Diagram) -> Scene {
 
 pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
     if diagram.elements.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let (positions, cursor_y, max_right) = compute_positions(diagram, theme);

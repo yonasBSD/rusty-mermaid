@@ -33,7 +33,7 @@ pub fn to_scene(diagram: &PacketDiagram) -> Scene {
 
 pub fn to_scene_themed(diagram: &PacketDiagram, theme: &Theme) -> Scene {
     if diagram.fields.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let bpr = diagram.bits_per_row;

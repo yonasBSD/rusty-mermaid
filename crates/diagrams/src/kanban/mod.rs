@@ -76,7 +76,7 @@ impl ColumnMetrics {
 
 pub fn to_scene_themed(board: &KanbanBoard, theme: &Theme) -> Scene {
     if board.columns.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let metrics = ColumnMetrics::from_board(board, theme);

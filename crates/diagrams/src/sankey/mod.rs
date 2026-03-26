@@ -274,7 +274,7 @@ pub fn to_scene(diagram: &SankeyDiagram) -> Scene {
 
 pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
     if diagram.links.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let names = diagram.node_names();

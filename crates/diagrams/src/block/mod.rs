@@ -34,7 +34,7 @@ pub fn to_scene(diagram: &BlockDiagram) -> Scene {
 
 pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
     if diagram.blocks.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let cols = diagram.columns.max(1);

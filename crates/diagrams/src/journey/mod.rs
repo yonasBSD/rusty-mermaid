@@ -51,7 +51,7 @@ struct JourneyLayout {
 pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
     let total_tasks: usize = diagram.sections.iter().map(|s| s.tasks.len()).sum();
     if total_tasks == 0 {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let title_h = if diagram.title.is_some() { 30.0 } else { 0.0 };

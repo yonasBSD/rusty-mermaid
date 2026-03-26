@@ -36,7 +36,7 @@ pub fn to_scene(graph: &GitGraph) -> Scene {
 pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
     let commits = build_commits(graph);
     if commits.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let is_horizontal = graph.direction == GitDirection::LR;

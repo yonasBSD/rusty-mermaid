@@ -39,7 +39,7 @@ pub fn to_scene(diagram: &ArchDiagram) -> Scene {
 pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     let node_ids = diagram.node_ids();
     if node_ids.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let mut positions = run_force_layout(diagram, &node_ids);

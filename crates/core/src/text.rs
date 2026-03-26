@@ -72,7 +72,7 @@ impl SimpleTextMeasure {
         let mut line_count: usize = 0;
         for line in text.split('\n') {
             line_count += 1;
-            let w: f64 = line.chars().map(|c| char_width_ratio(c)).sum();
+            let w: f64 = line.chars().map(char_width_ratio).sum();
             max_width = max_width.max(w);
         }
         TextSize {
@@ -92,7 +92,7 @@ impl TextMeasure for SimpleTextMeasure {
             line_count += 1;
             let w: f64 = line
                 .chars()
-                .map(|c| char_width_ratio(c))
+                .map(char_width_ratio)
                 .sum();
             max_width = max_width.max(w);
         }

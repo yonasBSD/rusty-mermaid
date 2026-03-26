@@ -19,7 +19,7 @@ pub fn to_scene(tree: &TreeView) -> Scene {
 
 pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
     if tree.roots.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     // Flatten tree: assign a row index to each node, track parent info

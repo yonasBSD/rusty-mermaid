@@ -38,7 +38,7 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
     flatten(&diagram.root, &mut flat_nodes, &mut edges, None, 0, 0);
 
     if flat_nodes.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     layout_nodes(&mut flat_nodes, &edges, theme);

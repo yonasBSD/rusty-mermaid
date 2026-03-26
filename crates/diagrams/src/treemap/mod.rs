@@ -35,7 +35,7 @@ pub fn to_scene(diagram: &ir::TreemapDiagram) -> Scene {
 
 pub fn to_scene_themed(diagram: &ir::TreemapDiagram, theme: &Theme) -> Scene {
     if diagram.roots.is_empty() {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let scene_w = CHART_W + SCENE_PAD * 2.0;

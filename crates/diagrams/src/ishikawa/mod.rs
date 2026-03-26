@@ -78,7 +78,7 @@ impl SpineLayout {
 pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
     let n_cats = diagram.categories.len();
     if n_cats == 0 {
-        return Scene::new(100.0, 50.0);
+        return Scene::empty();
     }
 
     let angle = ANGLE_DEG.to_radians();

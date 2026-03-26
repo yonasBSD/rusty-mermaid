@@ -257,9 +257,15 @@ pub struct ForceGraph {
     pub edges: Vec<ForceEdge>,
 }
 
+impl Default for ForceGraph {
+    fn default() -> Self {
+        Self { nodes: Vec::new(), edges: Vec::new() }
+    }
+}
+
 impl ForceGraph {
     pub fn new() -> Self {
-        Self { nodes: Vec::new(), edges: Vec::new() }
+        Self::default()
     }
 
     pub fn add_node(&mut self, node: ForceNode) -> usize {
