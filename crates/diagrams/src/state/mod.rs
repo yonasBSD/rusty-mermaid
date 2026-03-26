@@ -1,7 +1,9 @@
 pub mod bridge;
+mod center;
 mod clip;
 pub mod ir;
 pub mod parser;
+mod scope;
 
 use rusty_mermaid_core::{
     BBox, Color, CurveType, PathSegment, Point, Primitive, Scene, Shape, Style, TextAnchor,
