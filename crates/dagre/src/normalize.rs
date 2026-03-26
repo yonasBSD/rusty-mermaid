@@ -6,16 +6,16 @@ use crate::labels::{DummyKind, EdgeDummyData, EdgeLabel, NodeLabel};
 /// through dummy nodes. Returns the head of each dummy chain (for undo).
 ///
 /// Pre: DAG with ranks assigned. Post: every edge spans exactly 1 rank.
-pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
+pub(crate) fn run(graph: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
     let mut dummy_chains = Vec::new();
 
-    let edges: Vec<_> = g.edge_ids().collect();
+    let edges: Vec<_> = graph.edge_ids().collect();
     for eid in edges {
-        let Some((src, dst)) = g.edge_endpoints(eid) else {
+        let Some((src, dst)) = graph.edge_endpoints(eid) else {
             continue;
         };
-        let Some(src_node) = g.node(src) else { continue };
-        let Some(dst_node) = g.node(dst) else { continue };
+        let Some(src_node) = graph.node(src) else { continue };
+        let Some(dst_node) = graph.node(dst) else { continue };
         let src_rank = src_node.rank;
         let dst_rank = dst_node.rank;
 
@@ -24,7 +24,7 @@ pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
             continue;
         }
 
-        let Some(edge_label) = g.remove_edge(eid) else {
+        let Some(edge_label) = graph.remove_edge(eid) else {
             continue;
         };
         let label_rank = edge_label.label_rank;
@@ -56,19 +56,19 @@ pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
                 dummy_label.label_pos = Some(edge_label.labelpos);
             }
 
-            let dummy = g.add_node(dummy_label);
+            let dummy = graph.add_node(dummy_label);
 
             if first_dummy.is_none() {
                 first_dummy = Some(dummy);
             }
 
-            g.add_edge(prev, dummy, EdgeLabel::new().with_weight(weight));
+            graph.add_edge(prev, dummy, EdgeLabel::new().with_weight(weight));
             prev = dummy;
             rank += 1;
         }
 
         // Final edge to the original destination
-        g.add_edge(prev, dst, EdgeLabel::new().with_weight(weight));
+        graph.add_edge(prev, dst, EdgeLabel::new().with_weight(weight));
 
         if let Some(head) = first_dummy {
             dummy_chains.push(head);
@@ -80,9 +80,9 @@ pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<NodeId> {
 
 /// Restore original long edges, collecting intermediate positions as points.
 /// Removes all dummy nodes in the chains.
-pub(crate) fn undo(g: &mut Graph<NodeLabel, EdgeLabel>, dummy_chains: &[NodeId]) {
+pub(crate) fn undo(graph: &mut Graph<NodeLabel, EdgeLabel>, dummy_chains: &[NodeId]) {
     for &chain_head in dummy_chains {
-        let Some(node) = g.node(chain_head) else {
+        let Some(node) = graph.node(chain_head) else {
             continue;
         };
         let Some(edge_data) = node.edge_data.clone() else {
@@ -94,7 +94,7 @@ pub(crate) fn undo(g: &mut Graph<NodeLabel, EdgeLabel>, dummy_chains: &[NodeId])
 
         // Walk the dummy chain, collecting positions
         let mut v = chain_head;
-        while let Some(node) = g.node(v) {
+        while let Some(node) = graph.node(v) {
             if node.dummy.is_none() {
                 break;
             }
@@ -112,8 +112,8 @@ pub(crate) fn undo(g: &mut Graph<NodeLabel, EdgeLabel>, dummy_chains: &[NodeId])
             }
 
             // Find the single successor (next in chain)
-            let next: Vec<_> = g.successors(v).collect();
-            g.remove_node(v);
+            let next: Vec<_> = graph.successors(v).collect();
+            graph.remove_node(v);
             v = match next.first() {
                 Some(&n) => n,
                 None => break,
@@ -121,7 +121,7 @@ pub(crate) fn undo(g: &mut Graph<NodeLabel, EdgeLabel>, dummy_chains: &[NodeId])
         }
 
         // Re-add the original edge with collected points
-        g.add_edge(edge_data.edge_src, edge_data.edge_dst, orig_label);
+        graph.add_edge(edge_data.edge_src, edge_data.edge_dst, orig_label);
     }
 }
 

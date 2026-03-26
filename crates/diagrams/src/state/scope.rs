@@ -12,7 +12,7 @@ use super::ir::{StateDiagram, StateKind, StateNode, StateNote, StateTransition};
 #[allow(clippy::too_many_arguments)]
 /// Mutable state threaded through recursive scope building.
 pub(super) struct ScopeCtx<'c, M: TextMeasure> {
-    pub(super) g: &'c mut Graph<NodeLabel, EdgeLabel>,
+    pub(super) graph: &'c mut Graph<NodeLabel, EdgeLabel>,
     pub(super) id_map: &'c mut BTreeMap<String, NodeId>,
     pub(super) synthetic_ids: &'c mut HashSet<String>,
     pub(super) measurer: &'c M,
@@ -46,9 +46,9 @@ pub(super) fn add_pseudo_states<M: TextMeasure>(
         (end_key, transitions.iter().any(|t| t.dst == "[*]")),
     ] {
         if has {
-            let nid = ctx.g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+            let nid = ctx.graph.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
             if let Some((parent_nid, _)) = parent {
-                ctx.g.set_parent(nid, parent_nid);
+                ctx.graph.set_parent(nid, parent_nid);
             }
             ctx.id_map.insert(key.to_string(), nid);
         }
@@ -79,10 +79,10 @@ pub(super) fn add_state_nodes<'a, M: TextMeasure>(
             }
         };
 
-        let nid = ctx.g.add_node(NodeLabel::new(width, height));
+        let nid = ctx.graph.add_node(NodeLabel::new(width, height));
         ctx.id_map.insert(s.id.clone(), nid);
         if let Some((parent_nid, _)) = parent {
-            ctx.g.set_parent(nid, parent_nid);
+            ctx.graph.set_parent(nid, parent_nid);
         }
     }
 }
@@ -97,10 +97,10 @@ pub(super) fn add_composite_state<'a, M: TextMeasure>(
     ctx: &mut ScopeCtx<'_, M>,
     all_transitions: &mut Vec<&'a StateTransition>,
 ) {
-    let nid = ctx.g.add_node(NodeLabel::new(0.0, 0.0));
+    let nid = ctx.graph.add_node(NodeLabel::new(0.0, 0.0));
     ctx.id_map.insert(s.id.clone(), nid);
     if let Some((parent_nid, _)) = parent {
-        ctx.g.set_parent(nid, parent_nid);
+        ctx.graph.set_parent(nid, parent_nid);
     }
 
     let inner_start_key = format!("{}.[*]_start", s.id);
@@ -110,8 +110,8 @@ pub(super) fn add_composite_state<'a, M: TextMeasure>(
         add_scope(children, inner_trans, Some((nid, &s.id)), ctx, all_transitions);
         for child in children {
             if let Some(&child_nid) = ctx.id_map.get(child.id.as_str()) {
-                if ctx.g.parent(child_nid).is_none() {
-                    ctx.g.set_parent(child_nid, nid);
+                if ctx.graph.parent(child_nid).is_none() {
+                    ctx.graph.set_parent(child_nid, nid);
                 }
             }
         }
@@ -123,13 +123,13 @@ pub(super) fn add_composite_state<'a, M: TextMeasure>(
     if !ctx.id_map.contains_key(&inner_end_key)
         && outer_transitions.iter().any(|t| t.src == s.id)
     {
-        let end_nid = ctx.g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-        ctx.g.set_parent(end_nid, nid);
+        let end_nid = ctx.graph.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+        ctx.graph.set_parent(end_nid, nid);
         ctx.synthetic_ids.insert(inner_end_key.clone());
         ctx.id_map.insert(inner_end_key, end_nid);
         if let Some(last) = children.last() {
             if let Some(&child_nid) = ctx.id_map.get(last.id.as_str()) {
-                ctx.g.add_edge(child_nid, end_nid, EdgeLabel::default());
+                ctx.graph.add_edge(child_nid, end_nid, EdgeLabel::default());
             }
         }
     }
@@ -145,9 +145,9 @@ pub(super) fn add_concurrent_regions<'a, M: TextMeasure>(
     all_transitions: &mut Vec<&'a StateTransition>,
 ) {
     for (i, region) in regions.iter().enumerate() {
-        let region_nid = ctx.g.add_node(NodeLabel::new(0.0, 0.0));
+        let region_nid = ctx.graph.add_node(NodeLabel::new(0.0, 0.0));
         let region_key = format!("{}._region_{}", s.id, i);
-        ctx.g.set_parent(region_nid, compound_nid);
+        ctx.graph.set_parent(region_nid, compound_nid);
         ctx.synthetic_ids.insert(region_key.clone());
         ctx.id_map.insert(region_key.clone(), region_nid);
 
@@ -155,8 +155,8 @@ pub(super) fn add_concurrent_regions<'a, M: TextMeasure>(
 
         for child in &region.children {
             if let Some(&child_nid) = ctx.id_map.get(child.id.as_str()) {
-                if ctx.g.parent(child_nid).is_none() {
-                    ctx.g.set_parent(child_nid, region_nid);
+                if ctx.graph.parent(child_nid).is_none() {
+                    ctx.graph.set_parent(child_nid, region_nid);
                 }
             }
         }
@@ -170,26 +170,26 @@ pub(super) fn add_concurrent_regions<'a, M: TextMeasure>(
         })
         .collect();
     if !region_starts.is_empty() && !ctx.id_map.contains_key(inner_start_key) {
-        let entry_nid = ctx.g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-        ctx.g.set_parent(entry_nid, compound_nid);
+        let entry_nid = ctx.graph.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+        ctx.graph.set_parent(entry_nid, compound_nid);
         ctx.synthetic_ids.insert(inner_start_key.to_string());
         ctx.id_map.insert(inner_start_key.to_string(), entry_nid);
         for &rs in &region_starts {
-            ctx.g.add_edge(entry_nid, rs, EdgeLabel::default());
+            ctx.graph.add_edge(entry_nid, rs, EdgeLabel::default());
         }
     }
 
     // Compound-level exit connecting from all regions' last children
     let is_src = outer_transitions.iter().any(|t| t.src == s.id);
     if is_src && !ctx.id_map.contains_key(inner_end_key) {
-        let exit_nid = ctx.g.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
-        ctx.g.set_parent(exit_nid, compound_nid);
+        let exit_nid = ctx.graph.add_node(NodeLabel::new(START_END_SIZE, START_END_SIZE));
+        ctx.graph.set_parent(exit_nid, compound_nid);
         ctx.synthetic_ids.insert(inner_end_key.to_string());
         ctx.id_map.insert(inner_end_key.to_string(), exit_nid);
         for region in regions {
             if let Some(last) = region.children.last() {
                 if let Some(&cn) = ctx.id_map.get(last.id.as_str()) {
-                    ctx.g.add_edge(cn, exit_nid, EdgeLabel::default());
+                    ctx.graph.add_edge(cn, exit_nid, EdgeLabel::default());
                 }
             }
         }
@@ -226,7 +226,7 @@ pub(super) fn wire_edges<'a, M: TextMeasure>(
             label.width = ts.width;
             label.height = ts.height;
         }
-        ctx.g.add_edge(src, dst, label);
+        ctx.graph.add_edge(src, dst, label);
         all_transitions.push(t);
     }
 }

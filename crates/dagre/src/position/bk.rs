@@ -14,11 +14,11 @@ type AdjList = BTreeMap<NodeId, Vec<(NodeId, f64)>>;
 /// Computes 4 alignments (up-left, up-right, down-left, down-right),
 /// then picks the median (or a specific alignment if `config.align` is set).
 pub(crate) fn position_x(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     config: &DagreConfig,
 ) -> Vec<(NodeId, f64)> {
-    let layering = util::build_layer_matrix_leaves(g);
-    let conflicts = find_conflicts(g, &layering);
+    let layering = util::build_layer_matrix_leaves(graph);
+    let conflicts = find_conflicts(graph, &layering);
 
     let mut xss: [Vec<(NodeId, f64)>; 4] = Default::default();
 
@@ -42,23 +42,23 @@ pub(crate) fn position_x(
         }
 
         let neighbor_fn: Box<NeighborFn> = if vert_up {
-                Box::new(|g: &Graph<NodeLabel, EdgeLabel>, v| {
-                    g.in_edges(v)
-                        .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
+                Box::new(|graph: &Graph<NodeLabel, EdgeLabel>, v| {
+                    graph.in_edges(v)
+                        .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
                         .collect()
                 })
             } else {
-                Box::new(|g: &Graph<NodeLabel, EdgeLabel>, v| {
-                    g.out_edges(v)
-                        .filter_map(|eid| g.edge_endpoints(eid).map(|(_, d)| d))
+                Box::new(|graph: &Graph<NodeLabel, EdgeLabel>, v| {
+                    graph.out_edges(v)
+                        .filter_map(|eid| graph.edge_endpoints(eid).map(|(_, d)| d))
                         .collect()
                 })
             };
 
         let (root, align) =
-            vertical_alignment(g, &adj_layering, &conflicts, &*neighbor_fn);
+            vertical_alignment(graph, &adj_layering, &conflicts, &*neighbor_fn);
         let mut xs =
-            horizontal_compaction(g, &adj_layering, &root, &align, !horiz_left, config);
+            horizontal_compaction(graph, &adj_layering, &root, &align, !horiz_left, config);
 
         if !horiz_left {
             for (_, x) in &mut xs {
@@ -75,7 +75,7 @@ pub(crate) fn position_x(
         .map(|xs| xs.into_iter().collect())
         .collect();
 
-    let smallest_idx = find_smallest_width_alignment(g, &maps);
+    let smallest_idx = find_smallest_width_alignment(graph, &maps);
     align_coordinates(&mut maps, smallest_idx);
     balance(&maps, config)
 }
@@ -97,7 +97,7 @@ fn has_conflict(conflicts: &Conflicts, v: NodeId, w: NodeId) -> bool {
 /// Find type-1 conflicts: non-inner segment crossing an inner segment.
 /// An inner segment is an edge where both endpoints are dummy nodes.
 fn find_type1_conflicts(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
 ) -> Conflicts {
     let mut conflicts = Conflicts::new();
@@ -118,21 +118,21 @@ fn find_type1_conflicts(
         let mut scan_pos = 0usize;
 
         for (i, &v) in layer.iter().enumerate() {
-            let w = find_other_inner_segment_node(g, v);
+            let w = find_other_inner_segment_node(graph, v);
             let k1 = w.map_or(prev_layer_len, |w| {
                 *pos.get(&w).unwrap_or(&prev_layer_len)
             });
 
             if w.is_some() || i == layer.len() - 1 {
                 for &scan_node in &layer[scan_pos..=i] {
-                    let predecessors: Vec<NodeId> = g
+                    let predecessors: Vec<NodeId> = graph
                         .in_edges(scan_node)
-                        .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
+                        .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
                         .collect();
                     for u in predecessors {
                         let u_pos = *pos.get(&u).unwrap_or(&0);
-                        let u_is_dummy = g.node(u).is_some_and(|n| n.dummy.is_some());
-                        let scan_is_dummy = g.node(scan_node).is_some_and(|n| n.dummy.is_some());
+                        let u_is_dummy = graph.node(u).is_some_and(|n| n.dummy.is_some());
+                        let scan_is_dummy = graph.node(scan_node).is_some_and(|n| n.dummy.is_some());
                         if (u_pos < k0 || k1 < u_pos) && !(u_is_dummy && scan_is_dummy) {
                             add_conflict(&mut conflicts, u, scan_node);
                         }
@@ -149,7 +149,7 @@ fn find_type1_conflicts(
 
 /// Find type-2 conflicts: dummy-to-dummy edges crossing border boundaries.
 fn find_type2_conflicts(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
 ) -> Conflicts {
     let mut conflicts = Conflicts::new();
@@ -169,16 +169,16 @@ fn find_type2_conflicts(
         let mut south_pos = 0usize;
 
         for (south_lookahead, &v) in south.iter().enumerate() {
-            if g.node(v).is_some_and(|n| n.dummy == Some(DummyKind::Border)) {
-                let preds: Vec<NodeId> = g
+            if graph.node(v).is_some_and(|n| n.dummy == Some(DummyKind::Border)) {
+                let preds: Vec<NodeId> = graph
                     .in_edges(v)
-                    .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
+                    .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
                     .collect();
                 if let Some(&pred) = preds.first() {
                     let next_north_pos =
                         *north_pos.get(&pred).unwrap_or(&0) as i64;
                     scan_type2(
-                        g,
+                        graph,
                         &north_pos,
                         south,
                         south_pos,
@@ -194,7 +194,7 @@ fn find_type2_conflicts(
         }
         // Final scan to end of south layer
         scan_type2(
-            g,
+            graph,
             &north_pos,
             south,
             south_pos,
@@ -210,7 +210,7 @@ fn find_type2_conflicts(
 
 #[allow(clippy::too_many_arguments)]
 fn scan_type2(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     north_pos: &BTreeMap<NodeId, usize>,
     south: &[NodeId],
     start: usize,
@@ -220,13 +220,13 @@ fn scan_type2(
     conflicts: &mut Conflicts,
 ) {
     for &v in &south[start..end] {
-        if g.node(v).is_some_and(|n| n.dummy.is_some()) {
-            let preds: Vec<NodeId> = g
+        if graph.node(v).is_some_and(|n| n.dummy.is_some()) {
+            let preds: Vec<NodeId> = graph
                 .in_edges(v)
-                .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
+                .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
                 .collect();
             for u in preds {
-                if g.node(u).is_some_and(|n| n.dummy.is_some()) {
+                if graph.node(u).is_some_and(|n| n.dummy.is_some()) {
                     let u_order = *north_pos.get(&u).unwrap_or(&0) as i64;
                     if u_order < prev_north_border || u_order > next_north_border {
                         add_conflict(conflicts, u, v);
@@ -238,24 +238,24 @@ fn scan_type2(
 }
 
 fn find_other_inner_segment_node(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
 ) -> Option<NodeId> {
-    if g.node(v).is_some_and(|n| n.dummy.is_some()) {
-        g.in_edges(v)
-            .filter_map(|eid| g.edge_endpoints(eid).map(|(s, _)| s))
-            .find(|&u| g.node(u).is_some_and(|n| n.dummy.is_some()))
+    if graph.node(v).is_some_and(|n| n.dummy.is_some()) {
+        graph.in_edges(v)
+            .filter_map(|eid| graph.edge_endpoints(eid).map(|(s, _)| s))
+            .find(|&u| graph.node(u).is_some_and(|n| n.dummy.is_some()))
     } else {
         None
     }
 }
 
 fn find_conflicts(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
 ) -> Conflicts {
-    let mut c = find_type1_conflicts(g, layering);
-    c.extend(find_type2_conflicts(g, layering));
+    let mut c = find_type1_conflicts(graph, layering);
+    c.extend(find_type2_conflicts(graph, layering));
     c
 }
 
@@ -263,7 +263,7 @@ fn find_conflicts(
 
 /// Group nodes into vertical blocks by aligning each with its median neighbor.
 fn vertical_alignment(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
     conflicts: &Conflicts,
     neighbor_fn: &NeighborFn,
@@ -284,7 +284,7 @@ fn vertical_alignment(
     for layer in layering {
         let mut prev_idx: i64 = -1;
         for &v in layer {
-            let mut ws: Vec<_> = neighbor_fn(g, v)
+            let mut ws: Vec<_> = neighbor_fn(graph, v)
                 .into_iter()
                 .filter(|w| pos.contains_key(w))
                 .collect();
@@ -319,14 +319,14 @@ fn vertical_alignment(
 
 /// Compute minimum separation between two adjacent nodes.
 fn sep(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
     w: NodeId,
     reverse_sep: bool,
     config: &DagreConfig,
 ) -> f64 {
-    let Some(v_label) = g.node(v) else { return 0.0 };
-    let Some(w_label) = g.node(w) else { return 0.0 };
+    let Some(v_label) = graph.node(v) else { return 0.0 };
+    let Some(w_label) = graph.node(w) else { return 0.0 };
     let node_sep = config.nodesep;
     let edge_sep = config.edgesep;
 
@@ -370,7 +370,7 @@ fn sep(
 /// Build a block graph: nodes are block roots, edges represent
 /// minimum separation constraints between adjacent blocks.
 fn build_block_graph(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
     root: &BTreeMap<NodeId, NodeId>,
     reverse_sep: bool,
@@ -388,7 +388,7 @@ fn build_block_graph(
             block_nodes.insert(v_root);
             if let Some(u) = prev {
                 let u_root = root[&u];
-                let separation = sep(g, v, u, reverse_sep, config);
+                let separation = sep(graph, v, u, reverse_sep, config);
                 let entry = fwd_edges.entry(u_root).or_default();
                 // Keep max separation between same block pair
                 if let Some(e) = entry.iter_mut().find(|(dst, _)| *dst == v_root) {
@@ -416,7 +416,7 @@ fn build_block_graph(
 /// Two passes: first assigns smallest valid coordinates, second
 /// moves blocks right to fill unused space.
 fn horizontal_compaction(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     layering: &[Vec<NodeId>],
     root: &BTreeMap<NodeId, NodeId>,
     _align: &BTreeMap<NodeId, NodeId>,
@@ -424,7 +424,7 @@ fn horizontal_compaction(
     config: &DagreConfig,
 ) -> Vec<(NodeId, f64)> {
     let (block_nodes, fwd_edges, rev_edges) =
-        build_block_graph(g, layering, root, reverse_sep, config);
+        build_block_graph(graph, layering, root, reverse_sep, config);
 
     let border_type = if reverse_sep {
         crate::labels::BorderType::Left
@@ -459,7 +459,7 @@ fn horizontal_compaction(
             });
 
         if min != f64::INFINITY
-            && g.node(elem)
+            && graph.node(elem)
                 .and_then(|n| n.border_type)
                 .is_none_or(|bt| bt != border_type)
         {
@@ -513,7 +513,7 @@ fn dfs_iterate(
 // --- Alignment selection ---
 
 fn find_smallest_width_alignment(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     maps: &[BTreeMap<NodeId, f64>],
 ) -> usize {
     let mut best_idx = 0;
@@ -523,7 +523,7 @@ fn find_smallest_width_alignment(
         let mut min = f64::INFINITY;
         let mut max = f64::NEG_INFINITY;
         for (&v, &x) in xs {
-            let Some(node) = g.node(v) else { continue };
+            let Some(node) = graph.node(v) else { continue };
             let hw = node.width / 2.0;
             min = min.min(x - hw);
             max = max.max(x + hw);

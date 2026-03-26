@@ -125,16 +125,16 @@ fn canonical(u: NodeId, v: NodeId) -> (NodeId, NodeId) {
 
 /// Build a feasible spanning tree from a ranked graph.
 /// All tree edges are tight (slack == 0). Shifts ranks as needed.
-pub(crate) fn feasible_tree_mut(g: &mut Graph<NodeLabel, EdgeLabel>) -> NsTree {
-    let Some(start) = g.node_ids().next() else {
+pub(crate) fn feasible_tree_mut(graph: &mut Graph<NodeLabel, EdgeLabel>) -> NsTree {
+    let Some(start) = graph.node_ids().next() else {
         return NsTree::new(NodeId::from(0));
     };
     let mut tree = NsTree::new(start);
-    let total = g.node_count();
+    let total = graph.node_count();
 
     // Grow tree by adding tight edges
-    while tight_tree_grow(&mut tree, g) < total {
-        if let Some((edge_src, _edge_dst, min_slack)) = find_min_slack_edge(&tree, g) {
+    while tight_tree_grow(&mut tree, graph) < total {
+        if let Some((edge_src, _edge_dst, min_slack)) = find_min_slack_edge(&tree, graph) {
             // Shift tree node ranks to make the min-slack edge tight
             let delta = if tree.has_node(edge_src) {
                 min_slack
@@ -144,14 +144,14 @@ pub(crate) fn feasible_tree_mut(g: &mut Graph<NodeLabel, EdgeLabel>) -> NsTree {
 
             let tree_nodes: Vec<NodeId> = tree.nodes.iter().copied().collect();
             for nid in tree_nodes {
-                if let Some(n) = g.node_mut(nid) {
+                if let Some(n) = graph.node_mut(nid) {
                     n.rank += delta;
                 }
             }
         } else {
             // No edge crosses the boundary — disconnected component.
             // Add an arbitrary non-tree node directly.
-            if let Some(non_tree) = g.node_ids().find(|nid| !tree.has_node(*nid)) {
+            if let Some(non_tree) = graph.node_ids().find(|nid| !tree.has_node(*nid)) {
                 tree.add_node(non_tree);
             } else {
                 break;
@@ -164,22 +164,22 @@ pub(crate) fn feasible_tree_mut(g: &mut Graph<NodeLabel, EdgeLabel>) -> NsTree {
 }
 
 /// Grow the tree by DFS along tight edges. Returns tree node count.
-fn tight_tree_grow(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>) -> usize {
+fn tight_tree_grow(tree: &mut NsTree, graph: &Graph<NodeLabel, EdgeLabel>) -> usize {
     let current_nodes: Vec<NodeId> = tree.nodes.iter().copied().collect();
     for v in current_nodes {
-        dfs_tight(tree, g, v);
+        dfs_tight(tree, graph, v);
     }
     tree.node_count()
 }
 
-fn dfs_tight(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>, v: NodeId) {
+fn dfs_tight(tree: &mut NsTree, graph: &Graph<NodeLabel, EdgeLabel>, v: NodeId) {
     // Check all edges incident to v
-    for (eid, src, dst) in util::node_edges(g, v) {
+    for (eid, src, dst) in util::node_edges(graph, v) {
         let other = if v == src { dst } else { src };
-        if !tree.has_node(other) && util::slack(g, eid) == 0 {
+        if !tree.has_node(other) && util::slack(graph, eid) == 0 {
             tree.add_node(other);
             tree.add_edge(v, other);
-            dfs_tight(tree, g, other);
+            dfs_tight(tree, graph, other);
         }
     }
 }
@@ -188,15 +188,15 @@ fn dfs_tight(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>, v: NodeId) {
 /// Returns `None` if no edge crosses the boundary (disconnected components).
 fn find_min_slack_edge(
     tree: &NsTree,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
 ) -> Option<(NodeId, NodeId, i32)> {
     let mut best: Option<(NodeId, NodeId, i32)> = None;
 
-    for eid in g.edge_ids() {
-        if let Some((src, dst)) = g.edge_endpoints(eid)
+    for eid in graph.edge_ids() {
+        if let Some((src, dst)) = graph.edge_endpoints(eid)
             && tree.has_node(src) != tree.has_node(dst)
         {
-            let s = util::slack(g, eid).abs();
+            let s = util::slack(graph, eid).abs();
             if best.is_none_or(|(_, _, bs)| s < bs) {
                 best = Some((src, dst, s));
             }

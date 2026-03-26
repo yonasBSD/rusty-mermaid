@@ -12,24 +12,24 @@ use super::ir::{StateDiagram, StateKind, StateNode, StateTransition};
 /// to the right of region_1, mirror all descendants around the compound center.
 pub(super) fn fix_region_order(
     diagram: &StateDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     for s in &diagram.states {
-        fix_region_order_for_state(s, g, id_map);
+        fix_region_order_for_state(s, graph, id_map);
     }
 }
 
 pub(super) fn fix_region_order_for_state(
     state: &StateNode,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { regions, children, .. } = &state.kind else { return };
 
     // Recurse into children first
     for child in children {
-        fix_region_order_for_state(child, g, id_map);
+        fix_region_order_for_state(child, graph, id_map);
     }
 
     if regions.len() < 2 {
@@ -41,7 +41,7 @@ pub(super) fn fix_region_order_for_state(
     for (i, _) in regions.iter().enumerate() {
         let rk = format!("{}._region_{}", state.id, i);
         if let Some(&rnid) = id_map.get(&rk)
-            && let Some(rn) = g.node(rnid)
+            && let Some(rn) = graph.node(rnid)
         {
             region_xs.push((i, rn.x));
         }
@@ -58,27 +58,27 @@ pub(super) fn fix_region_order_for_state(
 
     // Need to mirror: flip all descendants' x around compound center
     let Some(&compound_nid) = id_map.get(&state.id) else { return };
-    let Some(compound_node) = g.node(compound_nid) else { return };
+    let Some(compound_node) = graph.node(compound_nid) else { return };
     let cx = compound_node.x;
 
     // Collect all descendant node IDs
     let mut descendants = Vec::new();
-    collect_descendants(g, compound_nid, &mut descendants);
+    collect_descendants(graph, compound_nid, &mut descendants);
 
     // Mirror node positions
     for &nid in &descendants {
-        if let Some(n) = g.node_mut(nid) {
+        if let Some(n) = graph.node_mut(nid) {
             n.x = 2.0 * cx - n.x;
         }
     }
 
     // Mirror edge points for edges fully within the compound
     let desc_set: HashSet<NodeId> = descendants.iter().copied().collect();
-    for eid in g.edge_ids().collect::<Vec<_>>() {
-        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+    for eid in graph.edge_ids().collect::<Vec<_>>() {
+        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
         if desc_set.contains(&src)
             && desc_set.contains(&dst)
-            && let Some(e) = g.edge_mut(eid)
+            && let Some(e) = graph.edge_mut(eid)
         {
             for pt in &mut e.points {
                 pt.x = 2.0 * cx - pt.x;
@@ -87,10 +87,10 @@ pub(super) fn fix_region_order_for_state(
     }
 }
 
-pub(super) fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId, out: &mut Vec<NodeId>) {
-    for child in g.children(nid).collect::<Vec<_>>() {
+pub(super) fn collect_descendants(graph: &Graph<NodeLabel, EdgeLabel>, nid: NodeId, out: &mut Vec<NodeId>) {
+    for child in graph.children(nid).collect::<Vec<_>>() {
         out.push(child);
-        collect_descendants(g, child, out);
+        collect_descendants(graph, child, out);
     }
 }
 
@@ -99,27 +99,27 @@ pub(super) fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId, 
 /// Concurrent: centers each region's descendants within its equal-width partition.
 pub(super) fn center_content(
     diagram: &StateDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     for s in &diagram.states {
-        center_content_for_state(s, g, id_map);
+        center_content_for_state(s, graph, id_map);
     }
 }
 
 pub(super) fn center_content_for_state(
     state: &StateNode,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { regions, children, .. } = &state.kind else { return };
     // Recurse into children first (handles nested composites)
     for child in children {
-        center_content_for_state(child, g, id_map);
+        center_content_for_state(child, graph, id_map);
     }
 
     let Some(&compound_nid) = id_map.get(&state.id) else { return };
-    let Some(compound_node) = g.node(compound_nid) else { return };
+    let Some(compound_node) = graph.node(compound_nid) else { return };
     let compound_cx = compound_node.x;
     let compound_left = compound_cx - compound_node.width / 2.0;
     let compound_right = compound_cx + compound_node.width / 2.0;
@@ -136,8 +136,8 @@ pub(super) fn center_content_for_state(
             let rk = format!("{}._region_{}", state.id, i);
             let Some(&rnid) = id_map.get(&rk) else { continue };
             let mut desc = Vec::new();
-            collect_descendants(g, rnid, &mut desc);
-            let cx = content_bbox_cx(g, &desc);
+            collect_descendants(graph, rnid, &mut desc);
+            let cx = content_bbox_cx(graph, &desc);
             parts.push((rnid, desc, cx, cx)); // cx used for sorting
         }
         if parts.len() < 2 {
@@ -154,7 +154,7 @@ pub(super) fn center_content_for_state(
             .collect()
     } else {
         let mut desc = Vec::new();
-        collect_descendants(g, compound_nid, &mut desc);
+        collect_descendants(graph, compound_nid, &mut desc);
         if desc.is_empty() {
             return;
         }
@@ -162,7 +162,7 @@ pub(super) fn center_content_for_state(
     };
 
     for (root_nid, descendants, target_cx) in &partitions {
-        let cx = content_bbox_cx(g, descendants);
+        let cx = content_bbox_cx(graph, descendants);
         let dx = target_cx - cx;
         if dx.abs() < 0.5 {
             continue;
@@ -170,13 +170,13 @@ pub(super) fn center_content_for_state(
 
         // Shift the partition root (region compound for concurrent, skip for non-concurrent)
         if *root_nid != compound_nid
-            && let Some(rn) = g.node_mut(*root_nid)
+            && let Some(rn) = graph.node_mut(*root_nid)
         {
             rn.x += dx;
         }
         // Shift all descendants
         for &nid in descendants {
-            if let Some(n) = g.node_mut(nid) {
+            if let Some(n) = graph.node_mut(nid) {
                 n.x += dx;
             }
         }
@@ -184,11 +184,11 @@ pub(super) fn center_content_for_state(
         let desc_set: HashSet<NodeId> = std::iter::once(*root_nid)
             .chain(descendants.iter().copied())
             .collect();
-        for eid in g.edge_ids().collect::<Vec<_>>() {
-            let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+        for eid in graph.edge_ids().collect::<Vec<_>>() {
+            let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
             if desc_set.contains(&src)
                 && desc_set.contains(&dst)
-                && let Some(e) = g.edge_mut(eid)
+                && let Some(e) = graph.edge_mut(eid)
             {
                 for pt in &mut e.points {
                     pt.x += dx;
@@ -199,10 +199,10 @@ pub(super) fn center_content_for_state(
 }
 
 /// Compute the horizontal center of a group of nodes' bounding box.
-pub(super) fn content_bbox_cx(g: &Graph<NodeLabel, EdgeLabel>, nodes: &[NodeId]) -> f64 {
+pub(super) fn content_bbox_cx(graph: &Graph<NodeLabel, EdgeLabel>, nodes: &[NodeId]) -> f64 {
     let (mut min_x, mut max_x) = (f64::MAX, f64::MIN);
     for &nid in nodes {
-        if let Some(n) = g.node(nid) {
+        if let Some(n) = graph.node(nid) {
             min_x = min_x.min(n.x - n.width / 2.0);
             max_x = max_x.max(n.x + n.width / 2.0);
         }
@@ -214,32 +214,32 @@ pub(super) fn content_bbox_cx(g: &Graph<NodeLabel, EdgeLabel>, nodes: &[NodeId])
 /// After dagre layout, the bullseye x may not align with the compound center.
 pub(super) fn center_bullseyes(
     diagram: &StateDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     center_bullseyes_in_scope(
         &diagram.transitions,
         &diagram.states,
         "",
-        g,
+        graph,
         id_map,
     );
     // Recurse into composites
     for s in &diagram.states {
-        center_bullseyes_in_state(s, g, id_map);
+        center_bullseyes_in_state(s, graph, id_map);
     }
 }
 
 pub(super) fn center_bullseyes_in_state(
     state: &StateNode,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { transitions, children, .. } = &state.kind else { return };
     let prefix = format!("{}.", state.id);
-    center_bullseyes_in_scope(transitions, children, &prefix, g, id_map);
+    center_bullseyes_in_scope(transitions, children, &prefix, graph, id_map);
     for child in children {
-        center_bullseyes_in_state(child, g, id_map);
+        center_bullseyes_in_state(child, graph, id_map);
     }
 }
 
@@ -247,7 +247,7 @@ pub(super) fn center_bullseyes_in_scope(
     transitions: &[StateTransition],
     states: &[StateNode],
     scope_prefix: &str,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     // Only center+straighten when exactly one transition connects to the
@@ -277,14 +277,14 @@ pub(super) fn center_bullseyes_in_scope(
         let start_key = format!("{scope_prefix}[*]_start");
         let Some(&start_nid) = id_map.get(&start_key) else { return };
         let Some(&target_nid) = id_map.get(start_targets[0]) else { return };
-        let target_x = g.node(target_nid).map(|n| n.x).unwrap_or(0.0);
+        let target_x = graph.node(target_nid).map(|n| n.x).unwrap_or(0.0);
 
-        if !would_overlap(g, start_nid, target_x, &peer_nids) {
-            if let Some(n) = g.node_mut(start_nid) {
+        if !would_overlap(graph, start_nid, target_x, &peer_nids) {
+            if let Some(n) = graph.node_mut(start_nid) {
                 n.x = target_x;
             }
-            for eid in g.out_edges(start_nid).collect::<Vec<_>>() {
-                if let Some(e) = g.edge_mut(eid) {
+            for eid in graph.out_edges(start_nid).collect::<Vec<_>>() {
+                if let Some(e) = graph.edge_mut(eid) {
                     for pt in &mut e.points {
                         pt.x = target_x;
                     }
@@ -297,14 +297,14 @@ pub(super) fn center_bullseyes_in_scope(
         let end_key = format!("{scope_prefix}[*]_end");
         let Some(&end_nid) = id_map.get(&end_key) else { return };
         let Some(&source_nid) = id_map.get(end_sources[0]) else { return };
-        let source_x = g.node(source_nid).map(|n| n.x).unwrap_or(0.0);
+        let source_x = graph.node(source_nid).map(|n| n.x).unwrap_or(0.0);
 
-        if !would_overlap(g, end_nid, source_x, &peer_nids) {
-            if let Some(n) = g.node_mut(end_nid) {
+        if !would_overlap(graph, end_nid, source_x, &peer_nids) {
+            if let Some(n) = graph.node_mut(end_nid) {
                 n.x = source_x;
             }
-            for eid in g.in_edges(end_nid).collect::<Vec<_>>() {
-                if let Some(e) = g.edge_mut(eid) {
+            for eid in graph.in_edges(end_nid).collect::<Vec<_>>() {
+                if let Some(e) = graph.edge_mut(eid) {
                     for pt in &mut e.points {
                         pt.x = source_x;
                     }
@@ -316,12 +316,12 @@ pub(super) fn center_bullseyes_in_scope(
 
 /// Check if moving `nid` to `new_x` would cause it to overlap with any peer node.
 pub(super) fn would_overlap(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     nid: NodeId,
     new_x: f64,
     peers: &[NodeId],
 ) -> bool {
-    let Some(node) = g.node(nid) else { return false };
+    let Some(node) = graph.node(nid) else { return false };
     let half_w = node.width / 2.0;
     let half_h = node.height / 2.0;
     let min_gap = BULLSEYE_MIN_GAP;
@@ -330,7 +330,7 @@ pub(super) fn would_overlap(
         if pid == nid {
             continue;
         }
-        let Some(peer) = g.node(pid) else { continue };
+        let Some(peer) = graph.node(pid) else { continue };
         let x_overlap = (new_x - peer.x).abs() < half_w + peer.width / 2.0 + min_gap;
         let y_overlap = (node.y - peer.y).abs() < half_h + peer.height / 2.0 + min_gap;
         if x_overlap && y_overlap {
@@ -344,31 +344,31 @@ pub(super) fn would_overlap(
 /// e.g. `Active → Paused` — Paused should be centered on Active's x.
 pub(super) fn center_external_connections(
     diagram: &StateDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
-    center_external_in_scope(&diagram.transitions, &diagram.states, g, id_map);
+    center_external_in_scope(&diagram.transitions, &diagram.states, graph, id_map);
     for s in &diagram.states {
-        center_external_in_state(s, g, id_map);
+        center_external_in_state(s, graph, id_map);
     }
 }
 
 pub(super) fn center_external_in_state(
     state: &StateNode,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     let StateKind::Composite { transitions, children, .. } = &state.kind else { return };
-    center_external_in_scope(transitions, children, g, id_map);
+    center_external_in_scope(transitions, children, graph, id_map);
     for child in children {
-        center_external_in_state(child, g, id_map);
+        center_external_in_state(child, graph, id_map);
     }
 }
 
 pub(super) fn center_external_in_scope(
     transitions: &[StateTransition],
     states: &[StateNode],
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     // Collect which external nodes need centering and their target x
@@ -389,18 +389,18 @@ pub(super) fn center_external_in_scope(
             if centered.contains(&ext_nid) {
                 continue;
             }
-            let comp_x = g.node(comp_nid).map(|n| n.x).unwrap_or(0.0);
-            let old_x = g.node(ext_nid).map(|n| n.x).unwrap_or(0.0);
+            let comp_x = graph.node(comp_nid).map(|n| n.x).unwrap_or(0.0);
+            let old_x = graph.node(ext_nid).map(|n| n.x).unwrap_or(0.0);
             let dx = comp_x - old_x;
             if dx.abs() < 0.5 {
                 continue;
             }
-            if let Some(n) = g.node_mut(ext_nid) {
+            if let Some(n) = graph.node_mut(ext_nid) {
                 n.x = comp_x;
             }
             // Shift edge points by dx (preserves dagre curve shape)
-            for eid in g.in_edges(ext_nid).chain(g.out_edges(ext_nid)).collect::<Vec<_>>() {
-                if let Some(e) = g.edge_mut(eid) {
+            for eid in graph.in_edges(ext_nid).chain(graph.out_edges(ext_nid)).collect::<Vec<_>>() {
+                if let Some(e) = graph.edge_mut(eid) {
                     for pt in &mut e.points {
                         pt.x += dx;
                     }
@@ -415,17 +415,17 @@ pub(super) fn center_external_in_scope(
             if centered.contains(&ext_nid) {
                 continue;
             }
-            let comp_x = g.node(comp_nid).map(|n| n.x).unwrap_or(0.0);
-            let old_x = g.node(ext_nid).map(|n| n.x).unwrap_or(0.0);
+            let comp_x = graph.node(comp_nid).map(|n| n.x).unwrap_or(0.0);
+            let old_x = graph.node(ext_nid).map(|n| n.x).unwrap_or(0.0);
             let dx = comp_x - old_x;
             if dx.abs() < 0.5 {
                 continue;
             }
-            if let Some(n) = g.node_mut(ext_nid) {
+            if let Some(n) = graph.node_mut(ext_nid) {
                 n.x = comp_x;
             }
-            for eid in g.in_edges(ext_nid).chain(g.out_edges(ext_nid)).collect::<Vec<_>>() {
-                if let Some(e) = g.edge_mut(eid) {
+            for eid in graph.in_edges(ext_nid).chain(graph.out_edges(ext_nid)).collect::<Vec<_>>() {
+                if let Some(e) = graph.edge_mut(eid) {
                     for pt in &mut e.points {
                         pt.x += dx;
                     }

@@ -8,26 +8,26 @@ const LOOP_INNER: f64 = 2.0 / 3.0;
 const LOOP_OUTER: f64 = 5.0 / 6.0;
 
 /// Remove self-edges from the graph, storing them on their source node.
-pub(crate) fn remove_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let self_eids: Vec<_> = g
+pub(crate) fn remove_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let self_eids: Vec<_> = graph
         .edge_ids()
         .filter(|&eid| {
-            g.edge_endpoints(eid)
+            graph.edge_endpoints(eid)
                 .is_some_and(|(src, dst)| src == dst)
         })
         .collect();
 
     for eid in self_eids {
-        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
-        let Some(label) = g.edge(eid) else { continue };
+        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
+        let Some(label) = graph.edge(eid) else { continue };
         let label = label.clone();
-        let Some(node) = g.node_mut(src) else { continue };
+        let Some(node) = graph.node_mut(src) else { continue };
         node.self_edges.push(SelfEdge {
             src,
             dst,
             label,
         });
-        g.remove_edge(eid);
+        graph.remove_edge(eid);
     }
 }
 
@@ -35,17 +35,17 @@ pub(crate) fn remove_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
 ///
 /// Each self-edge becomes a "selfedge" dummy node placed right after
 /// its source node in the same layer.
-pub(crate) fn insert_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let layers = util::build_layer_matrix(g);
+pub(crate) fn insert_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let layers = util::build_layer_matrix(graph);
     for layer in &layers {
         let mut order_shift = 0usize;
         for (i, &v) in layer.iter().enumerate() {
-            let Some(node) = g.node_mut(v) else { continue };
+            let Some(node) = graph.node_mut(v) else { continue };
             node.order = i + order_shift;
 
             let self_edges: Vec<SelfEdge> = std::mem::take(&mut node.self_edges);
 
-            let rank = g.node(v).map_or(0, |n| n.rank);
+            let rank = graph.node(v).map_or(0, |n| n.rank);
             for se in self_edges {
                 order_shift += 1;
                 let mut dummy = NodeLabel::new(se.label.width, se.label.height);
@@ -57,7 +57,7 @@ pub(crate) fn insert_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
                     dst: se.dst,
                     label: se.label,
                 });
-                g.add_node(dummy);
+                graph.add_node(dummy);
             }
         }
     }
@@ -65,17 +65,17 @@ pub(crate) fn insert_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
 /// Position self-edges after coordinate assignment: create edge points
 /// forming a loop to the right of the source node.
-pub(crate) fn position_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let dummy_ids: Vec<_> = g
+pub(crate) fn position_self_edges(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let dummy_ids: Vec<_> = graph
         .node_ids()
-        .filter(|&nid| g.node(nid).is_some_and(|n| n.dummy == Some(DummyKind::SelfEdge)))
+        .filter(|&nid| graph.node(nid).is_some_and(|n| n.dummy == Some(DummyKind::SelfEdge)))
         .collect();
 
     for nid in dummy_ids {
-        let Some(node) = g.node(nid) else { continue };
+        let Some(node) = graph.node(nid) else { continue };
         let node = node.clone();
         let Some(sed) = node.self_edge_data.as_ref() else { continue };
-        let Some(self_node) = g.node(sed.src) else { continue };
+        let Some(self_node) = graph.node(sed.src) else { continue };
         let sx = self_node.x + self_node.width / 2.0;
         let sy = self_node.y;
         let dx = node.x - sx;
@@ -92,8 +92,8 @@ pub(crate) fn position_self_edges(g: &mut Graph<NodeLabel, EdgeLabel>) {
         label.x = node.x;
         label.y = node.y;
 
-        g.add_edge(sed.src, sed.dst, label);
-        g.remove_node(nid);
+        graph.add_edge(sed.src, sed.dst, label);
+        graph.remove_node(nid);
     }
 }
 

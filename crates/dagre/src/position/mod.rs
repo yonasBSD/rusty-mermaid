@@ -7,11 +7,11 @@ use crate::labels::{EdgeLabel, NodeLabel};
 use crate::util;
 
 /// Assign x and y coordinates to all nodes.
-pub(crate) fn position(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
-    position_y(g, config);
-    let xs = bk::position_x(g, config);
+pub(crate) fn position(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
+    position_y(graph, config);
+    let xs = bk::position_x(graph, config);
     for (nid, x) in xs {
-        if let Some(n) = g.node_mut(nid) {
+        if let Some(n) = graph.node_mut(nid) {
             n.x = x;
         }
     }
@@ -21,8 +21,8 @@ pub(crate) fn position(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig
 ///
 /// Each layer's y is determined by cumulative max-height + ranksep.
 /// Within a layer, nodes are positioned according to rankalign (top/center/bottom).
-fn position_y(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
-    let layering = util::build_layer_matrix_leaves(g);
+fn position_y(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
+    let layering = util::build_layer_matrix_leaves(graph);
     let mut prev_y = 0.0;
 
     for layer in &layering {
@@ -33,11 +33,11 @@ fn position_y(g: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
 
         let max_height = layer
             .iter()
-            .filter_map(|&v| g.node(v).map(|n| n.height))
+            .filter_map(|&v| graph.node(v).map(|n| n.height))
             .fold(0.0f64, f64::max);
 
         for &v in layer {
-            let Some(node) = g.node_mut(v) else { continue };
+            let Some(node) = graph.node_mut(v) else { continue };
             node.y = match config.rankalign {
                 RankAlign::Top => prev_y + node.height / 2.0,
                 RankAlign::Bottom => prev_y + max_height - node.height / 2.0,

@@ -65,7 +65,7 @@ pub fn layout(diagram: &StateDiagram) -> LayoutResult {
 
 /// Layout with a custom text measurer.
 pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure) -> LayoutResult {
-    let mut g = Graph::new();
+    let mut graph = Graph::new();
     let style = TextStyle::default();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut all_transitions: Vec<&StateTransition> = Vec::new();
@@ -73,7 +73,7 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 
     // Build graph: nodes, edges, compound hierarchy
     let mut ctx = ScopeCtx {
-        g: &mut g,
+        graph: &mut graph,
         id_map: &mut id_map,
         synthetic_ids: &mut synthetic_ids,
         measurer,
@@ -82,17 +82,17 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
     add_scope(&diagram.states, &diagram.transitions, None, &mut ctx, &mut all_transitions);
 
     // Run dagre + post-layout adjustments
-    run_dagre_layout(diagram, &mut g, &id_map);
+    run_dagre_layout(diagram, &mut graph, &id_map);
 
     let node_styles = resolve_state_styles(diagram);
     let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(id, &nid)| (nid, id.as_str())).collect();
 
-    let mut nodes = extract_nodes(&g, &id_map, &synthetic_ids, &node_styles, diagram);
+    let mut nodes = extract_nodes(&graph, &id_map, &synthetic_ids, &node_styles, diagram);
     position_notes(diagram, measurer, &style, &mut nodes);
     adjust_compound_widths(measurer, &style, &mut nodes);
     let (mut max_x, mut max_y, x_shift) = recompute_bounds_and_shift(&mut nodes);
     let mut edges = extract_edges(
-        &g, &nid_to_id, &all_transitions, diagram, measurer, &style, x_shift,
+        &graph, &nid_to_id, &all_transitions, diagram, measurer, &style, x_shift,
     );
     expand_bounds_for_edges(&mut nodes, &mut edges, &mut max_x, &mut max_y);
     let (dividers, region_rects) = compute_dividers_and_regions(&nodes);
@@ -102,22 +102,22 @@ pub fn layout_with_measurer(diagram: &StateDiagram, measurer: &impl TextMeasure)
 
 fn run_dagre_layout(
     diagram: &StateDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
 ) {
     let config = DagreConfig {
         rankdir: diagram.direction,
         ..Default::default()
     };
-    rusty_mermaid_dagre::pipeline::layout(g, &config);
-    fix_region_order(diagram, g, id_map);
-    center_content(diagram, g, id_map);
-    center_bullseyes(diagram, g, id_map);
-    center_external_connections(diagram, g, id_map);
+    rusty_mermaid_dagre::pipeline::layout(graph, &config);
+    fix_region_order(diagram, graph, id_map);
+    center_content(diagram, graph, id_map);
+    center_bullseyes(diagram, graph, id_map);
+    center_external_connections(diagram, graph, id_map);
 }
 
 fn extract_nodes(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
     synthetic_ids: &HashSet<String>,
     node_styles: &BTreeMap<&str, Style>,
@@ -128,7 +128,7 @@ fn extract_nodes(
         if synthetic_ids.contains(id_str) {
             continue;
         }
-        let Some(n) = g.node(nid) else { continue };
+        let Some(n) = graph.node(nid) else { continue };
         let label = find_state_label(&diagram.states, id_str)
             .unwrap_or_else(|| id_str.to_string());
         nodes.push(NodeLayout {
@@ -221,7 +221,7 @@ fn recompute_bounds_and_shift(nodes: &mut [NodeLayout]) -> (f64, f64, f64) {
 
 /// Extract edges matching real transitions, clip endpoints at node shapes.
 fn extract_edges(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     nid_to_id: &BTreeMap<NodeId, &str>,
     all_transitions: &[&StateTransition],
     diagram: &StateDiagram,
@@ -230,8 +230,8 @@ fn extract_edges(
     x_shift: f64,
 ) -> Vec<EdgeLayout> {
     let mut edges = Vec::new();
-    for eid in g.edge_ids() {
-        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+    for eid in graph.edge_ids() {
+        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
         let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) else {
             continue;
         };
@@ -239,10 +239,10 @@ fn extract_edges(
             resolve_pseudo(&t.src, src_id, true) && resolve_pseudo(&t.dst, dst_id, false)
         });
         let Some(transition) = matched else { continue };
-        let Some(e) = g.edge(eid) else { continue };
+        let Some(e) = graph.edge(eid) else { continue };
         let mut points: Vec<Point> = e.points.iter().map(|p| Point::new(p.x + x_shift, p.y)).collect();
 
-        clip_edge_endpoints(g, &mut points, src, dst, src_id, dst_id, diagram, x_shift);
+        clip_edge_endpoints(graph, &mut points, src, dst, src_id, dst_id, diagram, x_shift);
 
         let label_size = transition.label.as_ref().map(|l| {
             let edge_style = TextStyle { font_size: EDGE_LABEL_FONT_SIZE, ..style.clone() };
@@ -266,7 +266,7 @@ fn extract_edges(
 
 /// Re-clip edge endpoints for non-rect shapes and restore bullseye alignment.
 fn clip_edge_endpoints(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     points: &mut [Point],
     src: NodeId,
     dst: NodeId,
@@ -283,7 +283,7 @@ fn clip_edge_endpoints(
         if all_same { Some(points[0].x) } else { None }
     };
 
-    if let Some(src_node) = g.node(src) {
+    if let Some(src_node) = graph.node(src) {
         let src_shape = node_shape(&diagram.states, src_id);
         let src_bbox = BBox::new(src_node.x + x_shift, src_node.y, src_node.width, src_node.height);
         if let Some(p) = state_shape_intersect(src_shape, src_bbox, points[1]) {
@@ -292,7 +292,7 @@ fn clip_edge_endpoints(
     }
 
     let last = points.len() - 1;
-    if let Some(dst_node) = g.node(dst) {
+    if let Some(dst_node) = graph.node(dst) {
         let dst_shape = node_shape(&diagram.states, dst_id);
         let dst_bbox = BBox::new(dst_node.x + x_shift, dst_node.y, dst_node.width, dst_node.height);
         if let Some(p) = state_shape_intersect(dst_shape, dst_bbox, points[last - 1]) {

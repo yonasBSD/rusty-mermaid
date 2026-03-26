@@ -18,28 +18,28 @@ pub(crate) struct NestingState {
 /// border ranks.
 ///
 /// Based on Sander, "Layout of Compound Directed Graphs."
-pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> NestingState {
-    let root = g.add_node(NodeLabel::new(0.0, 0.0));
+pub(crate) fn run(graph: &mut Graph<NodeLabel, EdgeLabel>) -> NestingState {
+    let root = graph.add_node(NodeLabel::new(0.0, 0.0));
 
-    let depths = tree_depths(g);
+    let depths = tree_depths(graph);
     let height = depths.values().copied().max().unwrap_or(1).max(1);
     let node_sep = 2 * height + 1;
 
     // Multiply all existing edge minlens by node_sep
-    let eids: Vec<_> = g.edge_ids().collect();
+    let eids: Vec<_> = graph.edge_ids().collect();
     for eid in eids {
-        if let Some(label) = g.edge_mut(eid) {
+        if let Some(label) = graph.edge_mut(eid) {
             label.minlen *= node_sep;
         }
     }
 
     // Weight sufficient to keep subgraphs compact
-    let weight = sum_weights(g) + 1.0;
+    let weight = sum_weights(graph) + 1.0;
 
     // Process top-level children
-    let top_children: Vec<_> = g.roots().collect();
+    let top_children: Vec<_> = graph.roots().collect();
     for child in top_children {
-        dfs(g, root, node_sep, weight, height, &depths, child);
+        dfs(graph, root, node_sep, weight, height, &depths, child);
     }
 
     NestingState {
@@ -49,7 +49,7 @@ pub(crate) fn run(g: &mut Graph<NodeLabel, EdgeLabel>) -> NestingState {
 }
 
 fn dfs(
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     root: NodeId,
     node_sep: i32,
     weight: f64,
@@ -57,12 +57,12 @@ fn dfs(
     depths: &BTreeMap<NodeId, i32>,
     v: NodeId,
 ) {
-    let children: Vec<_> = g.children(v).collect();
+    let children: Vec<_> = graph.children(v).collect();
 
     if children.is_empty() {
         // Leaf node: connect to root
         if v != root {
-            g.add_edge(
+            graph.add_edge(
                 root,
                 v,
                 EdgeLabel::new()
@@ -78,25 +78,25 @@ fn dfs(
     // Must be marked as dummy=Border so BK sep() uses edgesep not nodesep
     let mut top_label = NodeLabel::new(0.0, 0.0);
     top_label.dummy = Some(crate::labels::DummyKind::Border);
-    let top = g.add_node(top_label);
+    let top = graph.add_node(top_label);
     let mut bottom_label = NodeLabel::new(0.0, 0.0);
     bottom_label.dummy = Some(crate::labels::DummyKind::Border);
-    let bottom = g.add_node(bottom_label);
+    let bottom = graph.add_node(bottom_label);
 
-    g.set_parent(top, v);
-    if let Some(n) = g.node_mut(v) {
+    graph.set_parent(top, v);
+    if let Some(n) = graph.node_mut(v) {
         n.border_top = Some(top);
     }
 
-    g.set_parent(bottom, v);
-    if let Some(n) = g.node_mut(v) {
+    graph.set_parent(bottom, v);
+    if let Some(n) = graph.node_mut(v) {
         n.border_bottom = Some(bottom);
     }
 
     for child in children {
-        dfs(g, root, node_sep, weight, height, depths, child);
+        dfs(graph, root, node_sep, weight, height, depths, child);
 
-        let Some(child_node) = g.node(child) else {
+        let Some(child_node) = graph.node(child) else {
             continue;
         };
         let child_top = child_node.border_top.unwrap_or(child);
@@ -114,7 +114,7 @@ fn dfs(
         };
 
         // top -> child_top
-        g.add_edge(
+        graph.add_edge(
             top,
             child_top,
             EdgeLabel::new()
@@ -124,7 +124,7 @@ fn dfs(
         );
 
         // child_bottom -> bottom
-        g.add_edge(
+        graph.add_edge(
             child_bottom,
             bottom,
             EdgeLabel::new()
@@ -135,9 +135,9 @@ fn dfs(
     }
 
     // Connect root to top if v has no parent
-    if g.parent(v).is_none() {
+    if graph.parent(v).is_none() {
         let v_depth = depths.get(&v).copied().unwrap_or(1);
-        g.add_edge(
+        graph.add_edge(
             root,
             top,
             EdgeLabel::new()
@@ -149,46 +149,46 @@ fn dfs(
 }
 
 /// Remove nesting artifacts: the nesting root and all nesting edges.
-pub(crate) fn cleanup(g: &mut Graph<NodeLabel, EdgeLabel>, state: &NestingState) {
-    g.remove_node(state.nesting_root);
+pub(crate) fn cleanup(graph: &mut Graph<NodeLabel, EdgeLabel>, state: &NestingState) {
+    graph.remove_node(state.nesting_root);
 
-    let nesting_edges: Vec<_> = g
+    let nesting_edges: Vec<_> = graph
         .edge_ids()
-        .filter(|&eid| g.edge(eid).is_some_and(|l| l.nesting_edge))
+        .filter(|&eid| graph.edge(eid).is_some_and(|l| l.nesting_edge))
         .collect();
     for eid in nesting_edges {
-        g.remove_edge(eid);
+        graph.remove_edge(eid);
     }
 }
 
 /// Compute depth of each node in the compound hierarchy.
 /// Root-level nodes get depth 1, their children get 2, etc.
-fn tree_depths(g: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, i32> {
+fn tree_depths(graph: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, i32> {
     let mut depths = BTreeMap::new();
 
     fn dfs_depth(
-        g: &Graph<NodeLabel, EdgeLabel>,
+        graph: &Graph<NodeLabel, EdgeLabel>,
         v: NodeId,
         depth: i32,
         depths: &mut BTreeMap<NodeId, i32>,
     ) {
-        let children: Vec<_> = g.children(v).collect();
+        let children: Vec<_> = graph.children(v).collect();
         for child in children {
-            dfs_depth(g, child, depth + 1, depths);
+            dfs_depth(graph, child, depth + 1, depths);
         }
         depths.insert(v, depth);
     }
 
-    let roots: Vec<_> = g.roots().collect();
+    let roots: Vec<_> = graph.roots().collect();
     for root in roots {
-        dfs_depth(g, root, 1, &mut depths);
+        dfs_depth(graph, root, 1, &mut depths);
     }
     depths
 }
 
-fn sum_weights(g: &Graph<NodeLabel, EdgeLabel>) -> f64 {
-    g.edge_ids()
-        .filter_map(|eid| g.edge(eid).map(|l| l.weight))
+fn sum_weights(graph: &Graph<NodeLabel, EdgeLabel>) -> f64 {
+    graph.edge_ids()
+        .filter_map(|eid| graph.edge(eid).map(|l| l.weight))
         .sum()
 }
 

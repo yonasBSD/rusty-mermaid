@@ -8,38 +8,38 @@ use crate::labels::{EdgeLabel, NodeLabel};
 
 /// Remove cycles by reversing back-edges. Must call `undo` after layout
 /// to restore original edge directions.
-pub fn run(g: &mut Graph<NodeLabel, EdgeLabel>, acyclicer: Acyclicer) {
+pub fn run(graph: &mut Graph<NodeLabel, EdgeLabel>, acyclicer: Acyclicer) {
     let fas = match acyclicer {
-        Acyclicer::Dfs => dfs_fas::dfs_fas(g),
-        Acyclicer::Greedy => greedy_fas::greedy_fas(g),
+        Acyclicer::Dfs => dfs_fas::dfs_fas(graph),
+        Acyclicer::Greedy => greedy_fas::greedy_fas(graph),
     };
 
     for eid in fas {
-        if let Some((src, dst)) = g.edge_endpoints(eid)
-            && let Some(mut label) = g.remove_edge(eid)
+        if let Some((src, dst)) = graph.edge_endpoints(eid)
+            && let Some(mut label) = graph.remove_edge(eid)
         {
             label.reversed = true;
             // Self-loops: just remove (reversing src==dst is a no-op)
             if src != dst {
-                g.add_edge(dst, src, label);
+                graph.add_edge(dst, src, label);
             }
         }
     }
 }
 
 /// Restore reversed edges to their original direction.
-pub fn undo(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let reversed: Vec<_> = g
+pub fn undo(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let reversed: Vec<_> = graph
         .edge_ids()
-        .filter(|&eid| g.edge(eid).is_some_and(|l| l.reversed))
+        .filter(|&eid| graph.edge(eid).is_some_and(|l| l.reversed))
         .collect();
 
     for eid in reversed {
-        if let Some((src, dst)) = g.edge_endpoints(eid)
-            && let Some(mut label) = g.remove_edge(eid)
+        if let Some((src, dst)) = graph.edge_endpoints(eid)
+            && let Some(mut label) = graph.remove_edge(eid)
         {
             label.reversed = false;
-            g.add_edge(dst, src, label);
+            graph.add_edge(dst, src, label);
         }
     }
 }

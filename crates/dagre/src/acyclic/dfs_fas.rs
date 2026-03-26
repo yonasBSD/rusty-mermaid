@@ -6,21 +6,21 @@ use crate::labels::{EdgeLabel, NodeLabel};
 
 /// Find a feedback arc set using DFS. Back-edges (edges from a node
 /// to an ancestor on the DFS stack) form the FAS.
-pub(crate) fn dfs_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
+pub(crate) fn dfs_fas(graph: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
     let mut fas = Vec::new();
     let mut visited = HashSet::new();
     let mut on_stack = HashSet::new();
 
-    for node in g.node_ids().collect::<Vec<_>>() {
+    for node in graph.node_ids().collect::<Vec<_>>() {
         if !visited.contains(&node) {
-            dfs(g, node, &mut visited, &mut on_stack, &mut fas);
+            dfs(graph, node, &mut visited, &mut on_stack, &mut fas);
         }
     }
     fas
 }
 
 fn dfs(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
     visited: &mut HashSet<NodeId>,
     on_stack: &mut HashSet<NodeId>,
@@ -32,12 +32,12 @@ fn dfs(
     visited.insert(v);
     on_stack.insert(v);
 
-    for eid in g.out_edges(v).collect::<Vec<_>>() {
-        if let Some((_, dst)) = g.edge_endpoints(eid) {
+    for eid in graph.out_edges(v).collect::<Vec<_>>() {
+        if let Some((_, dst)) = graph.edge_endpoints(eid) {
             if on_stack.contains(&dst) {
                 fas.push(eid);
             } else {
-                dfs(g, dst, visited, on_stack, fas);
+                dfs(graph, dst, visited, on_stack, fas);
             }
         }
     }

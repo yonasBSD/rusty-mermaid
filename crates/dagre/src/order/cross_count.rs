@@ -5,10 +5,10 @@ use rusty_mermaid_graph::{Graph, NodeId};
 use crate::labels::{EdgeLabel, NodeLabel};
 
 /// Count weighted edge crossings across all adjacent layer pairs.
-pub fn cross_count(g: &Graph<NodeLabel, EdgeLabel>, layering: &[Vec<NodeId>]) -> f64 {
+pub fn cross_count(graph: &Graph<NodeLabel, EdgeLabel>, layering: &[Vec<NodeId>]) -> f64 {
     let mut cc = 0.0;
     for i in 1..layering.len() {
-        cc += two_layer_cross_count(g, &layering[i - 1], &layering[i]);
+        cc += two_layer_cross_count(graph, &layering[i - 1], &layering[i]);
     }
     cc
 }
@@ -18,7 +18,7 @@ pub fn cross_count(g: &Graph<NodeLabel, EdgeLabel>, layering: &[Vec<NodeId>]) ->
 ///
 /// Reference: Barth, Jünger, Mutzel, "Bilayer Cross Counting" (2004).
 fn two_layer_cross_count(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     north: &[NodeId],
     south: &[NodeId],
 ) -> f64 {
@@ -33,11 +33,11 @@ fn two_layer_cross_count(
     let mut south_entries = Vec::new();
     for &v in north {
         let mut entries: Vec<(usize, f64)> = Vec::new();
-        for eid in g.out_edges(v) {
-            if let Some((_, dst)) = g.edge_endpoints(eid)
+        for eid in graph.out_edges(v) {
+            if let Some((_, dst)) = graph.edge_endpoints(eid)
                 && let Some(&pos) = south_pos.get(&dst)
             {
-                let weight = g.edge(eid).map_or(1.0, |l| l.weight);
+                let weight = graph.edge(eid).map_or(1.0, |l| l.weight);
                 entries.push((pos, weight));
             }
         }

@@ -51,16 +51,16 @@ pub fn layout(diagram: &RequirementDiagram) -> LayoutResult {
 pub fn layout_with_measurer(diagram: &RequirementDiagram, measurer: &impl TextMeasure) -> LayoutResult {
     let style = TextStyle::default();
     let line_height = measurer.measure("X", &style).height;
-    let (mut g, id_map, node_infos) = build_req_graph(diagram, measurer, &style, line_height);
+    let (mut graph, id_map, node_infos) = build_req_graph(diagram, measurer, &style, line_height);
 
     let config = DagreConfig {
         rankdir: diagram.direction,
         ..Default::default()
     };
-    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+    rusty_mermaid_dagre::pipeline::layout(&mut graph, &config);
 
-    let (nodes, max_x, max_y) = extract_req_nodes(&g, &id_map, &node_infos);
-    let edges = extract_req_edges(diagram, &g, &id_map, &style);
+    let (nodes, max_x, max_y) = extract_req_nodes(&graph, &id_map, &node_infos);
+    let edges = extract_req_edges(diagram, &graph, &id_map, &style);
 
     LayoutResult { nodes, edges, width: max_x, height: max_y }
 }
@@ -82,7 +82,7 @@ fn build_req_graph(
     style: &TextStyle,
     line_height: f64,
 ) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, BTreeMap<String, (String, Vec<String>)>) {
-    let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
+    let mut graph: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut node_infos: BTreeMap<String, (String, Vec<String>)> = BTreeMap::new();
 
@@ -95,7 +95,7 @@ fn build_req_graph(
         if let Some(vm) = &req.verify_method { lines.push(format!("Verify: {}", verify_label(*vm))); }
 
         let (width, height) = measure_req_box(&req.name, &lines, style, line_height);
-        let nid = g.add_node(NodeLabel::new(width, height));
+        let nid = graph.add_node(NodeLabel::new(width, height));
         id_map.insert(req.name.clone(), nid);
         node_infos.insert(req.name.clone(), (req.name.clone(), lines));
     }
@@ -107,7 +107,7 @@ fn build_req_graph(
         if let Some(d) = &elem.docref { lines.push(format!("Doc: {d}")); }
 
         let (width, height) = measure_req_box(&elem.name, &lines, style, line_height);
-        let nid = g.add_node(NodeLabel::new(width, height));
+        let nid = graph.add_node(NodeLabel::new(width, height));
         id_map.insert(elem.name.clone(), nid);
         node_infos.insert(elem.name.clone(), (elem.name.clone(), lines));
     }
@@ -120,14 +120,14 @@ fn build_req_graph(
         let ts = measurer.measure(&label_text, style);
         label.width = ts.width;
         label.height = ts.height;
-        g.add_edge(src, dst, label);
+        graph.add_edge(src, dst, label);
     }
 
-    (g, id_map, node_infos)
+    (graph, id_map, node_infos)
 }
 
 fn extract_req_nodes(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
     node_infos: &BTreeMap<String, (String, Vec<String>)>,
 ) -> (Vec<ReqNodeLayout>, f64, f64) {
@@ -137,7 +137,7 @@ fn extract_req_nodes(
 
     for (name, (type_label, lines)) in node_infos {
         let Some(&nid) = id_map.get(name) else { continue };
-        let Some(n) = g.node(nid) else { continue };
+        let Some(n) = graph.node(nid) else { continue };
         nodes.push(ReqNodeLayout {
             name: name.clone(),
             type_label: type_label.clone(),
@@ -157,7 +157,7 @@ fn extract_req_nodes(
 
 fn extract_req_edges(
     diagram: &RequirementDiagram,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
     style: &TextStyle,
 ) -> Vec<ReqEdgeLayout> {
@@ -166,18 +166,18 @@ fn extract_req_edges(
         let Some(&src_nid) = id_map.get(&rel.src) else { continue };
         let Some(&dst_nid) = id_map.get(&rel.dst) else { continue };
 
-        let edge_id = g.edge_ids()
-            .find(|&eid| g.edge_endpoints(eid).is_some_and(|(s, d)| s == src_nid && d == dst_nid));
+        let edge_id = graph.edge_ids()
+            .find(|&eid| graph.edge_endpoints(eid).is_some_and(|(s, d)| s == src_nid && d == dst_nid));
         let Some(eid) = edge_id else { continue };
-        let Some(edge_label) = g.edge(eid) else { continue };
+        let Some(edge_label) = graph.edge(eid) else { continue };
 
         let mut points = edge_label.points.clone();
         if points.is_empty() {
-            let (Some(src_n), Some(dst_n)) = (g.node(src_nid), g.node(dst_nid)) else { continue };
+            let (Some(src_n), Some(dst_n)) = (graph.node(src_nid), graph.node(dst_nid)) else { continue };
             points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
-        clip_req_edge_endpoints(g, src_nid, dst_nid, &mut points);
+        clip_req_edge_endpoints(graph, src_nid, dst_nid, &mut points);
 
         let label_text = format!("<<{}>>", rel.rel_type.label());
         let label_style = TextStyle { font_size: rusty_mermaid_core::Theme::default().font_size_edge_label, ..style.clone() };
@@ -207,16 +207,16 @@ fn extract_req_edges(
 }
 
 fn clip_req_edge_endpoints(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     src_nid: NodeId,
     dst_nid: NodeId,
     points: &mut [Point],
 ) {
-    if let Some(src_n) = g.node(src_nid) {
+    if let Some(src_n) = graph.node(src_nid) {
         let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
         if points.len() >= 2 { points[0] = intersect_rect(&bbox, points[1]); }
     }
-    if let Some(dst_n) = g.node(dst_nid) {
+    if let Some(dst_n) = graph.node(dst_nid) {
         let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
         let n = points.len();
         if n >= 2 { points[n - 1] = intersect_rect(&bbox, points[n - 2]); }

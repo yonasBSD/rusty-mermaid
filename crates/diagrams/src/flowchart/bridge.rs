@@ -47,22 +47,22 @@ pub fn layout(diagram: &FlowDiagram) -> LayoutResult {
 
 /// Layout with a custom text measurer.
 pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) -> LayoutResult {
-    let (mut g, id_map) = build_flow_graph(diagram, measurer);
+    let (mut graph, id_map) = build_flow_graph(diagram, measurer);
 
     let config = DagreConfig { rankdir: diagram.direction, ..Default::default() };
-    let extracted = extract_directed_subgraphs(diagram, &mut g, &id_map, measurer);
+    let extracted = extract_directed_subgraphs(diagram, &mut graph, &id_map, measurer);
 
-    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+    rusty_mermaid_dagre::pipeline::layout(&mut graph, &config);
 
-    apply_subgraph_positions(&extracted, &id_map, &mut g);
-    recenter_compounds(diagram, &extracted, &id_map, &mut g);
+    apply_subgraph_positions(&extracted, &id_map, &mut graph);
+    recenter_compounds(diagram, &extracted, &id_map, &mut graph);
 
     let node_styles = resolve_node_styles(diagram);
     let nid_to_id: BTreeMap<NodeId, &str> = id_map.iter().map(|(&id, &nid)| (nid, id)).collect();
 
-    let (mut nodes, mut max_x, mut max_y) = extract_flow_nodes(diagram, &g, &id_map, &node_styles);
-    let mut edges = extract_edge_layouts(diagram, &g, &nid_to_id, measurer);
-    let (mut subgraphs, sg_max_x, sg_max_y) = extract_subgraph_layouts(diagram, &g, &id_map);
+    let (mut nodes, mut max_x, mut max_y) = extract_flow_nodes(diagram, &graph, &id_map, &node_styles);
+    let mut edges = extract_edge_layouts(diagram, &graph, &nid_to_id, measurer);
+    let (mut subgraphs, sg_max_x, sg_max_y) = extract_subgraph_layouts(diagram, &graph, &id_map);
     max_x = max_x.max(sg_max_x);
     max_y = max_y.max(sg_max_y);
 
@@ -87,16 +87,16 @@ pub fn layout_with_measurer(diagram: &FlowDiagram, measurer: &impl TextMeasure) 
 fn apply_subgraph_positions(
     extracted: &[ExtractedLayout],
     id_map: &BTreeMap<&str, NodeId>,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
 ) {
     for ex in extracted {
         let Some(&sg_nid) = id_map.get(ex.sg_id.as_str()) else { continue };
-        let Some(sg) = g.node(sg_nid) else { continue };
+        let Some(sg) = graph.node(sg_nid) else { continue };
         let sg_cx = sg.x;
         let sg_cy = sg.y;
         for (nid, rel_x, rel_y, w, h) in &ex.inner_nodes {
             let Some(&node_nid) = id_map.get(nid.as_str()) else { continue };
-            let Some(n) = g.node_mut(node_nid) else { continue };
+            let Some(n) = graph.node_mut(node_nid) else { continue };
             n.x = sg_cx + rel_x;
             n.y = sg_cy + rel_y;
             n.width = *w;
@@ -104,7 +104,7 @@ fn apply_subgraph_positions(
         }
         for (sg_id, rel_x, rel_y, w, h) in &ex.inner_subgraphs {
             let Some(&nid) = id_map.get(sg_id.as_str()) else { continue };
-            let Some(n) = g.node_mut(nid) else { continue };
+            let Some(n) = graph.node_mut(nid) else { continue };
             n.x = sg_cx + rel_x;
             n.y = sg_cy + rel_y;
             n.width = *w;
@@ -117,7 +117,7 @@ fn apply_subgraph_positions(
             label.points = edge.points.iter()
                 .map(|&(px, py)| Point::new(sg_cx + px, sg_cy + py))
                 .collect();
-            g.add_edge(src, dst, label);
+            graph.add_edge(src, dst, label);
         }
     }
 }
@@ -126,7 +126,7 @@ fn recenter_compounds(
     diagram: &FlowDiagram,
     extracted: &[ExtractedLayout],
     id_map: &BTreeMap<&str, NodeId>,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
 ) {
     for sg in diagram.subgraphs.iter().rev() {
         if extracted.iter().any(|ex| ex.sg_id == sg.id) {
@@ -135,14 +135,14 @@ fn recenter_compounds(
         let Some(&nid) = id_map.get(sg.id.as_str()) else { continue };
         let mut min_x = f64::INFINITY;
         let mut max_x = f64::NEG_INFINITY;
-        for child in g.children(nid).collect::<Vec<_>>() {
-            let Some(c) = g.node(child) else { continue };
+        for child in graph.children(nid).collect::<Vec<_>>() {
+            let Some(c) = graph.node(child) else { continue };
             if c.width > 0.0 || c.height > 0.0 {
                 min_x = min_x.min(c.x - c.width / 2.0);
                 max_x = max_x.max(c.x + c.width / 2.0);
             }
         }
-        if min_x.is_finite() && max_x.is_finite() && let Some(n) = g.node_mut(nid) {
+        if min_x.is_finite() && max_x.is_finite() && let Some(n) = graph.node_mut(nid) {
             n.x = (min_x + max_x) / 2.0;
         }
     }
@@ -150,7 +150,7 @@ fn recenter_compounds(
 
 fn extract_flow_nodes(
     diagram: &FlowDiagram,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<&str, NodeId>,
     node_styles: &BTreeMap<&str, Style>,
 ) -> (Vec<NodeLayout>, f64, f64) {
@@ -164,7 +164,7 @@ fn extract_flow_nodes(
             continue;
         }
         if let Some(&nid) = id_map.get(v.id.as_str()) {
-            let Some(n) = g.node(nid) else { continue };
+            let Some(n) = graph.node(nid) else { continue };
             nodes.push(NodeLayout {
                 id: v.id.clone(),
                 label: strip_html_tags(&v.label),
@@ -187,7 +187,7 @@ fn extract_flow_nodes(
 
 fn extract_subgraph_layouts(
     diagram: &FlowDiagram,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<&str, NodeId>,
 ) -> (Vec<SubgraphLayout>, f64, f64) {
     let mut subgraphs = Vec::new();
@@ -196,7 +196,7 @@ fn extract_subgraph_layouts(
 
     for sg in &diagram.subgraphs {
         if let Some(&nid) = id_map.get(sg.id.as_str()) {
-            let Some(n) = g.node(nid) else { continue };
+            let Some(n) = graph.node(nid) else { continue };
             if n.width <= 0.0 || n.height <= 0.0 {
                 continue;
             }
@@ -287,7 +287,7 @@ fn build_flow_graph<'a>(
     diagram: &'a FlowDiagram,
     measurer: &impl TextMeasure,
 ) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<&'a str, NodeId>) {
-    let mut g = Graph::new();
+    let mut graph = Graph::new();
     let style = TextStyle::default();
     let mut id_map: BTreeMap<&str, NodeId> = BTreeMap::new();
 
@@ -323,29 +323,29 @@ fn build_flow_graph<'a>(
             _ => (text_w, text_h),
         };
 
-        let nid = g.add_node(NodeLabel::new(width, height));
+        let nid = graph.add_node(NodeLabel::new(width, height));
         id_map.insert(&v.id, nid);
     }
 
     // Two passes: create all subgraph nodes, then set parent-child.
     for sg in &diagram.subgraphs {
-        let sg_nid = g.add_node(NodeLabel::new(0.0, 0.0));
+        let sg_nid = graph.add_node(NodeLabel::new(0.0, 0.0));
         id_map.insert(&sg.id, sg_nid);
     }
     for sg in &diagram.subgraphs {
         let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
         for child_id in &sg.node_ids {
             if let Some(&child_nid) = id_map.get(child_id.as_str())
-                && g.parent(child_nid).is_none()
+                && graph.parent(child_nid).is_none()
             {
-                g.set_parent(child_nid, sg_nid);
+                graph.set_parent(child_nid, sg_nid);
             }
         }
         for child_sg_id in &sg.subgraph_ids {
             if let Some(&child_nid) = id_map.get(child_sg_id.as_str())
-                && g.parent(child_nid).is_none()
+                && graph.parent(child_nid).is_none()
             {
-                g.set_parent(child_nid, sg_nid);
+                graph.set_parent(child_nid, sg_nid);
             }
         }
     }
@@ -360,16 +360,16 @@ fn build_flow_graph<'a>(
             label.width = ts.width;
             label.height = ts.height;
         }
-        g.add_edge(src, dst, label);
+        graph.add_edge(src, dst, label);
     }
 
-    (g, id_map)
+    (graph, id_map)
 }
 
 /// Extract edge layouts from the graph, re-clipping endpoints for non-rect shapes.
 fn extract_edge_layouts(
     diagram: &FlowDiagram,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     nid_to_id: &BTreeMap<NodeId, &str>,
     measurer: &impl TextMeasure,
 ) -> Vec<EdgeLayout> {
@@ -382,16 +382,16 @@ fn extract_edge_layouts(
     let mut used_edge_idx = vec![false; diagram.edges.len()];
     let mut edges = Vec::new();
 
-    for eid in g.edge_ids() {
-        let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+    for eid in graph.edge_ids() {
+        let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
         let (Some(&src_id), Some(&dst_id)) = (nid_to_id.get(&src), nid_to_id.get(&dst)) else {
             continue;
         };
-        let Some(e) = g.edge(eid) else { continue };
+        let Some(e) = graph.edge(eid) else { continue };
         let mut points: Vec<Point> = e.points.clone();
 
         if points.len() >= 2 {
-            let Some(src_node) = g.node(src) else { continue };
+            let Some(src_node) = graph.node(src) else { continue };
             let src_shape = vertex_shape.get(src_id).copied().unwrap_or(Shape::Rect);
             let src_bbox = BBox::new(src_node.x, src_node.y, src_node.width, src_node.height);
             if let Some(p) = shape_intersect(src_shape, src_bbox, points[1]) {
@@ -399,7 +399,7 @@ fn extract_edge_layouts(
             }
 
             let last = points.len() - 1;
-            let Some(dst_node) = g.node(dst) else { continue };
+            let Some(dst_node) = graph.node(dst) else { continue };
             let dst_shape = vertex_shape.get(dst_id).copied().unwrap_or(Shape::Rect);
             let dst_bbox = BBox::new(dst_node.x, dst_node.y, dst_node.width, dst_node.height);
             if let Some(p) = shape_intersect(dst_shape, dst_bbox, points[last - 1]) {
@@ -463,12 +463,12 @@ struct ExtractedLayout {
 }
 
 /// Collect all descendants (children, grandchildren, ...) of a node.
-fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId) -> HashSet<NodeId> {
+fn collect_descendants(graph: &Graph<NodeLabel, EdgeLabel>, nid: NodeId) -> HashSet<NodeId> {
     let mut result = HashSet::new();
-    let mut stack: Vec<NodeId> = g.children(nid).collect();
+    let mut stack: Vec<NodeId> = graph.children(nid).collect();
     while let Some(v) = stack.pop() {
         if result.insert(v) {
-            stack.extend(g.children(v));
+            stack.extend(graph.children(v));
         }
     }
     result
@@ -481,7 +481,7 @@ fn collect_descendants(g: &Graph<NodeLabel, EdgeLabel>, nid: NodeId) -> HashSet<
 /// extracted. Returns layout data to be applied after the main dagre pass.
 fn extract_directed_subgraphs(
     diagram: &FlowDiagram,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<&str, NodeId>,
     measurer: &impl TextMeasure,
 ) -> Vec<ExtractedLayout> {
@@ -493,15 +493,15 @@ fn extract_directed_subgraphs(
         let Some(dir) = sg.direction else { continue };
         let Some(&sg_nid) = id_map.get(sg.id.as_str()) else { continue };
 
-        let descendants = collect_descendants(g, sg_nid);
+        let descendants = collect_descendants(graph, sg_nid);
         if descendants.is_empty() {
             continue;
         }
 
         // Check for external connections: any edge with one endpoint
         // inside (descendant) and the other outside.
-        let has_external = g.edge_ids().any(|eid| {
-            let Some((src, dst)) = g.edge_endpoints(eid) else { return false };
+        let has_external = graph.edge_ids().any(|eid| {
+            let Some((src, dst)) = graph.edge_endpoints(eid) else { return false };
             let s_in = descendants.contains(&src);
             let d_in = descendants.contains(&dst);
             s_in ^ d_in
@@ -516,14 +516,14 @@ fn extract_directed_subgraphs(
 
         // Add descendant nodes.
         for &nid in &descendants {
-            let Some(n) = g.node(nid) else { continue };
+            let Some(n) = graph.node(nid) else { continue };
             let inner_nid = inner_g.add_node(NodeLabel::new(n.width, n.height));
             inner_map.insert(nid, inner_nid);
         }
 
         // Recreate compound hierarchy within the inner graph.
         for &nid in &descendants {
-            if let Some(parent) = g.parent(nid)
+            if let Some(parent) = graph.parent(nid)
                 && parent != sg_nid
                 && let (Some(&inner_child), Some(&inner_parent)) =
                     (inner_map.get(&nid), inner_map.get(&parent))
@@ -533,14 +533,14 @@ fn extract_directed_subgraphs(
         }
 
         // Add internal edges.
-        for eid in g.edge_ids().collect::<Vec<_>>() {
-            let Some((src, dst)) = g.edge_endpoints(eid) else { continue };
+        for eid in graph.edge_ids().collect::<Vec<_>>() {
+            let Some((src, dst)) = graph.edge_endpoints(eid) else { continue };
             if descendants.contains(&src)
                 && descendants.contains(&dst)
                 && let (Some(&inner_src), Some(&inner_dst)) =
                     (inner_map.get(&src), inner_map.get(&dst))
             {
-                let Some(label) = g.edge(eid).cloned() else { continue };
+                let Some(label) = graph.edge(eid).cloned() else { continue };
                 inner_g.add_edge(inner_src, inner_dst, label);
             }
         }
@@ -630,19 +630,19 @@ fn extract_directed_subgraphs(
 
         // Modify main graph: remove children from compound, set fixed size.
         for &nid in &descendants {
-            g.remove_parent(nid);
+            graph.remove_parent(nid);
         }
         // Remove internal edges from main graph.
-        let internal_eids: Vec<_> = g.edge_ids().filter(|&eid| {
-            g.edge_endpoints(eid).is_some_and(|(s, d)| {
+        let internal_eids: Vec<_> = graph.edge_ids().filter(|&eid| {
+            graph.edge_endpoints(eid).is_some_and(|(s, d)| {
                 descendants.contains(&s) && descendants.contains(&d)
             })
         }).collect();
         for eid in internal_eids {
-            g.remove_edge(eid);
+            graph.remove_edge(eid);
         }
         // Set the subgraph node to a fixed-size leaf.
-        if let Some(sg_node) = g.node_mut(sg_nid) {
+        if let Some(sg_node) = graph.node_mut(sg_nid) {
             sg_node.width = total_w;
             sg_node.height = total_h;
         }

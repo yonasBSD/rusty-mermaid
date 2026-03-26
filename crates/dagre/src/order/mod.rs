@@ -21,10 +21,10 @@ use crate::util;
 /// which compound siblings appeared left-of-right, so subsequent ranks
 /// respect the same relative order — preventing subgraph bounding boxes
 /// from overlapping.
-pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let _layering = init_order::init_order(g);
+pub fn order(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let _layering = init_order::init_order(graph);
 
-    let max = util::max_rank(g);
+    let max = util::max_rank(graph);
     if max <= 0 {
         return;
     }
@@ -47,29 +47,29 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
         if use_down {
             for rank in 1..=max {
-                sweep_layer(g, rank, bias_right, true, &mut cg);
+                sweep_layer(graph, rank, bias_right, true, &mut cg);
             }
         } else {
             for rank in (0..max).rev() {
-                sweep_layer(g, rank, bias_right, false, &mut cg);
+                sweep_layer(graph, rank, bias_right, false, &mut cg);
             }
         }
 
-        let layering = util::build_layer_matrix(g);
-        let cc = cross_count::cross_count(g, &layering);
+        let layering = util::build_layer_matrix(graph);
+        let cc = cross_count::cross_count(graph, &layering);
 
         if cc < best_cc {
             last_best = 0;
             best_cc = cc;
-            best_orders = g
+            best_orders = graph
                 .node_ids()
-                .filter_map(|nid| Some((nid, g.node(nid)?.order)))
+                .filter_map(|nid| Some((nid, graph.node(nid)?.order)))
                 .collect();
         } else if (cc - best_cc).abs() < f64::EPSILON {
             // Equal cost: accept new ordering (matches JS dagre)
-            best_orders = g
+            best_orders = graph
                 .node_ids()
-                .filter_map(|nid| Some((nid, g.node(nid)?.order)))
+                .filter_map(|nid| Some((nid, graph.node(nid)?.order)))
                 .collect();
         }
 
@@ -79,7 +79,7 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 
     // Restore best ordering
     for (nid, order) in best_orders {
-        if let Some(node) = g.node_mut(nid) {
+        if let Some(node) = graph.node_mut(nid) {
             node.order = order;
         }
     }
@@ -92,7 +92,7 @@ pub fn order(g: &mut Graph<NodeLabel, EdgeLabel>) {
 /// then sorts via `sort_subgraph`. This ensures uniform constraint generation
 /// across all ranks regardless of compound hierarchy shape.
 fn sweep_layer(
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     rank: i32,
     bias_right: bool,
     use_in_edges: bool,
@@ -101,10 +101,10 @@ fn sweep_layer(
     // Collect nodes that participate in this rank:
     // - leaf nodes where rank == this rank
     // - compound nodes spanning this rank (minRank <= rank <= maxRank)
-    let layer_nodes: Vec<NodeId> = g
+    let layer_nodes: Vec<NodeId> = graph
         .node_ids()
         .filter(|&nid| {
-            g.node(nid).is_some_and(|n| {
+            graph.node(nid).is_some_and(|n| {
                 n.rank == rank
                     || (n.min_rank.is_some_and(|min| min <= rank)
                         && n.max_rank.is_some_and(|max| max >= rank))
@@ -117,39 +117,39 @@ fn sweep_layer(
     }
 
     // Create synthetic root (matching JS dagre's buildLayerGraph)
-    let synth_root = g.add_node(NodeLabel::new(0.0, 0.0));
+    let synth_root = graph.add_node(NodeLabel::new(0.0, 0.0));
 
     // Collect all unique top-level ancestors BEFORE reparenting any,
     // to avoid top_ancestor traversing into the synthetic root.
     let mut reparented: Vec<NodeId> = Vec::new();
     for &nid in &layer_nodes {
-        let top = top_ancestor(g, nid);
+        let top = top_ancestor(graph, nid);
         if !reparented.contains(&top) {
             reparented.push(top);
         }
     }
     for &top in &reparented {
-        g.set_parent(top, synth_root);
+        graph.set_parent(top, synth_root);
     }
 
     let result =
-        sort_subgraph::sort_subgraph(g, synth_root, cg, bias_right, use_in_edges, rank);
+        sort_subgraph::sort_subgraph(graph, synth_root, cg, bias_right, use_in_edges, rank);
     for (i, &nid) in result.vs.iter().enumerate() {
-        let Some(node) = g.node_mut(nid) else { continue };
+        let Some(node) = graph.node_mut(nid) else { continue };
         node.order = i;
     }
-    add_subgraph_constraints(g, cg, &result.vs);
+    add_subgraph_constraints(graph, cg, &result.vs);
 
     // Clean up: unparent and remove synthetic root
     for &top in &reparented {
-        g.remove_parent(top);
+        graph.remove_parent(top);
     }
-    g.remove_node(synth_root);
+    graph.remove_node(synth_root);
 }
 
 /// Walk up the compound hierarchy to find the top-level ancestor.
-fn top_ancestor(g: &Graph<NodeLabel, EdgeLabel>, mut nid: NodeId) -> NodeId {
-    while let Some(parent) = g.parent(nid) {
+fn top_ancestor(graph: &Graph<NodeLabel, EdgeLabel>, mut nid: NodeId) -> NodeId {
+    while let Some(parent) = graph.parent(nid) {
         nid = parent;
     }
     nid
@@ -164,7 +164,7 @@ fn top_ancestor(g: &Graph<NodeLabel, EdgeLabel>, mut nid: NodeId) -> NodeId {
 /// consistent left-to-right ordering of peer subgraphs across all ranks
 /// within a sweep.
 fn add_subgraph_constraints(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     cg: &mut ConstraintGraph,
     vs: &[NodeId],
 ) {
@@ -174,13 +174,13 @@ fn add_subgraph_constraints(
     let mut root_prev: Option<NodeId> = None; // last top-level child seen
 
     for &v in vs {
-        let mut child = match g.parent(v) {
+        let mut child = match graph.parent(v) {
             Some(p) => p,
             None => continue, // unparented nodes don't generate constraints
         };
 
         loop {
-            let parent = g.parent(child);
+            let parent = graph.parent(child);
 
             let prev_child = if let Some(parent_id) = parent {
                 let pc = prev.get(&parent_id).copied();

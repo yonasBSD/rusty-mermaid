@@ -9,21 +9,21 @@ use crate::labels::{EdgeLabel, NodeLabel};
 use crate::util;
 
 /// Assign ranks to all nodes in the graph.
-pub fn rank(g: &mut Graph<NodeLabel, EdgeLabel>, ranker: Ranker) {
+pub fn rank(graph: &mut Graph<NodeLabel, EdgeLabel>, ranker: Ranker) {
     match ranker {
         Ranker::LongestPath => {
-            longest_path::longest_path(g);
-            util::normalize_ranks(g);
+            longest_path::longest_path(graph);
+            util::normalize_ranks(graph);
         }
         Ranker::TightTree => {
             // Tight tree: longest path + feasible tree (no NS optimization)
-            longest_path::longest_path(g);
-            util::normalize_ranks(g);
-            let _tree = feasible_tree::feasible_tree_mut(g);
-            util::normalize_ranks(g);
+            longest_path::longest_path(graph);
+            util::normalize_ranks(graph);
+            let _tree = feasible_tree::feasible_tree_mut(graph);
+            util::normalize_ranks(graph);
         }
         Ranker::NetworkSimplex => {
-            network_simplex::network_simplex(g);
+            network_simplex::network_simplex(graph);
         }
     }
 }

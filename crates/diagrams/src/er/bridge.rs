@@ -60,19 +60,19 @@ pub fn layout_with_measurer(diagram: &ErDiagram, measurer: &impl TextMeasure) ->
     let style = TextStyle::default();
     let line_height = measurer.measure("X", &style).height;
     let row_height = line_height * ATTR_FONT_SCALE + ROW_PADDING * 2.0;
-    let (mut g, id_map, entity_dims) = build_er_graph(diagram, measurer, &style, line_height, row_height);
+    let (mut graph, id_map, entity_dims) = build_er_graph(diagram, measurer, &style, line_height, row_height);
 
     let config = DagreConfig {
         rankdir: diagram.direction,
         ..Default::default()
     };
-    rusty_mermaid_dagre::pipeline::layout(&mut g, &config);
+    rusty_mermaid_dagre::pipeline::layout(&mut graph, &config);
 
     let style_entities = diagram.entities.iter().map(|e| (e.id.as_str(), e.css_classes.as_slice()));
     let node_styles = resolve_entity_styles(style_entities, &diagram.class_defs, &diagram.style_stmts);
 
-    let (entities, mut max_x, mut max_y) = extract_er_entities(diagram, &g, &id_map, &entity_dims, &node_styles, row_height);
-    let edges = extract_er_edges(diagram, &g, &id_map, measurer, &style);
+    let (entities, mut max_x, mut max_y) = extract_er_entities(diagram, &graph, &id_map, &entity_dims, &node_styles, row_height);
+    let edges = extract_er_edges(diagram, &graph, &id_map, measurer, &style);
 
     for edge in &edges {
         for pt in &edge.edge.points {
@@ -91,13 +91,13 @@ fn build_er_graph(
     line_height: f64,
     row_height: f64,
 ) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, BTreeMap<String, EntityDims>) {
-    let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
+    let mut graph: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut entity_dims: BTreeMap<String, EntityDims> = BTreeMap::new();
 
     for entity in &diagram.entities {
         let dims = compute_entity_dims(entity, measurer, style, line_height, row_height);
-        let nid = g.add_node(NodeLabel::new(dims.width, dims.height));
+        let nid = graph.add_node(NodeLabel::new(dims.width, dims.height));
         id_map.insert(entity.id.clone(), nid);
         entity_dims.insert(entity.id.clone(), dims);
     }
@@ -111,15 +111,15 @@ fn build_er_graph(
             label.width = ts.width;
             label.height = ts.height;
         }
-        g.add_edge(src, dst, label);
+        graph.add_edge(src, dst, label);
     }
 
-    (g, id_map, entity_dims)
+    (graph, id_map, entity_dims)
 }
 
 fn extract_er_entities(
     diagram: &ErDiagram,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
     entity_dims: &BTreeMap<String, EntityDims>,
     node_styles: &BTreeMap<&str, Style>,
@@ -131,7 +131,7 @@ fn extract_er_entities(
 
     for entity in &diagram.entities {
         let Some(&nid) = id_map.get(&entity.id) else { continue };
-        let Some(n) = g.node(nid) else { continue };
+        let Some(n) = graph.node(nid) else { continue };
         let dims = &entity_dims[&entity.id];
 
         entities.push(EntityLayout {
@@ -155,7 +155,7 @@ fn extract_er_entities(
 
 fn extract_er_edges(
     diagram: &ErDiagram,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     id_map: &BTreeMap<String, NodeId>,
     measurer: &impl TextMeasure,
     style: &TextStyle,
@@ -165,18 +165,18 @@ fn extract_er_edges(
         let Some(&src_nid) = id_map.get(&rel.entity_a) else { continue };
         let Some(&dst_nid) = id_map.get(&rel.entity_b) else { continue };
 
-        let edge_id = g.edge_ids()
-            .find(|&eid| g.edge_endpoints(eid).is_some_and(|(s, d)| s == src_nid && d == dst_nid));
+        let edge_id = graph.edge_ids()
+            .find(|&eid| graph.edge_endpoints(eid).is_some_and(|(s, d)| s == src_nid && d == dst_nid));
         let Some(eid) = edge_id else { continue };
-        let Some(edge_label) = g.edge(eid) else { continue };
+        let Some(edge_label) = graph.edge(eid) else { continue };
 
         let mut points = edge_label.points.clone();
         if points.is_empty() {
-            let (Some(src_n), Some(dst_n)) = (g.node(src_nid), g.node(dst_nid)) else { continue };
+            let (Some(src_n), Some(dst_n)) = (graph.node(src_nid), graph.node(dst_nid)) else { continue };
             points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
-        clip_edge_endpoints(g, src_nid, dst_nid, &mut points);
+        clip_edge_endpoints(graph, src_nid, dst_nid, &mut points);
 
         let label_size = rel.label.as_ref().map(|l| {
             let ts = measurer.measure(l, style);
@@ -207,18 +207,18 @@ fn extract_er_edges(
 }
 
 fn clip_edge_endpoints(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     src_nid: NodeId,
     dst_nid: NodeId,
     points: &mut [Point],
 ) {
-    if let Some(src_n) = g.node(src_nid) {
+    if let Some(src_n) = graph.node(src_nid) {
         let bbox = rusty_mermaid_core::BBox::new(src_n.x, src_n.y, src_n.width, src_n.height);
         if points.len() >= 2 {
             points[0] = intersect_rect(&bbox, points[1]);
         }
     }
-    if let Some(dst_n) = g.node(dst_nid) {
+    if let Some(dst_n) = graph.node(dst_nid) {
         let bbox = rusty_mermaid_core::BBox::new(dst_n.x, dst_n.y, dst_n.width, dst_n.height);
         let n = points.len();
         if n >= 2 {

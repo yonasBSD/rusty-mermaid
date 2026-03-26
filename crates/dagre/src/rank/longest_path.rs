@@ -7,36 +7,36 @@ use crate::labels::{EdgeLabel, NodeLabel};
 /// Assign ranks using longest-path algorithm.
 /// Sources get the lowest ranks; each node's rank = min(succ.rank - minlen).
 /// Results in a feasible ranking (all edges span >= minlen).
-pub(crate) fn longest_path(g: &mut Graph<NodeLabel, EdgeLabel>) {
+pub(crate) fn longest_path(graph: &mut Graph<NodeLabel, EdgeLabel>) {
     let mut visited = HashSet::new();
-    let sources: Vec<NodeId> = g.sources().collect();
+    let sources: Vec<NodeId> = graph.sources().collect();
 
     for src in sources {
-        dfs(g, src, &mut visited);
+        dfs(graph, src, &mut visited);
     }
 
     // Handle nodes unreachable from sources (shouldn't happen in a DAG
     // after acyclic, but be safe)
-    for nid in g.node_ids().collect::<Vec<_>>() {
+    for nid in graph.node_ids().collect::<Vec<_>>() {
         if !visited.contains(&nid) {
-            dfs(g, nid, &mut visited);
+            dfs(graph, nid, &mut visited);
         }
     }
 }
 
-fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId, visited: &mut HashSet<NodeId>) -> i32 {
+fn dfs(graph: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId, visited: &mut HashSet<NodeId>) -> i32 {
     if visited.contains(&v) {
-        return g.node(v).map_or(0, |n| n.rank);
+        return graph.node(v).map_or(0, |n| n.rank);
     }
     visited.insert(v);
 
-    let out_edges: Vec<_> = g.out_edges(v).collect();
+    let out_edges: Vec<_> = graph.out_edges(v).collect();
     let mut rank = i32::MAX;
 
     for eid in out_edges {
-        if let Some((_, dst)) = g.edge_endpoints(eid) {
-            let minlen = g.edge(eid).map_or(1, |l| l.minlen);
-            let succ_rank = dfs(g, dst, visited);
+        if let Some((_, dst)) = graph.edge_endpoints(eid) {
+            let minlen = graph.edge(eid).map_or(1, |l| l.minlen);
+            let succ_rank = dfs(graph, dst, visited);
             rank = rank.min(succ_rank - minlen);
         }
     }
@@ -46,7 +46,7 @@ fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId, visited: &mut HashSet<Nod
         rank = 0;
     }
 
-    if let Some(n) = g.node_mut(v) {
+    if let Some(n) = graph.node_mut(v) {
         n.rank = rank;
     }
     rank

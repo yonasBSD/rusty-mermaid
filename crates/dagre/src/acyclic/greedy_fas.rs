@@ -7,18 +7,18 @@ use crate::labels::{EdgeLabel, NodeLabel};
 /// Find a feedback arc set using the greedy heuristic (Eades, Lin, Smyth).
 /// Produces a small (not necessarily minimum) FAS by greedily building a
 /// vertex ordering that minimizes backward edges.
-pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
+pub(crate) fn greedy_fas(graph: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
     // Collect self-loops first (always in FAS)
     let mut fas: Vec<EdgeId> = Vec::new();
-    for eid in g.edge_ids() {
-        if let Some((src, dst)) = g.edge_endpoints(eid)
+    for eid in graph.edge_ids() {
+        if let Some((src, dst)) = graph.edge_endpoints(eid)
             && src == dst
         {
             fas.push(eid);
         }
     }
 
-    if g.node_count() <= 1 {
+    if graph.node_count() <= 1 {
         return fas;
     }
 
@@ -29,7 +29,7 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
     let mut adj_in: BTreeMap<NodeId, BTreeMap<NodeId, f64>> = BTreeMap::new();
     let mut alive: BTreeMap<NodeId, bool> = BTreeMap::new();
 
-    for nid in g.node_ids() {
+    for nid in graph.node_ids() {
         in_weight.insert(nid, 0.0);
         out_weight.insert(nid, 0.0);
         adj_out.entry(nid).or_default();
@@ -37,12 +37,12 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
         alive.insert(nid, true);
     }
 
-    for eid in g.edge_ids() {
-        if let Some((src, dst)) = g.edge_endpoints(eid) {
+    for eid in graph.edge_ids() {
+        if let Some((src, dst)) = graph.edge_endpoints(eid) {
             if src == dst {
                 continue; // skip self-loops
             }
-            let w = g.edge(eid).map_or(1.0, |l| l.weight);
+            let w = graph.edge(eid).map_or(1.0, |l| l.weight);
             *adj_out.entry(src).or_default().entry(dst).or_insert(0.0) += w;
             *adj_in.entry(dst).or_default().entry(src).or_insert(0.0) += w;
             *out_weight.entry(src).or_insert(0.0) += w;
@@ -54,7 +54,7 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
     let mut seq_left: Vec<NodeId> = Vec::new();
     let mut seq_right: VecDeque<NodeId> = VecDeque::new();
 
-    let mut remaining = g.node_count();
+    let mut remaining = graph.node_count();
 
     while remaining > 0 {
         // Remove sinks (no outgoing edges)
@@ -137,8 +137,8 @@ pub(crate) fn greedy_fas(g: &Graph<NodeLabel, EdgeLabel>) -> Vec<EdgeId> {
         .collect();
 
     // FAS += edges that go backward in the ordering (self-loops already collected)
-    for eid in g.edge_ids() {
-        if let Some((src, dst)) = g.edge_endpoints(eid) {
+    for eid in graph.edge_ids() {
+        if let Some((src, dst)) = graph.edge_endpoints(eid) {
             if src == dst {
                 continue; // already in fas
             }

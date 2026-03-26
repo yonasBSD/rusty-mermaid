@@ -7,22 +7,22 @@ use crate::util;
 
 /// Optimal rank assignment using the network simplex algorithm.
 /// Minimizes total weighted edge length subject to minlen constraints.
-pub(crate) fn network_simplex(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    longest_path(g);
-    util::normalize_ranks(g);
+pub(crate) fn network_simplex(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    longest_path(graph);
+    util::normalize_ranks(graph);
 
-    if g.node_count() <= 1 {
+    if graph.node_count() <= 1 {
         return;
     }
 
-    let mut tree = feasible_tree_mut(g);
-    init_cut_values(&mut tree, g);
+    let mut tree = feasible_tree_mut(graph);
+    init_cut_values(&mut tree, graph);
 
-    let max_iter = g.node_count() * g.node_count();
+    let max_iter = graph.node_count() * graph.node_count();
     let mut iter = 0;
     while let Some((leave_u, leave_v)) = find_leave_edge(&tree) {
-        if let Some((enter_src, enter_dst)) = find_enter_edge(&tree, g, leave_u, leave_v) {
-            exchange(&mut tree, g, leave_u, leave_v, enter_src, enter_dst);
+        if let Some((enter_src, enter_dst)) = find_enter_edge(&tree, graph, leave_u, leave_v) {
+            exchange(&mut tree, graph, leave_u, leave_v, enter_src, enter_dst);
         } else {
             break;
         }
@@ -32,16 +32,16 @@ pub(crate) fn network_simplex(g: &mut Graph<NodeLabel, EdgeLabel>) {
         }
     }
 
-    util::normalize_ranks(g);
+    util::normalize_ranks(graph);
 }
 
 /// Compute cut values for all tree edges (post-order traversal).
-fn init_cut_values(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>) {
+fn init_cut_values(tree: &mut NsTree, graph: &Graph<NodeLabel, EdgeLabel>) {
     // Post-order: process children before parents
     let nodes: Vec<NodeId> = postorder_nodes(tree);
     for v in nodes {
         if tree.parent.get(&v).copied().flatten().is_some() {
-            assign_cut_value(tree, g, v);
+            assign_cut_value(tree, graph, v);
         }
     }
 }
@@ -70,23 +70,23 @@ fn postorder_dfs(
 }
 
 /// Compute the cut value for the tree edge connecting `child` to its parent.
-fn assign_cut_value(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>, child: NodeId) {
+fn assign_cut_value(tree: &mut NsTree, graph: &Graph<NodeLabel, EdgeLabel>, child: NodeId) {
     let Some(parent) = tree.parent.get(&child).copied().flatten() else {
         return;
     };
 
     // Determine which direction the graph edge goes
-    let child_is_tail = util::has_directed_edge(g, child, parent);
+    let child_is_tail = util::has_directed_edge(graph, child, parent);
     let (graph_src, graph_dst) = if child_is_tail {
         (child, parent)
     } else {
         (parent, child)
     };
 
-    let mut cut_value = util::combined_weight(g, graph_src, graph_dst);
+    let mut cut_value = util::combined_weight(graph, graph_src, graph_dst);
 
     // For each edge incident to child (except the tree edge to parent)
-    for (eid, src, dst) in util::node_edges(g, child) {
+    for (eid, src, dst) in util::node_edges(graph, child) {
         let is_out_edge = src == child;
         let other = if is_out_edge { dst } else { src };
 
@@ -95,7 +95,7 @@ fn assign_cut_value(tree: &mut NsTree, g: &Graph<NodeLabel, EdgeLabel>, child: N
         }
 
         let points_to_head = is_out_edge == child_is_tail;
-        let edge_weight = g.edge(eid).map_or(1.0, |l| l.weight);
+        let edge_weight = graph.edge(eid).map_or(1.0, |l| l.weight);
 
         cut_value += if points_to_head {
             edge_weight
@@ -130,14 +130,14 @@ fn find_leave_edge(tree: &NsTree) -> Option<(NodeId, NodeId)> {
 /// The entering edge must cross the same cut with minimum slack.
 fn find_enter_edge(
     tree: &NsTree,
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     leave_u: NodeId,
     leave_v: NodeId,
 ) -> Option<(NodeId, NodeId)> {
     // Determine which end is the "tail" component
     // The tail component is the side of the tree edge where the
     // leaving edge points "from" in the graph direction
-    let (v, w) = if util::has_directed_edge(g, leave_u, leave_v) {
+    let (v, w) = if util::has_directed_edge(graph, leave_u, leave_v) {
         (leave_u, leave_v)
     } else {
         (leave_v, leave_u)
@@ -151,8 +151,8 @@ fn find_enter_edge(
 
     let mut best: Option<(NodeId, NodeId, i32)> = None;
 
-    for eid in g.edge_ids() {
-        if let Some((src, dst)) = g.edge_endpoints(eid) {
+    for eid in graph.edge_ids() {
+        if let Some((src, dst)) = graph.edge_endpoints(eid) {
             let src_desc = tree.is_descendant(src, tail_node);
             let dst_desc = tree.is_descendant(dst, tail_node);
 
@@ -164,7 +164,7 @@ fn find_enter_edge(
             };
 
             if crosses {
-                let s = util::slack(g, eid);
+                let s = util::slack(graph, eid);
                 if best.is_none_or(|(_, _, bs)| s < bs) {
                     best = Some((src, dst, s));
                 }
@@ -178,7 +178,7 @@ fn find_enter_edge(
 /// Swap the leaving tree edge for the entering edge, then update the tree.
 fn exchange(
     tree: &mut NsTree,
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     leave_u: NodeId,
     leave_v: NodeId,
     enter_src: NodeId,
@@ -188,11 +188,11 @@ fn exchange(
     tree.remove_edge(leave_u, leave_v);
 
     // Shift ranks BEFORE adding entering edge, so BFS only finds one component
-    let enter_slack = util::slack_pair(g, enter_src, enter_dst);
+    let enter_slack = util::slack_pair(graph, enter_src, enter_dst);
     if enter_slack != 0 {
         let component = bfs_component(tree, enter_dst);
         for nid in component {
-            if let Some(n) = g.node_mut(nid) {
+            if let Some(n) = graph.node_mut(nid) {
                 n.rank -= enter_slack;
             }
         }
@@ -203,7 +203,7 @@ fn exchange(
 
     // Recompute DFS numbering and cut values
     tree.init_low_lim();
-    init_cut_values(tree, g);
+    init_cut_values(tree, graph);
 }
 
 /// BFS in the tree from a start node.

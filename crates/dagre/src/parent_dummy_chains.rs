@@ -13,13 +13,13 @@ use crate::labels::{EdgeLabel, NodeLabel};
 /// different top-level compounds (LCA = graph root), dummies in the gap
 /// between compounds are left unparented.
 pub(crate) fn parent_dummy_chains(
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     dummy_chains: &[NodeId],
 ) {
-    let postorder_nums = postorder(g);
+    let postorder_nums = postorder(graph);
 
     for &chain_head in dummy_chains {
-        let Some(node) = g.node(chain_head) else {
+        let Some(node) = graph.node(chain_head) else {
             continue;
         };
         let Some(ref edge_data) = node.edge_data else {
@@ -28,12 +28,12 @@ pub(crate) fn parent_dummy_chains(
         let edge_src = edge_data.edge_src;
         let edge_dst = edge_data.edge_dst;
 
-        let (path, lca) = find_path(g, &postorder_nums, edge_src, edge_dst);
+        let (path, lca) = find_path(graph, &postorder_nums, edge_src, edge_dst);
         let mut path_idx = 0;
         let mut ascending = true;
 
         let mut v = chain_head;
-        while let Some(node) = g.node(v) {
+        while let Some(node) = graph.node(v) {
             if node.dummy.is_none() {
                 break;
             }
@@ -45,7 +45,7 @@ pub(crate) fn parent_dummy_chains(
                 while path_idx < path.len() && path[path_idx] != lca {
                     if let Some(path_node) = path[path_idx] {
                         let max_rank =
-                            g.node(path_node).and_then(|n| n.max_rank).unwrap_or(0);
+                            graph.node(path_node).and_then(|n| n.max_rank).unwrap_or(0);
                         if max_rank >= node_rank {
                             break;
                         }
@@ -63,7 +63,7 @@ pub(crate) fn parent_dummy_chains(
                 while path_idx + 1 < path.len() {
                     if let Some(next) = path[path_idx + 1] {
                         let min_rank =
-                            g.node(next).and_then(|n| n.min_rank).unwrap_or(i32::MAX);
+                            graph.node(next).and_then(|n| n.min_rank).unwrap_or(i32::MAX);
                         if min_rank > node_rank {
                             break;
                         }
@@ -78,12 +78,12 @@ pub(crate) fn parent_dummy_chains(
             // None → leave unparented (at graph root level)
             if path_idx < path.len()
                 && let Some(parent_id) = path[path_idx] {
-                    g.set_parent(v, parent_id);
+                    graph.set_parent(v, parent_id);
                 }
                 // None means graph root — dummy stays unparented
 
             // Move to next dummy in chain
-            let next: Vec<_> = g.successors(v).collect();
+            let next: Vec<_> = graph.successors(v).collect();
             match next.first() {
                 Some(&n) => v = n,
                 None => break,
@@ -100,7 +100,7 @@ pub(crate) fn parent_dummy_chains(
 /// ancestor), lca = None and the path includes None as a sentinel between
 /// the source and destination compound hierarchies.
 fn find_path(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     postorder_nums: &BTreeMap<NodeId, PostorderNum>,
     v: NodeId,
     w: NodeId,
@@ -112,7 +112,7 @@ fn find_path(
 
     // Traverse up from v to find the LCA
     let mut v_path: Vec<Option<NodeId>> = Vec::new();
-    let mut parent = g.parent(v);
+    let mut parent = graph.parent(v);
     let lca: Option<NodeId>;
 
     loop {
@@ -124,7 +124,7 @@ fn find_path(
                     lca = Some(p);
                     break;
                 }
-                parent = g.parent(p);
+                parent = graph.parent(p);
             }
             None => {
                 // Reached graph root without finding an LCA compound
@@ -136,14 +136,14 @@ fn find_path(
 
     // Traverse from w up to LCA
     let mut w_path: Vec<Option<NodeId>> = Vec::new();
-    parent = g.parent(w);
+    parent = graph.parent(w);
     loop {
         if parent == lca {
             break;
         }
         w_path.push(parent);
         match parent {
-            Some(p) => parent = g.parent(p),
+            Some(p) => parent = graph.parent(p),
             None => break,
         }
     }
@@ -160,28 +160,28 @@ struct PostorderNum {
 }
 
 /// Compute postorder numbering over the compound hierarchy.
-fn postorder(g: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, PostorderNum> {
+fn postorder(graph: &Graph<NodeLabel, EdgeLabel>) -> BTreeMap<NodeId, PostorderNum> {
     let mut result = BTreeMap::new();
     let mut counter = 0;
 
     fn dfs(
-        g: &Graph<NodeLabel, EdgeLabel>,
+        graph: &Graph<NodeLabel, EdgeLabel>,
         v: NodeId,
         counter: &mut usize,
         result: &mut BTreeMap<NodeId, PostorderNum>,
     ) {
         let low = *counter;
-        let children: Vec<_> = g.children(v).collect();
+        let children: Vec<_> = graph.children(v).collect();
         for child in children {
-            dfs(g, child, counter, result);
+            dfs(graph, child, counter, result);
         }
         result.insert(v, PostorderNum { low, lim: *counter });
         *counter += 1;
     }
 
-    let roots: Vec<_> = g.roots().collect();
+    let roots: Vec<_> = graph.roots().collect();
     for root in roots {
-        dfs(g, root, &mut counter, &mut result);
+        dfs(graph, root, &mut counter, &mut result);
     }
     result
 }

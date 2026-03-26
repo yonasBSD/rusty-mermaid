@@ -10,26 +10,26 @@ use crate::util;
 /// Nodes are visited starting from rank-0 nodes (sorted by rank), following
 /// successors. Each node is appended to its rank's layer in visit order.
 /// Returns the resulting layer matrix.
-pub(crate) fn init_order(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>> {
-    let max = util::max_rank(g);
+pub(crate) fn init_order(graph: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>> {
+    let max = util::max_rank(graph);
     let mut layers = vec![Vec::new(); (max + 1) as usize];
     let mut visited = HashSet::new();
 
     // Collect leaf nodes (no compound children), sorted by rank
-    let mut simple_nodes: Vec<_> = g
+    let mut simple_nodes: Vec<_> = graph
         .node_ids()
-        .filter(|&nid| g.children(nid).next().is_none())
+        .filter(|&nid| graph.children(nid).next().is_none())
         .collect();
-    simple_nodes.sort_by_key(|&nid| g.node(nid).map_or(0, |n| n.rank));
+    simple_nodes.sort_by_key(|&nid| graph.node(nid).map_or(0, |n| n.rank));
 
     for v in simple_nodes {
-        dfs(g, v, &mut visited, &mut layers);
+        dfs(graph, v, &mut visited, &mut layers);
     }
 
     // Assign order from layer positions
     for layer in &layers {
         for (i, &nid) in layer.iter().enumerate() {
-            let Some(node) = g.node_mut(nid) else { continue };
+            let Some(node) = graph.node_mut(nid) else { continue };
             node.order = i;
         }
     }
@@ -38,7 +38,7 @@ pub(crate) fn init_order(g: &mut Graph<NodeLabel, EdgeLabel>) -> Vec<Vec<NodeId>
 }
 
 fn dfs(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
     visited: &mut HashSet<NodeId>,
     layers: &mut [Vec<NodeId>],
@@ -46,14 +46,14 @@ fn dfs(
     if !visited.insert(v) {
         return;
     }
-    let Some(node) = g.node(v) else { return };
+    let Some(node) = graph.node(v) else { return };
     let rank = node.rank;
     if rank >= 0 && (rank as usize) < layers.len() {
         layers[rank as usize].push(v);
     }
-    let succs: Vec<_> = g.successors(v).collect();
+    let succs: Vec<_> = graph.successors(v).collect();
     for w in succs {
-        dfs(g, w, visited, layers);
+        dfs(graph, w, visited, layers);
     }
 }
 

@@ -21,7 +21,7 @@ pub(crate) struct SortResult {
 /// is being sorted — only children at this rank are included, and border nodes
 /// are looked up for this specific rank.
 pub(crate) fn sort_subgraph(
-    g: &Graph<NodeLabel, EdgeLabel>,
+    graph: &Graph<NodeLabel, EdgeLabel>,
     v: NodeId,
     cg: &ConstraintGraph,
     bias_right: bool,
@@ -29,10 +29,10 @@ pub(crate) fn sort_subgraph(
     rank: i32,
 ) -> SortResult {
     // Filter children to only those at the current rank (or compound nodes spanning it)
-    let children: Vec<_> = g
+    let children: Vec<_> = graph
         .children(v)
         .filter(|&c| {
-            g.node(c).is_some_and(|cn| {
+            graph.node(c).is_some_and(|cn| {
                 // Include if at this rank, or if it's a compound node spanning this rank
                 cn.rank == rank
                     || (cn.min_rank.is_some_and(|min| min <= rank)
@@ -40,7 +40,7 @@ pub(crate) fn sort_subgraph(
             })
         })
         .collect();
-    let node = g.node(v);
+    let node = graph.node(v);
     let bl = node.and_then(|n| n.border_left.get(&rank).copied());
     let br = node.and_then(|n| n.border_right.get(&rank).copied());
 
@@ -57,17 +57,17 @@ pub(crate) fn sort_subgraph(
 
     // Compute barycenters
     let mut barycenters: Vec<BaryEntry> = if use_in_edges {
-        barycenter::barycenter(g, &movable)
+        barycenter::barycenter(graph, &movable)
     } else {
-        barycenter::barycenter_out(g, &movable)
+        barycenter::barycenter_out(graph, &movable)
     };
 
     // Recursively sort compound children and merge their barycenters.
     // Store sub-results to expand compound nodes in the final ordering.
     let mut sub_results: BTreeMap<NodeId, Vec<NodeId>> = BTreeMap::new();
     for entry in &mut barycenters {
-        if g.children(entry.v).next().is_some() {
-            let sub = sort_subgraph(g, entry.v, cg, bias_right, use_in_edges, rank);
+        if graph.children(entry.v).next().is_some() {
+            let sub = sort_subgraph(graph, entry.v, cg, bias_right, use_in_edges, rank);
             if !sub.vs.is_empty() {
                 sub_results.insert(entry.v, sub.vs);
             }
@@ -107,18 +107,18 @@ pub(crate) fn sort_subgraph(
         // dagre JS sortSubgraph lines 36-46.
         let (bl_ref, br_ref) = if use_in_edges {
             (
-                g.predecessors(left).next(),
-                g.predecessors(right).next(),
+                graph.predecessors(left).next(),
+                graph.predecessors(right).next(),
             )
         } else {
             (
-                g.successors(left).next(),
-                g.successors(right).next(),
+                graph.successors(left).next(),
+                graph.successors(right).next(),
             )
         };
         if let (Some(bl_node), Some(br_node)) = (bl_ref, br_ref) {
-            let bl_order = g.node(bl_node).map_or(0, |n| n.order) as f64;
-            let br_order = g.node(br_node).map_or(0, |n| n.order) as f64;
+            let bl_order = graph.node(bl_node).map_or(0, |n| n.order) as f64;
+            let br_order = graph.node(br_node).map_or(0, |n| n.order) as f64;
             bc = Some(
                 (bc.unwrap_or(0.0) * wt + bl_order + br_order) / (wt + 2.0),
             );

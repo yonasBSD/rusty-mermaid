@@ -8,21 +8,21 @@ use crate::labels::{BorderType, DummyKind, EdgeLabel, NodeLabel};
 /// Pre: ranks assigned, compound nodes have minRank/maxRank set.
 /// Post: compound nodes have borderLeft/borderRight chains linking
 /// consecutive ranks.
-pub(crate) fn add_border_segments(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let roots: Vec<_> = g.roots().collect();
+pub(crate) fn add_border_segments(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let roots: Vec<_> = graph.roots().collect();
     for root in roots {
-        dfs(g, root);
+        dfs(graph, root);
     }
 }
 
-fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId) {
-    let children: Vec<_> = g.children(v).collect();
+fn dfs(graph: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId) {
+    let children: Vec<_> = graph.children(v).collect();
     for child in children {
-        dfs(g, child);
+        dfs(graph, child);
     }
 
     let (min_rank, max_rank) = {
-        let Some(node) = g.node(v) else { return };
+        let Some(node) = graph.node(v) else { return };
         match (node.min_rank, node.max_rank) {
             (Some(min), Some(max)) => (min, max),
             _ => return, // not a compound node with rank bounds
@@ -30,13 +30,13 @@ fn dfs(g: &mut Graph<NodeLabel, EdgeLabel>, v: NodeId) {
     };
 
     for rank in min_rank..=max_rank {
-        add_border_node(g, BorderType::Left, v, rank);
-        add_border_node(g, BorderType::Right, v, rank);
+        add_border_node(graph, BorderType::Left, v, rank);
+        add_border_node(graph, BorderType::Right, v, rank);
     }
 }
 
 fn add_border_node(
-    g: &mut Graph<NodeLabel, EdgeLabel>,
+    graph: &mut Graph<NodeLabel, EdgeLabel>,
     border_type: BorderType,
     sg: NodeId,
     rank: i32,
@@ -46,12 +46,12 @@ fn add_border_node(
     label.dummy = Some(DummyKind::Border);
     label.border_type = Some(border_type);
 
-    let curr = g.add_node(label);
-    g.set_parent(curr, sg);
+    let curr = graph.add_node(label);
+    graph.set_parent(curr, sg);
 
     // Get the previous border node at rank-1 and link them
     let prev = {
-        let Some(sg_node) = g.node(sg) else { return };
+        let Some(sg_node) = graph.node(sg) else { return };
         let borders = match border_type {
             BorderType::Left => &sg_node.border_left,
             BorderType::Right => &sg_node.border_right,
@@ -60,7 +60,7 @@ fn add_border_node(
     };
 
     // Store current node in the compound's border map
-    let Some(sg_node) = g.node_mut(sg) else { return };
+    let Some(sg_node) = graph.node_mut(sg) else { return };
     match border_type {
         BorderType::Left => sg_node.border_left.insert(rank, curr),
         BorderType::Right => sg_node.border_right.insert(rank, curr),
@@ -68,23 +68,23 @@ fn add_border_node(
 
     // Chain to previous border node
     if let Some(prev_id) = prev {
-        g.add_edge(prev_id, curr, EdgeLabel::new().with_weight(1.0));
+        graph.add_edge(prev_id, curr, EdgeLabel::new().with_weight(1.0));
     }
 }
 
 /// Assign min_rank and max_rank to compound nodes based on their
 /// border_top/border_bottom nodes' ranks.
-pub(crate) fn assign_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) -> i32 {
+pub(crate) fn assign_rank_min_max(graph: &mut Graph<NodeLabel, EdgeLabel>) -> i32 {
     let mut max_rank = 0;
 
-    let nids: Vec<_> = g.node_ids().collect();
+    let nids: Vec<_> = graph.node_ids().collect();
     for nid in nids {
-        let Some(node) = g.node(nid) else { continue };
+        let Some(node) = graph.node(nid) else { continue };
         if let (Some(top), Some(bottom)) = (node.border_top, node.border_bottom) {
-            let min = g.node(top).map_or(0, |n| n.rank);
-            let max = g.node(bottom).map_or(0, |n| n.rank);
+            let min = graph.node(top).map_or(0, |n| n.rank);
+            let max = graph.node(bottom).map_or(0, |n| n.rank);
 
-            let Some(node) = g.node_mut(nid) else { continue };
+            let Some(node) = graph.node_mut(nid) else { continue };
             node.min_rank = Some(min);
             node.max_rank = Some(max);
 
@@ -103,14 +103,14 @@ pub(crate) fn assign_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) -> i32 {
 /// This must run after parent_dummy_chains + add_border_segments so that
 /// sort_subgraph's rank filter can find compound nodes at ranks where they
 /// have dummy children.
-pub(crate) fn extend_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) {
-    let compounds: Vec<NodeId> = g
+pub(crate) fn extend_rank_min_max(graph: &mut Graph<NodeLabel, EdgeLabel>) {
+    let compounds: Vec<NodeId> = graph
         .node_ids()
-        .filter(|&nid| g.children(nid).next().is_some())
+        .filter(|&nid| graph.children(nid).next().is_some())
         .collect();
 
     for sg in compounds {
-        let Some(node) = g.node(sg) else { continue };
+        let Some(node) = graph.node(sg) else { continue };
         let Some(mut min) = node.min_rank else {
             continue;
         };
@@ -118,13 +118,13 @@ pub(crate) fn extend_rank_min_max(g: &mut Graph<NodeLabel, EdgeLabel>) {
             continue;
         };
 
-        for child in g.children(sg) {
-            let Some(cn) = g.node(child) else { continue };
+        for child in graph.children(sg) {
+            let Some(cn) = graph.node(child) else { continue };
             min = min.min(cn.rank);
             max = max.max(cn.rank);
         }
 
-        let Some(node) = g.node_mut(sg) else { continue };
+        let Some(node) = graph.node_mut(sg) else { continue };
         node.min_rank = Some(min);
         node.max_rank = Some(max);
     }
