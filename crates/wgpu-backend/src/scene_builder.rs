@@ -469,8 +469,6 @@ fn render_text(
     let font_ref = skrifa::FontRef::from_index(fs.primary.data.as_ref(), fs.primary.index)
         .expect("embedded font must be valid");
     let metrics = skrifa::MetadataProvider::metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
-    let primary_gm = skrifa::MetadataProvider::glyph_metrics(&font_ref, skrifa::instance::Size::new(font_size), skrifa::instance::LocationRef::default());
-    let primary_cm = skrifa::MetadataProvider::charmap(&font_ref);
     let visual_center_above_baseline = (metrics.ascent + metrics.descent) / 2.0;
 
     let lines: Vec<&str> = content.split('\n').collect();

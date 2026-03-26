@@ -105,8 +105,9 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         // Cardinality text near endpoints. Both use the forward edge
         // direction for perpendicular offset (same side). The "to" end
         // reverses the along-offset to move inward from its endpoint.
-        let fwd_dx = edge.points.last().unwrap().x - edge.points[0].x;
-        let fwd_dy = edge.points.last().unwrap().y - edge.points[0].y;
+        let Some(last_pt) = edge.points.last() else { continue };
+        let fwd_dx = last_pt.x - edge.points[0].x;
+        let fwd_dy = last_pt.y - edge.points[0].y;
         if let Some(card) = &edge_layout.cardinality_from {
             render_cardinality(scene, edge.points[0], fwd_dx, fwd_dy, 1.0, card, theme);
         }

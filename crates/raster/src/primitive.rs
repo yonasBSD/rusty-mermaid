@@ -522,7 +522,9 @@ fn blit_glyph(
             let b = (color.b as f32 * a + bg.blue() as f32 * inv_a) as u8;
             let out_a = ((a + bg.alpha() as f32 / 255.0 * inv_a) * 255.0) as u8;
 
-            dst[idx] = tiny_skia::PremultipliedColorU8::from_rgba(r, g, b, out_a).unwrap();
+            if let Some(c) = tiny_skia::PremultipliedColorU8::from_rgba(r, g, b, out_a) {
+                dst[idx] = c;
+            }
         }
     }
 }

@@ -168,10 +168,10 @@ impl GpuRenderer {
         let slice = buffer.slice(..);
         let (tx, rx) = std::sync::mpsc::channel();
         slice.map_async(wgpu::MapMode::Read, move |result| {
-            tx.send(result).unwrap();
+            tx.send(result).expect("channel closed");
         });
         let _ = self.device.poll(wgpu::PollType::wait_indefinitely());
-        rx.recv().unwrap().expect("buffer map failed");
+        rx.recv().expect("channel closed").expect("buffer map failed");
 
         let data = slice.get_mapped_range();
         let mut pixels = Vec::with_capacity((width * height * 4) as usize);

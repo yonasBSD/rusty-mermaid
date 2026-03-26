@@ -29,16 +29,6 @@ impl ConstraintGraph {
             self.edges.push((from, to));
         }
     }
-
-    #[allow(dead_code)]
-    fn out_edges(&self, v: NodeId) -> impl Iterator<Item = NodeId> + '_ {
-        self.edges.iter().filter(move |(f, _)| *f == v).map(|(_, t)| *t)
-    }
-
-    #[allow(dead_code)]
-    fn in_edges(&self, v: NodeId) -> impl Iterator<Item = NodeId> + '_ {
-        self.edges.iter().filter(move |(_, t)| *t == v).map(|(f, _)| *f)
-    }
 }
 
 /// Resolve conflicts between barycenter entries and constraint graph.

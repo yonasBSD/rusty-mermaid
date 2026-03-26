@@ -171,12 +171,8 @@ pub fn layout_with_measurer(diagram: &ClassDiagram, measurer: &impl TextMeasure)
 
         let mut points = edge_label.points.clone();
         if points.is_empty() {
-            let src_n = g.node(src_nid).unwrap();
-            let dst_n = g.node(dst_nid).unwrap();
-            points = vec![
-                Point::new(src_n.x, src_n.y),
-                Point::new(dst_n.x, dst_n.y),
-            ];
+            let (Some(src_n), Some(dst_n)) = (g.node(src_nid), g.node(dst_nid)) else { continue };
+            points = vec![Point::new(src_n.x, src_n.y), Point::new(dst_n.x, dst_n.y)];
         }
 
         // Clip endpoints at node boundaries

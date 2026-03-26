@@ -136,7 +136,7 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
         if block.shape == BlockShape::Space {
             continue;
         }
-        let &(cx, cy, bw) = positions.get(&block.id).unwrap();
+        let Some(&(cx, cy, bw)) = positions.get(&block.id) else { continue };
         let color = COLORS[i % COLORS.len()];
         render_block(&mut scene, block, BBox::new(cx, cy, bw, CELL_H), color, theme);
     }

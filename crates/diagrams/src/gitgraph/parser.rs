@@ -51,7 +51,7 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
     }
 
     if line.starts_with("branch") {
-        let rest = line.strip_prefix("branch").unwrap().trim();
+        let rest = line.strip_prefix("branch").expect("guarded by starts_with").trim();
         let parts: Vec<&str> = rest.splitn(2, |c: char| c == ' ' || c == '\t').collect();
         let name = parts[0].to_string();
         let order = parts.get(1).and_then(|r| {
@@ -67,7 +67,7 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
     }
 
     if line.starts_with("merge") {
-        let rest = line.strip_prefix("merge").unwrap().trim();
+        let rest = line.strip_prefix("merge").expect("guarded by starts_with").trim();
         let parts: Vec<&str> = rest.splitn(2, |c: char| c == ' ' || c == '\t').collect();
         let branch = parts[0].to_string();
         let opts = parts.get(1).copied().unwrap_or("");
@@ -78,7 +78,7 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
     }
 
     if line.starts_with("cherry-pick") {
-        let rest = line.strip_prefix("cherry-pick").unwrap().trim();
+        let rest = line.strip_prefix("cherry-pick").expect("guarded by starts_with").trim();
         let id = extract_option(rest, "id:").unwrap_or_default();
         let tag = extract_option(rest, "tag:");
         return Some(GitStatement::CherryPick { id, tag });
