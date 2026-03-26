@@ -30,18 +30,25 @@ const SANKEY_COLORS: [Color; 10] = [
     Color::rgb(140, 86, 75),
 ];
 
-pub fn to_scene(diagram: &SankeyDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
+struct LinkLayout {
+    source: usize,
+    target: usize,
+    y0: f64,
+    y1: f64,
+    width: f64,
 }
 
-pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
-    if diagram.links.is_empty() {
-        return Scene::new(100.0, 50.0);
-    }
+struct SankeyLayout {
+    node_x0: Vec<f64>,
+    node_y0: Vec<f64>,
+    node_y1: Vec<f64>,
+    node_value: Vec<f64>,
+    depth: Vec<usize>,
+    link_layouts: Vec<LinkLayout>,
+}
 
-    let names = diagram.node_names();
-    let name_to_idx: HashMap<&str, usize> =
-        names.iter().enumerate().map(|(i, n)| (n.as_str(), i)).collect();
+/// Build adjacency, assign columns, vertical positions, and link y-stacking.
+fn compute_layout(diagram: &SankeyDiagram, names: &[String], name_to_idx: &HashMap<&str, usize>) -> SankeyLayout {
     let n = names.len();
 
     // Build adjacency + compute node values
@@ -71,16 +78,13 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
         columns[d].push(i);
     }
 
-    // Order within columns: by average y of sources (relaxation-like)
-    // First pass: order by appearance
-    // Then one relaxation pass: reorder by avg position of connected nodes
+    // Relaxation: reorder each column by average position of neighbors
     let mut node_y_center = vec![0.0f64; n];
     for col in &columns {
         for (rank, &node_idx) in col.iter().enumerate() {
             node_y_center[node_idx] = rank as f64;
         }
     }
-    // Relaxation: reorder each column by average position of neighbors
     for _pass in 0..6 {
         for d in 0..=max_depth {
             for &node_idx in &columns[d] {
@@ -114,7 +118,6 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
         0.0
     };
 
-    // Scale: find the column with the largest total value
     let max_col_value = columns
         .iter()
         .map(|col| {
@@ -127,7 +130,6 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
 
     let scale = if max_col_value > 0.0 { 1.0 / max_col_value } else { 1.0 };
 
-    // Assign node rects: (x0, y0, x1, y1)
     let mut node_x0 = vec![0.0f64; n];
     let mut node_y0 = vec![0.0f64; n];
     let mut node_y1 = vec![0.0f64; n];
@@ -149,23 +151,11 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
         }
     }
 
-    // Compute link positions (y0 at source, y1 at target)
-    // Stack outgoing links within each source node
-    struct LinkLayout {
-        source: usize,
-        target: usize,
-        y0: f64,
-        y1: f64,
-        width: f64,
-    }
-
+    // Compute link positions (y stacking at source and target)
     let mut link_layouts: Vec<LinkLayout> = Vec::new();
-
-    // Per-node running y for outgoing/incoming stacking
     let mut out_y = node_y0.clone();
     let mut in_y = node_y0.clone();
 
-    // Sort links by target position (for outgoing) to reduce crossings
     let mut sorted_links: Vec<(usize, usize, f64)> = diagram
         .links
         .iter()
@@ -200,44 +190,14 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
         link_layouts.push(LinkLayout { source: s, target: t, y0, y1, width });
     }
 
-    // ── Render ──
-    //
-    // node_x0/y0/y1 are LEFT-EDGE / TOP / BOTTOM in layout space.
-    // BBox uses CENTER coordinates, so we convert at render time.
-    // Link endpoints use left/right edges directly.
+    SankeyLayout { node_x0, node_y0, node_y1, node_value, depth, link_layouts }
+}
 
-    let label_style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
-
-    // Measure labels and compute node values for display
-    let mut left_label_w = 0.0f64;
-    let mut right_label_w = 0.0f64;
-    for (i, name) in names.iter().enumerate() {
-        let val_str = format!("{} {:.0}", name, node_value[i]);
-        let w = SimpleTextMeasure::measure_raw(&val_str, &label_style).width;
-        if depth[i] == 0 {
-            left_label_w = left_label_w.max(w);
-        }
-        if depth[i] == max_depth {
-            right_label_w = right_label_w.max(w);
-        }
-    }
-
-    // Shift all node x positions right to make room for left labels
-    let left_margin = left_label_w + LABEL_GAP;
-    for x in &mut node_x0 {
-        *x += left_margin;
-    }
-
-    let scene_w = DIAGRAM_W + left_margin + right_label_w + LABEL_GAP + SCENE_PAD;
-    let scene_h = DIAGRAM_H;
-    let mut scene = Scene::new(scene_w, scene_h);
-
-    // Draw links (behind nodes)
-    for ll in &link_layouts {
+fn render_links(scene: &mut Scene, link_layouts: &[LinkLayout], node_x0: &[f64]) {
+    for ll in link_layouts {
         let color = node_color(ll.source);
         let link_color = Color::rgba(color.r, color.g, color.b, 100);
 
-        // Right edge of source node, left edge of target node
         let sx = node_x0[ll.source] + NODE_WIDTH;
         let tx = node_x0[ll.target];
         let mid_x = (sx + tx) / 2.0;
@@ -260,15 +220,24 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
             marker_end: None,
         });
     }
+}
 
-    // Draw nodes + labels
+fn render_nodes(
+    scene: &mut Scene,
+    names: &[String],
+    node_x0: &[f64],
+    node_y0: &[f64],
+    node_y1: &[f64],
+    node_value: &[f64],
+    depth: &[usize],
+    theme: &Theme,
+) {
     for (i, name) in names.iter().enumerate() {
         let color = node_color(i);
         let x0 = node_x0[i];
         let y0 = node_y0[i];
         let h = node_y1[i] - node_y0[i];
 
-        // BBox is CENTER-based: convert left-edge to center
         scene.push(Primitive::Rect {
             bbox: BBox::new(x0 + NODE_WIDTH / 2.0, y0 + h / 2.0, NODE_WIDTH, h),
             rx: 0.0,
@@ -279,7 +248,6 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
             },
         });
 
-        // Labels: leftmost → left, rightmost → right, middle → right
         let label_text = format!("{} {:.0}", name, node_value[i]);
         let (label_x, anchor) = if depth[i] == 0 {
             (x0 - LABEL_GAP, TextAnchor::End)
@@ -298,6 +266,60 @@ pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
             },
         });
     }
+}
+
+pub fn to_scene(diagram: &SankeyDiagram) -> Scene {
+    to_scene_themed(diagram, &Theme::default())
+}
+
+pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
+    if diagram.links.is_empty() {
+        return Scene::new(100.0, 50.0);
+    }
+
+    let names = diagram.node_names();
+    let name_to_idx: HashMap<&str, usize> =
+        names.iter().enumerate().map(|(i, n)| (n.as_str(), i)).collect();
+
+    let mut layout = compute_layout(diagram, &names, &name_to_idx);
+
+    // Measure labels to compute margins
+    let max_depth = layout.depth.iter().copied().max().unwrap_or(0);
+    let label_style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
+
+    let mut left_label_w = 0.0f64;
+    let mut right_label_w = 0.0f64;
+    for (i, name) in names.iter().enumerate() {
+        let val_str = format!("{} {:.0}", name, layout.node_value[i]);
+        let w = SimpleTextMeasure::measure_raw(&val_str, &label_style).width;
+        if layout.depth[i] == 0 {
+            left_label_w = left_label_w.max(w);
+        }
+        if layout.depth[i] == max_depth {
+            right_label_w = right_label_w.max(w);
+        }
+    }
+
+    // Shift node x positions right for left labels
+    let left_margin = left_label_w + LABEL_GAP;
+    for x in &mut layout.node_x0 {
+        *x += left_margin;
+    }
+
+    let scene_w = DIAGRAM_W + left_margin + right_label_w + LABEL_GAP + SCENE_PAD;
+    let mut scene = Scene::new(scene_w, DIAGRAM_H);
+
+    render_links(&mut scene, &layout.link_layouts, &layout.node_x0);
+    render_nodes(
+        &mut scene,
+        &names,
+        &layout.node_x0,
+        &layout.node_y0,
+        &layout.node_y1,
+        &layout.node_value,
+        &layout.depth,
+        theme,
+    );
 
     scene
 }

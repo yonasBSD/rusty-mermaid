@@ -40,8 +40,6 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
     }
 
     let is_horizontal = graph.direction == GitDirection::LR;
-
-    // Find final checked-out branch (last HEAD)
     let final_branch = find_final_branch(graph);
 
     // Assign lane indices to branches
@@ -74,70 +72,86 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
         (w, h)
     };
 
+    let ctx = GitLayoutCtx { is_horizontal, label_area };
     let mut scene = Scene::new(width, height);
 
-    // Position function — label area offsets the commits
-    let pos = |seq: usize, lane: usize| -> (f64, f64) {
-        if is_horizontal {
-            let x = label_area + seq as f64 * COMMIT_STEP + COMMIT_STEP / 2.0;
+    render_branch_labels(&mut scene, &branch_lanes, &final_branch, &label_style, &ctx, theme);
+    render_branch_lines(&mut scene, &commits, &branch_lanes, &ctx);
+    render_merge_lines(&mut scene, &commits, &branch_lanes, &ctx);
+    render_commits(&mut scene, &commits, &branch_lanes, &label_style, &ctx, theme);
+
+    scene
+}
+
+/// Shared layout context for position calculations.
+struct GitLayoutCtx {
+    is_horizontal: bool,
+    label_area: f64,
+}
+
+impl GitLayoutCtx {
+    fn pos(&self, seq: usize, lane: usize) -> (f64, f64) {
+        if self.is_horizontal {
+            let x = self.label_area + seq as f64 * COMMIT_STEP + COMMIT_STEP / 2.0;
             let y = MARGIN + lane as f64 * LANE_WIDTH + LANE_WIDTH / 2.0;
             (x, y)
         } else {
             let x = MARGIN + lane as f64 * LANE_WIDTH + LANE_WIDTH / 2.0;
-            let y = label_area + seq as f64 * COMMIT_STEP + COMMIT_STEP / 2.0;
+            let y = self.label_area + seq as f64 * COMMIT_STEP + COMMIT_STEP / 2.0;
             (x, y)
         }
-    };
+    }
+}
 
-    // Branch labels — auto-sized, bold for final branch
-    for (name, &lane) in &branch_lanes {
+fn render_branch_labels(
+    scene: &mut Scene,
+    branch_lanes: &BTreeMap<String, usize>,
+    final_branch: &str,
+    label_style: &TextStyle,
+    ctx: &GitLayoutCtx,
+    theme: &Theme,
+) {
+    for (name, &lane) in branch_lanes {
         let color = LANE_COLORS[lane % LANE_COLORS.len()];
-        let is_final = name == &final_branch;
-        let label_w = SimpleTextMeasure::measure_raw(name, &label_style).width + LABEL_PAD * 2.0;
+        let is_final = name == final_branch;
+        let label_w = SimpleTextMeasure::measure_raw(name, label_style).width + LABEL_PAD * 2.0;
 
-        if is_horizontal {
+        let (x, y) = if ctx.is_horizontal {
             let y = MARGIN + lane as f64 * LANE_WIDTH + LANE_WIDTH / 2.0;
             let x = MARGIN / 2.0 + label_w / 2.0;
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(x, y, label_w, 20.0),
-                rx: 4.0, ry: 4.0,
-                style: Style { fill: Some(color), ..Default::default() },
-            });
-            scene.push(Primitive::Text {
-                position: Point::new(x, y),
-                content: name.clone(),
-                anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: theme.font_size_small,
-                    fill: Some(Color::WHITE),
-                    font_weight: if is_final { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
-                    ..Default::default()
-                },
-            });
+            (x, y)
         } else {
             let x = MARGIN + lane as f64 * LANE_WIDTH + LANE_WIDTH / 2.0;
             let y = MARGIN / 2.0 + 10.0;
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(x, y, label_w, 20.0),
-                rx: 4.0, ry: 4.0,
-                style: Style { fill: Some(color), ..Default::default() },
-            });
-            scene.push(Primitive::Text {
-                position: Point::new(x, y),
-                content: name.clone(),
-                anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: theme.font_size_small,
-                    fill: Some(Color::WHITE),
-                    font_weight: if is_final { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
-                    ..Default::default()
-                },
-            });
-        }
-    }
+            (x, y)
+        };
 
-    // Branch lines (connect ALL consecutive commits on same branch, including merges)
-    for (name, &lane) in &branch_lanes {
+        scene.push(Primitive::Rect {
+            bbox: BBox::new(x, y, label_w, 20.0),
+            rx: 4.0, ry: 4.0,
+            style: Style { fill: Some(color), ..Default::default() },
+        });
+        scene.push(Primitive::Text {
+            position: Point::new(x, y),
+            content: name.clone(),
+            anchor: TextAnchor::Middle,
+            style: TextStyle {
+                font_size: theme.font_size_small,
+                fill: Some(Color::WHITE),
+                font_weight: if is_final { rusty_mermaid_core::FontWeight::Bold } else { rusty_mermaid_core::FontWeight::Normal },
+                ..Default::default()
+            },
+        });
+    }
+}
+
+fn render_branch_lines(
+    scene: &mut Scene,
+    commits: &[BuiltCommit],
+    branch_lanes: &BTreeMap<String, usize>,
+    ctx: &GitLayoutCtx,
+) {
+    for (name, &lane) in branch_lanes {
         let color = LANE_COLORS[lane % LANE_COLORS.len()];
         let branch_commits: Vec<usize> = commits.iter().enumerate()
             .filter(|(_, c)| c.branch == *name)
@@ -145,8 +159,8 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             .collect();
 
         for window in branch_commits.windows(2) {
-            let (x1, y1) = pos(window[0], lane);
-            let (x2, y2) = pos(window[1], lane);
+            let (x1, y1) = ctx.pos(window[0], lane);
+            let (x2, y2) = ctx.pos(window[1], lane);
             scene.push(Primitive::Path {
                 segments: vec![
                     PathSegment::MoveTo(Point::new(x1, y1)),
@@ -158,19 +172,24 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             });
         }
     }
+}
 
-    // Merge/cross-branch lines (smooth curves)
+fn render_merge_lines(
+    scene: &mut Scene,
+    commits: &[BuiltCommit],
+    branch_lanes: &BTreeMap<String, usize>,
+    ctx: &GitLayoutCtx,
+) {
     for (i, commit) in commits.iter().enumerate() {
         if let Some(parent_idx) = commit.parent_idx {
             if commits[parent_idx].branch != commit.branch {
                 let parent_lane = branch_lanes[&commits[parent_idx].branch];
                 let commit_lane = branch_lanes[&commit.branch];
-                let (x1, y1) = pos(parent_idx, parent_lane);
-                let (x2, y2) = pos(i, commit_lane);
+                let (x1, y1) = ctx.pos(parent_idx, parent_lane);
+                let (x2, y2) = ctx.pos(i, commit_lane);
                 let color = LANE_COLORS[commit_lane % LANE_COLORS.len()];
 
-                // Smooth S-curve between lanes
-                let (cp1, cp2) = if is_horizontal {
+                let (cp1, cp2) = if ctx.is_horizontal {
                     (Point::new((x1 + x2) / 2.0, y1), Point::new((x1 + x2) / 2.0, y2))
                 } else {
                     (Point::new(x1, (y1 + y2) / 2.0), Point::new(x2, (y1 + y2) / 2.0))
@@ -193,14 +212,21 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             }
         }
     }
+}
 
-    // Commit dots + tags + labels
+fn render_commits(
+    scene: &mut Scene,
+    commits: &[BuiltCommit],
+    branch_lanes: &BTreeMap<String, usize>,
+    label_style: &TextStyle,
+    ctx: &GitLayoutCtx,
+    theme: &Theme,
+) {
     for (i, commit) in commits.iter().enumerate() {
         let lane = branch_lanes[&commit.branch];
         let color = LANE_COLORS[lane % LANE_COLORS.len()];
-        let (cx, cy) = pos(i, lane);
+        let (cx, cy) = ctx.pos(i, lane);
 
-        // Commit symbol
         match commit.commit_type {
             CommitType::Normal => {
                 scene.push(Primitive::Circle {
@@ -238,7 +264,6 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             }
         }
 
-        // Merge indicator (smaller inner circle)
         if commit.is_merge {
             scene.push(Primitive::Circle {
                 center: Point::new(cx, cy),
@@ -247,10 +272,9 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             });
         }
 
-        // Tag
         if let Some(tag) = &commit.tag {
-            let tag_w = SimpleTextMeasure::measure_raw(tag, &label_style).width + TAG_PAD * 2.0;
-            let (tx, ty) = if is_horizontal {
+            let tag_w = SimpleTextMeasure::measure_raw(tag, label_style).width + TAG_PAD * 2.0;
+            let (tx, ty) = if ctx.is_horizontal {
                 (cx, cy - COMMIT_RADIUS - TAG_HEIGHT)
             } else {
                 (cx + COMMIT_RADIUS + tag_w / 2.0 + 4.0, cy)
@@ -272,9 +296,8 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             });
         }
 
-        // Commit ID label
         if let Some(id) = &commit.id {
-            let (lx, ly, anchor) = if is_horizontal {
+            let (lx, ly, anchor) = if ctx.is_horizontal {
                 (cx, cy + COMMIT_RADIUS + 14.0, TextAnchor::Middle)
             } else {
                 (cx - COMMIT_RADIUS - 6.0, cy, TextAnchor::End)
@@ -291,8 +314,6 @@ pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
             });
         }
     }
-
-    scene
 }
 
 // ── Commit DAG builder ──

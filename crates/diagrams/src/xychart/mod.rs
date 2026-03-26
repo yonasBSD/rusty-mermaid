@@ -29,6 +29,28 @@ const PLOT_COLORS: [Color; 8] = [
     Color::rgb(255, 157, 167),
 ];
 
+/// Precomputed plot area geometry shared across drawing helpers.
+struct PlotArea {
+    plot_left: f64,
+    plot_right: f64,
+    plot_top: f64,
+    plot_bottom: f64,
+    y_min: f64,
+    y_span: f64,
+    n_cats: usize,
+    cat_width: f64,
+}
+
+impl PlotArea {
+    fn val_to_y(&self, v: f64) -> f64 {
+        self.plot_bottom - (v - self.y_min) / self.y_span * CHART_H
+    }
+
+    fn cat_to_x(&self, i: usize) -> f64 {
+        self.plot_left + i as f64 * self.cat_width + self.cat_width / 2.0
+    }
+}
+
 pub fn to_scene(chart: &XyChart) -> Scene {
     to_scene_themed(chart, &Theme::default())
 }
@@ -37,10 +59,24 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
     let title_h = if chart.title.is_some() { theme.font_size_title + 20.0 } else { 0.0 };
     let width = MARGIN_LEFT + CHART_W + MARGIN_RIGHT;
     let height = title_h + MARGIN_TOP + CHART_H + MARGIN_BOTTOM;
-    let plot_left = MARGIN_LEFT;
-    let plot_right = MARGIN_LEFT + CHART_W;
-    let plot_top = title_h + MARGIN_TOP;
-    let plot_bottom = title_h + MARGIN_TOP + CHART_H;
+
+    let (y_min, y_max) = resolve_y_range(chart);
+    let n_categories = match &chart.x_axis {
+        AxisDef::Band { categories, .. } => categories.len(),
+        AxisDef::Linear { .. } => chart.plots.first().map(|p| p.values.len()).unwrap_or(1),
+    };
+    let n_cats = n_categories.max(1);
+
+    let area = PlotArea {
+        plot_left: MARGIN_LEFT,
+        plot_right: MARGIN_LEFT + CHART_W,
+        plot_top: title_h + MARGIN_TOP,
+        plot_bottom: title_h + MARGIN_TOP + CHART_H,
+        y_min,
+        y_span: (y_max - y_min).max(1.0),
+        n_cats,
+        cat_width: CHART_W / n_cats as f64,
+    };
 
     let mut scene = Scene::new(width, height);
 
@@ -59,50 +95,41 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
         });
     }
 
-    // Resolve axis ranges from data
-    let (y_min, y_max) = resolve_y_range(chart);
-    let y_span = (y_max - y_min).max(1.0);
-    let val_to_y = |v: f64| -> f64 {
-        plot_bottom - (v - y_min) / y_span * CHART_H
-    };
-
-    let n_categories = match &chart.x_axis {
-        AxisDef::Band { categories, .. } => categories.len(),
-        AxisDef::Linear { .. } => chart.plots.first().map(|p| p.values.len()).unwrap_or(1),
-    };
-    let n_cats = n_categories.max(1);
-    let cat_width = CHART_W / n_cats as f64;
-    let cat_to_x = |i: usize| -> f64 {
-        plot_left + i as f64 * cat_width + cat_width / 2.0
-    };
-
     // Plot area background
     scene.push(Primitive::Rect {
-        bbox: BBox::new(plot_left + CHART_W / 2.0, plot_top + CHART_H / 2.0, CHART_W, CHART_H),
+        bbox: BBox::new(area.plot_left + CHART_W / 2.0, area.plot_top + CHART_H / 2.0, CHART_W, CHART_H),
         rx: 0.0, ry: 0.0,
         style: Style { fill: Some(Color::rgba(245, 245, 250, 200)), ..Default::default() },
     });
 
-    // Y-axis
+    draw_y_axis(&mut scene, chart, theme, &area, y_min, y_max);
+    draw_x_axis(&mut scene, chart, theme, &area);
+    draw_plots(&mut scene, chart, &area, y_min);
+
+    scene
+}
+
+fn draw_y_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotArea, y_min: f64, y_max: f64) {
+    // Axis line
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(plot_left, plot_top)),
-            PathSegment::LineTo(Point::new(plot_left, plot_bottom)),
+            PathSegment::MoveTo(Point::new(area.plot_left, area.plot_top)),
+            PathSegment::LineTo(Point::new(area.plot_left, area.plot_bottom)),
         ],
         style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
         marker_start: None,
         marker_end: None,
     });
 
-    // Y-axis ticks and labels
+    // Ticks, grid lines, and labels
     let y_ticks = compute_nice_ticks(y_min, y_max, 5);
     for &val in &y_ticks {
-        let y = val_to_y(val);
+        let y = area.val_to_y(val);
         // Tick
         scene.push(Primitive::Path {
             segments: vec![
-                PathSegment::MoveTo(Point::new(plot_left - TICK_LEN, y)),
-                PathSegment::LineTo(Point::new(plot_left, y)),
+                PathSegment::MoveTo(Point::new(area.plot_left - TICK_LEN, y)),
+                PathSegment::LineTo(Point::new(area.plot_left, y)),
             ],
             style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
             marker_start: None,
@@ -111,8 +138,8 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
         // Grid line
         scene.push(Primitive::Path {
             segments: vec![
-                PathSegment::MoveTo(Point::new(plot_left, y)),
-                PathSegment::LineTo(Point::new(plot_right, y)),
+                PathSegment::MoveTo(Point::new(area.plot_left, y)),
+                PathSegment::LineTo(Point::new(area.plot_right, y)),
             ],
             style: Style {
                 stroke: Some(Color::rgba(200, 200, 200, 80)),
@@ -126,7 +153,7 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
         // Label
         let label = if val == val.floor() { format!("{:.0}", val) } else { format!("{:.1}", val) };
         scene.push(Primitive::Text {
-            position: Point::new(plot_left - TICK_LEN - 4.0, y),
+            position: Point::new(area.plot_left - TICK_LEN - 4.0, y),
             content: label,
             anchor: TextAnchor::End,
             style: TextStyle {
@@ -137,10 +164,10 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
         });
     }
 
-    // Y-axis title — rotated 90° on the left, vertically centered
+    // Y-axis title -- rotated 90 degrees on the left, vertically centered
     if let AxisDef::Linear { title: Some(title), .. } = &chart.y_axis {
         let title_x = 15.0;
-        let title_y = plot_top + CHART_H / 2.0;
+        let title_y = area.plot_top + CHART_H / 2.0;
         scene.push(Primitive::Group {
             transform: Transform::Rotate { degrees: -90.0, cx: title_x, cy: title_y },
             children: vec![Primitive::Text {
@@ -155,30 +182,32 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
             }],
         });
     }
+}
 
-    // X-axis
+fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotArea) {
+    // Axis line
     scene.push(Primitive::Path {
         segments: vec![
-            PathSegment::MoveTo(Point::new(plot_left, plot_bottom)),
-            PathSegment::LineTo(Point::new(plot_right, plot_bottom)),
+            PathSegment::MoveTo(Point::new(area.plot_left, area.plot_bottom)),
+            PathSegment::LineTo(Point::new(area.plot_right, area.plot_bottom)),
         ],
         style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
         marker_start: None,
         marker_end: None,
     });
 
-    // X-axis ticks and labels
+    // Ticks and labels
     let categories = match &chart.x_axis {
         AxisDef::Band { categories, .. } => categories.clone(),
-        AxisDef::Linear { .. } => (0..n_cats).map(|i| format!("{}", i + 1)).collect(),
+        AxisDef::Linear { .. } => (0..area.n_cats).map(|i| format!("{}", i + 1)).collect(),
     };
     for (i, cat) in categories.iter().enumerate() {
-        let x = cat_to_x(i);
+        let x = area.cat_to_x(i);
         // Tick
         scene.push(Primitive::Path {
             segments: vec![
-                PathSegment::MoveTo(Point::new(x, plot_bottom)),
-                PathSegment::LineTo(Point::new(x, plot_bottom + TICK_LEN)),
+                PathSegment::MoveTo(Point::new(x, area.plot_bottom)),
+                PathSegment::LineTo(Point::new(x, area.plot_bottom + TICK_LEN)),
             ],
             style: Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.0), ..Default::default() },
             marker_start: None,
@@ -186,7 +215,7 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
         });
         // Label
         scene.push(Primitive::Text {
-            position: Point::new(x, plot_bottom + TICK_LEN + 12.0),
+            position: Point::new(x, area.plot_bottom + TICK_LEN + 12.0),
             content: cat.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -203,7 +232,7 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
     };
     if let Some(title) = x_title {
         scene.push(Primitive::Text {
-            position: Point::new(plot_left + CHART_W / 2.0, plot_bottom + MARGIN_BOTTOM - 10.0),
+            position: Point::new(area.plot_left + CHART_W / 2.0, area.plot_bottom + MARGIN_BOTTOM - 10.0),
             content: title,
             anchor: TextAnchor::Middle,
             style: TextStyle {
@@ -213,30 +242,30 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Count bar plots for grouping
+fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64) {
     let bar_plots: Vec<usize> = chart.plots.iter().enumerate()
         .filter(|(_, p)| p.plot_type == PlotType::Bar)
         .map(|(i, _)| i)
         .collect();
     let n_bar_groups = bar_plots.len().max(1);
 
-    // Render plots
     for (pi, plot) in chart.plots.iter().enumerate() {
         let color = PLOT_COLORS[pi % PLOT_COLORS.len()];
 
         match plot.plot_type {
             PlotType::Bar => {
                 let bar_group_idx = bar_plots.iter().position(|&i| i == pi).unwrap_or(0);
-                let group_width = cat_width * (1.0 - BAR_PAD_RATIO * 2.0);
+                let group_width = area.cat_width * (1.0 - BAR_PAD_RATIO * 2.0);
                 let bar_w = group_width / n_bar_groups as f64;
                 let bar_offset = -group_width / 2.0 + bar_group_idx as f64 * bar_w;
 
                 for (i, &val) in plot.values.iter().enumerate() {
-                    if i >= n_cats { break; }
-                    let x = cat_to_x(i) + bar_offset + bar_w / 2.0;
-                    let y_top = val_to_y(val);
-                    let y_bottom = val_to_y(y_min.max(0.0));
+                    if i >= area.n_cats { break; }
+                    let x = area.cat_to_x(i) + bar_offset + bar_w / 2.0;
+                    let y_top = area.val_to_y(val);
+                    let y_bottom = area.val_to_y(y_min.max(0.0));
                     let h = (y_bottom - y_top).abs();
                     scene.push(Primitive::Rect {
                         bbox: BBox::new(x, y_top + h / 2.0, bar_w * 0.9, h),
@@ -248,9 +277,9 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
             PlotType::Line => {
                 let mut segments = Vec::new();
                 for (i, &val) in plot.values.iter().enumerate() {
-                    if i >= n_cats { break; }
-                    let x = cat_to_x(i);
-                    let y = val_to_y(val);
+                    if i >= area.n_cats { break; }
+                    let x = area.cat_to_x(i);
+                    let y = area.val_to_y(val);
                     if i == 0 {
                         segments.push(PathSegment::MoveTo(Point::new(x, y)));
                     } else {
@@ -267,9 +296,9 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
                 }
                 // Data points
                 for (i, &val) in plot.values.iter().enumerate() {
-                    if i >= n_cats { break; }
+                    if i >= area.n_cats { break; }
                     scene.push(Primitive::Circle {
-                        center: Point::new(cat_to_x(i), val_to_y(val)),
+                        center: Point::new(area.cat_to_x(i), area.val_to_y(val)),
                         radius: 3.5,
                         style: Style { fill: Some(color), stroke: Some(Color::WHITE), stroke_width: Some(1.5), ..Default::default() },
                     });
@@ -277,8 +306,6 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
             }
         }
     }
-
-    scene
 }
 
 fn resolve_y_range(chart: &XyChart) -> (f64, f64) {
