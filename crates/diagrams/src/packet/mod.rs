@@ -71,78 +71,51 @@ pub fn to_scene_themed(diagram: &PacketDiagram, theme: &Theme) -> Scene {
         });
     }
 
-    // Render blocks
     for block in &blocks {
-        let row = block.start / bpr;
-        let col_start = block.start % bpr;
-        let col_end = block.end % bpr;
-        let width = (col_end - col_start + 1) as f64 * BIT_WIDTH - PAD_X;
-
-        let x = ox + col_start as f64 * BIT_WIDTH + PAD_X / 2.0;
-        let y = oy + row as f64 * (ROW_HEIGHT + PAD_Y);
-
-        // Block rectangle (BBox is center-based)
-        scene.push(Primitive::Rect {
-            bbox: BBox::new(x + width / 2.0, y + ROW_HEIGHT / 2.0, width, ROW_HEIGHT),
-            rx: 0.0,
-            ry: 0.0,
-            style: Style {
-                fill: Some(BLOCK_FILL),
-                stroke: Some(BLOCK_STROKE),
-                stroke_width: Some(1.0),
-                ..Default::default()
-            },
-        });
-
-        // Label (centered in block)
-        let label_style = TextStyle {
-            font_size: theme.font_size_node,
-            fill: Some(theme.node_text),
-            ..Default::default()
-        };
-        let label_w = SimpleTextMeasure::measure_raw(&block.label, &label_style).width;
-        if label_w < width - 4.0 {
-            scene.push(Primitive::Text {
-                position: Point::new(x + width / 2.0, y + ROW_HEIGHT / 2.0),
-                content: block.label.clone(),
-                anchor: TextAnchor::Middle,
-                style: label_style,
-            });
-        }
-
-        // Bit numbers inside block, pinned to top corners
-        let bit_style = TextStyle {
-            font_size: BIT_FONT_SIZE,
-            fill: Some(Color::rgb(120, 120, 120)),
-            ..Default::default()
-        };
-
-        if block.start == block.end {
-            // Single bit: top-center
-            scene.push(Primitive::Text {
-                position: Point::new(x + width / 2.0, y + BIT_FONT_SIZE + 1.0),
-                content: block.start.to_string(),
-                anchor: TextAnchor::Middle,
-                style: bit_style,
-            });
-        } else {
-            // Range: start top-left, end top-right
-            scene.push(Primitive::Text {
-                position: Point::new(x + 3.0, y + BIT_FONT_SIZE + 1.0),
-                content: block.start.to_string(),
-                anchor: TextAnchor::Start,
-                style: bit_style.clone(),
-            });
-            scene.push(Primitive::Text {
-                position: Point::new(x + width - 3.0, y + BIT_FONT_SIZE + 1.0),
-                content: block.end.to_string(),
-                anchor: TextAnchor::End,
-                style: bit_style,
-            });
-        }
+        render_packet_block(&mut scene, block, bpr, ox, oy, theme);
     }
 
     scene
+}
+
+fn render_packet_block(scene: &mut Scene, block: &Block, bpr: usize, ox: f64, oy: f64, theme: &Theme) {
+    let row = block.start / bpr;
+    let col_start = block.start % bpr;
+    let col_end = block.end % bpr;
+    let width = (col_end - col_start + 1) as f64 * BIT_WIDTH - PAD_X;
+    let x = ox + col_start as f64 * BIT_WIDTH + PAD_X / 2.0;
+    let y = oy + row as f64 * (ROW_HEIGHT + PAD_Y);
+
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(x + width / 2.0, y + ROW_HEIGHT / 2.0, width, ROW_HEIGHT),
+        rx: 0.0, ry: 0.0,
+        style: Style { fill: Some(BLOCK_FILL), stroke: Some(BLOCK_STROKE), stroke_width: Some(1.0), ..Default::default() },
+    });
+
+    let label_style = TextStyle { font_size: theme.font_size_node, fill: Some(theme.node_text), ..Default::default() };
+    if SimpleTextMeasure::measure_raw(&block.label, &label_style).width < width - 4.0 {
+        scene.push(Primitive::Text {
+            position: Point::new(x + width / 2.0, y + ROW_HEIGHT / 2.0),
+            content: block.label.clone(), anchor: TextAnchor::Middle, style: label_style,
+        });
+    }
+
+    let bit_style = TextStyle { font_size: BIT_FONT_SIZE, fill: Some(Color::rgb(120, 120, 120)), ..Default::default() };
+    if block.start == block.end {
+        scene.push(Primitive::Text {
+            position: Point::new(x + width / 2.0, y + BIT_FONT_SIZE + 1.0),
+            content: block.start.to_string(), anchor: TextAnchor::Middle, style: bit_style,
+        });
+    } else {
+        scene.push(Primitive::Text {
+            position: Point::new(x + 3.0, y + BIT_FONT_SIZE + 1.0),
+            content: block.start.to_string(), anchor: TextAnchor::Start, style: bit_style.clone(),
+        });
+        scene.push(Primitive::Text {
+            position: Point::new(x + width - 3.0, y + BIT_FONT_SIZE + 1.0),
+            content: block.end.to_string(), anchor: TextAnchor::End, style: bit_style,
+        });
+    }
 }
 
 /// A block is a portion of a field that fits within one row.

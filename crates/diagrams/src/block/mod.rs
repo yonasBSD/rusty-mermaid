@@ -38,18 +38,31 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
     }
 
     let cols = diagram.columns.max(1);
+    let (positions, grid_pos) = compute_block_positions(&diagram.blocks, cols);
 
-    // Compute positions using a grid cursor that advances by block.span
-    let mut positions: HashMap<String, (f64, f64, f64)> = HashMap::new(); // id → (cx, cy, width)
-    let mut grid_pos: usize = 0; // linear position in the grid
+    let total_rows = (grid_pos + cols - 1) / cols;
+    let grid_w = cols as f64 * (CELL_W + GAP) - GAP;
+    let grid_h = total_rows as f64 * (CELL_H + GAP) - GAP;
+    let mut scene = Scene::new(grid_w + SCENE_PAD * 2.0, grid_h + SCENE_PAD * 2.0);
 
-    for block in &diagram.blocks {
+    render_block_edges(&mut scene, &diagram.edges, &positions, theme);
+
+    for (i, block) in diagram.blocks.iter().enumerate() {
+        if block.shape == BlockShape::Space { continue; }
+        let Some(&(cx, cy, bw)) = positions.get(&block.id) else { continue };
+        render_block(&mut scene, block, BBox::new(cx, cy, bw, CELL_H), COLORS[i % COLORS.len()], theme);
+    }
+
+    scene
+}
+
+fn compute_block_positions(blocks: &[Block], cols: usize) -> (HashMap<String, (f64, f64, f64)>, usize) {
+    let mut positions = HashMap::new();
+    let mut grid_pos: usize = 0;
+    for block in blocks {
         let span = block.span.min(cols);
-        // If span doesn't fit in current row, wrap to next
         let col = grid_pos % cols;
-        if col + span > cols {
-            grid_pos += cols - col; // skip to next row
-        }
+        if col + span > cols { grid_pos += cols - col; }
         let col = grid_pos % cols;
         let row = grid_pos / cols;
         let block_w = span as f64 * (CELL_W + GAP) - GAP;
@@ -58,90 +71,37 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
         positions.insert(block.id.clone(), (cx, cy, block_w));
         grid_pos += span;
     }
+    (positions, grid_pos)
+}
 
-    let total_rows = (grid_pos + cols - 1) / cols;
-    let grid_w = cols as f64 * (CELL_W + GAP) - GAP;
-    let grid_h = total_rows as f64 * (CELL_H + GAP) - GAP;
-    let scene_w = grid_w + SCENE_PAD * 2.0;
-    let scene_h = grid_h + SCENE_PAD * 2.0;
-    let mut scene = Scene::new(scene_w, scene_h);
-
-    // Draw edges FIRST (behind blocks)
-    for edge in &diagram.edges {
+fn render_block_edges(scene: &mut Scene, edges: &[ir::BlockEdge], positions: &HashMap<String, (f64, f64, f64)>, theme: &Theme) {
+    for edge in edges {
         let Some(&(x1, y1, w1)) = positions.get(&edge.from) else { continue };
         let Some(&(x2, y2, w2)) = positions.get(&edge.to) else { continue };
-
-        // Clip endpoints to rect borders, then pull back by marker size
         let start = intersect_rect(&BBox::new(x1, y1, w1, CELL_H), Point::new(x2, y2));
         let raw_end = intersect_rect(&BBox::new(x2, y2, w2, CELL_H), Point::new(x1, y1));
-
-        // Shorten end by ~8px (marker overshoot) along the line direction
         let dx = raw_end.x - start.x;
         let dy = raw_end.y - start.y;
         let len = (dx * dx + dy * dy).sqrt().max(1.0);
-        let marker_inset = 3.0;
-        let end = Point::new(
-            raw_end.x - marker_inset * dx / len,
-            raw_end.y - marker_inset * dy / len,
-        );
+        let end = Point::new(raw_end.x - 3.0 * dx / len, raw_end.y - 3.0 * dy / len);
 
         let style = match edge.style {
-            EdgeStyle::Arrow => Style {
-                stroke: Some(theme.edge_stroke),
-                stroke_width: Some(1.5),
-                ..Default::default()
-            },
-            EdgeStyle::Dotted => Style {
-                stroke: Some(theme.edge_stroke),
-                stroke_width: Some(1.5),
-                stroke_dasharray: Some(vec![5.0, 3.0]),
-                ..Default::default()
-            },
-            EdgeStyle::Thick => Style {
-                stroke: Some(theme.edge_stroke),
-                stroke_width: Some(3.0),
-                ..Default::default()
-            },
+            EdgeStyle::Arrow => Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.5), ..Default::default() },
+            EdgeStyle::Dotted => Style { stroke: Some(theme.edge_stroke), stroke_width: Some(1.5), stroke_dasharray: Some(vec![5.0, 3.0]), ..Default::default() },
+            EdgeStyle::Thick => Style { stroke: Some(theme.edge_stroke), stroke_width: Some(3.0), ..Default::default() },
         };
-
         scene.push(Primitive::Path {
-            segments: vec![
-                PathSegment::MoveTo(start),
-                PathSegment::LineTo(end),
-            ],
-            style,
-            marker_start: None,
-            marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+            segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
+            style, marker_start: None, marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
         });
-
-        // Edge label at midpoint
         if let Some(label) = &edge.label {
-            let mx = (start.x + end.x) / 2.0;
-            let my = (start.y + end.y) / 2.0 - 8.0;
             scene.push(Primitive::Text {
-                position: Point::new(mx, my),
-                content: label.clone(),
-                anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: 10.0,
-                    fill: Some(theme.edge_label_text),
-                    ..Default::default()
-                },
+                position: Point::new((start.x + end.x) / 2.0, (start.y + end.y) / 2.0 - 8.0),
+                content: label.clone(), anchor: TextAnchor::Middle,
+                style: TextStyle { font_size: 10.0, fill: Some(theme.edge_label_text), ..Default::default() },
             });
         }
     }
-
-    // Draw blocks ON TOP of edges
-    for (i, block) in diagram.blocks.iter().enumerate() {
-        if block.shape == BlockShape::Space {
-            continue;
-        }
-        let Some(&(cx, cy, bw)) = positions.get(&block.id) else { continue };
-        let color = COLORS[i % COLORS.len()];
-        render_block(&mut scene, block, BBox::new(cx, cy, bw, CELL_H), color, theme);
-    }
-
-    scene
 }
 
 fn render_block(scene: &mut Scene, block: &Block, bbox: BBox, color: Color, theme: &Theme) {
