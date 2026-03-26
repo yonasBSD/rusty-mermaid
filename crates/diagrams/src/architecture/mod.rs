@@ -9,6 +9,7 @@ use rusty_mermaid_core::{
     force_layout::{ForceConfig, ForceGraph, ForceNode, layout as force_layout},
 };
 
+use crate::common::palette::tint_color;
 use ir::{ArchDiagram, ArchService};
 
 const SERVICE_W: f64 = 100.0;
@@ -215,11 +216,7 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
 
 
 fn render_service(scene: &mut Scene, svc: &ArchService, cx: f64, cy: f64, color: Color, theme: &Theme) {
-    let fill = Color::rgb(
-        (255.0 * (1.0 - TINT) + color.r as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + color.g as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + color.b as f64 * TINT) as u8,
-    );
+    let fill = tint_color(color, TINT);
 
     // Service box
     scene.push(Primitive::Rect {

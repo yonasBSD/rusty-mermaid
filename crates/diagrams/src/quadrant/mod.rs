@@ -5,6 +5,7 @@ use rusty_mermaid_core::{
     BBox, Color, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme, Transform,
 };
 
+use crate::common::palette::tint_color;
 use ir::QuadrantChart;
 
 const CHART_SIZE: f64 = 500.0;
@@ -24,13 +25,7 @@ const QUAD_BASE: [Color; 4] = [
 const QUAD_TINT: f64 = 0.12;
 
 fn quad_fill(idx: usize) -> Color {
-    let c = QUAD_BASE[idx];
-    let t = QUAD_TINT;
-    Color::rgb(
-        (255.0 * (1.0 - t) + c.r as f64 * t) as u8,
-        (255.0 * (1.0 - t) + c.g as f64 * t) as u8,
-        (255.0 * (1.0 - t) + c.b as f64 * t) as u8,
-    )
+    tint_color(QUAD_BASE[idx], QUAD_TINT)
 }
 
 pub fn to_scene(chart: &QuadrantChart) -> Scene {

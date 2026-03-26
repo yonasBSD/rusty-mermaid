@@ -7,6 +7,8 @@ use rusty_mermaid_core::{
     force_layout::{ForceConfig, ForceGraph, ForceNode, layout as force_layout},
 };
 
+use crate::common::palette::tint_color;
+
 use ir::{MindmapDiagram, MindmapNode, MindmapShape};
 
 const NODE_PAD_X: f64 = 16.0;
@@ -129,11 +131,7 @@ pub fn to_scene_themed(diagram: &MindmapDiagram, theme: &Theme) -> Scene {
         } else {
             // Leaf nodes: light opaque tint (blended with white background)
             let t = 0.15 + (node.depth as f64).min(3.0) * 0.1;
-            let fill = Color::rgb(
-                (255.0 * (1.0 - t) + color.r as f64 * t) as u8,
-                (255.0 * (1.0 - t) + color.g as f64 * t) as u8,
-                (255.0 * (1.0 - t) + color.b as f64 * t) as u8,
-            );
+            let fill = tint_color(color, t);
             (fill, color, theme.node_text, rusty_mermaid_core::FontWeight::Normal)
         };
 

@@ -8,6 +8,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme, intersect_rect,
 };
 
+use crate::common::palette::tint_color;
 use ir::{Block, BlockDiagram, BlockShape, EdgeStyle};
 
 const CELL_W: f64 = 120.0;
@@ -145,11 +146,7 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
 
 fn render_block(scene: &mut Scene, block: &Block, cx: f64, cy: f64, w: f64, color: Color, theme: &Theme) {
     let cell_w = w;
-    let fill = Color::rgb(
-        (255.0 * (1.0 - TINT) + color.r as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + color.g as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + color.b as f64 * TINT) as u8,
-    );
+    let fill = tint_color(color, TINT);
     let stroke_style = Style {
         fill: Some(fill),
         stroke: Some(color),

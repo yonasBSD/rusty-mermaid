@@ -5,6 +5,7 @@ use rusty_mermaid_core::{
     BBox, Color, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor, TextStyle, Theme,
 };
 
+use crate::common::palette::tint_color;
 use ir::TreemapNode;
 
 const CHART_W: f64 = 600.0;
@@ -193,11 +194,7 @@ fn worst_aspect(
 
 fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Color, theme: &Theme) {
     if r.w < 1.0 || r.h < 1.0 { return; } // skip degenerate rects
-    let fill = Color::rgb(
-        (255.0 * (1.0 - TINT) + color.r as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + color.g as f64 * TINT) as u8,
-        (255.0 * (1.0 - TINT) + color.b as f64 * TINT) as u8,
-    );
+    let fill = tint_color(color, TINT);
 
     scene.push(Primitive::Rect {
         bbox: BBox::new(r.x + r.w / 2.0, r.y + r.h / 2.0, (r.w - INNER_PAD).max(1.0), (r.h - INNER_PAD).max(1.0)),
@@ -251,11 +248,7 @@ fn render_section(
     theme: &Theme,
 ) {
     if r.w < 1.0 || r.h < 1.0 { return; }
-    let fill = Color::rgb(
-        (255.0 * (1.0 - TINT * 0.5) + color.r as f64 * TINT * 0.5) as u8,
-        (255.0 * (1.0 - TINT * 0.5) + color.g as f64 * TINT * 0.5) as u8,
-        (255.0 * (1.0 - TINT * 0.5) + color.b as f64 * TINT * 0.5) as u8,
-    );
+    let fill = tint_color(color, TINT * 0.5);
 
     // Section background
     scene.push(Primitive::Rect {
