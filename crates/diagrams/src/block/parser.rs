@@ -144,7 +144,7 @@ fn parse_shape_label(s: &str) -> (String, BlockShape) {
 
 fn try_parse_edge(line: &str) -> Option<BlockEdge> {
     // Patterns: id1 --> id2, id1 -.-> id2, id1 ==> id2, id1 -- "label" --> id2
-    let (style, arrow) = if line.contains("-.->") || line.contains("-..->") {
+    let (style, _arrow) = if line.contains("-.->") || line.contains("-..->") {
         (EdgeStyle::Dotted, "-.")
     } else if line.contains("==>") {
         (EdgeStyle::Thick, "==")

@@ -2,7 +2,7 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
+    BBox, Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
     TextStyle, Theme, Transform,
 };
 
@@ -14,7 +14,6 @@ const MARGIN_LEFT: f64 = 60.0;
 const MARGIN_RIGHT: f64 = 30.0;
 const MARGIN_TOP: f64 = 60.0;
 const MARGIN_BOTTOM: f64 = 60.0;
-const Y_TITLE_HEIGHT: f64 = 18.0;
 const TICK_LEN: f64 = 5.0;
 const BAR_PAD_RATIO: f64 = 0.15;
 

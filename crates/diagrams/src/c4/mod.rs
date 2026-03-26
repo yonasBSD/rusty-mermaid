@@ -8,7 +8,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
-use ir::{C4Boundary, C4Diagram, C4Element, C4Shape};
+use ir::{C4Diagram, C4Element, C4Shape};
 
 const MIN_ELEM_W: f64 = 160.0;
 const ELEM_H: f64 = 100.0;
@@ -276,7 +276,7 @@ fn clip_border(cx: f64, cy: f64, w: f64, h: f64, tx: f64, ty: f64) -> Point {
     }
 }
 
-fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w: f64, theme: &Theme) {
+fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w: f64, _theme: &Theme) {
     let base_color = if elem.external { EXTERNAL_COLOR }
         else if elem.shape == C4Shape::Person { PERSON_COLOR }
         else { INTERNAL_COLOR };

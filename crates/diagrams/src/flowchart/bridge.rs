@@ -13,7 +13,6 @@ use rusty_mermaid_core::Shape;
 use super::ir::{ArrowEnd, FlowDiagram, StrokeType};
 use crate::common::layout::{EdgeLayout, NodeLayout};
 use crate::common::rendering::apply_style_properties;
-use crate::common::styling::StyleProperty;
 use crate::common::tokens::strip_html_tags;
 
 const PADDING_X: f64 = 16.0;

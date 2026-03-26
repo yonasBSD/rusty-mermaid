@@ -212,7 +212,7 @@ fn render_leaf(scene: &mut Scene, node: &TreemapNode, r: LayoutRect, color: Colo
     });
 
     // Label: name + value, centered
-    let label = format!("{}\n{:.0}", node.name, node.total_value());
+    let _label = format!("{}\n{:.0}", node.name, node.total_value());
     let font_size = (r.h * 0.25).clamp(MIN_LABEL_SIZE, theme.font_size_node);
     let style = TextStyle { font_size, ..Default::default() };
     let label_w = SimpleTextMeasure::measure_raw(&node.name, &style).width;

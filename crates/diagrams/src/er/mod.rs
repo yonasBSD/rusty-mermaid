@@ -9,7 +9,7 @@ use rusty_mermaid_core::{
 
 use bridge::LayoutResult;
 use ir::{Cardinality, Identification};
-use crate::common::rendering::{render_edge_label, shorten_path_for_markers};
+use crate::common::rendering::render_edge_label;
 
 /// Convert an ER diagram layout result into a Scene with default theme.
 pub fn to_scene(layout: &LayoutResult) -> Scene {
@@ -146,7 +146,7 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
         if edge.points.len() < 2 { continue; }
 
         // Shorten edge to leave room for crow's foot markers
-        let mut segments = interpolate(&edge.points, CurveType::Basis);
+        let segments = interpolate(&edge.points, CurveType::Basis);
         let sw = theme.default_stroke_width;
 
         let mut style = Style {
@@ -207,7 +207,7 @@ fn render_crowsfoot(scene: &mut Scene, endpoint: Point, neighbor: Point, card: C
         ..Default::default()
     };
 
-    let base = Point::new(
+    let _base = Point::new(
         endpoint.x + tx * MARKER_GAP,
         endpoint.y + ty * MARKER_GAP,
     );

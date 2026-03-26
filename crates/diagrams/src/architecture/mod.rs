@@ -4,12 +4,12 @@ pub mod parser;
 use std::collections::HashMap;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
+    BBox, Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
     TextStyle, Theme,
     force_layout::{ForceConfig, ForceGraph, ForceNode, layout as force_layout},
 };
 
-use ir::{ArchDiagram, ArchService, Dir};
+use ir::{ArchDiagram, ArchService};
 
 const SERVICE_W: f64 = 100.0;
 const SERVICE_H: f64 = 80.0;
@@ -43,7 +43,7 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
 
     let id_to_idx: HashMap<&str, usize> = node_ids.iter().enumerate()
         .map(|(i, id)| (id.as_str(), i)).collect();
-    let n = node_ids.len();
+    let _n = node_ids.len();
 
     // Build ForceGraph — services + junctions as nodes, edges as springs
     let mut fg = ForceGraph::new();
@@ -163,7 +163,7 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     }
 
     // Render edges (behind nodes)
-    let mut edge_labels: Vec<(f64, f64, String)> = Vec::new();
+    let _edge_labels: Vec<(f64, f64, String)> = Vec::new();
     for edge in &diagram.edges {
         let Some(&(x1, y1, w1, h1)) = positions.get(&edge.from) else { continue };
         let Some(&(x2, y2, w2, h2)) = positions.get(&edge.to) else { continue };

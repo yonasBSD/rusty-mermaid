@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use rusty_mermaid_core::{
-    intersect_rect, Direction, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
+    intersect_rect, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};

@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use rusty_mermaid_core::{
-    intersect_rect, Direction, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
+    intersect_rect, Point, SimpleTextMeasure, Style, TextMeasure, TextStyle,
 };
 use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
@@ -12,7 +12,6 @@ use crate::common::rendering::resolve_entity_styles;
 use super::ir::*;
 
 const PADDING_X: f64 = 16.0;
-const PADDING_Y: f64 = 8.0;
 const ATTR_FONT_SCALE: f64 = 0.85;
 const ROW_PADDING: f64 = 4.0;
 const MIN_ENTITY_WIDTH: f64 = 100.0;

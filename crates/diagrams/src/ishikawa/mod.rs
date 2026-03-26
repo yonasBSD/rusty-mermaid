@@ -6,7 +6,7 @@ use rusty_mermaid_core::{
     TextStyle, Theme,
 };
 
-use ir::{Category, Cause, IshikawaDiagram};
+use ir::IshikawaDiagram;
 
 const SPINE_BASE: f64 = 300.0;
 const SPINE_PER_CAT: f64 = 120.0;
@@ -68,7 +68,6 @@ pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
     let spine_left = spine_right - spine_len;
 
     // ── Effect head (right end) ──
-    let head_x = spine_right - HEAD_W / 2.0;
     let label_style = TextStyle { font_size: theme.font_size_node, ..Default::default() };
     let effect_w = SimpleTextMeasure::measure_raw(&diagram.effect, &label_style).width + 24.0;
     let hw = effect_w.max(HEAD_W);

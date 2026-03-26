@@ -1,8 +1,7 @@
 use std::sync::OnceLock;
 
 use rusty_mermaid_core::{
-    marker_geometry, parse_inline_markdown, text_baseline_y_offset, transform_marker_circle,
-    transform_marker_curves, transform_marker_points, Color, MarkerShape, PathSegment, Point,
+    parse_inline_markdown, text_baseline_y_offset, Color, PathSegment, Point,
     Primitive, Style, TextAnchor, Theme, Transform,
 };
 use tiny_skia::{

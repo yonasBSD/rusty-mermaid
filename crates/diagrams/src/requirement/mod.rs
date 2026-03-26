@@ -3,7 +3,7 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, CurveType, MarkerType, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
+    BBox, CurveType, MarkerType, Point, Primitive, Scene, Style, TextAnchor,
     TextStyle, Theme, interpolate,
 };
 

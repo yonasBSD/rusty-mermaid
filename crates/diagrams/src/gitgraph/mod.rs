@@ -310,7 +310,7 @@ fn build_commits(graph: &GitGraph) -> Vec<BuiltCommit> {
     let mut commits: Vec<BuiltCommit> = Vec::new();
     let mut current_branch = "main".to_string();
     let mut branch_heads: BTreeMap<String, usize> = BTreeMap::new();
-    let mut auto_id: u32 = 0;
+    let _auto_id: u32 = 0;
 
     for stmt in &graph.statements {
         match stmt {

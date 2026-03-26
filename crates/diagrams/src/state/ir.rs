@@ -1,6 +1,6 @@
 use rusty_mermaid_core::Direction;
 
-use crate::common::styling::{ClassDef, StyleProperty};
+use crate::common::styling::ClassDef;
 
 /// A parsed state diagram.
 #[derive(Debug, Clone)]

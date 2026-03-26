@@ -60,7 +60,7 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     let axis_x = MARGIN + TASK_BOX_W + GAP;
     let mut y = MARGIN;
 
-    if let Some(title) = &diagram.title {
+    if let Some(_title) = &diagram.title {
         y += theme.font_size_title + GAP;
     }
 
@@ -243,10 +243,6 @@ fn task_event_height(n_events: usize) -> f64 {
     if n_events == 0 { TASK_BOX_H } else { (n_events as f64 * (EVENT_BOX_H + 4.0)).max(TASK_BOX_H) }
 }
 
-fn task_event_width(n_events: usize) -> f64 {
-    TASK_BOX_W.max(EVENT_BOX_W)
-}
-
 fn render_title(scene: &mut Scene, title: &str, x: f64, y: f64, theme: &Theme) {
     scene.push(Primitive::Text {
         position: Point::new(x, y),
@@ -285,21 +281,6 @@ fn render_section_label_left(scene: &mut Scene, x: f64, y: f64, name: &str, idx:
         position: Point::new(x, y),
         content: name.to_string(),
         anchor: TextAnchor::Start,
-        style: TextStyle {
-            font_size: theme.font_size_label,
-            fill: Some(color),
-            font_weight: rusty_mermaid_core::FontWeight::Bold,
-            ..Default::default()
-        },
-    });
-}
-
-fn render_section_label(scene: &mut Scene, x: f64, y: f64, name: &str, idx: usize, theme: &Theme) {
-    let color = SECTION_COLORS[idx % SECTION_COLORS.len()];
-    scene.push(Primitive::Text {
-        position: Point::new(x, y),
-        content: name.to_string(),
-        anchor: TextAnchor::Middle,
         style: TextStyle {
             font_size: theme.font_size_label,
             fill: Some(color),

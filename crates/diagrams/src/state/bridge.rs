@@ -8,8 +8,6 @@ use rusty_mermaid_dagre::{DagreConfig, EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
 use crate::common::layout::{ArrowEnd, EdgeLayout, NodeLayout, StrokeType};
-use crate::common::rendering::apply_style_properties;
-use crate::common::styling::StyleProperty;
 
 use super::ir::{NotePosition, StateDiagram, StateKind, StateNode, StateNote, StateTransition};
 

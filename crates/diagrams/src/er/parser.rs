@@ -178,14 +178,12 @@ fn parse_attribute(input: &mut &str) -> Option<Attribute> {
 
     // Parse: name [PK[,FK[,UK]]] ["comment"]
     let mut tokens: Vec<&str> = Vec::new();
-    let mut comment = None;
-
     // Extract quoted comment first
     let (main_part, cmt) = if let Some(q_start) = rest.find('"') {
         let after = &rest[q_start + 1..];
         if let Some(q_end) = after.find('"') {
-            comment = Some(after[..q_end].to_string());
-            (rest[..q_start].trim(), comment.clone())
+            let comment = Some(after[..q_end].to_string());
+            (rest[..q_start].trim(), comment)
         } else {
             (rest, None)
         }
