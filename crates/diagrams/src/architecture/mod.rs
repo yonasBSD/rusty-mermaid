@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use rusty_mermaid_core::{
     BBox, Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
-    TextStyle, Theme,
+    TextStyle, Theme, intersect_rect,
     force_layout::{ForceConfig, ForceGraph, ForceNode, layout as force_layout},
 };
 
@@ -169,8 +169,8 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
         let Some(&(x2, y2, w2, h2)) = positions.get(&edge.to) else { continue };
 
         // Connect border-to-border (force layout determines actual positions)
-        let start = clip_border(x1, y1, w1, h1, x2, y2);
-        let end = clip_border(x2, y2, w2, h2, x1, y1);
+        let start = intersect_rect(&BBox::new(x1, y1, w1, h1), Point::new(x2, y2));
+        let end = intersect_rect(&BBox::new(x2, y2, w2, h2), Point::new(x1, y1));
 
         let marker_start = if edge.arrow_left { Some(rusty_mermaid_core::MarkerType::ArrowPoint) } else { None };
         let marker_end = if edge.arrow_right { Some(rusty_mermaid_core::MarkerType::ArrowPoint) } else { None };
@@ -213,25 +213,6 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     scene
 }
 
-/// Clip point: where the line from (cx,cy) toward (tx,ty) exits the rect.
-fn clip_border(cx: f64, cy: f64, w: f64, h: f64, tx: f64, ty: f64) -> Point {
-    let dx = tx - cx;
-    let dy = ty - cy;
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    if dx.abs() < 1e-10 && dy.abs() < 1e-10 { return Point::new(cx + hw, cy); }
-    if dx.abs() < 1e-10 { return Point::new(cx, cy + dy.signum() * hh); }
-    if dy.abs() < 1e-10 { return Point::new(cx + dx.signum() * hw, cy); }
-    let slope = dy / dx;
-    let diag = hh / hw;
-    if slope.abs() <= diag {
-        let sx = dx.signum();
-        Point::new(cx + sx * hw, cy + sx * hw * slope)
-    } else {
-        let sy = dy.signum();
-        Point::new(cx + sy * hh / slope, cy + sy * hh)
-    }
-}
 
 fn render_service(scene: &mut Scene, svc: &ArchService, cx: f64, cy: f64, color: Color, theme: &Theme) {
     let fill = Color::rgb(

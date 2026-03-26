@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use rusty_mermaid_core::{
     BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
-    TextStyle, Theme,
+    TextStyle, Theme, intersect_rect,
 };
 
 use ir::{C4Diagram, C4Element, C4Shape};
@@ -146,8 +146,8 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
         let vw1 = visual_widths.get(&rel.from).copied().unwrap_or(MIN_ELEM_W);
         let vw2 = visual_widths.get(&rel.to).copied().unwrap_or(MIN_ELEM_W);
 
-        let start = clip_border(x1, y1, vw1, h1, x2, y2);
-        let raw_end = clip_border(x2, y2, vw2, h2, x1, y1);
+        let start = intersect_rect(&BBox::new(x1, y1, vw1, h1), Point::new(x2, y2));
+        let raw_end = intersect_rect(&BBox::new(x2, y2, vw2, h2), Point::new(x1, y1));
         let dx = raw_end.x - start.x;
         let dy = raw_end.y - start.y;
         let len = (dx * dx + dy * dy).sqrt().max(1.0);
@@ -257,24 +257,6 @@ fn layout_row(
     *cursor_y += rows as f64 * (ELEM_H + GAP);
 }
 
-fn clip_border(cx: f64, cy: f64, w: f64, h: f64, tx: f64, ty: f64) -> Point {
-    let dx = tx - cx;
-    let dy = ty - cy;
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-    if dx.abs() < 1e-10 && dy.abs() < 1e-10 { return Point::new(cx + hw, cy); }
-    if dx.abs() < 1e-10 { return Point::new(cx, cy + dy.signum() * hh); }
-    if dy.abs() < 1e-10 { return Point::new(cx + dx.signum() * hw, cy); }
-    let slope = dy / dx;
-    let diag = hh / hw;
-    if slope.abs() <= diag {
-        let sx = dx.signum();
-        Point::new(cx + sx * hw, cy + sx * hw * slope)
-    } else {
-        let sy = dy.signum();
-        Point::new(cx + sy * hh / slope, cy + sy * hh)
-    }
-}
 
 fn render_element(scene: &mut Scene, elem: &C4Element, cx: f64, cy: f64, elem_w: f64, _theme: &Theme) {
     let base_color = if elem.external { EXTERNAL_COLOR }

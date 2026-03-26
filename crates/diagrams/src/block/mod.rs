@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use rusty_mermaid_core::{
     BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
-    TextStyle, Theme,
+    TextStyle, Theme, intersect_rect,
 };
 
 use ir::{Block, BlockDiagram, BlockShape, EdgeStyle};
@@ -71,8 +71,8 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
         let Some(&(x2, y2, w2)) = positions.get(&edge.to) else { continue };
 
         // Clip endpoints to rect borders, then pull back by marker size
-        let start = clip_rect_border(x1, y1, w1, CELL_H, x2, y2);
-        let raw_end = clip_rect_border(x2, y2, w2, CELL_H, x1, y1);
+        let start = intersect_rect(&BBox::new(x1, y1, w1, CELL_H), Point::new(x2, y2));
+        let raw_end = intersect_rect(&BBox::new(x2, y2, w2, CELL_H), Point::new(x1, y1));
 
         // Shorten end by ~8px (marker overshoot) along the line direction
         let dx = raw_end.x - start.x;
@@ -141,35 +141,6 @@ pub fn to_scene_themed(diagram: &BlockDiagram, theme: &Theme) -> Scene {
     }
 
     scene
-}
-
-/// Clip point: where the line from (cx,cy) toward (tx,ty) exits the rect.
-fn clip_rect_border(cx: f64, cy: f64, w: f64, h: f64, tx: f64, ty: f64) -> Point {
-    let dx = tx - cx;
-    let dy = ty - cy;
-    let hw = w / 2.0;
-    let hh = h / 2.0;
-
-    if dx.abs() < 1e-10 && dy.abs() < 1e-10 {
-        return Point::new(cx + hw, cy);
-    }
-    if dx.abs() < 1e-10 {
-        return Point::new(cx, cy + dy.signum() * hh);
-    }
-    if dy.abs() < 1e-10 {
-        return Point::new(cx + dx.signum() * hw, cy);
-    }
-
-    let slope = dy / dx;
-    let diag = hh / hw;
-
-    if slope.abs() <= diag {
-        let sx = dx.signum();
-        Point::new(cx + sx * hw, cy + sx * hw * slope)
-    } else {
-        let sy = dy.signum();
-        Point::new(cx + sy * hh / slope, cy + sy * hh)
-    }
 }
 
 fn render_block(scene: &mut Scene, block: &Block, cx: f64, cy: f64, w: f64, color: Color, theme: &Theme) {

@@ -1,5 +1,6 @@
 pub mod error;
 pub mod layout;
+pub mod palette;
 pub mod rendering;
 pub mod styling;
 #[cfg(test)]
