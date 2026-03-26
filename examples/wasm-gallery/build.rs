@@ -35,7 +35,10 @@ fn main() {
 
     writeln!(out, "pub static DIAGRAMS: &[(&str, &str)] = &[").unwrap();
     for (name, content) in &entries {
-        let escaped = content.replace('\\', "\\\\").replace('"', "\\\"").replace('\n', "\\n");
+        let escaped = content
+            .replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            .replace('\n', "\\n");
         writeln!(out, "    (\"{name}\", \"{escaped}\"),").unwrap();
     }
     writeln!(out, "];").unwrap();

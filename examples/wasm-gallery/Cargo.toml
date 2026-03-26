@@ -22,6 +22,7 @@ web-sys = { version = "0.3", features = [
     "CssStyleDeclaration", "DomTokenList", "Response",
     "Headers", "RequestInit", "Request",
     "Window", "Navigator", "Gpu", "console",
+    "MouseEvent", "WheelEvent", "EventTarget",
 ] }
 console_error_panic_hook = "0.1"
 js-sys = "0.3"
