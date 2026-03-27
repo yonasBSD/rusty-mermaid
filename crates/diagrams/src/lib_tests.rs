@@ -85,7 +85,7 @@ fn detect_unknown() {
 #[cfg(feature = "flowchart")]
 #[test]
 fn render_flowchart_to_scene() {
-    let scene = render_to_scene("graph TD\n    A[Start] --> B[End]").unwrap();
+    let scene = render_to_scene("graph TD\n    A[Start] --> B[End]", &rusty_mermaid_core::Theme::default()).unwrap();
     assert!(scene.width > 0.0);
     assert!(!scene.is_empty());
 }
@@ -93,7 +93,7 @@ fn render_flowchart_to_scene() {
 #[cfg(feature = "state")]
 #[test]
 fn render_state_to_scene() {
-    let scene = render_to_scene("stateDiagram-v2\n    [*] --> Still\n    Still --> [*]").unwrap();
+    let scene = render_to_scene("stateDiagram-v2\n    [*] --> Still\n    Still --> [*]", &rusty_mermaid_core::Theme::default()).unwrap();
     assert!(scene.width > 0.0);
     assert!(!scene.is_empty());
 }
@@ -101,7 +101,7 @@ fn render_state_to_scene() {
 #[cfg(feature = "class")]
 #[test]
 fn render_class_to_scene() {
-    let scene = render_to_scene("classDiagram\n    class Animal {\n        +String name\n        +makeSound()\n    }\n    Animal <|-- Dog").unwrap();
+    let scene = render_to_scene("classDiagram\n    class Animal {\n        +String name\n        +makeSound()\n    }\n    Animal <|-- Dog", &rusty_mermaid_core::Theme::default()).unwrap();
     assert!(scene.width > 0.0);
     assert!(!scene.is_empty());
 }
@@ -110,7 +110,7 @@ fn render_class_to_scene() {
 #[test]
 fn render_sequence_to_scene() {
     let scene =
-        render_to_scene("sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi").unwrap();
+        render_to_scene("sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi", &rusty_mermaid_core::Theme::default()).unwrap();
     assert!(scene.width > 0.0);
     assert!(!scene.is_empty());
 }

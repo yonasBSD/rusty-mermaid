@@ -34,11 +34,7 @@ const PIE_COLORS: [Color; 12] = [
     Color::rgb(255, 127, 80),
 ];
 
-pub fn to_scene(chart: &PieChart) -> Scene {
-    to_scene_themed(chart, &Theme::default())
-}
-
-pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
+pub fn to_scene(chart: &PieChart, theme: &Theme) -> Scene {
     let total = chart.total();
     if total <= 0.0 {
         return Scene::new(100.0, 100.0);
@@ -209,7 +205,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let chart = parser::parse(input).unwrap();
-        to_scene(&chart)
+        to_scene(&chart, &Theme::default())
     }
 
     #[test]

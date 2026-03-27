@@ -32,11 +32,7 @@ const COLORS: [Color; 8] = [
     Color::rgb(255, 157, 167),
 ];
 
-pub fn to_scene(diagram: &ArchDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     let node_ids = diagram.node_ids();
     if node_ids.is_empty() {
         return Scene::empty();
@@ -406,7 +402,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

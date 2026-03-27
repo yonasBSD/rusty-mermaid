@@ -24,11 +24,7 @@ const VENN_COLORS: [Color; 8] = [
 
 const FILL_ALPHA: u8 = 50; // real transparency so overlaps blend
 
-pub fn to_scene(diagram: &VennDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &VennDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &VennDiagram, theme: &Theme) -> Scene {
     let n = diagram.sets.len();
     if n == 0 {
         return Scene::empty();
@@ -281,7 +277,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

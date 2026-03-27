@@ -12,11 +12,7 @@ const LINE_H: f64 = 22.0;
 const CONNECTOR_GAP: f64 = 8.0;
 const SCENE_PAD: f64 = 16.0;
 
-pub fn to_scene(tree: &TreeView) -> Scene {
-    to_scene_themed(tree, &Theme::default())
-}
-
-pub fn to_scene_themed(tree: &TreeView, theme: &Theme) -> Scene {
+pub fn to_scene(tree: &TreeView, theme: &Theme) -> Scene {
     if tree.roots.is_empty() {
         return Scene::empty();
     }
@@ -147,7 +143,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let t = parser::parse(input).unwrap();
-        to_scene(&t)
+        to_scene(&t, &Theme::default())
     }
 
     #[test]

@@ -42,17 +42,18 @@ rusty-mermaid = "0.1"
 ## Usage
 
 ```rust
-// Parse and render to SVG
-let svg = rusty_mermaid::to_svg(
-r#"flowchart LR
+use rusty_mermaid::{Theme, render, to_svg};
+
+// Parse and render to SVG (light theme)
+let svg = to_svg(r#"flowchart LR
     A[Start] --> B[End]
-"#)?;
+"#, &Theme::default())?;
 
 // Dark theme
-let svg = rusty_mermaid::to_svg_themed(input, &Theme::dark())?;
+let svg = to_svg(input, &Theme::dark())?;
 
 // Parse to Scene (backend-agnostic IR)
-let scene = rusty_mermaid::render(input)?;
+let scene = render(input, &Theme::default())?;
 let kind = rusty_mermaid::detect(input); // Some(DiagramKind::Flowchart)
 ```
 
@@ -90,8 +91,8 @@ All backends consume `&Scene` — add a diagram type once, get all backends for 
 Built-in light and dark themes. All colors, font sizes, and stroke widths read from `Theme`.
 
 ```rust
-let light = rusty_mermaid::to_svg(input)?;
-let dark = rusty_mermaid::to_svg_themed(input, &Theme::dark())?;
+let light = rusty_mermaid::to_svg(input, &Theme::light())?;
+let dark = rusty_mermaid::to_svg(input, &Theme::dark())?;
 ```
 
 ## Testing

@@ -30,11 +30,7 @@ const SECTION_COLORS: [Color; 8] = [
     Color::rgb(255, 157, 167),
 ];
 
-pub fn to_scene(diagram: &TimelineDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     match diagram.direction {
         Direction::TB => render_horizontal(diagram, theme), // TB = vertical axis (tasks top-to-bottom)
         _ => render_vertical(diagram, theme), // LR default = horizontal axis (time left-to-right)
@@ -604,7 +600,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

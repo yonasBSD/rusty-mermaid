@@ -11,11 +11,7 @@ use crate::common::palette::DOTTED_PATTERN;
 use crate::common::rendering::{render_edge_label, shorten_path_for_markers};
 use bridge::LayoutResult;
 
-pub fn to_scene(layout: &LayoutResult) -> Scene {
-    to_scene_themed(layout, &Theme::default())
-}
-
-pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
+pub fn to_scene(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
     render_edges(layout, &mut scene, theme);
     render_nodes(layout, &mut scene, theme);
@@ -115,7 +111,7 @@ mod tests {
     fn render(input: &str) -> Scene {
         let diagram = super::parser::parse(input).unwrap();
         let layout = bridge::layout(&diagram);
-        to_scene(&layout)
+        to_scene(&layout, &Theme::default())
     }
 
     #[test]

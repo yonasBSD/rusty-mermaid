@@ -29,11 +29,7 @@ const COLORS: [Color; 8] = [
 
 const TINT: f64 = 0.20;
 
-pub fn to_scene(diagram: &ir::TreemapDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &ir::TreemapDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &ir::TreemapDiagram, theme: &Theme) -> Scene {
     if diagram.roots.is_empty() {
         return Scene::empty();
     }
@@ -350,7 +346,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

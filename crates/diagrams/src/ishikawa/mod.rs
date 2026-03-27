@@ -31,10 +31,6 @@ const COLORS: [Color; 8] = [
     Color::rgb(255, 157, 167),
 ];
 
-pub fn to_scene(diagram: &IshikawaDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
 /// Precomputed spine geometry shared across rendering helpers.
 struct SpineLayout {
     spine_y: f64,
@@ -89,7 +85,7 @@ impl SpineLayout {
     }
 }
 
-pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
     let n_cats = diagram.categories.len();
     if n_cats == 0 {
         return Scene::empty();
@@ -308,7 +304,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

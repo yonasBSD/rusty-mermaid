@@ -1,11 +1,12 @@
 use rusty_mermaid_core::Renderer;
+use rusty_mermaid_core::Theme;
 use rusty_mermaid_diagrams::render_to_scene;
 use rusty_mermaid_svg::SvgRenderer;
 
 #[test]
 fn flowchart_to_svg() {
     let mmd = "graph TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[Fail]";
-    let scene = render_to_scene(mmd).unwrap();
+    let scene = render_to_scene(mmd, &Theme::default()).unwrap();
     let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.starts_with("<svg"));
@@ -19,7 +20,7 @@ fn flowchart_to_svg() {
 #[test]
 fn state_diagram_to_svg() {
     let mmd = "stateDiagram-v2\n    [*] --> Still\n    Still --> Moving\n    Moving --> Crash\n    Crash --> [*]";
-    let scene = render_to_scene(mmd).unwrap();
+    let scene = render_to_scene(mmd, &Theme::default()).unwrap();
     let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.starts_with("<svg"));
@@ -36,7 +37,7 @@ fn complex_flowchart_to_svg() {
     C -->|Pass| D[Output]
     C -->|Fail| E[Error]
     E --> B"#;
-    let scene = render_to_scene(mmd).unwrap();
+    let scene = render_to_scene(mmd, &Theme::default()).unwrap();
     let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.contains("viewBox"));
@@ -50,7 +51,7 @@ fn complex_flowchart_to_svg() {
 #[test]
 fn sequence_diagram_to_svg() {
     let mmd = "sequenceDiagram\n    Alice->>Bob: Hello\n    Bob-->>Alice: Hi there\n    Note right of Bob: Thinking";
-    let scene = render_to_scene(mmd).unwrap();
+    let scene = render_to_scene(mmd, &Theme::default()).unwrap();
     let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.starts_with("<svg"));
@@ -68,7 +69,7 @@ fn sequence_diagram_to_svg() {
 #[test]
 fn sequence_self_message_to_svg() {
     let mmd = "sequenceDiagram\n    Alice->>Alice: Think\n    Alice->>Bob: Done";
-    let scene = render_to_scene(mmd).unwrap();
+    let scene = render_to_scene(mmd, &Theme::default()).unwrap();
     let svg = SvgRenderer::new().render(&scene);
 
     assert!(svg.contains("Think"));
@@ -78,7 +79,7 @@ fn sequence_self_message_to_svg() {
 #[test]
 fn svg_output_is_valid_xml_structure() {
     let mmd = "graph TD\n    A --> B";
-    let scene = render_to_scene(mmd).unwrap();
+    let scene = render_to_scene(mmd, &Theme::default()).unwrap();
     let svg = SvgRenderer::new().render(&scene);
 
     // Basic well-formedness: matching open/close tags

@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use rusty_mermaid_core::{Element, MarkerType, Primitive, Scene};
+use rusty_mermaid_core::Theme;
 use rusty_mermaid_diagrams::{DiagramKind, detect, render_to_scene};
 
 /// Workspace root: two levels up from the diagrams crate manifest dir.
@@ -176,7 +177,7 @@ fn structural_fingerprint_regression() {
 
     for (stem, path) in &entries {
         let text = fs::read_to_string(path).unwrap();
-        let scene = match render_to_scene(&text) {
+        let scene = match render_to_scene(&text, &Theme::default()) {
             Ok(s) => s,
             Err(_) => {
                 // Skip files that fail to parse/render (unsupported syntax).
@@ -338,7 +339,7 @@ fn update_fingerprints() {
                 | Some(DiagramKind::Sequence) => {}
                 _ => continue,
             }
-            let scene = match render_to_scene(&text) {
+            let scene = match render_to_scene(&text, &Theme::default()) {
                 Ok(s) => s,
                 Err(_) => continue,
             };

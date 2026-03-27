@@ -29,11 +29,7 @@ const LANE_COLORS: [Color; 8] = [
     Color::rgb(255, 157, 167),
 ];
 
-pub fn to_scene(graph: &GitGraph) -> Scene {
-    to_scene_themed(graph, &Theme::default())
-}
-
-pub fn to_scene_themed(graph: &GitGraph, theme: &Theme) -> Scene {
+pub fn to_scene(graph: &GitGraph, theme: &Theme) -> Scene {
     let commits = build_commits(graph);
     if commits.is_empty() {
         return Scene::empty();
@@ -490,7 +486,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let g = parser::parse(input).unwrap();
-        to_scene(&g)
+        to_scene(&g, &Theme::default())
     }
 
     #[test]

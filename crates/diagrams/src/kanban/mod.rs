@@ -25,10 +25,6 @@ const COLUMN_COLORS: [Color; 6] = [
     Color::rgb(118, 183, 178),
 ];
 
-pub fn to_scene(board: &KanbanBoard) -> Scene {
-    to_scene_themed(board, &Theme::default())
-}
-
 /// Precomputed column metrics: widths and per-card heights.
 struct ColumnMetrics {
     col_widths: Vec<f64>,
@@ -95,7 +91,7 @@ impl ColumnMetrics {
     }
 }
 
-pub fn to_scene_themed(board: &KanbanBoard, theme: &Theme) -> Scene {
+pub fn to_scene(board: &KanbanBoard, theme: &Theme) -> Scene {
     if board.columns.is_empty() {
         return Scene::empty();
     }
@@ -252,7 +248,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let b = parser::parse(input).unwrap();
-        to_scene(&b)
+        to_scene(&b, &Theme::default())
     }
 
     #[test]

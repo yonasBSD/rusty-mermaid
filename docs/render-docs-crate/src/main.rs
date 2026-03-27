@@ -64,7 +64,7 @@ fn process_markdown(content: &str, doc_name: &str, images_dir: &Path) -> (String
             let svg_path = images_dir.join(&svg_name);
 
             // Render through our crate
-            match rusty_mermaid_diagrams::render_to_scene(&mermaid_src) {
+            match rusty_mermaid_diagrams::render_to_scene(&mermaid_src, &rusty_mermaid_core::Theme::default()) {
                 Ok(scene) => {
                     use rusty_mermaid_core::Renderer;
                     let svg = rusty_mermaid_svg::SvgRenderer::new().render(&scene);

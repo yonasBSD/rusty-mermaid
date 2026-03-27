@@ -6,6 +6,7 @@ use rusty_mermaid_wgpu::render_to_png;
 fn render_state_diagram_with_text() {
     let scene = render_to_scene(
         "stateDiagram-v2\n    [*] --> Active\n    Active --> Paused : pause\n    Paused --> Active : resume\n    Active --> [*] : done",
+        &Theme::default(),
     ).unwrap();
     let theme = Theme::light();
     let png = render_to_png(&scene, &theme, 2.0);

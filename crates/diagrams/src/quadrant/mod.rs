@@ -28,10 +28,6 @@ fn quad_fill(idx: usize) -> Color {
     tint_color(QUAD_BASE[idx], QUAD_TINT)
 }
 
-pub fn to_scene(chart: &QuadrantChart) -> Scene {
-    to_scene_themed(chart, &Theme::default())
-}
-
 /// Grid layout parameters computed from chart metadata.
 struct GridLayout {
     grid_x: f64,
@@ -77,7 +73,7 @@ impl GridLayout {
     }
 }
 
-pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
+pub fn to_scene(chart: &QuadrantChart, theme: &Theme) -> Scene {
     let layout = GridLayout::from_chart(chart);
     let mut scene = Scene::new(layout.scene_w, layout.scene_h);
 
@@ -288,7 +284,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let c = parser::parse(input).unwrap();
-        to_scene(&c)
+        to_scene(&c, &Theme::default())
     }
 
     #[test]

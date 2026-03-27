@@ -33,10 +33,6 @@ const SECTION_COLORS: [Color; 8] = [
 
 const TINT: f64 = 0.12;
 
-pub fn to_scene(diagram: &JourneyDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
 /// Vertical layout positions derived from the diagram.
 struct JourneyLayout {
     ox: f64,
@@ -48,7 +44,7 @@ struct JourneyLayout {
     scene_w: f64,
 }
 
-pub fn to_scene_themed(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &JourneyDiagram, theme: &Theme) -> Scene {
     let total_tasks: usize = diagram.sections.iter().map(|s| s.tasks.len()).sum();
     if total_tasks == 0 {
         return Scene::empty();
@@ -391,7 +387,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

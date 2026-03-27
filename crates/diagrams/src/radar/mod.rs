@@ -46,11 +46,7 @@ impl RadarArea {
     }
 }
 
-pub fn to_scene(chart: &RadarChart) -> Scene {
-    to_scene_themed(chart, &Theme::default())
-}
-
-pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
+pub fn to_scene(chart: &RadarChart, theme: &Theme) -> Scene {
     let n_axes = chart.axes.len();
     if n_axes < 3 {
         return Scene::empty();
@@ -273,7 +269,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let c = parser::parse(input).unwrap();
-        to_scene(&c)
+        to_scene(&c, &Theme::default())
     }
 
     #[test]

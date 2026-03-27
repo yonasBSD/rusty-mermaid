@@ -241,6 +241,7 @@ mod tests {
         use rusty_mermaid_core::Renderer;
         let scene = rusty_mermaid_diagrams::render_to_scene(
             "stateDiagram-v2\n    [*] --> Active\n    Active --> Paused : pause\n    Paused --> Active : resume\n    Active --> [*] : done",
+            &rusty_mermaid_core::Theme::default(),
         ).unwrap();
         let renderer = RasterRenderer::new();
         let png = renderer.render(&scene);
@@ -255,6 +256,7 @@ mod tests {
         use rusty_mermaid_core::Renderer;
         let scene = rusty_mermaid_diagrams::render_to_scene(
             "flowchart TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[Fail]",
+            &rusty_mermaid_core::Theme::default(),
         ).unwrap();
         let renderer = RasterRenderer::new();
         let png = renderer.render(&scene);

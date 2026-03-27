@@ -5,10 +5,11 @@
 
 use proptest::prelude::*;
 use rusty_mermaid_core::Primitive;
+use rusty_mermaid_core::Theme;
 use rusty_mermaid_diagrams::render_to_scene;
 
 fn scene_is_valid(input: &str) -> bool {
-    let scene = match render_to_scene(input) {
+    let scene = match render_to_scene(input, &Theme::default()) {
         Ok(s) => s,
         Err(_) => return true, // parse errors are fine for random input
     };

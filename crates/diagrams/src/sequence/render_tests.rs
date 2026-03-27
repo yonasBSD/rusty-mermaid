@@ -5,7 +5,7 @@ use rusty_mermaid_core::SimpleTextMeasure;
 
 fn make_scene(d: &SequenceDiagram) -> Scene {
     let l = layout::layout(d, &SimpleTextMeasure::default());
-    to_scene(&l)
+    to_scene(&l, &Theme::default())
 }
 
 fn two_actor_diagram() -> SequenceDiagram {
@@ -87,7 +87,7 @@ fn themed_scene_uses_dark_edge_stroke() {
     ));
     let l = layout::layout(&d, &SimpleTextMeasure::default());
     let dark = Theme::dark();
-    let scene = to_scene_themed(&l, &dark);
+    let scene = to_scene(&l, &dark);
     let has_dark_stroke = scene.elements().iter().any(|e| {
         matches!(&e.primitive, Primitive::Path { style, marker_end: Some(_), .. }
                 if style.stroke == Some(dark.edge_stroke))
@@ -302,7 +302,7 @@ fn edge_path_shortened_for_arrow_marker() {
         deactivate: false,
     }));
     let l = layout::layout(&d, &SimpleTextMeasure::default());
-    let scene = to_scene(&l);
+    let scene = to_scene(&l, &Theme::default());
 
     let bob_x = l
         .lifelines

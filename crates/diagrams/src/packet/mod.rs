@@ -27,11 +27,7 @@ const BLOCK_STROKE: Color = Color::rgb(
     (BLOCK_BASE.b as f64 * 0.6) as u8,
 );
 
-pub fn to_scene(diagram: &PacketDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &PacketDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &PacketDiagram, theme: &Theme) -> Scene {
     if diagram.fields.is_empty() {
         return Scene::empty();
     }
@@ -182,7 +178,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

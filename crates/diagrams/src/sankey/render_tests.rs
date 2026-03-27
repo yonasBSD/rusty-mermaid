@@ -2,7 +2,7 @@ use super::*;
 
 fn render(input: &str) -> Scene {
     let d = parser::parse(input).unwrap();
-    to_scene(&d)
+    to_scene(&d, &Theme::default())
 }
 
 #[test]

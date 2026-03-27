@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use rusty_mermaid_core::Renderer;
+use rusty_mermaid_core::Theme;
 use rusty_mermaid_diagrams::{detect, render_to_scene};
 use rusty_mermaid_svg::SvgRenderer;
 
@@ -37,7 +38,7 @@ fn renderable_entries() -> Vec<(String, String, PathBuf)> {
                 continue;
             }
             let text = fs::read_to_string(&path).unwrap();
-            if detect(&text).is_none() || render_to_scene(&text).is_err() {
+            if detect(&text).is_none() || render_to_scene(&text, &Theme::default()).is_err() {
                 continue;
             }
             let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
@@ -68,7 +69,7 @@ fn svg_golden_regression() {
         fs::create_dir_all(&type_svg_dir).unwrap();
 
         let text = fs::read_to_string(path).unwrap();
-        let scene = render_to_scene(&text).unwrap();
+        let scene = render_to_scene(&text, &Theme::default()).unwrap();
         let actual_svg = SvgRenderer::new().render(&scene);
         let svg_path = type_svg_dir.join(format!("{stem}.svg"));
 
@@ -150,7 +151,7 @@ fn update_golden_svg() {
         let type_svg_dir = svg_dir.join(type_name);
         fs::create_dir_all(&type_svg_dir).unwrap();
         let text = fs::read_to_string(path).unwrap();
-        let scene = render_to_scene(&text).unwrap();
+        let scene = render_to_scene(&text, &Theme::default()).unwrap();
         let svg = SvgRenderer::new().render(&scene);
         fs::write(type_svg_dir.join(format!("{stem}.svg")), &svg).unwrap();
         count += 1;

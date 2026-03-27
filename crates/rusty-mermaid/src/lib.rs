@@ -20,30 +20,18 @@
 pub use rusty_mermaid_core::{
     BBox, Color, Direction, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
 };
-pub use rusty_mermaid_diagrams::{DiagramKind, ParseError, detect, render_to_scene, render_to_scene_themed};
+pub use rusty_mermaid_diagrams::{DiagramKind, ParseError, detect, render_to_scene};
 
 /// Parse and render a mermaid diagram to a `Scene`.
-pub fn render(input: &str) -> Result<Scene, ParseError> {
-    render_to_scene(input)
-}
-
-/// Parse and render with a custom theme.
-pub fn render_themed(input: &str, theme: &Theme) -> Result<Scene, ParseError> {
-    render_to_scene_themed(input, theme)
+pub fn render(input: &str, theme: &Theme) -> Result<Scene, ParseError> {
+    render_to_scene(input, theme)
 }
 
 // ── Feature: svg ──
 
 #[cfg(feature = "svg")]
-pub fn to_svg(input: &str) -> Result<String, ParseError> {
-    use rusty_mermaid_core::Renderer;
-    let scene = render(input)?;
-    Ok(rusty_mermaid_svg::SvgRenderer::new().render(&scene))
-}
-
-#[cfg(feature = "svg")]
-pub fn to_svg_themed(input: &str, theme: &Theme) -> Result<String, ParseError> {
-    let scene = render_themed(input, theme)?;
+pub fn to_svg(input: &str, theme: &Theme) -> Result<String, ParseError> {
+    let scene = render(input, theme)?;
     Ok(rusty_mermaid_svg::SvgRenderer::with_theme(theme).render_themed(&scene, theme))
 }
 
@@ -55,17 +43,9 @@ pub mod svg {
 // ── Feature: raster ──
 
 #[cfg(feature = "raster")]
-pub fn to_png(input: &str, dpi: f64) -> Result<Vec<u8>, ParseError> {
+pub fn to_png(input: &str, theme: &Theme, dpi: f64) -> Result<Vec<u8>, ParseError> {
     use rusty_mermaid_core::Renderer;
-    let scene = render(input)?;
-    let config = rusty_mermaid_raster::RasterConfig { scale: dpi, ..Default::default() };
-    Ok(rusty_mermaid_raster::RasterRenderer::with_config(config).render(&scene))
-}
-
-#[cfg(feature = "raster")]
-pub fn to_png_themed(input: &str, theme: &Theme, dpi: f64) -> Result<Vec<u8>, ParseError> {
-    use rusty_mermaid_core::Renderer;
-    let scene = render_themed(input, theme)?;
+    let scene = render(input, theme)?;
     let config = rusty_mermaid_raster::RasterConfig { scale: dpi, theme: theme.clone() };
     Ok(rusty_mermaid_raster::RasterRenderer::with_config(config).render(&scene))
 }

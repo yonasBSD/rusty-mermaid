@@ -62,11 +62,7 @@ struct SectionRange {
     idx: usize,
 }
 
-pub fn to_scene(chart: &GanttChart) -> Scene {
-    to_scene_themed(chart, &Theme::default())
-}
-
-pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
+pub fn to_scene(chart: &GanttChart, theme: &Theme) -> Scene {
     let resolved = resolve_tasks(chart);
     if resolved.is_empty() {
         return Scene::empty();
@@ -525,7 +521,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let c = parser::parse(input).unwrap();
-        to_scene(&c)
+        to_scene(&c, &Theme::default())
     }
 
     #[test]

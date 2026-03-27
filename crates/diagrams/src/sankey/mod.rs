@@ -346,11 +346,7 @@ fn render_nodes(
     }
 }
 
-pub fn to_scene(diagram: &SankeyDiagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &SankeyDiagram, theme: &Theme) -> Scene {
     if diagram.links.is_empty() {
         return Scene::empty();
     }

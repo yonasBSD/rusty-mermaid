@@ -51,11 +51,7 @@ impl PlotArea {
     }
 }
 
-pub fn to_scene(chart: &XyChart) -> Scene {
-    to_scene_themed(chart, &Theme::default())
-}
-
-pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
+pub fn to_scene(chart: &XyChart, theme: &Theme) -> Scene {
     let title_h = if chart.title.is_some() {
         theme.font_size_title + 20.0
     } else {
@@ -445,7 +441,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let c = parser::parse(input).unwrap();
-        to_scene(&c)
+        to_scene(&c, &Theme::default())
     }
 
     #[test]

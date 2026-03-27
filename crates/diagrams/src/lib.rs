@@ -145,38 +145,6 @@ pub fn detect(input: &str) -> Option<DiagramKind> {
     }
 }
 
-/// Unified entry: parse + layout → Scene.
-#[cfg(any(
-    feature = "flowchart",
-    feature = "state",
-    feature = "sequence",
-    feature = "class",
-    feature = "er",
-    feature = "requirement",
-    feature = "pie",
-    feature = "timeline",
-    feature = "kanban",
-    feature = "gantt",
-    feature = "gitgraph",
-    feature = "xychart",
-    feature = "mindmap",
-    feature = "sankey",
-    feature = "packet",
-    feature = "quadrant",
-    feature = "venn",
-    feature = "radar",
-    feature = "user-journey",
-    feature = "treeview",
-    feature = "ishikawa",
-    feature = "treemap",
-    feature = "block",
-    feature = "c4",
-    feature = "architecture"
-))]
-pub fn render_to_scene(input: &str) -> Result<rusty_mermaid_core::Scene, ParseError> {
-    render_to_scene_themed(input, &rusty_mermaid_core::Theme::default())
-}
-
 /// Strip mermaid directives, accessibility metadata, and leading comments.
 ///
 /// Handles:
@@ -219,7 +187,7 @@ fn preprocess(input: &str) -> String {
     lines.join("\n")
 }
 
-/// Unified entry with explicit theme: parse + layout → Scene.
+/// Unified entry: parse + layout → Scene.
 #[cfg(any(
     feature = "flowchart",
     feature = "state",
@@ -247,7 +215,7 @@ fn preprocess(input: &str) -> String {
     feature = "c4",
     feature = "architecture"
 ))]
-pub fn render_to_scene_themed(
+pub fn render_to_scene(
     input: &str,
     theme: &rusty_mermaid_core::Theme,
 ) -> Result<rusty_mermaid_core::Scene, ParseError> {
@@ -263,13 +231,13 @@ pub fn render_to_scene_themed(
         DiagramKind::Flowchart => {
             let diagram = flowchart::parser::parse(input)?;
             let layout = flowchart::bridge::layout(&diagram);
-            Ok(flowchart::to_scene_themed(&layout, theme))
+            Ok(flowchart::to_scene(&layout, theme))
         }
         #[cfg(feature = "state")]
         DiagramKind::State => {
             let diagram = state::parser::parse(input)?;
             let layout = state::bridge::layout(&diagram);
-            Ok(state::to_scene_themed(&layout, theme))
+            Ok(state::to_scene(&layout, theme))
         }
         #[cfg(feature = "sequence")]
         DiagramKind::Sequence => {
@@ -278,120 +246,120 @@ pub fn render_to_scene_themed(
                 &diagram,
                 &rusty_mermaid_core::SimpleTextMeasure::default(),
             );
-            Ok(sequence::to_scene_themed(&layout, theme))
+            Ok(sequence::to_scene(&layout, theme))
         }
         #[cfg(feature = "class")]
         DiagramKind::Class => {
             let diagram = class::parser::parse(input)?;
             let layout = class::bridge::layout(&diagram);
-            Ok(class::to_scene_themed(&layout, theme))
+            Ok(class::to_scene(&layout, theme))
         }
         #[cfg(feature = "er")]
         DiagramKind::Er => {
             let diagram = er::parser::parse(input)?;
             let layout = er::bridge::layout(&diagram);
-            Ok(er::to_scene_themed(&layout, theme))
+            Ok(er::to_scene(&layout, theme))
         }
         #[cfg(feature = "requirement")]
         DiagramKind::Requirement => {
             let diagram = requirement::parser::parse(input)?;
             let layout = requirement::bridge::layout(&diagram);
-            Ok(requirement::to_scene_themed(&layout, theme))
+            Ok(requirement::to_scene(&layout, theme))
         }
         #[cfg(feature = "pie")]
         DiagramKind::Pie => {
             let chart = pie::parser::parse(input)?;
-            Ok(pie::to_scene_themed(&chart, theme))
+            Ok(pie::to_scene(&chart, theme))
         }
         #[cfg(feature = "timeline")]
         DiagramKind::Timeline => {
             let diagram = timeline::parser::parse(input)?;
-            Ok(timeline::to_scene_themed(&diagram, theme))
+            Ok(timeline::to_scene(&diagram, theme))
         }
         #[cfg(feature = "kanban")]
         DiagramKind::Kanban => {
             let board = kanban::parser::parse(input)?;
-            Ok(kanban::to_scene_themed(&board, theme))
+            Ok(kanban::to_scene(&board, theme))
         }
         #[cfg(feature = "gantt")]
         DiagramKind::Gantt => {
             let chart = gantt::parser::parse(input)?;
-            Ok(gantt::to_scene_themed(&chart, theme))
+            Ok(gantt::to_scene(&chart, theme))
         }
         #[cfg(feature = "gitgraph")]
         DiagramKind::GitGraph => {
             let graph = gitgraph::parser::parse(input)?;
-            Ok(gitgraph::to_scene_themed(&graph, theme))
+            Ok(gitgraph::to_scene(&graph, theme))
         }
         #[cfg(feature = "xychart")]
         DiagramKind::XyChart => {
             let chart = xychart::parser::parse(input)?;
-            Ok(xychart::to_scene_themed(&chart, theme))
+            Ok(xychart::to_scene(&chart, theme))
         }
         #[cfg(feature = "mindmap")]
         DiagramKind::Mindmap => {
             let diagram = mindmap::parser::parse(input)?;
-            Ok(mindmap::to_scene_themed(&diagram, theme))
+            Ok(mindmap::to_scene(&diagram, theme))
         }
         #[cfg(feature = "sankey")]
         DiagramKind::Sankey => {
             let diagram = sankey::parser::parse(input)?;
-            Ok(sankey::to_scene_themed(&diagram, theme))
+            Ok(sankey::to_scene(&diagram, theme))
         }
         #[cfg(feature = "packet")]
         DiagramKind::Packet => {
             let diagram = packet::parser::parse(input)?;
-            Ok(packet::to_scene_themed(&diagram, theme))
+            Ok(packet::to_scene(&diagram, theme))
         }
         #[cfg(feature = "quadrant")]
         DiagramKind::Quadrant => {
             let chart = quadrant::parser::parse(input)?;
-            Ok(quadrant::to_scene_themed(&chart, theme))
+            Ok(quadrant::to_scene(&chart, theme))
         }
         #[cfg(feature = "venn")]
         DiagramKind::Venn => {
             let diagram = venn::parser::parse(input)?;
-            Ok(venn::to_scene_themed(&diagram, theme))
+            Ok(venn::to_scene(&diagram, theme))
         }
         #[cfg(feature = "radar")]
         DiagramKind::Radar => {
             let chart = radar::parser::parse(input)?;
-            Ok(radar::to_scene_themed(&chart, theme))
+            Ok(radar::to_scene(&chart, theme))
         }
         #[cfg(feature = "user-journey")]
         DiagramKind::UserJourney => {
             let diagram = journey::parser::parse(input)?;
-            Ok(journey::to_scene_themed(&diagram, theme))
+            Ok(journey::to_scene(&diagram, theme))
         }
         #[cfg(feature = "treeview")]
         DiagramKind::TreeView => {
             let tree = treeview::parser::parse(input)?;
-            Ok(treeview::to_scene_themed(&tree, theme))
+            Ok(treeview::to_scene(&tree, theme))
         }
         #[cfg(feature = "ishikawa")]
         DiagramKind::Ishikawa => {
             let diagram = ishikawa::parser::parse(input)?;
-            Ok(ishikawa::to_scene_themed(&diagram, theme))
+            Ok(ishikawa::to_scene(&diagram, theme))
         }
         #[cfg(feature = "treemap")]
         DiagramKind::Treemap => {
             let diagram = treemap::parser::parse(input)?;
-            Ok(treemap::to_scene_themed(&diagram, theme))
+            Ok(treemap::to_scene(&diagram, theme))
         }
         #[cfg(feature = "block")]
         DiagramKind::Block => {
             let diagram = block::parser::parse(input)?;
-            Ok(block::to_scene_themed(&diagram, theme))
+            Ok(block::to_scene(&diagram, theme))
         }
         #[cfg(feature = "c4")]
         DiagramKind::C4 => {
             let diagram = c4::parser::parse(input)?;
-            Ok(c4::to_scene_themed(&diagram, theme))
+            Ok(c4::to_scene(&diagram, theme))
         }
         #[cfg(feature = "architecture")]
         DiagramKind::Architecture => {
             let diagram = architecture::parser::parse(input)?;
-            Ok(architecture::to_scene_themed(&diagram, theme))
+            Ok(architecture::to_scene(&diagram, theme))
         }
         #[allow(unreachable_patterns)]
         _ => Err(ParseError::new(

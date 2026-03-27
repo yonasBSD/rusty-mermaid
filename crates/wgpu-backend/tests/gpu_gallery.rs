@@ -56,7 +56,7 @@ fn generate_gpu_gallery() {
             let path = entry.path();
             let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
             let input = fs::read_to_string(&path).unwrap();
-            let Ok(scene) = render_to_scene(&input) else {
+            let Ok(scene) = render_to_scene(&input, &theme) else {
                 continue;
             };
 

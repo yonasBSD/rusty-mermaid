@@ -13,13 +13,8 @@ use crate::common::rendering::{render_edge_label, shorten_path_for_markers};
 use bridge::LayoutResult;
 use ir::{ClassMember, RelationType};
 
-/// Convert a class diagram layout result into a Scene with default theme.
-pub fn to_scene(layout: &LayoutResult) -> Scene {
-    to_scene_themed(layout, &Theme::default())
-}
-
-/// Convert a class diagram layout result into a themed Scene.
-pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
+/// Convert a class diagram layout result into a Scene.
+pub fn to_scene(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
     layout_to_scene(layout, &mut scene, theme);
     scene
@@ -321,7 +316,7 @@ mod tests {
     fn render(input: &str) -> Scene {
         let diagram = super::parser::parse(input).unwrap();
         let layout = bridge::layout(&diagram);
-        to_scene(&layout)
+        to_scene(&layout, &Theme::default())
     }
 
     #[test]

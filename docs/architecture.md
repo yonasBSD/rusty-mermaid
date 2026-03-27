@@ -72,7 +72,7 @@ flowchart LR
     Input["mermaid text"] --> Detect["detect()"]
     Detect --> Parse["parse()"]
     Parse --> Layout["layout()"]
-    Layout --> Build["to_scene_themed()"]
+    Layout --> Build["to_scene()"]
     Build --> Backend["render()"]
 ```
 
@@ -86,7 +86,7 @@ flowchart LR
 
 3. **Layout.** For graph-based diagrams, `bridge::layout(&ir)` builds a `Graph<NodeLabel, EdgeLabel>`, runs the dagre Sugiyama pipeline (rank assignment, crossing minimization, coordinate assignment), and produces a `LayoutResult` with positioned nodes and routed edges. Non-graph diagrams compute positions directly with custom layout logic.
 
-4. **Scene building.** `to_scene_themed(&layout, &theme)` walks the positioned data and emits `Primitive` values (Rect, Path, Text, etc.) into a `Scene`. The Theme controls all colors, font sizes, and stroke widths -- no hardcoded values.
+4. **Scene building.** `to_scene(&layout, &theme)` walks the positioned data and emits `Primitive` values (Rect, Path, Text, etc.) into a `Scene`. The Theme controls all colors, font sizes, and stroke widths -- no hardcoded values.
 
 5. **Backend rendering.** The backend iterates `scene.elements()` and translates each `Primitive` to the output format. For SVG: XML string building. For raster: tiny-skia pixel drawing. For wgpu: vello scene commands. For gpui: canvas paint calls.
 
@@ -119,7 +119,7 @@ Rust port of the dagre.js Sugiyama layout algorithm. Converts a graph with label
 All 24 diagram types. Each is a Cargo feature that can be compiled independently.
 
 - **Depends on:** core, graph, dagre
-- **Exports:** `DiagramKind`, `detect()`, `render_to_scene()`, `render_to_scene_themed()`, `ParseError`, per-diagram modules
+- **Exports:** `DiagramKind`, `detect()`, `render_to_scene()`, `render_to_scene()`, `ParseError`, per-diagram modules
 - **Diagram types:** flowchart, state, sequence, class, ER, requirement, pie, timeline, kanban, gantt, gitgraph, xychart, mindmap, sankey, packet, quadrant, venn, radar, user-journey, treeview, ishikawa, treemap, block, c4, architecture
 - **Shared utilities:** `common/` module with error types, layout structs (`NodeLayout`, `EdgeLayout`), rendering helpers, style resolution, token processing
 
@@ -169,7 +169,7 @@ Scene to Zed editor canvas element.
 Public API crate. Re-exports everything behind feature flags.
 
 - **Depends on:** core, diagrams, and optionally svg, raster, viewport, wgpu, gpui
-- **Exports:** `render()`, `to_svg()`, `to_svg_themed()`, `to_png()`, `to_png_themed()`, re-exports of core types
+- **Exports:** `render()`, `to_svg()`, `to_svg()`, `to_png()`, `to_png()`, re-exports of core types
 - **Feature flags:** `svg`, `raster`, `viewport`, `wgpu`, `gpui` -- each pulls in the corresponding backend crate
 
 ## 4. Diagram Module Patterns
@@ -196,7 +196,7 @@ flowchart LR
 File structure:
 ```
 crates/diagrams/src/flowchart/
-    mod.rs       -- to_scene_themed(): LayoutResult → Scene (emit primitives)
+    mod.rs       -- to_scene(): LayoutResult → Scene (emit primitives)
     parser.rs    -- parse(): &str → FlowDiagram (IR)
     bridge.rs    -- layout(): &FlowDiagram → LayoutResult (dagre pipeline)
     ir.rs        -- FlowDiagram, FlowVertex, FlowEdge, FlowSubGraph
@@ -225,12 +225,12 @@ flowchart LR
 File structure:
 ```
 crates/diagrams/src/pie/
-    mod.rs       -- to_scene_themed(): &PieChart → Scene (layout + emit combined)
+    mod.rs       -- to_scene(): &PieChart → Scene (layout + emit combined)
     parser.rs    -- parse(): &str → PieChart (IR)
     ir.rs        -- PieChart, PieSlice
 ```
 
-No bridge module. The `to_scene_themed()` function handles both positioning and primitive emission because the layout is diagram-specific (polar coordinates for pie, swim lanes for sequence, tree layout for mindmap, etc.).
+No bridge module. The `to_scene()` function handles both positioning and primitive emission because the layout is diagram-specific (polar coordinates for pie, swim lanes for sequence, tree layout for mindmap, etc.).
 
 ## 5. Scene & Primitives
 
@@ -279,13 +279,13 @@ sequenceDiagram
     participant Diagrams
     participant Backend
 
-    User->>Facade: to_svg_themed(input, Theme::dark())
-    Facade->>Diagrams: render_to_scene_themed(input, theme)
+    User->>Facade: to_svg(input, Theme::dark())
+    Facade->>Diagrams: render_to_scene(input, theme)
     Diagrams->>Diagrams: parse(input) -> IR
-    Diagrams->>Diagrams: to_scene_themed(ir, theme)
+    Diagrams->>Diagrams: to_scene(ir, theme)
     Note right of Diagrams: uses theme colors
     Diagrams-->>Facade: Scene
-    Facade->>Backend: render_themed(scene, theme)
+    Facade->>Backend: render_with_theme(scene, theme)
     Note right of Backend: uses theme bg
     Backend-->>User: SVG string
 ```

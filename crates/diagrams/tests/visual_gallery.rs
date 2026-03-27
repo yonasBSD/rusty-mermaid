@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use rusty_mermaid_core::{Renderer, Theme};
-use rusty_mermaid_diagrams::render_to_scene_themed;
+use rusty_mermaid_diagrams::render_to_scene;
 use rusty_mermaid_svg::SvgRenderer;
 
 fn golden_dir() -> std::path::PathBuf {
@@ -99,7 +99,7 @@ fn generate_svg_gallery() {
             let text = fs::read_to_string(&path).unwrap();
 
             // Light theme SVG
-            let scene_light = match render_to_scene_themed(&text, &light) {
+            let scene_light = match render_to_scene(&text, &light) {
                 Ok(s) => s,
                 Err(_) => continue,
             };
@@ -107,7 +107,7 @@ fn generate_svg_gallery() {
             fs::write(type_outdir.join(format!("{stem}.svg")), &svg_light).unwrap();
 
             // Dark theme SVG
-            if let Ok(scene_dark) = render_to_scene_themed(&text, &dark) {
+            if let Ok(scene_dark) = render_to_scene(&text, &dark) {
                 let svg_dark = renderer.render(&scene_dark);
                 fs::write(type_outdir.join(format!("{stem}_dark.svg")), &svg_dark).unwrap();
             }

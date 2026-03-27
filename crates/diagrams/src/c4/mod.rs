@@ -26,11 +26,7 @@ const EXTERNAL_COLOR: Color = Color::rgb(128, 128, 128);
 const PERSON_COLOR: Color = Color::rgb(8, 100, 164);
 const BOUNDARY_COLOR: Color = Color::rgb(68, 114, 196);
 
-pub fn to_scene(diagram: &C4Diagram) -> Scene {
-    to_scene_themed(diagram, &Theme::default())
-}
-
-pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
+pub fn to_scene(diagram: &C4Diagram, theme: &Theme) -> Scene {
     if diagram.elements.is_empty() {
         return Scene::empty();
     }
@@ -470,7 +466,7 @@ mod tests {
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();
-        to_scene(&d)
+        to_scene(&d, &Theme::default())
     }
 
     #[test]

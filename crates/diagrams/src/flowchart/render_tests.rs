@@ -6,7 +6,7 @@ use crate::common::test_helpers::test_helpers::*;
 fn simple_flowchart_to_scene() {
     let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     assert_scene_valid(&scene);
 
@@ -36,7 +36,7 @@ fn simple_flowchart_to_scene() {
 fn diamond_node_produces_polygon() {
     let d = crate::flowchart::parser::parse("flowchart TD\n    A{Decision}").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     assert!(
         count_polygons(&scene) > 0,
@@ -57,7 +57,7 @@ fn diamond_node_produces_polygon() {
 fn circle_node_produces_circle() {
     let d = crate::flowchart::parser::parse("flowchart TD\n    A((Round))").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     assert!(
         has_circle(&scene),
@@ -77,7 +77,7 @@ fn circle_node_produces_circle() {
 fn edges_produce_paths_with_markers() {
     let d = crate::flowchart::parser::parse("flowchart TD\n    A --> B").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     let edge_paths: Vec<_> = scene
         .elements()
@@ -104,7 +104,7 @@ fn subgraph_produces_background_rect() {
     let mmd = "flowchart TD\n    subgraph sg[My Group]\n        A --> B\n    end";
     let d = crate::flowchart::parser::parse(mmd).unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Subgraph rect is rendered first, before node rects.
     // Count all rects: should be at least 3 (1 subgraph + 2 nodes).
@@ -143,7 +143,7 @@ fn nested_subgraphs_render_outermost_first() {
     let mmd = "flowchart TD\n    subgraph outer[Outer]\n        subgraph middle[Middle]\n            subgraph inner[Inner]\n                A --> B\n            end\n        end\n    end";
     let d = crate::flowchart::parser::parse(mmd).unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Collect subgraph rect areas in scene order (subgraphs render before nodes)
     let subgraph_areas: Vec<f64> = scene
@@ -184,7 +184,7 @@ fn empty_layout_produces_empty_scene() {
         width: 0.0,
         height: 0.0,
     };
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
     assert!(scene.is_empty());
     assert!((scene.width - 0.0).abs() < f64::EPSILON);
     assert!((scene.height - 0.0).abs() < f64::EPSILON);
@@ -195,7 +195,7 @@ fn themed_scene_has_edge_paths() {
     let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
     let theme = Theme::default();
-    let scene = to_scene_themed(&layout, &theme);
+    let scene = to_scene(&layout, &theme);
 
     let has_edge_path = scene.elements().iter().any(|e| {
         matches!(
@@ -256,7 +256,7 @@ fn edge_path_shortened_for_arrow_marker() {
     // An edge with ArrowPoint marker should have its endpoint pulled back.
     let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Find the target node's top boundary and the edge endpoint
     let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
@@ -294,7 +294,7 @@ fn edge_path_shortened_for_circle_marker() {
     // All markers use the same uniform inset.
     let d = crate::flowchart::parser::parse("graph TD\n    A --o B").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
     let node_top = target_node.y - target_node.height / 2.0;
@@ -329,7 +329,7 @@ fn edge_path_shortened_for_circle_marker() {
 fn edge_path_shortened_for_cross_marker() {
     let d = crate::flowchart::parser::parse("graph TD\n    A --x B").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     let target_node = &layout.nodes.iter().find(|n| n.label == "B").unwrap();
     let node_top = target_node.y - target_node.height / 2.0;
@@ -369,7 +369,7 @@ fn subroutine_edge_terminates_at_visual_boundary() {
     let d = crate::flowchart::parser::parse("flowchart LR\n    A --> B[[Process]]\n    B --> C")
         .unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Find the subroutine rect (the one with rx=0, ry=0 whose width is larger)
     let sub_rects: Vec<_> = scene
@@ -438,7 +438,7 @@ fn edges_render_behind_nodes() {
     // marker overshoot. This matches state diagram and mermaid.js z-order.
     let d = crate::flowchart::parser::parse("flowchart TD\n    A --o B\n    A --x C").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     let last_edge_idx = scene
         .elements()

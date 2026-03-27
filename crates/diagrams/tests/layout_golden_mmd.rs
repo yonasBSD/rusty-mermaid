@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::Path;
 
+use rusty_mermaid_core::Theme;
 use rusty_mermaid_diagrams::render_to_scene;
 
 fn golden_dir() -> std::path::PathBuf {
@@ -57,7 +58,7 @@ fn all_golden_mmd_parse_and_render() {
                 }
             };
 
-            match render_to_scene(&text) {
+            match render_to_scene(&text, &Theme::default()) {
                 Ok(scene) => {
                     if scene.is_empty() {
                         failures.push(format!("{name}: scene is empty"));

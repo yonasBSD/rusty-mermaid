@@ -7,7 +7,7 @@ fn simple_state_diagram_to_scene() {
     let d = crate::state::parser::parse("stateDiagram-v2\n    [*] --> Still\n    Still --> Moving")
         .unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     assert_scene_valid(&scene);
 
@@ -24,7 +24,7 @@ fn start_end_circles() {
     let d = crate::state::parser::parse("stateDiagram-v2\n    [*] --> Active\n    Active --> [*]")
         .unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Start circle (filled) + end bullseye (outer + inner = 2 circles)
     assert!(
@@ -39,7 +39,7 @@ fn rounded_rect_states() {
     let d = crate::state::parser::parse("stateDiagram-v2\n    [*] --> Idle\n    Idle --> Active")
         .unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // This filter is test-specific (checks rx/ry values), keep inline
     let rects: Vec<_> = scene
@@ -59,7 +59,7 @@ fn edges_produce_paths_with_arrow_markers() {
     let d = crate::state::parser::parse("stateDiagram-v2\n    [*] --> Still\n    Still --> Moving")
         .unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     let arrow_paths: Vec<_> = scene
         .elements()
@@ -86,7 +86,7 @@ fn compound_state_produces_background_rect_and_separator() {
     let mmd = "stateDiagram-v2\n    state Outer {\n        Inner1\n        Inner2\n    }";
     let d = crate::state::parser::parse(mmd).unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Compound state produces: background Rect + label Text + separator Path
     assert!(
@@ -130,7 +130,7 @@ fn edge_path_shortened_for_arrow_marker() {
     use crate::common::rendering::{marker_inset_px, prev_endpoint};
     let d = crate::state::parser::parse("stateDiagram-v2\n    Still --> Moving").unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Find target node boundary
     let target = layout.nodes.iter().find(|n| n.label == "Moving").unwrap();
@@ -172,7 +172,7 @@ fn cross_compound_edge_arrow_touches_rect_boundary() {
             "stateDiagram-v2\n    [*] --> Active\n    state Active {\n        [*] --> Idle\n        Idle --> Running : start\n        Running --> Idle : stop\n        state hist1 <<history>>\n        Running --> hist1\n    }\n    Active --> Paused : pause\n    Paused --> Active : resume"
         ).unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     let paused = layout.nodes.iter().find(|n| n.id == "Paused").unwrap();
     let paused_top = paused.y - paused.height / 2.0;
@@ -220,7 +220,7 @@ fn nested_compounds_render_outermost_first() {
             "stateDiagram-v2\n    [*] --> Outer\n    state Outer {\n        [*] --> Middle\n        state Middle {\n            [*] --> Inner\n            state Inner {\n                [*] --> Core\n                Core --> Processing\n                Processing --> Core\n                Processing --> [*]\n            }\n            Inner --> [*]\n        }\n        Middle --> [*]\n    }\n    Outer --> [*]"
         ).unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     // Collect compound rect areas in scene order
     let compound_areas: Vec<f64> = scene
@@ -257,7 +257,7 @@ fn nested_compounds_render_outermost_first() {
 fn empty_state_diagram() {
     let d = crate::state::parser::parse("stateDiagram-v2").unwrap();
     let layout = crate::state::bridge::layout(&d);
-    let scene = to_scene(&layout);
+    let scene = to_scene(&layout, &Theme::default());
 
     assert!(scene.is_empty(), "empty diagram should produce empty scene");
 }

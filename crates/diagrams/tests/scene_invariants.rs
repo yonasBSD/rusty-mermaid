@@ -11,6 +11,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use rusty_mermaid_core::{Primitive, Scene};
+use rusty_mermaid_core::Theme;
 use rusty_mermaid_diagrams::render_to_scene;
 
 fn golden_mmd_dir() -> PathBuf {
@@ -158,7 +159,7 @@ fn all_golden_scenes_have_positive_dimensions() {
     let mut failures = Vec::new();
     for (label, path) in &files {
         let text = fs::read_to_string(path).unwrap();
-        let scene = match render_to_scene(&text) {
+        let scene = match render_to_scene(&text, &Theme::default()) {
             Ok(s) => s,
             Err(_) => continue, // parse errors caught by parse_golden tests
         };
@@ -179,7 +180,7 @@ fn all_golden_scenes_are_non_empty() {
     let mut failures = Vec::new();
     for (label, path) in &files {
         let text = fs::read_to_string(path).unwrap();
-        let scene = match render_to_scene(&text) {
+        let scene = match render_to_scene(&text, &Theme::default()) {
             Ok(s) => s,
             Err(_) => continue,
         };
@@ -200,7 +201,7 @@ fn all_golden_scenes_have_finite_coordinates() {
     let mut all_failures = Vec::new();
     for (label, path) in &files {
         let text = fs::read_to_string(path).unwrap();
-        let scene = match render_to_scene(&text) {
+        let scene = match render_to_scene(&text, &Theme::default()) {
             Ok(s) => s,
             Err(_) => continue,
         };
@@ -221,7 +222,7 @@ fn all_golden_scenes_have_reasonable_size() {
     let max_dim = 6000.0; // no scene should be larger than 6000px
     for (label, path) in &files {
         let text = fs::read_to_string(path).unwrap();
-        let scene = match render_to_scene(&text) {
+        let scene = match render_to_scene(&text, &Theme::default()) {
             Ok(s) => s,
             Err(_) => continue,
         };

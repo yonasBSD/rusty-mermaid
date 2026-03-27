@@ -12,13 +12,8 @@ use crate::common::rendering::render_edge_label;
 use bridge::LayoutResult;
 use ir::{Cardinality, Identification};
 
-/// Convert an ER diagram layout result into a Scene with default theme.
-pub fn to_scene(layout: &LayoutResult) -> Scene {
-    to_scene_themed(layout, &Theme::default())
-}
-
-/// Convert an ER diagram layout result into a themed Scene.
-pub fn to_scene_themed(layout: &LayoutResult, theme: &Theme) -> Scene {
+/// Convert an ER diagram layout result into a Scene.
+pub fn to_scene(layout: &LayoutResult, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.width, layout.height);
     render_edges(layout, &mut scene, theme);
     render_entities(layout, &mut scene, theme);
@@ -361,7 +356,7 @@ mod tests {
     fn render(input: &str) -> Scene {
         let diagram = super::parser::parse(input).unwrap();
         let layout = bridge::layout(&diagram);
-        to_scene(&layout)
+        to_scene(&layout, &Theme::default())
     }
 
     #[test]
