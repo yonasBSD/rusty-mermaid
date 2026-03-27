@@ -13,3 +13,4 @@ tests/visual/gallery_gpu/
 examples/wasm-gallery/www/pkg/
 crates/pdf/
 tests/golden/pdf/
+review.md
