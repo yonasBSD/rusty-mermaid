@@ -19,14 +19,12 @@ rusty-mermaid-svg = { workspace = true, optional = true }
 rusty-mermaid-raster = { workspace = true, optional = true }
 rusty-mermaid-viewport = { workspace = true, optional = true }
 
-# Heavy GPU backends — optional, not in default workspace builds
-rusty-mermaid-wgpu = { workspace = true, optional = true }
-rusty-mermaid-gpui = { workspace = true, optional = true }
+# GPU backends — not published to crates.io, use path deps directly
+# rusty-mermaid-wgpu = { workspace = true, optional = true }
+# rusty-mermaid-gpui = { workspace = true, optional = true }
 
 [features]
 default = []
 svg = ["dep:rusty-mermaid-svg"]
 raster = ["dep:rusty-mermaid-raster"]
 viewport = ["dep:rusty-mermaid-viewport"]
-wgpu = ["dep:rusty-mermaid-wgpu", "viewport"]
-gpui = ["dep:rusty-mermaid-gpui", "viewport"]
