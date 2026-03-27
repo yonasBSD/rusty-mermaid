@@ -290,14 +290,20 @@ pub fn collect_marker_colors(
     elements: &[Element],
     config: &SvgConfig,
 ) -> Vec<(MarkerType, String)> {
+    let mut seen = std::collections::HashSet::new();
     let mut result = Vec::new();
     for elem in elements {
-        collect_markers_prim(&elem.primitive, config, &mut result);
+        collect_markers_prim(&elem.primitive, config, &mut seen, &mut result);
     }
     result
 }
 
-fn collect_markers_prim(prim: &Primitive, config: &SvgConfig, out: &mut Vec<(MarkerType, String)>) {
+fn collect_markers_prim(
+    prim: &Primitive,
+    config: &SvgConfig,
+    seen: &mut std::collections::HashSet<(MarkerType, String)>,
+    out: &mut Vec<(MarkerType, String)>,
+) {
     match prim {
         Primitive::Path {
             style,
@@ -306,22 +312,16 @@ fn collect_markers_prim(prim: &Primitive, config: &SvgConfig, out: &mut Vec<(Mar
             ..
         } => {
             let color = style.stroke.unwrap_or(config.default_stroke).to_string();
-            if let Some(m) = marker_start {
-                let pair = (*m, color.clone());
-                if !out.contains(&pair) {
-                    out.push(pair);
-                }
-            }
-            if let Some(m) = marker_end {
-                let pair = (*m, color.clone());
-                if !out.contains(&pair) {
+            for marker in [marker_start, marker_end].into_iter().flatten() {
+                let pair = (*marker, color.clone());
+                if seen.insert(pair.clone()) {
                     out.push(pair);
                 }
             }
         }
         Primitive::Group { children, .. } => {
             for child in children {
-                collect_markers_prim(child, config, out);
+                collect_markers_prim(child, config, seen, out);
             }
         }
         _ => {}

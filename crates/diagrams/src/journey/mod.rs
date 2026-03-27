@@ -238,7 +238,7 @@ fn render_task(
         marker_end: None,
     });
 
-    render_face(scene, task_cx, score_y, task.score, color, theme);
+    render_face(scene, Point::new(task_cx, score_y), task.score, color, theme);
 
     for (ai, actor) in task.actors.iter().enumerate() {
         if let Some(idx) = actors.iter().position(|a| a == actor) {
@@ -299,7 +299,8 @@ fn render_actor_legend(
     }
 }
 
-fn render_face(scene: &mut Scene, cx: f64, cy: f64, score: u8, color: Color, theme: &Theme) {
+fn render_face(scene: &mut Scene, center: Point, score: u8, color: Color, theme: &Theme) {
+    let (cx, cy) = (center.x, center.y);
     let face_fill = theme.face_fill;
 
     // Face circle

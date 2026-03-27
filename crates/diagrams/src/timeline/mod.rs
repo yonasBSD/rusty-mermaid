@@ -6,6 +6,7 @@ use rusty_mermaid_core::{
     TextAnchor, TextStyle, Theme,
 };
 
+use crate::common::palette::palette_color;
 use ir::TimelineDiagram;
 
 const TASK_BOX_W: f64 = 120.0;
@@ -189,14 +190,8 @@ fn render_horizontal_chrome(
         let sec_h = *end - *start + GAP;
         render_section_bg(scene, layout.width / 2.0, sec_cy, layout.width - MARGIN, sec_h, *si);
         if let Some(name) = name {
-            render_section_label_left(
-                scene,
-                label_x,
-                *start + SECTION_HEADER_H * 0.4,
-                name,
-                *si,
-                theme,
-            );
+            let color = palette_color(*si);
+            render_section_label_left(scene, Point::new(label_x, *start + SECTION_HEADER_H * 0.4), name, color, theme);
         }
     }
 }
@@ -517,17 +512,9 @@ fn render_section_bg(scene: &mut Scene, cx: f64, cy: f64, w: f64, h: f64, idx: u
     });
 }
 
-fn render_section_label_left(
-    scene: &mut Scene,
-    x: f64,
-    y: f64,
-    name: &str,
-    idx: usize,
-    theme: &Theme,
-) {
-    let color = SECTION_COLORS[idx % SECTION_COLORS.len()];
+fn render_section_label_left(scene: &mut Scene, pos: Point, name: &str, color: Color, theme: &Theme) {
     scene.push(Primitive::Text {
-        position: Point::new(x, y),
+        position: pos,
         content: name.to_string(),
         anchor: TextAnchor::Start,
         style: TextStyle {
