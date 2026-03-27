@@ -257,4 +257,59 @@ mod tests {
         assert_eq!(d.services[0].icon, "database");
         assert_eq!(d.services[0].label, "My DB");
     }
+
+    #[test]
+    fn junction_without_group() {
+        let d = parse("architecture-beta\n  junction mid").unwrap();
+        assert_eq!(d.junctions[0].id, "mid");
+        assert!(d.junctions[0].group.is_none());
+    }
+
+    #[test]
+    fn service_without_group() {
+        let d = parse("architecture-beta\n  service api(server)[API Server]").unwrap();
+        assert_eq!(d.services[0].id, "api");
+        assert!(d.services[0].group.is_none());
+    }
+
+    #[test]
+    fn edge_all_directions() {
+        let d = parse(
+            "architecture-beta\n  service a(s)[A]\n  service b(s)[B]\n  service c(s)[C]\n  service d(s)[D]\n  a:T -- B:b\n  c:L -- R:d",
+        )
+        .unwrap();
+        assert_eq!(d.edges[0].from_dir, Dir::T);
+        assert_eq!(d.edges[0].to_dir, Dir::B);
+        assert_eq!(d.edges[1].from_dir, Dir::L);
+        assert_eq!(d.edges[1].to_dir, Dir::R);
+    }
+
+    #[test]
+    fn nested_group_in_parent() {
+        let d = parse(
+            "architecture-beta\n  group outer(cloud)[Outer]\n  group inner(cloud)[Inner] in outer",
+        )
+        .unwrap();
+        assert_eq!(d.groups.len(), 2);
+        assert!(d.groups[0].parent.is_none());
+        assert_eq!(d.groups[1].parent.as_deref(), Some("outer"));
+    }
+
+    #[test]
+    fn comments_ignored() {
+        let d = parse("architecture-beta\n  %% this is a comment\n  service s(server)[S]")
+            .unwrap();
+        assert_eq!(d.services.len(), 1);
+    }
+
+    #[test]
+    fn multiple_edges() {
+        let d = parse(
+            "architecture-beta\n  service a(s)[A]\n  service b(s)[B]\n  service c(s)[C]\n  a:R -- L:b\n  b:R --> L:c",
+        )
+        .unwrap();
+        assert_eq!(d.edges.len(), 2);
+        assert!(!d.edges[0].arrow_right);
+        assert!(d.edges[1].arrow_right);
+    }
 }

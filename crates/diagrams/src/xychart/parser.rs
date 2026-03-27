@@ -275,4 +275,59 @@ mod tests {
     fn reject_wrong_header() {
         assert!(parse("pie\n    title X").is_err());
     }
+
+    #[test]
+    fn single_data_point() {
+        let c = parse("xychart-beta\n    bar [42]").unwrap();
+        assert_eq!(c.plots[0].values, vec![42.0]);
+    }
+
+    #[test]
+    fn empty_title_string() {
+        let c = parse("xychart-beta\n    title \"\"\n    bar [1, 2]").unwrap();
+        assert_eq!(c.title.as_deref(), Some(""));
+    }
+
+    #[test]
+    fn mixed_bar_and_line() {
+        let c = parse(
+            "xychart-beta\n    x-axis [A, B, C]\n    bar [10, 20, 30]\n    line [5, 15, 25]",
+        )
+        .unwrap();
+        assert_eq!(c.plots.len(), 2);
+        assert_eq!(c.plots[0].plot_type, PlotType::Bar);
+        assert_eq!(c.plots[1].plot_type, PlotType::Line);
+        assert_eq!(c.plots[0].values, vec![10.0, 20.0, 30.0]);
+        assert_eq!(c.plots[1].values, vec![5.0, 15.0, 25.0]);
+    }
+
+    #[test]
+    fn large_values() {
+        let c = parse("xychart-beta\n    bar [1000000, 2500000, 999999]").unwrap();
+        assert_eq!(c.plots[0].values, vec![1000000.0, 2500000.0, 999999.0]);
+    }
+
+    #[test]
+    fn y_axis_title_only() {
+        let c = parse("xychart-beta\n    y-axis \"Revenue\"").unwrap();
+        if let AxisDef::Linear { title, min, max } = &c.y_axis {
+            assert_eq!(title.as_deref(), Some("Revenue"));
+            assert!(min.is_none());
+            assert!(max.is_none());
+        } else {
+            panic!("expected linear axis");
+        }
+    }
+
+    #[test]
+    fn no_title_no_axes() {
+        let c = parse("xychart-beta\n    bar [1, 2, 3]").unwrap();
+        assert!(c.title.is_none());
+    }
+
+    #[test]
+    fn plot_with_label() {
+        let c = parse("xychart-beta\n    line \"Trend\" [10, 20]").unwrap();
+        assert_eq!(c.plots[0].label.as_deref(), Some("Trend"));
+    }
 }

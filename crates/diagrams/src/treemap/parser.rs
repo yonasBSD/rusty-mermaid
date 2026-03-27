@@ -150,4 +150,50 @@ mod tests {
     fn empty_treemap_ok() {
         assert!(parse("treemap").is_ok());
     }
+
+    #[test]
+    fn single_leaf_node() {
+        let d = parse("treemap\n    Solo: 100").unwrap();
+        assert_eq!(d.roots.len(), 1);
+        assert!(d.roots[0].is_leaf());
+        assert!((d.roots[0].total_value() - 100.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn deeply_nested_three_levels() {
+        let d =
+            parse("treemap\n    L1\n        L2\n            L3\n                Leaf: 5").unwrap();
+        let l3 = &d.roots[0].children[0].children[0];
+        assert_eq!(l3.name, "L3");
+        assert_eq!(l3.children[0].name, "Leaf");
+        assert!(l3.children[0].is_leaf());
+    }
+
+    #[test]
+    fn zero_value_leaf() {
+        let d = parse("treemap\n    A: 0").unwrap();
+        assert!((d.roots[0].total_value() - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn duplicate_names_allowed() {
+        let d = parse("treemap\n    Dup: 10\n    Dup: 20").unwrap();
+        assert_eq!(d.roots.len(), 2);
+        assert_eq!(d.roots[0].name, "Dup");
+        assert_eq!(d.roots[1].name, "Dup");
+    }
+
+    #[test]
+    fn comments_skipped() {
+        let d = parse("treemap\n    %% comment\n    A: 50").unwrap();
+        assert_eq!(d.roots.len(), 1);
+        assert_eq!(d.roots[0].name, "A");
+    }
+
+    #[test]
+    fn class_def_lines_skipped() {
+        let d = parse("treemap\n    classDef foo fill:#ff0\n    A: 30").unwrap();
+        assert_eq!(d.roots.len(), 1);
+        assert_eq!(d.roots[0].name, "A");
+    }
 }

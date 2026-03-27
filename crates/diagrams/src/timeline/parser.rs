@@ -161,4 +161,54 @@ mod tests {
     fn reject_wrong_header() {
         assert!(parse("gantt\n    title X").is_err());
     }
+
+    #[test]
+    fn title_only_no_tasks() {
+        let d = parse("timeline\n    title Just A Title").unwrap();
+        assert_eq!(d.title.as_deref(), Some("Just A Title"));
+        assert!(d.sections.is_empty());
+    }
+
+    #[test]
+    fn empty_section_flushed() {
+        let d = parse("timeline\n    section Empty\n    section Also Empty").unwrap();
+        assert_eq!(d.sections.len(), 2);
+        assert!(d.sections[0].tasks.is_empty());
+        assert!(d.sections[1].tasks.is_empty());
+    }
+
+    #[test]
+    fn single_event_per_task() {
+        let d = parse("timeline\n    2024 : Launch").unwrap();
+        assert_eq!(d.sections[0].tasks[0].events, vec!["Launch"]);
+    }
+
+    #[test]
+    fn events_with_special_chars() {
+        let d =
+            parse("timeline\n    2024 : Event #1 (alpha) : Bug-fix & release").unwrap();
+        assert_eq!(d.sections[0].tasks[0].events.len(), 2);
+        assert_eq!(d.sections[0].tasks[0].events[0], "Event #1 (alpha)");
+        assert_eq!(d.sections[0].tasks[0].events[1], "Bug-fix & release");
+    }
+
+    #[test]
+    fn direction_lr_default() {
+        let d = parse("timeline\n    2020 : X").unwrap();
+        assert_eq!(d.direction, Direction::LR);
+    }
+
+    #[test]
+    fn direction_lr_explicit() {
+        let d = parse("timeline LR\n    2020 : X").unwrap();
+        assert_eq!(d.direction, Direction::LR);
+    }
+
+    #[test]
+    fn tasks_without_section_in_default_section() {
+        let d = parse("timeline\n    2020 : A\n    2021 : B").unwrap();
+        assert_eq!(d.sections.len(), 1);
+        assert!(d.sections[0].name.is_none());
+        assert_eq!(d.sections[0].tasks.len(), 2);
+    }
 }

@@ -141,4 +141,64 @@ mod tests {
     fn reject_empty() {
         assert!(parse("ishikawa-beta").is_err());
     }
+
+    #[test]
+    fn single_category_no_causes() {
+        let d = parse("ishikawa-beta\n    Defect\n    Materials").unwrap();
+        assert_eq!(d.effect, "Defect");
+        assert_eq!(d.categories.len(), 1);
+        assert_eq!(d.categories[0].name, "Materials");
+        assert!(d.categories[0].causes.is_empty());
+    }
+
+    #[test]
+    fn special_chars_in_names() {
+        let d = parse("ishikawa-beta\n    Bug #42\n    Cat & Dog\n        Cause: yes")
+            .unwrap();
+        assert_eq!(d.effect, "Bug #42");
+        assert_eq!(d.categories[0].name, "Cat & Dog");
+        assert_eq!(d.categories[0].causes[0].name, "Cause: yes");
+    }
+
+    #[test]
+    fn whitespace_only_lines_ignored() {
+        let d = parse("ishikawa-beta\n    Effect\n    \n      \n    Cat\n        C1").unwrap();
+        assert_eq!(d.categories.len(), 1);
+        assert_eq!(d.categories[0].causes.len(), 1);
+    }
+
+    #[test]
+    fn deeply_nested_subcauses() {
+        let d = parse(
+            "ishikawa-beta\n    Effect\n    Cat\n        L1\n            L2\n                L3",
+        )
+        .unwrap();
+        let l1 = &d.categories[0].causes[0];
+        assert_eq!(l1.name, "L1");
+        assert_eq!(l1.subcauses[0].name, "L2");
+        assert_eq!(l1.subcauses[0].subcauses[0].name, "L3");
+        assert!(l1.subcauses[0].subcauses[0].subcauses.is_empty());
+    }
+
+    #[test]
+    fn multiple_categories_mixed_depths() {
+        let d = parse(
+            "ishikawa-beta\n    Problem\n    People\n        Skill\n    Process\n    Machine\n        Wear\n            Bearing",
+        )
+        .unwrap();
+        assert_eq!(d.categories.len(), 3);
+        assert_eq!(d.categories[0].causes.len(), 1);
+        assert!(d.categories[1].causes.is_empty());
+        assert_eq!(d.categories[2].causes[0].subcauses.len(), 1);
+    }
+
+    #[test]
+    fn quoted_names_stripped() {
+        let d =
+            parse("ishikawa-beta\n    \"My Effect\"\n    \"My Category\"\n        \"My Cause\"")
+                .unwrap();
+        assert_eq!(d.effect, "My Effect");
+        assert_eq!(d.categories[0].name, "My Category");
+        assert_eq!(d.categories[0].causes[0].name, "My Cause");
+    }
 }

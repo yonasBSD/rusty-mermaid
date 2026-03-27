@@ -136,4 +136,57 @@ mod tests {
         assert_eq!(t.roots.len(), 1);
         assert!(t.roots[0].children.is_empty());
     }
+
+    #[test]
+    fn deep_nesting_five_levels() {
+        let t = parse(
+            "treeView-beta\n    a\n        b\n            c\n                d\n                    e",
+        )
+        .unwrap();
+        let mut node = &t.roots[0];
+        for expected in ["a", "b", "c", "d", "e"] {
+            assert_eq!(node.name, expected);
+            if expected != "e" {
+                node = &node.children[0];
+            }
+        }
+        assert!(node.children.is_empty());
+    }
+
+    #[test]
+    fn special_chars_in_names() {
+        let t = parse("treeView-beta\n    src/main.rs\n        fn main() {}").unwrap();
+        assert_eq!(t.roots[0].name, "src/main.rs");
+        assert_eq!(t.roots[0].children[0].name, "fn main() {}");
+    }
+
+    #[test]
+    fn siblings_at_same_depth() {
+        let t = parse(
+            "treeView-beta\n    root\n        child1\n        child2\n        child3",
+        )
+        .unwrap();
+        assert_eq!(t.roots[0].children.len(), 3);
+        assert_eq!(t.roots[0].children[2].name, "child3");
+    }
+
+    #[test]
+    fn mixed_depths_under_root() {
+        let t = parse(
+            "treeView-beta\n    root\n        a\n            a1\n        b\n            b1\n            b2",
+        )
+        .unwrap();
+        assert_eq!(t.roots[0].children.len(), 2);
+        assert_eq!(t.roots[0].children[0].children.len(), 1);
+        assert_eq!(t.roots[0].children[1].children.len(), 2);
+    }
+
+    #[test]
+    fn node_count_complex_tree() {
+        let t = parse(
+            "treeView-beta\n    r\n        a\n            a1\n        b",
+        )
+        .unwrap();
+        assert_eq!(t.node_count(), 4);
+    }
 }

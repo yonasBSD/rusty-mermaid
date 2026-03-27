@@ -204,4 +204,47 @@ mod tests {
     fn reject_wrong_header() {
         assert!(parse("timeline\n    X").is_err());
     }
+
+    #[test]
+    fn single_card_in_column() {
+        let b = parse("kanban\n    Backlog\n        task1[Only card]").unwrap();
+        assert_eq!(b.columns.len(), 1);
+        assert_eq!(b.columns[0].cards.len(), 1);
+        assert_eq!(b.columns[0].cards[0].label, "Only card");
+    }
+
+    #[test]
+    fn special_chars_in_labels() {
+        let b = parse("kanban\n    To-Do\n        t1[Fix bug #42 & deploy]").unwrap();
+        assert_eq!(b.columns[0].label, "To-Do");
+        assert_eq!(b.columns[0].cards[0].label, "Fix bug #42 & deploy");
+    }
+
+    #[test]
+    fn metadata_priority_very_high() {
+        let b = parse("kanban\n    Col\n        t1[X] @{priority: very high}").unwrap();
+        assert_eq!(b.columns[0].cards[0].priority, Some(Priority::VeryHigh));
+    }
+
+    #[test]
+    fn metadata_priority_very_low() {
+        let b = parse("kanban\n    Col\n        t1[X] @{priority: very low}").unwrap();
+        assert_eq!(b.columns[0].cards[0].priority, Some(Priority::VeryLow));
+    }
+
+    #[test]
+    fn multiple_empty_columns() {
+        let b = parse("kanban\n    A\n    B\n    C").unwrap();
+        assert_eq!(b.columns.len(), 3);
+        for col in &b.columns {
+            assert!(col.cards.is_empty());
+        }
+    }
+
+    #[test]
+    fn card_id_from_bracket_syntax() {
+        let b = parse("kanban\n    Col\n        myId[My Label]").unwrap();
+        assert_eq!(b.columns[0].cards[0].id, "myId");
+        assert_eq!(b.columns[0].cards[0].label, "My Label");
+    }
 }

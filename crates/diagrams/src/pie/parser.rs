@@ -173,4 +173,46 @@ mod tests {
     fn reject_wrong_header() {
         assert!(parse("gantt\n    title X").is_err());
     }
+
+    #[test]
+    fn single_slice() {
+        let d = parse("pie\n    \"Only\" : 100").unwrap();
+        assert_eq!(d.slices.len(), 1);
+        assert_eq!(d.slices[0].label, "Only");
+        assert!((d.slices[0].value - 100.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn zero_value_slice() {
+        let d = parse("pie\n    \"Nothing\" : 0\n    \"All\" : 100").unwrap();
+        assert_eq!(d.slices.len(), 2);
+        assert!((d.slices[0].value - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn title_with_spaces() {
+        let d = parse("pie title My Fancy Pie Chart\n    \"A\" : 50").unwrap();
+        assert_eq!(d.title.as_deref(), Some("My Fancy Pie Chart"));
+    }
+
+    #[test]
+    fn whitespace_around_colon() {
+        let d = parse("pie\n    \"X\"  :  42").unwrap();
+        assert_eq!(d.slices.len(), 1);
+        assert!((d.slices[0].value - 42.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn show_data_with_title() {
+        let d = parse("pie showData title Metrics\n    \"A\" : 10").unwrap();
+        assert!(d.show_data);
+        assert_eq!(d.title.as_deref(), Some("Metrics"));
+    }
+
+    #[test]
+    fn no_slices_ok() {
+        let d = parse("pie\n    title Empty Chart").unwrap();
+        assert!(d.slices.is_empty());
+        assert_eq!(d.title.as_deref(), Some("Empty Chart"));
+    }
 }

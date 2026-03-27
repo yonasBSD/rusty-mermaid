@@ -251,4 +251,64 @@ mod tests {
         assert_eq!(parse("C4Component").unwrap().level, C4Level::Component);
         assert_eq!(parse("C4Dynamic").unwrap().level, C4Level::Dynamic);
     }
+
+    #[test]
+    fn nested_boundaries() {
+        let d = parse(
+            "C4Container\n  System_Boundary(s1, \"System\") {\n    Container_Boundary(c1, \"Cluster\") {\n      Container(app, \"App\")\n    }\n  }",
+        )
+        .unwrap();
+        assert_eq!(d.boundaries.len(), 2);
+        assert_eq!(d.boundaries[0].alias, "s1");
+        assert_eq!(d.boundaries[1].alias, "c1");
+        assert_eq!(d.elements[0].boundary.as_deref(), Some("c1"));
+    }
+
+    #[test]
+    fn dynamic_diagram() {
+        let d = parse(
+            "C4Dynamic\n  Person(user, \"User\")\n  System(sys, \"System\")\n  Rel(user, sys, \"Sends request\")",
+        )
+        .unwrap();
+        assert_eq!(d.level, C4Level::Dynamic);
+        assert_eq!(d.relationships[0].label, "Sends request");
+    }
+
+    #[test]
+    fn element_with_technology() {
+        let d =
+            parse("C4Container\n  Container(web, \"Web App\", \"React\", \"User-facing frontend\")")
+                .unwrap();
+        assert_eq!(d.elements[0].technology.as_deref(), Some("React"));
+        assert_eq!(
+            d.elements[0].description.as_deref(),
+            Some("User-facing frontend")
+        );
+    }
+
+    #[test]
+    fn relationship_with_technology() {
+        let d = parse(
+            "C4Context\n  Person(u, \"User\")\n  System(s, \"Sys\")\n  Rel(u, s, \"Uses\", \"HTTPS\")",
+        )
+        .unwrap();
+        assert_eq!(d.relationships[0].technology.as_deref(), Some("HTTPS"));
+    }
+
+    #[test]
+    fn database_and_queue_shapes() {
+        let d = parse(
+            "C4Container\n  ContainerDb(db, \"Database\")\n  ContainerQueue(q, \"Message Queue\")",
+        )
+        .unwrap();
+        assert_eq!(d.elements[0].shape, C4Shape::Database);
+        assert_eq!(d.elements[1].shape, C4Shape::Queue);
+    }
+
+    #[test]
+    fn external_person() {
+        let d = parse("C4Context\n  Person_Ext(ext, \"External User\")").unwrap();
+        assert!(d.elements[0].external);
+        assert_eq!(d.elements[0].shape, C4Shape::Person);
+    }
 }
