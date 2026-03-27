@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 472" width="672" height="472">
+  <g transform="translate(20, 20)">
+    <rect x="17.5" y="17.5" width="297" height="397" rx="3" ry="3" fill="#edf1f6" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="24" y="29.2" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Operations (1000)</text>
+    <rect x="21.5" y="43.5" width="289" height="256" rx="3" ry="3" fill="#fce8d4" stroke="#f28e2c" stroke-width="1" />
+    <text x="166" y="167.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Salaries</text>
+    <text x="166" y="182.7" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">700</text>
+    <rect x="21.5" y="302.5" width="191.67" height="108" rx="3" ry="3" fill="#f9dddd" stroke="#e15759" stroke-width="1" />
+    <text x="117.33" y="352.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Equipment</text>
+    <text x="117.33" y="367.7" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">200</text>
+    <rect x="216.17" y="302.5" width="94.33" height="108" rx="3" ry="3" fill="#e3f0ef" stroke="#76b7b2" stroke-width="1" />
+    <text x="263.33" y="352.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Supplies</text>
+    <text x="263.33" y="367.7" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">100</text>
+    <rect x="317.5" y="17.5" width="297" height="197" rx="3" ry="3" fill="#fdf3e9" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="324" y="29.2" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Marketing (500)</text>
+    <rect x="321.5" y="43.5" width="230.6" height="167" rx="3" ry="3" fill="#fce8d4" stroke="#f28e2c" stroke-width="1" />
+    <text x="436.8" y="122.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Advertising</text>
+    <text x="436.8" y="138.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">400</text>
+    <rect x="555.1" y="43.5" width="55.4" height="167" rx="3" ry="3" fill="#f9dddd" stroke="#e15759" stroke-width="1" />
+    <rect x="317.5" y="217.5" width="297" height="197" rx="3" ry="3" fill="#fceeee" stroke="#e15759" stroke-width="1.5" />
+    <text x="324" y="229.2" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">R&amp;D (500)</text>
+    <rect x="321.5" y="243.5" width="172.2" height="167" rx="3" ry="3" fill="#fce8d4" stroke="#f28e2c" stroke-width="1" />
+    <text x="407.6" y="322.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Research</text>
+    <text x="407.6" y="338.2" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">300</text>
+    <rect x="496.7" y="243.5" width="113.8" height="124.5" rx="3" ry="3" fill="#f9dddd" stroke="#e15759" stroke-width="1" />
+    <text x="553.6" y="301.55" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Prototyping</text>
+    <text x="553.6" y="316.95" text-anchor="middle" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">150</text>
+    <rect x="496.7" y="371" width="113.8" height="39.5" rx="3" ry="3" fill="#e3f0ef" stroke="#76b7b2" stroke-width="1" />
+    <text x="553.6" y="387.56" text-anchor="middle" dominant-baseline="central" font-size="10.62px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Testing</text>
+    <text x="553.6" y="399.25" text-anchor="middle" dominant-baseline="central" font-size="9.03px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">50</text>
+  </g>
+</svg>

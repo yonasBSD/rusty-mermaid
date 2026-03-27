@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 274.4 629.8" width="274.4" height="629.8">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M112.9 32.8 L112.9 36.97 C112.9 41.13 112.9 49.47 112.9 57.8 C112.9 66.13 112.9 74.47 112.9 78.63 L112.9 80.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M140.92 179.78 L148.1 188.62 C155.28 197.45 169.64 215.13 176.82 229.57 C184 244.02 184 255.24 184 260.85 L184 264.06" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M84.88 179.78 L77.7 188.62 C70.52 197.45 56.16 215.13 48.98 228.13 C41.8 241.13 41.8 249.47 41.8 253.63 L41.8 255.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M184 332.74 L184 338.35 C184 343.96 184 355.18 176.84 364.96 C169.69 374.73 155.38 383.07 148.22 387.23 L143.14 390.19" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M41.8 341.4 L41.8 345.57 C41.8 349.73 41.8 358.07 48.96 366.4 C56.11 374.73 70.42 383.07 77.58 387.23 L82.66 390.19" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M112.9 424.2 L112.9 428.37 C112.9 432.53 112.9 440.87 112.9 449.2 C112.9 457.53 112.9 465.87 112.9 470.03 L112.9 471.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M112.9 507 L112.9 511.17 C112.9 515.33 112.9 523.67 112.9 532 C112.9 540.33 112.9 548.67 112.9 552.83 L112.9 554.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="66.8" y="0" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2" />
+    <text x="112.9" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Stadium</text>
+    <polygon points="112.9,82.8 175.4,145.3 112.9,207.8 50.4,145.3" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+    <text x="112.9" y="145.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Diamond</text>
+    <path d="M133.6 277.62 L133.6 321.58 A50.4 11.16 0 0 0 234.4 321.58 L234.4 277.62 A50.4 11.16 0 0 1 133.6 277.62" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+    <path d="M133.6 277.62 A50.4 11.16 0 0 1 234.4 277.62 A50.4 11.16 0 0 1 133.6 277.62" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+    <text x="184" y="305.18" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cylinder</text>
+    <circle cx="41.8" cy="299.6" r="41.8" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2" />
+    <text x="41.8" y="299.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Circle</text>
+    <rect x="45.9" y="391.4" width="134" height="32.8" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+    <path d="M53.9 391.4 L53.9 424.2" fill="none" stroke="#b71c1c" stroke-width="2" />
+    <path d="M171.9 391.4 L171.9 424.2" fill="none" stroke="#b71c1c" stroke-width="2" />
+    <text x="112.9" y="407.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Subroutine</text>
+    <polygon points="75,474.2 150.8,474.2 159,490.6 150.8,507 75,507 66.8,490.6" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+    <text x="112.9" y="490.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hexagon</text>
+    <polygon points="41,557 184.8,557 201.2,589.8 24.6,589.8" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2" />
+    <text x="112.9" y="573.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Parallelogram</text>
+  </g>
+</svg>

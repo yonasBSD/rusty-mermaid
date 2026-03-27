@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 755.75 502.98" width="755.75" height="502.98">
+  <g transform="translate(20, 20)">
+    <rect x="308.44" y="10" width="397.31" height="470.98" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="318.44" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Cloud Platform</text>
+    <rect x="10" y="186.7" width="380.91" height="183.76" rx="6" ry="6" fill="none" stroke="#f28e2c" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="20" y="200.7" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Backend</text>
+    <path d="M140 260.27 L260.91 268.89" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M327.02 232.45 L372.32 120" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M360.91 266.54 L481.35 252.3" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M497.35 259.07 L584.3 342.98" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <rect x="40" y="216.7" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="90" cy="244.7" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="244.7" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
+    <text x="90" y="276.7" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Web Server</text>
+    <rect x="260.91" y="232.45" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="310.91" cy="260.45" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
+    <text x="310.91" y="260.45" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">SRV</text>
+    <text x="310.91" y="292.45" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">API Server</text>
+    <rect x="338.44" y="40" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <circle cx="388.44" cy="68" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
+    <text x="388.44" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">DB</text>
+    <text x="388.44" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">PostgreSQL</text>
+    <rect x="575.75" y="342.98" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <circle cx="625.75" cy="370.98" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
+    <text x="625.75" y="370.98" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DSK</text>
+    <text x="625.75" y="402.98" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Redis Cache</text>
+    <rect x="481.35" y="243.35" width="16" height="16" rx="2" ry="2" fill="#787878" />
+  </g>
+</svg>

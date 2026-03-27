@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 409.85 595.92" width="409.85" height="595.92">
+  <g transform="translate(20, 20)">
+    <path d="M291.71 125.92 L291.71 131.49 C291.71 137.05 291.71 148.19 291.71 161.18 C291.71 174.17 291.71 189.01 291.71 196.44 L291.71 203.86" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="261.91" y="146.92" width="59.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="291.71" y="159.32" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">places</text>
+    <path d="M287.71 127.92 L295.71 127.92" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M287.71 131.12 L295.71 131.12" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M291.71 197.06 L287.71 201.86" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M291.71 197.06 L291.71 201.86" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M291.71 197.06 L295.71 201.86" fill="none" stroke="#333333" stroke-width="1.5" />
+    <circle cx="291.71" cy="194.26" r="2" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <path d="M291.71 329.78 L291.71 337.2 C291.71 344.63 291.71 359.47 286.28 372.46 C280.84 385.45 269.97 396.59 264.54 402.15 L259.1 407.72" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="253.31" y="361.92" width="76.8" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="291.71" y="374.32" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">contains</text>
+    <path d="M287.71 331.78 L295.71 331.78" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M287.71 334.98 L295.71 334.98" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M263.85 402.85 L257.64 403.49" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M263.85 402.85 L260.5 406.29" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M263.85 402.85 L263.36 409.08" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M268.39 403.93 L262.67 398.34" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M81.79 340.92 L81.79 346.49 C81.79 352.05 81.79 363.19 87.23 374.32 C92.66 385.45 103.53 396.59 108.97 402.15 L114.4 407.72" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="34.79" y="361.92" width="94" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="81.79" y="374.32" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">appears in</text>
+    <path d="M77.79 342.92 L85.79 342.92" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M77.79 346.12 L85.79 346.12" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M109.65 402.85 L110.14 409.08" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M109.65 402.85 L113 406.29" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M109.65 402.85 L115.87 403.49" fill="none" stroke="#333333" stroke-width="1.5" />
+    <circle cx="107.69" cy="400.85" r="2" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <path d="M81.79 103.64 L81.79 112.92 C81.79 122.2 81.79 140.76 81.79 155.61 C81.79 170.45 81.79 181.59 81.79 187.15 L81.79 192.72" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="51.99" y="146.92" width="59.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="81.79" y="159.32" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">groups</text>
+    <path d="M77.79 105.64 L85.79 105.64" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M77.79 108.84 L85.79 108.84" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M81.79 185.92 L77.79 190.72" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M81.79 185.92 L81.79 190.72" fill="none" stroke="#333333" stroke-width="1.5" />
+    <path d="M81.79 185.92 L85.79 190.72" fill="none" stroke="#333333" stroke-width="1.5" />
+    <circle cx="81.79" cy="183.12" r="2" fill="#ffffff" stroke="#333333" stroke-width="1.5" />
+    <rect x="217.23" y="0" width="148.96" height="125.92" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="291.71" y="18.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">CUSTOMER</text>
+    <path d="M217.23 36.8 L366.19 36.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="217.98" y="36.8" width="147.46" height="22.28" fill="#ececffb2" />
+    <text x="225.23" y="47.94" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int id PK</text>
+    <rect x="217.98" y="59.08" width="147.46" height="22.28" fill="#ffffffcc" />
+    <text x="225.23" y="70.22" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string firstName</text>
+    <rect x="217.98" y="81.36" width="147.46" height="22.28" fill="#ececffb2" />
+    <text x="225.23" y="92.5" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string lastName</text>
+    <rect x="217.98" y="103.64" width="147.46" height="21.53" fill="#ffffffcc" />
+    <text x="225.23" y="114.78" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string email UK</text>
+    <rect x="213.58" y="203.86" width="156.27" height="125.92" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="291.71" y="222.26" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">ORDER</text>
+    <path d="M213.58 240.66 L369.85 240.66" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="214.33" y="240.66" width="154.77" height="22.28" fill="#ececffb2" />
+    <text x="221.58" y="251.8" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int id PK</text>
+    <rect x="214.33" y="262.94" width="154.77" height="22.28" fill="#ffffffcc" />
+    <text x="221.58" y="274.08" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">date orderDate</text>
+    <rect x="214.33" y="285.22" width="154.77" height="22.28" fill="#ececffb2" />
+    <text x="221.58" y="296.36" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string status</text>
+    <rect x="214.33" y="307.5" width="154.77" height="21.53" fill="#ffffffcc" />
+    <text x="221.58" y="318.64" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int customerId FK</text>
+    <rect x="112.27" y="407.72" width="148.96" height="148.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="186.75" y="426.12" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">LINE-ITEM</text>
+    <path d="M112.27 444.52 L261.23 444.52" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="113.02" y="444.52" width="147.46" height="22.28" fill="#ececffb2" />
+    <text x="120.27" y="455.66" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int id PK</text>
+    <rect x="113.02" y="466.8" width="147.46" height="22.28" fill="#ffffffcc" />
+    <text x="120.27" y="477.94" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int orderId FK</text>
+    <rect x="113.02" y="489.08" width="147.46" height="22.28" fill="#ececffb2" />
+    <text x="120.27" y="500.22" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int productId FK</text>
+    <rect x="113.02" y="511.36" width="147.46" height="22.28" fill="#ffffffcc" />
+    <text x="120.27" y="522.5" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int quantity</text>
+    <rect x="113.02" y="533.64" width="147.46" height="21.53" fill="#ececffb2" />
+    <text x="120.27" y="544.78" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">float unitPrice</text>
+    <rect x="0" y="192.72" width="163.58" height="148.2" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="81.79" y="211.12" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">PRODUCT</text>
+    <path d="M0 229.52 L163.58 229.52" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="0.75" y="229.52" width="162.08" height="22.28" fill="#ececffb2" />
+    <text x="8" y="240.66" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int id PK</text>
+    <rect x="0.75" y="251.8" width="162.08" height="22.28" fill="#ffffffcc" />
+    <text x="8" y="262.94" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string name</text>
+    <rect x="0.75" y="274.08" width="162.08" height="22.28" fill="#ececffb2" />
+    <text x="8" y="285.22" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string description</text>
+    <rect x="0.75" y="296.36" width="162.08" height="22.28" fill="#ffffffcc" />
+    <text x="8" y="307.5" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">float price</text>
+    <rect x="0.75" y="318.64" width="162.08" height="21.53" fill="#ececffb2" />
+    <text x="8" y="329.78" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int categoryId FK</text>
+    <rect x="25.58" y="22.28" width="112.41" height="81.36" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="81.79" y="40.68" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">CATEGORY</text>
+    <path d="M25.58 59.08 L138 59.08" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="26.33" y="59.08" width="110.91" height="22.28" fill="#ececffb2" />
+    <text x="33.58" y="70.22" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">int id PK</text>
+    <rect x="26.33" y="81.36" width="110.91" height="21.53" fill="#ffffffcc" />
+    <text x="33.58" y="92.5" text-anchor="start" dominant-baseline="central" font-size="11.9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">string name</text>
+  </g>
+</svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 550" width="620" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Car Comparison</text>
+    <polygon points="230,235 272.8,266.09 256.45,316.41 203.55,316.41 187.2,266.09" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,190 315.6,252.19 282.9,352.81 177.1,352.81 144.4,252.19" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,145 358.39,238.28 309.35,389.22 150.65,389.22 101.61,238.28" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 401.19,224.38 335.8,425.62 124.2,425.62 58.81,224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Speed</text>
+    <path d="M230 280 L401.19 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="414.5" y="220.05" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Comfort</text>
+    <path d="M230 280 L335.8 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="344.03" y="436.95" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Safety</text>
+    <path d="M230 280 L124.2 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="115.97" y="436.95" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Economy</text>
+    <path d="M230 280 L58.81 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="45.5" y="220.05" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Style</text>
+    <text x="239.72" y="235.51" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">2</text>
+    <text x="246.45" y="191.01" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">5</text>
+    <text x="253.17" y="146.52" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">8</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">10</text>
+    <polygon points="230,118 315.6,252.19 304.06,381.94 198.26,323.69 75.93,229.94" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="118" r="3" fill="#4e79a7" />
+    <circle cx="315.6" cy="252.19" r="3" fill="#4e79a7" />
+    <circle cx="304.06" cy="381.94" r="3" fill="#4e79a7" />
+    <circle cx="198.26" cy="323.69" r="3" fill="#4e79a7" />
+    <circle cx="75.93" cy="229.94" r="3" fill="#4e79a7" />
+    <polygon points="230,190 366.95,235.5 325.22,411.06 155.94,381.94 144.4,252.19" fill="#f28e2c28" stroke="#f28e2c" stroke-width="2" />
+    <circle cx="230" cy="190" r="3" fill="#f28e2c" />
+    <circle cx="366.95" cy="235.5" r="3" fill="#f28e2c" />
+    <circle cx="325.22" cy="411.06" r="3" fill="#f28e2c" />
+    <circle cx="155.94" cy="381.94" r="3" fill="#f28e2c" />
+    <circle cx="144.4" cy="252.19" r="3" fill="#f28e2c" />
+    <polygon points="230,172 349.83,241.06 314.64,396.5 177.1,352.81 127.29,246.63" fill="#e1575928" stroke="#e15759" stroke-width="2" />
+    <circle cx="230" cy="172" r="3" fill="#e15759" />
+    <circle cx="349.83" cy="241.06" r="3" fill="#e15759" />
+    <circle cx="314.64" cy="396.5" r="3" fill="#e15759" />
+    <circle cx="177.1" cy="352.81" r="3" fill="#e15759" />
+    <circle cx="127.29" cy="246.63" r="3" fill="#e15759" />
+    <rect x="440" y="100" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="458" y="106" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sports Car</text>
+    <rect x="440" y="120" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="458" y="126" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Family Sedan</text>
+    <rect x="440" y="140" width="12" height="12" rx="2" ry="2" fill="#e15759" />
+    <text x="458" y="146" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SUV</text>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 376" width="840" height="376">
+  <g transform="translate(20, 20)">
+    <text x="400" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Sprint Plan</text>
+    <rect x="20" y="76" width="780" height="85" fill="#4e79a712" />
+    <text x="24" y="87" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Sprint 1</text>
+    <rect x="20" y="166" width="780" height="85" fill="#f28e2c12" />
+    <text x="24" y="177" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Sprint 2</text>
+    <rect x="20" y="256" width="780" height="55" fill="#59a14f12" />
+    <text x="24" y="267" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Milestones</text>
+    <path d="M180 76 L780 76" fill="none" stroke="#333333" stroke-width="1" />
+    <path d="M780 76 L780 316" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
+    <path d="M180 76 L180 316" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
+    <path d="M180 72 L180 80" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="180" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 1</text>
+    <path d="M348 72 L348 80" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="348" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 8</text>
+    <path d="M516 72 L516 80" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="516" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 15</text>
+    <path d="M684 72 L684 80" fill="none" stroke="#333333" stroke-width="1" />
+    <text x="684" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mar 22</text>
+    <path d="M180 76 L180 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M348 76 L348 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M516 76 L516 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M684 76 L684 316" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="96" width="120" height="24" rx="3" ry="3" fill="#4e79a78c" />
+    <text x="172" y="108" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design</text>
+    <rect x="300" y="126" width="72" height="24" rx="3" ry="3" fill="#4e79a7" />
+    <text x="172" y="138" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Prototype</text>
+    <rect x="372" y="186" width="240" height="24" rx="3" ry="3" fill="#dc3c3c" />
+    <text x="172" y="198" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Development</text>
+    <rect x="612" y="216" width="48" height="24" rx="3" ry="3" fill="#f28e2cc8" />
+    <text x="172" y="228" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code Review</text>
+    <polygon points="768,278.4 777.6,288 768,297.6 758.4,288" fill="#59a14fc8" stroke="#59a14f" stroke-width="1" />
+    <text x="172" y="288" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">MVP Release</text>
+  </g>
+</svg>

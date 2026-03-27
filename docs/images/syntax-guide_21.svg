@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1397.26 328" width="1397.26" height="328">
+  <g transform="translate(20, 20)">
+    <text x="678.63" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Company History</text>
+    <path d="M44.77 180 L1272.49 180" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="66" width="419.09" height="212" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="20" y="76" width="399.09" height="28" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="219.54" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Foundation</text>
+    <rect x="449.09" y="66" width="419.09" height="212" rx="4" ry="4" fill="#f28e2c1e" />
+    <rect x="459.09" y="76" width="399.09" height="28" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="658.63" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Growth</text>
+    <rect x="888.17" y="66" width="419.09" height="212" rx="4" ry="4" fill="#e157591e" />
+    <rect x="898.17" y="76" width="399.09" height="28" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="1097.71" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Maturity</text>
+    <rect x="54.77" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2010</text>
+    <circle cx="114.77" cy="180" r="4" fill="#4e79a7" />
+    <path d="M114.77 185 L114.77 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="20" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Company founded</text>
+    <rect x="20" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">First office</text>
+    <rect x="264.31" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2011</text>
+    <circle cx="324.31" cy="180" r="4" fill="#4e79a7" />
+    <path d="M324.31 185 L324.31 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="229.54" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Seed funding</text>
+    <rect x="493.86" y="124" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="553.86" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2013</text>
+    <circle cx="553.86" cy="180" r="4" fill="#f28e2c" />
+    <path d="M553.86 185 L553.86 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="459.09" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="553.86" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Series A</text>
+    <rect x="459.09" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="553.86" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">50 employees</text>
+    <rect x="703.4" y="124" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="763.4" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2015</text>
+    <circle cx="763.4" cy="180" r="4" fill="#f28e2c" />
+    <path d="M763.4 185 L763.4 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="668.63" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="763.4" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Series B</text>
+    <rect x="668.63" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="763.4" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">International expansion</text>
+    <rect x="932.94" y="124" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="992.94" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2018</text>
+    <circle cx="992.94" cy="180" r="4" fill="#e15759" />
+    <path d="M992.94 185 L992.94 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="898.17" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="992.94" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">IPO</text>
+    <rect x="1142.49" y="124" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="1202.49" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2020</text>
+    <circle cx="1202.49" cy="180" r="4" fill="#e15759" />
+    <path d="M1202.49 185 L1202.49 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="1107.71" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="1202.49" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">1000 employees</text>
+    <rect x="1107.71" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="1202.49" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Global presence</text>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1539.8 89.6" width="1539.8" height="89.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M135.2 24.8 L139.37 24.8 C143.53 24.8 151.87 24.8 160.2 24.8 C168.53 24.8 176.87 24.8 181.03 24.8 L182.8 24.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M329 24.8 L333.17 24.8 C337.33 24.8 345.67 24.8 354 24.8 C362.33 24.8 370.67 24.8 374.83 24.8 L376.6 24.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M583 24.8 L587.17 24.8 C591.33 24.8 599.67 24.8 608 24.8 C616.33 24.8 624.67 24.8 628.83 24.8 L630.6 24.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M828.4 24.8 L832.57 24.8 C836.73 24.8 845.07 24.8 853.4 24.8 C861.73 24.8 870.07 24.8 874.23 24.8 L876 24.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M1185.6 24.8 L1189.77 24.8 C1193.93 24.8 1202.27 24.8 1210.6 24.8 C1218.93 24.8 1227.27 24.8 1231.43 24.8 L1233.2 24.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="0" y="8.4" width="135.2" height="32.8" fill="#f5f5ff" stroke="#9370db" stroke-width="1.5" />
+    <text x="67.6" y="24.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#000000">mermaid text</text>
+    <rect x="185.2" y="0" width="143.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="257.1" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="257.1" dy="0">detect(input)</tspan>
+      <tspan x="257.1" dy="16.8">→ DiagramKind</tspan>
+    </text>
+    <rect x="379" y="0" width="204" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="481" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="481" dy="0">parser::parse(input)</tspan>
+      <tspan x="481" dy="16.8">→ IR struct</tspan>
+    </text>
+    <rect x="633" y="0" width="195.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="730.7" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="730.7" dy="0">bridge::layout(&amp;ir)</tspan>
+      <tspan x="730.7" dy="16.8">→ LayoutResult</tspan>
+    </text>
+    <rect x="878.4" y="0" width="307.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="1032" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan x="1032" dy="0">to_scene_themed(&amp;layout, &amp;theme)</tspan>
+      <tspan x="1032" dy="16.8">→ Scene</tspan>
+    </text>
+    <rect x="1235.6" y="0" width="264.2" height="49.6" fill="#f5f5ff" stroke="#9370db" stroke-width="1.5" />
+    <text x="1367.7" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#000000">
+      <tspan x="1367.7" dy="0">SvgRenderer::render(&amp;scene)</tspan>
+      <tspan x="1367.7" dy="16.8">→ String</tspan>
+    </text>
+  </g>
+</svg>

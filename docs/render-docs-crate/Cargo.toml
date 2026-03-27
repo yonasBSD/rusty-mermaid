@@ -1,0 +1,10 @@
+[package]
+name = "render-docs"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+rusty-mermaid-core = { path = "../../crates/core" }
+rusty-mermaid-diagrams = { path = "../../crates/diagrams" }
+rusty-mermaid-svg = { path = "../../crates/svg" }

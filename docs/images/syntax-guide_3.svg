@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 656 440" width="656" height="440">
+  <defs>
+    <marker id="arrow-point-c8c8c8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#c8c8c8" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <text x="308" y="42" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Container Diagram</text>
+    <rect x="30" y="196" width="572" height="174" rx="4" ry="4" fill="none" stroke="#4472c4" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="38" y="210" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">Banking System</text>
+    <path d="M127.17 166 L126.56 222" fill="none" stroke="#c8c8c8" stroke-width="1.2" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M206 274 L424 274" fill="none" stroke="#c8c8c8" stroke-width="1.2" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M426 274 L374 274" fill="none" stroke="#c8c8c8" stroke-width="1.2" marker-end="url(#arrow-point-c8c8c8)" />
+    <rect x="30" y="66" width="195.41" height="100" rx="4" ry="4" fill="#e6eff5" stroke="#0864a4" stroke-width="1.5" />
+    <circle cx="127.71" cy="80" r="10" fill="#0864a4" />
+    <text x="127.71" y="116" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#0864a4" font-weight="bold">User</text>
+    <text x="127.71" y="130" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Interacts with system]</text>
+    <rect x="46" y="224" width="160" height="100" rx="4" ry="4" fill="#ecf0f9" stroke="#4472c4" stroke-width="1.5" />
+    <text x="126" y="266" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">Web App</text>
+    <text x="126" y="280" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Spring Boot]</text>
+    <text x="126" y="293" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Serves web pages</text>
+    <rect x="260" y="224" width="112" height="100" rx="56" ry="8" fill="#ecf0f9" stroke="#4472c4" stroke-width="1.5" />
+    <text x="316" y="266" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">Database</text>
+    <text x="316" y="280" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[PostgreSQL]</text>
+    <text x="316" y="293" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Stores data</text>
+    <rect x="426" y="224" width="160" height="100" rx="4" ry="4" fill="#ecf0f9" stroke="#4472c4" stroke-width="1.5" />
+    <text x="506" y="266" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4472c4" font-weight="bold">API</text>
+    <text x="506" y="280" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">[Node.js]</text>
+    <text x="506" y="293" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">REST API</text>
+    <rect x="65.87" y="170.6" width="102.6" height="14" rx="3" ry="3" fill="#f5f3ffbf" />
+    <text x="117.17" y="177.6" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Visits [HTTPS]</text>
+    <rect x="194.46" y="253" width="89.09" height="14" rx="3" ry="3" fill="#f5f3ffbf" />
+    <text x="239" y="260" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Calls [JSON]</text>
+    <rect x="353.09" y="253" width="129.63" height="14" rx="3" ry="3" fill="#f5f3ffbf" />
+    <text x="417.9" y="260" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#505050">Reads/Writes [SQL]</text>
+  </g>
+</svg>

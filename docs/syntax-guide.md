@@ -8,6 +8,11 @@ Copy-paste examples for all 25 diagram types. See the [gallery](gallery.html) fo
 
 > Service-oriented architecture diagram with groups, services, junctions, and directional edges.
 
+![syntax-guide](images/syntax-guide_1.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 architecture-beta
     group cloud(cloud)[Cloud Platform]
@@ -23,6 +28,8 @@ architecture-beta
     mid:R -- L:cache
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `architecture-beta`
 - `group NAME(icon)[Label]` creates a container; nest with `in parent`
@@ -36,6 +43,11 @@ architecture-beta
 
 > Grid-based block layout with column spanning, shapes, and edges.
 
+![syntax-guide](images/syntax-guide_2.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 block-beta
   columns 3
@@ -46,6 +58,8 @@ block-beta
   e["Footer"]:2
   f["Side"]
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `block-beta`
@@ -61,6 +75,11 @@ block-beta
 
 > C4 model diagrams (Context, Container, Dynamic) for software architecture.
 
+![syntax-guide](images/syntax-guide_3.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 C4Container
   title Container Diagram
@@ -75,6 +94,8 @@ C4Container
   Rel(api, db, "Reads/Writes", "SQL")
 ```
 
+</details>
+
 **Syntax notes:**
 - Headers: `C4Context`, `C4Container`, `C4Dynamic`
 - `Person(id, "label", "description")` for actors
@@ -87,6 +108,11 @@ C4Container
 ## Class
 
 > UML class diagram with members, relationships, cardinality, and annotations.
+
+![syntax-guide](images/syntax-guide_4.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 classDiagram
@@ -130,6 +156,8 @@ classDiagram
     note for Animal "Base class for all animals"
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `classDiagram`
 - Visibility: `+` public, `-` private, `#` protected, `~` package
@@ -146,6 +174,11 @@ classDiagram
 ## ER
 
 > Entity-relationship diagram with attributes, keys, and crow's foot cardinality notation.
+
+![syntax-guide](images/syntax-guide_5.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 erDiagram
@@ -185,6 +218,8 @@ erDiagram
     CATEGORY ||--o{ PRODUCT : groups
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `erDiagram`
 - Attributes: `type name [PK|FK|UK]` inside entity braces
@@ -197,6 +232,11 @@ erDiagram
 ## Flowchart
 
 > General-purpose directed graph with shapes, styled edges, subgraphs, and class definitions.
+
+![syntax-guide](images/syntax-guide_6.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 flowchart TD
@@ -213,6 +253,8 @@ flowchart TD
     classDef blue fill:#bbdefb,stroke:#0d47a1,stroke-width:2px
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `flowchart DIRECTION` where DIRECTION is `TB` (top-bottom), `BT`, `LR`, `RL`
 - Shapes: `[rect]`, `(rounded)`, `{diamond}`, `([stadium])`, `((circle))`, `[(cylinder)]`, `[[subroutine]]`, `{{hexagon}}`, `[/parallelogram/]`, `[\trapezoid\]`, `>flag]`
@@ -228,6 +270,11 @@ flowchart TD
 
 > Project timeline with tasks, dependencies, milestones, and status markers.
 
+![syntax-guide](images/syntax-guide_7.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 gantt
     title Sprint Plan
@@ -241,6 +288,8 @@ gantt
     section Milestones
     MVP Release     :milestone, 2024-03-25, 0d
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `gantt`
@@ -256,6 +305,11 @@ gantt
 ## Git Graph
 
 > Git commit history with branches, merges, cherry-picks, and tags.
+
+![syntax-guide](images/syntax-guide_8.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 gitGraph
@@ -273,6 +327,8 @@ gitGraph
     commit tag: "v1.0"
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `gitGraph`
 - `commit` adds a commit; `id: "label"` names it, `tag: "v1.0"` tags it
@@ -287,6 +343,11 @@ gitGraph
 ## Ishikawa (Fishbone)
 
 > Cause-and-effect (fishbone) diagram for root cause analysis with nested sub-causes.
+
+![syntax-guide](images/syntax-guide_9.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 ishikawa-beta
@@ -311,6 +372,8 @@ ishikawa-beta
         Humidity
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `ishikawa-beta`
 - First line after header is the effect (head of the fish)
@@ -323,6 +386,11 @@ ishikawa-beta
 ## Journey (User Journey)
 
 > User journey map with tasks scored by satisfaction across sections and actors.
+
+![syntax-guide](images/syntax-guide_10.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 journey
@@ -341,6 +409,8 @@ journey
     Unbox: 5: Customer
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `journey`
 - `title` sets the diagram title
@@ -355,6 +425,11 @@ journey
 
 > Kanban board with columns, cards, and metadata annotations.
 
+![syntax-guide](images/syntax-guide_11.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 kanban
     Todo
@@ -366,6 +441,8 @@ kanban
     Done
         t5[Release v1.0] @{ticket: REL-001}
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `kanban`
@@ -380,6 +457,11 @@ kanban
 
 > Hierarchical mindmap with different node shapes radiating from a central idea.
 
+![syntax-guide](images/syntax-guide_12.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 mindmap
     Central Idea
@@ -390,6 +472,8 @@ mindmap
         ))Bang((
         {{Hexagon}}
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `mindmap`
@@ -403,6 +487,11 @@ mindmap
 ## Packet
 
 > Network packet header layout showing bit-level field positions.
+
+![syntax-guide](images/syntax-guide_13.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 packet-beta
@@ -424,6 +513,8 @@ title "TCP Header"
 144-159: "Urgent Pointer"
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `packet-beta`
 - `title "Title"` sets the diagram title
@@ -437,6 +528,11 @@ title "TCP Header"
 
 > Pie chart with labeled slices and optional data display.
 
+![syntax-guide](images/syntax-guide_14.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 pie showData title Browser Market Share
     "Chrome" : 65.3
@@ -445,6 +541,8 @@ pie showData title Browser Market Share
     "Edge" : 4.8
     "Other" : 8.0
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `pie`
@@ -458,6 +556,11 @@ pie showData title Browser Market Share
 ## Quadrant
 
 > Four-quadrant chart with labeled axes, named quadrants, and positioned data points.
+
+![syntax-guide](images/syntax-guide_15.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 quadrantChart
@@ -476,6 +579,8 @@ quadrantChart
   UI Polish: [0.4, 0.5]
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `quadrantChart`
 - `x-axis Low --> High` and `y-axis Low --> High` label the axes
@@ -488,6 +593,11 @@ quadrantChart
 
 > Radar (spider) chart comparing multiple datasets across shared axes.
 
+![syntax-guide](images/syntax-guide_16.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 radar-beta
 title Car Comparison
@@ -498,6 +608,8 @@ curve sportsCar["Sports Car"]{9,5,7,3,9}
 curve sedan["Family Sedan"]{5,8,9,7,5}
 curve suv["SUV"]{6,7,8,5,6}
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `radar-beta`
@@ -511,6 +623,11 @@ curve suv["SUV"]{6,7,8,5,6}
 ## Requirement
 
 > Requirements diagram with typed requirements, design constraints, elements, and traceability relationships.
+
+![syntax-guide](images/syntax-guide_17.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 requirementDiagram
@@ -555,6 +672,8 @@ requirementDiagram
     PREQ_01 - verifies -> COMP_01
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `requirementDiagram`
 - Requirement types: `requirement`, `functionalRequirement`, `performanceRequirement`, `interfaceRequirement`, `physicalRequirement`, `designConstraint`
@@ -567,6 +686,11 @@ requirementDiagram
 ## Sankey
 
 > Sankey flow diagram showing weighted flows between nodes as a CSV-like format.
+
+![syntax-guide](images/syntax-guide_18.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sankey-beta
@@ -581,6 +705,8 @@ Electricity,Industrial,25
 Electricity,Transport,15
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `sankey-beta`
 - Each line: `Source,Target,Value` (CSV format)
@@ -593,6 +719,11 @@ Electricity,Transport,15
 ## Sequence
 
 > Sequence diagram with actors, messages, notes, activation bars, and control-flow fragments (loop, alt, par).
+
+![syntax-guide](images/syntax-guide_19.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -611,6 +742,8 @@ sequenceDiagram
     Note over Alice: Done
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `sequenceDiagram`
 - Participants: `participant Name` or `actor Name` (stick figure)
@@ -626,6 +759,11 @@ sequenceDiagram
 
 > UML state diagram with composite states, concurrent regions, forks/joins, choices, and notes.
 
+![syntax-guide](images/syntax-guide_20.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 stateDiagram-v2
     [*] --> Active
@@ -636,6 +774,8 @@ stateDiagram-v2
     }
     Active --> [*]
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `stateDiagram-v2` (or `stateDiagram`)
@@ -655,6 +795,11 @@ stateDiagram-v2
 
 > Chronological timeline with titled sections and multiple events per time period.
 
+![syntax-guide](images/syntax-guide_21.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 timeline
     title Company History
@@ -669,6 +814,8 @@ timeline
         2020 : 1000 employees : Global presence
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `timeline`
 - `title` sets the diagram title
@@ -681,6 +828,11 @@ timeline
 ## Treemap
 
 > Proportional area treemap with hierarchical grouping and weighted leaf nodes.
+
+![syntax-guide](images/syntax-guide_22.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 treemap
@@ -697,6 +849,8 @@ treemap
         Testing: 50
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `treemap`
 - Indentation defines hierarchy
@@ -708,6 +862,11 @@ treemap
 ## Treeview
 
 > File-tree / org-chart style hierarchical list rendered with tree connectors.
+
+![syntax-guide](images/syntax-guide_23.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 treeView-beta
@@ -727,6 +886,8 @@ treeView-beta
     README.md
 ```
 
+</details>
+
 **Syntax notes:**
 - Header: `treeView-beta`
 - Indentation defines parent-child hierarchy
@@ -739,6 +900,11 @@ treeView-beta
 
 > Venn diagram with labeled sets, set sizes, and intersection regions.
 
+![syntax-guide](images/syntax-guide_24.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 venn-beta
     title Data Engineering
@@ -750,6 +916,8 @@ venn-beta
     union A,C["SparkSQL"]:8
     union A,B,C["All Skills"]:5
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `venn-beta`
@@ -765,6 +933,11 @@ venn-beta
 
 > Bar and line chart with categorical or numeric axes.
 
+![syntax-guide](images/syntax-guide_25.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 xychart-beta
     title "Sales vs Target"
@@ -773,6 +946,8 @@ xychart-beta
     bar "Actual" [80, 120, 95, 160]
     line "Target" [100, 100, 100, 100]
 ```
+
+</details>
 
 **Syntax notes:**
 - Header: `xychart-beta`

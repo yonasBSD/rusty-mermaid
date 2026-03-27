@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 547.27 384.6" width="547.27" height="384.6">
+  <g transform="translate(20, 20)">
+    <path d="M245.32 172.25 C328.95 172.25 328.95 234.1 412.57 234.1" fill="none" stroke="#4e79a796" stroke-width="2" />
+    <path d="M245.32 172.25 C243.84 172.25 243.84 288.2 242.36 288.2" fill="none" stroke="#f28e2c96" stroke-width="2" />
+    <path d="M245.32 172.25 C163.56 172.25 163.56 234.07 81.8 234.07" fill="none" stroke="#e1575996" stroke-width="2" />
+    <path d="M245.32 172.25 C170.88 172.25 170.88 105.15 96.44 105.15" fill="none" stroke="#76b7b296" stroke-width="2" />
+    <path d="M245.32 172.25 C243.85 172.25 243.85 56.4 242.39 56.4" fill="none" stroke="#59a14f96" stroke-width="2" />
+    <path d="M245.32 172.25 C320.75 172.25 320.75 105.77 396.17 105.77" fill="none" stroke="#edc94996" stroke-width="2" />
+    <rect x="177.72" y="155.85" width="135.2" height="32.8" rx="16.4" ry="16.4" fill="#9370db" stroke="#9370db" stroke-width="1.5" />
+    <text x="245.32" y="172.25" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">Central Idea</text>
+    <rect x="357.87" y="217.7" width="109.4" height="32.8" rx="3" ry="3" fill="#d2dde9" stroke="#4e79a7" stroke-width="1.5" />
+    <text x="412.57" y="234.1" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rectangle</text>
+    <rect x="196.26" y="271.8" width="92.2" height="32.8" rx="16.4" ry="16.4" fill="#fbe2ca" stroke="#f28e2c" stroke-width="1.5" />
+    <text x="242.36" y="288.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rounded</text>
+    <circle cx="81.8" cy="234.07" r="41.8" fill="#f7d5d5" stroke="#e15759" stroke-width="1.5" />
+    <text x="81.8" y="234.07" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Circle</text>
+    <rect x="55.19" y="85.47" width="82.5" height="39.36" rx="32.8" ry="32.8" fill="#dcedeb" stroke="#76b7b2" stroke-width="1.5" />
+    <text x="96.44" y="105.15" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cloud</text>
+    <polygon points="242.39,23.2 250.64,36.46 265.86,32.92 262.32,48.14 275.59,56.4 262.32,64.66 265.86,79.88 250.64,76.34 242.39,89.6 234.13,76.34 218.91,79.88 222.45,64.66 209.19,56.4 222.45,48.14 218.91,32.92 234.13,36.46" fill="#d5e7d3" stroke="#59a14f" stroke-width="1.5" />
+    <text x="242.39" y="56.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bang</text>
+    <polygon points="359.91,89.37 432.43,89.37 442.27,105.77 432.43,122.17 359.91,122.17 350.07,105.77" fill="#faf1d1" stroke="#edc949" stroke-width="1.5" />
+    <text x="396.17" y="105.77" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hexagon</text>
+  </g>
+</svg>

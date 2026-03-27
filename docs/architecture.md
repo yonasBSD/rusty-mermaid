@@ -6,11 +6,24 @@ rusty-mermaid is a pure-Rust port of [mermaid.js](https://mermaid.js.org/) and i
 
 **Core design principle:** `Scene` is the universal contract between layout and rendering. Every diagram type produces a `Scene` (a flat list of geometric primitives). Every backend consumes a `Scene`. The two halves never know about each other.
 
-```
-mermaid text --> [parse] --> IR --> [layout] --> Scene --> [backend] --> output
+![architecture](images/architecture_1.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
+```mermaid
+flowchart LR
+    A[mermaid text] --> B[parse] --> C[IR] --> D[layout] --> E[Scene] --> F[backend] --> G[output]
 ```
 
+</details>
+
 ### Crate Dependency DAG
+
+![architecture](images/architecture_2.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 graph BT
@@ -47,9 +60,16 @@ graph BT
     facade --> core
 ```
 
+</details>
+
 ## 2. Request Flow
 
 What happens when a user calls `rusty_mermaid::to_svg(input)`:
+
+![architecture](images/architecture_3.svg)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 flowchart LR
@@ -62,6 +82,8 @@ flowchart LR
     style Input fill:#f5f5ff,stroke:#9370db
     style Backend fill:#f5f5ff,stroke:#9370db
 ```
+
+</details>
 
 ### Step by step
 
@@ -163,6 +185,11 @@ Public API crate. Re-exports everything behind feature flags.
 
 Used by diagrams that have nodes and edges laid out by dagre: **flowchart, state, class, ER, requirement, block, c4, architecture**.
 
+![architecture](images/architecture_4.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 flowchart LR
     subgraph "Bridge Pattern"
@@ -170,6 +197,8 @@ flowchart LR
         B --> S["mod.rs / to_scene_themed()<br/>LayoutResult → Scene"]
     end
 ```
+
+</details>
 
 File structure:
 ```
@@ -186,12 +215,19 @@ The bridge translates between the diagram's domain model and dagre's generic `Gr
 
 Used by diagrams with custom layout logic: **pie, sequence, timeline, kanban, gantt, gitgraph, xychart, mindmap, sankey, packet, quadrant, venn, radar, journey, treeview, ishikawa, treemap**.
 
+![architecture](images/architecture_5.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 flowchart LR
     subgraph "Direct Pattern"
         P["parser.rs<br/>text → IR"] --> S["mod.rs / to_scene_themed()<br/>IR → Scene (custom layout + emit)"]
     end
 ```
+
+</details>
 
 File structure:
 ```
@@ -238,21 +274,30 @@ Every backend iterates `scene.elements()` and pattern-matches on `Primitive`:
 
 ### Flow
 
+![architecture](images/architecture_6.svg)
+
+<details>
+<summary>Mermaid source</summary>
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Facade
+    participant Diagrams
+    participant Backend
+
+    User->>Facade: to_svg_themed(input, Theme::dark())
+    Facade->>Diagrams: render_to_scene_themed(input, theme)
+    Diagrams->>Diagrams: parse(input) -> IR
+    Diagrams->>Diagrams: to_scene_themed(ir, theme)
+    Note right of Diagrams: reads theme.node_fill, edge_stroke
+    Diagrams-->>Facade: Scene
+    Facade->>Backend: render_themed(scene, theme)
+    Note right of Backend: reads theme.padding, background
+    Backend-->>User: SVG string
 ```
-User code                    Facade                     Diagram module              Backend
-    |                           |                           |                         |
-    |  Theme::dark()            |                           |                         |
-    |--- to_svg_themed(t) ----->|                           |                         |
-    |                           |-- render_to_scene_themed(t) -->                     |
-    |                           |                           |-- to_scene_themed(t) -->|
-    |                           |                           |   (reads t.node_fill,   |
-    |                           |                           |    t.edge_stroke, etc.)  |
-    |                           |                           |<-- Scene --------------- |
-    |                           |-- SvgRenderer::with_theme(t).render_themed(scene, t) -->
-    |                           |                           |   (reads t.padding,     |
-    |                           |                           |    t.background)         |
-    |<-- SVG string ------------|                           |                         |
-```
+
+</details>
 
 ### Theme fields
 
