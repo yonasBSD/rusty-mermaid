@@ -283,10 +283,10 @@ sequenceDiagram
     Facade->>Diagrams: render_to_scene_themed(input, theme)
     Diagrams->>Diagrams: parse(input) -> IR
     Diagrams->>Diagrams: to_scene_themed(ir, theme)
-    Note right of Diagrams: reads theme.node_fill, edge_stroke
+    Note right of Diagrams: uses theme colors
     Diagrams-->>Facade: Scene
     Facade->>Backend: render_themed(scene, theme)
-    Note right of Backend: reads theme.padding, background
+    Note right of Backend: uses theme bg
     Backend-->>User: SVG string
 ```
 

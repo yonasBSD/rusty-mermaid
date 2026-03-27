@@ -556,7 +556,7 @@ impl<'a, T: TextMeasure> LayoutPass<'a, T> {
     fn layout_note(&mut self, note: &Note) {
         self.cursor_y += MESSAGE_MARGIN;
         let ts = self.text.measure(&note.text, &self.style);
-        let note_w = (ts.width + 2.0 * NOTE_PADDING).min(NOTE_MAX_WIDTH);
+        let note_w = ts.width + 2.0 * NOTE_PADDING;
         let note_h = ts.height + 2.0 * NOTE_PADDING;
 
         let note_x = match &note.position {
