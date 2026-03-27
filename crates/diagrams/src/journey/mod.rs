@@ -205,7 +205,7 @@ fn render_task(
     });
 
     let label_style = TextStyle {
-        font_size: 11.0,
+        font_size: theme.font_size_small,
         fill: Some(theme.node_text),
         ..Default::default()
     };
@@ -281,7 +281,7 @@ fn render_actor_legend(
             content: actor.clone(),
             anchor: TextAnchor::Start,
             style: TextStyle {
-                font_size: 11.0,
+                font_size: theme.font_size_small,
                 fill: Some(theme.node_text),
                 ..Default::default()
             },
@@ -289,7 +289,7 @@ fn render_actor_legend(
         lx += SimpleTextMeasure::measure_raw(
             actor,
             &TextStyle {
-                font_size: 11.0,
+                font_size: theme.font_size_small,
                 ..Default::default()
             },
         )

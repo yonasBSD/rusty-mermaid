@@ -323,7 +323,7 @@ fn render_section(
             content: header_text,
             anchor: TextAnchor::Start,
             style: TextStyle {
-                font_size: 11.0,
+                font_size: theme.font_size_small,
                 fill: Some(color),
                 font_weight: rusty_mermaid_core::FontWeight::Bold,
                 ..Default::default()

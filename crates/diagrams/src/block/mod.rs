@@ -139,7 +139,7 @@ fn render_block_edges(
                 content: label.clone(),
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
-                    font_size: 10.0,
+                    font_size: theme.font_size_small,
                     fill: Some(theme.edge_label_text),
                     ..Default::default()
                 },

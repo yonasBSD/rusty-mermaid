@@ -365,10 +365,10 @@ fn compute_class_dims(
         .iter()
         .map(|m| measurer.measure(&m.display_text(), style).width)
         .fold(0.0f64, f64::max);
-    // Measure annotation at its actual render size (font_size_small = 11px).
+    // Measure annotation at its actual render size (font_size_small).
     // Uses measure_raw to avoid strip_markup eating <<>> as HTML tags.
     let small_style = TextStyle {
-        font_size: 11.0,
+        font_size: rusty_mermaid_core::Theme::default().font_size_small,
         ..style.clone()
     };
     let annotation_w = class

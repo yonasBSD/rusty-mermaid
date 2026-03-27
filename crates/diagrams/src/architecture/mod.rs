@@ -66,7 +66,7 @@ pub fn to_scene_themed(diagram: &ArchDiagram, theme: &Theme) -> Scene {
     let scene_h = max_y - min_y + SCENE_PAD * 2.0;
     let mut scene = Scene::new(scene_w, scene_h);
 
-    render_groups(&mut scene, diagram, &positions);
+    render_groups(&mut scene, diagram, &positions, theme);
     render_arch_edges(&mut scene, diagram, &positions, theme);
     render_services(&mut scene, diagram, &positions, theme);
     render_junctions(&mut scene, diagram, &positions, theme);
@@ -175,6 +175,7 @@ fn render_groups(
     scene: &mut Scene,
     diagram: &ArchDiagram,
     positions: &HashMap<String, (f64, f64, f64, f64)>,
+    theme: &Theme,
 ) {
     for (gi, group) in diagram.groups.iter().enumerate() {
         let members: Vec<&str> = diagram
@@ -240,7 +241,7 @@ fn render_groups(
             content: group.label.clone(),
             anchor: TextAnchor::Start,
             style: TextStyle {
-                font_size: 12.0,
+                font_size: theme.font_size_edge_label,
                 fill: Some(color),
                 font_weight: rusty_mermaid_core::FontWeight::Bold,
                 ..Default::default()
@@ -368,7 +369,7 @@ fn render_service(
         content: abbreviate_icon(&svc.icon),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: 9.0,
+            font_size: theme.font_size_tiny,
             fill: Some(color),
             ..Default::default()
         },
@@ -380,7 +381,7 @@ fn render_service(
         content: svc.label.clone(),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: 11.0,
+            font_size: theme.font_size_small,
             fill: Some(theme.node_text),
             font_weight: rusty_mermaid_core::FontWeight::Bold,
             ..Default::default()

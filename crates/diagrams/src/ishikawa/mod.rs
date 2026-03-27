@@ -48,7 +48,7 @@ struct SpineLayout {
 }
 
 impl SpineLayout {
-    fn from_diagram(diagram: &IshikawaDiagram, scene_w: f64, scene_h: f64) -> Self {
+    fn from_diagram(diagram: &IshikawaDiagram, scene_w: f64, scene_h: f64, theme: &Theme) -> Self {
         let n_cats = diagram.categories.len();
         let angle = ANGLE_DEG.to_radians();
         let cos_a = angle.cos();
@@ -66,7 +66,7 @@ impl SpineLayout {
         let spine_left = spine_right - spine_len;
 
         let label_style = TextStyle {
-            font_size: 14.0,
+            font_size: theme.font_size_node,
             ..Default::default()
         };
         let effect_w = SimpleTextMeasure::measure_raw(&diagram.effect, &label_style).width + 24.0;
@@ -109,7 +109,7 @@ pub fn to_scene_themed(diagram: &IshikawaDiagram, theme: &Theme) -> Scene {
     let scene_h = SCENE_PAD * 2.0 + max_vertical * 2.0 + HEAD_H;
     let mut scene = Scene::new(scene_w, scene_h);
 
-    let layout = SpineLayout::from_diagram(diagram, scene_w, scene_h);
+    let layout = SpineLayout::from_diagram(diagram, scene_w, scene_h, theme);
 
     render_effect_head(&mut scene, diagram, &layout, theme);
     render_spine_line(&mut scene, &layout, theme);
@@ -293,7 +293,7 @@ fn render_cause_bones(
                 content: sub.name.clone(),
                 anchor: TextAnchor::End,
                 style: TextStyle {
-                    font_size: 9.0,
+                    font_size: theme.font_size_tiny,
                     fill: Some(theme.muted_text),
                     ..Default::default()
                 },

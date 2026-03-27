@@ -181,7 +181,7 @@ fn draw_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Th
             content: format!("{:.0}", val),
             anchor: TextAnchor::Start,
             style: TextStyle {
-                font_size: 9.0,
+                font_size: theme.font_size_tiny,
                 fill: Some(theme.muted_text),
                 ..Default::default()
             },
@@ -259,7 +259,7 @@ fn draw_legend(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &
             content: curve.label.clone(),
             anchor: TextAnchor::Start,
             style: TextStyle {
-                font_size: 11.0,
+                font_size: theme.font_size_small,
                 fill: Some(theme.node_text),
                 ..Default::default()
             },

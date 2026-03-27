@@ -42,7 +42,7 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
     let mut scene = Scene::new(scene_w, scene_h);
 
     render_c4_title(&mut scene, diagram, scene_w, theme);
-    render_boundaries(&mut scene, diagram, &positions);
+    render_boundaries(&mut scene, diagram, &positions, theme);
     let edge_labels = render_edges(&mut scene, diagram, &positions, theme);
     render_elements(&mut scene, diagram, &positions, theme);
     render_edge_labels(&mut scene, &edge_labels, theme);
@@ -52,7 +52,7 @@ pub fn to_scene_themed(diagram: &C4Diagram, theme: &Theme) -> Scene {
 
 fn compute_positions(
     diagram: &C4Diagram,
-    _theme: &Theme,
+    theme: &Theme,
 ) -> (HashMap<String, (f64, f64, f64, f64)>, f64, f64) {
     let title_h = if diagram.title.is_some() { 36.0 } else { 0.0 };
 
@@ -78,6 +78,7 @@ fn compute_positions(
         &mut cursor_y,
         &mut positions,
         &mut max_right,
+        theme,
     );
 
     for boundary in &diagram.boundaries {
@@ -99,6 +100,7 @@ fn compute_positions(
             &mut cursor_y,
             &mut positions,
             &mut max_right,
+            theme,
         );
 
         cursor_y += BOUNDARY_PAD;
@@ -138,6 +140,7 @@ fn render_boundaries(
     scene: &mut Scene,
     diagram: &C4Diagram,
     positions: &HashMap<String, (f64, f64, f64, f64)>,
+    theme: &Theme,
 ) {
     for boundary in &diagram.boundaries {
         if let Some(&(cx, cy, w, h)) = positions.get(&format!("__boundary_{}", boundary.alias)) {
@@ -160,7 +163,7 @@ fn render_boundaries(
                 content: boundary.label.clone(),
                 anchor: TextAnchor::Start,
                 style: TextStyle {
-                    font_size: 12.0,
+                    font_size: theme.font_size_edge_label,
                     fill: Some(BOUNDARY_COLOR),
                     font_weight: rusty_mermaid_core::FontWeight::Bold,
                     ..Default::default()
@@ -256,7 +259,7 @@ fn render_elements(
 fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)], theme: &Theme) {
     for (lx, ly, label) in edge_labels {
         let label_style = TextStyle {
-            font_size: 10.0,
+            font_size: theme.font_size_small,
             ..Default::default()
         };
         let tw = SimpleTextMeasure::measure_raw(label, &label_style).width;
@@ -274,7 +277,7 @@ fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)], the
             content: label.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: 10.0,
+                font_size: theme.font_size_small,
                 fill: Some(theme.detail_stroke),
                 ..Default::default()
             },
@@ -283,9 +286,9 @@ fn render_edge_labels(scene: &mut Scene, edge_labels: &[(f64, f64, String)], the
 }
 
 /// Measure the width an element needs based on its text content.
-fn measure_elem_width(elem: &C4Element) -> f64 {
+fn measure_elem_width(elem: &C4Element, theme: &Theme) -> f64 {
     let style = TextStyle {
-        font_size: 13.0,
+        font_size: theme.font_size_label,
         ..Default::default()
     };
     let name_w = SimpleTextMeasure::measure_raw(&elem.label, &style).width;
@@ -296,7 +299,7 @@ fn measure_elem_width(elem: &C4Element) -> f64 {
             SimpleTextMeasure::measure_raw(
                 d,
                 &TextStyle {
-                    font_size: 9.0,
+                    font_size: theme.font_size_tiny,
                     ..Default::default()
                 },
             )
@@ -310,7 +313,7 @@ fn measure_elem_width(elem: &C4Element) -> f64 {
             SimpleTextMeasure::measure_raw(
                 &format!("[{}]", t),
                 &TextStyle {
-                    font_size: 10.0,
+                    font_size: theme.font_size_small,
                     ..Default::default()
                 },
             )
@@ -327,6 +330,7 @@ fn layout_row(
     cursor_y: &mut f64,
     positions: &mut HashMap<String, (f64, f64, f64, f64)>,
     max_right: &mut f64,
+    theme: &Theme,
 ) {
     let cols = COLS.min(indices.len()).max(1);
     let rows = (indices.len() + cols - 1) / cols;
@@ -334,7 +338,7 @@ fn layout_row(
     // Compute per-element widths, then use the max per row for uniform sizing
     let widths: Vec<f64> = indices
         .iter()
-        .map(|&idx| measure_elem_width(&elements[idx]).max(MIN_ELEM_W))
+        .map(|&idx| measure_elem_width(&elements[idx], theme).max(MIN_ELEM_W))
         .collect();
     // Use max width across all elements in this group for uniform columns
     let col_w = widths.iter().copied().fold(MIN_ELEM_W, f64::max);
@@ -417,7 +421,7 @@ fn render_element(
         content: elem.label.clone(),
         anchor: TextAnchor::Middle,
         style: TextStyle {
-            font_size: 13.0,
+            font_size: theme.font_size_label,
             fill: Some(base_color),
             font_weight: rusty_mermaid_core::FontWeight::Bold,
             ..Default::default()
@@ -431,7 +435,7 @@ fn render_element(
             content: format!("[{}]", tech),
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: 10.0,
+                font_size: theme.font_size_small,
                 fill: Some(theme.muted_text),
                 ..Default::default()
             },
@@ -441,7 +445,7 @@ fn render_element(
     if let Some(desc) = &elem.description {
         y += 13.0;
         let desc_style = TextStyle {
-            font_size: 9.0,
+            font_size: theme.font_size_tiny,
             ..Default::default()
         };
         let desc_w = SimpleTextMeasure::measure_raw(desc, &desc_style).width;
@@ -451,7 +455,7 @@ fn render_element(
                 content: desc.clone(),
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
-                    font_size: 9.0,
+                    font_size: theme.font_size_tiny,
                     fill: Some(theme.muted_text),
                     ..Default::default()
                 },

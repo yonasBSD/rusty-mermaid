@@ -91,6 +91,7 @@ pub struct Theme {
     pub font_size_edge_label: f64,
     pub font_size_label: f64,
     pub font_size_small: f64,
+    pub font_size_tiny: f64,
     pub font_size_title: f64,
     // -- Stroke --
     pub default_stroke_width: f64,
@@ -143,6 +144,7 @@ impl Theme {
             font_size_edge_label: 12.0,
             font_size_label: 13.0,
             font_size_small: 11.0,
+            font_size_tiny: 9.0,
             font_size_title: 16.0,
             default_stroke_width: 1.5,
             padding: 20.0,
@@ -184,6 +186,7 @@ impl Theme {
             font_size_edge_label: 12.0,
             font_size_label: 13.0,
             font_size_small: 11.0,
+            font_size_tiny: 9.0,
             font_size_title: 16.0,
             default_stroke_width: 1.5,
             padding: 20.0,

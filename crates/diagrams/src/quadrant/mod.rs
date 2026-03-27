@@ -82,7 +82,7 @@ pub fn to_scene_themed(chart: &QuadrantChart, theme: &Theme) -> Scene {
     let mut scene = Scene::new(layout.scene_w, layout.scene_h);
 
     render_title(&mut scene, chart, &layout, theme);
-    render_quadrants(&mut scene, chart, &layout);
+    render_quadrants(&mut scene, chart, &layout, theme);
     render_grid(&mut scene, &layout, theme);
     render_axes(&mut scene, chart, &layout, theme);
     render_points(&mut scene, chart, &layout, theme);
@@ -106,7 +106,7 @@ fn render_title(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, t
     }
 }
 
-fn render_quadrants(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout) {
+fn render_quadrants(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, theme: &Theme) {
     let positions = layout.quad_positions();
     let half = layout.half;
 
@@ -130,7 +130,7 @@ fn render_quadrants(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayou
                 content: label.clone(),
                 anchor: TextAnchor::Middle,
                 style: TextStyle {
-                    font_size: 16.0,
+                    font_size: theme.font_size_title,
                     fill: Some(Color::rgb(
                         (c.r as f64 * 0.7) as u8,
                         (c.g as f64 * 0.7) as u8,
@@ -274,7 +274,7 @@ fn render_points(scene: &mut Scene, chart: &QuadrantChart, layout: &GridLayout, 
             content: pt.label.clone(),
             anchor: TextAnchor::Middle,
             style: TextStyle {
-                font_size: 11.0,
+                font_size: theme.font_size_small,
                 fill: Some(theme.node_text),
                 ..Default::default()
             },
