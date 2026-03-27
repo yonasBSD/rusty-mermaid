@@ -4,7 +4,7 @@ Mermaid diagram rendering in pure Rust. Parse mermaid syntax, lay out with dagre
 
 **25 diagram types. 5 rendering backends. Zero unsafe code.**
 
-[Gallery](docs/gallery/index.html) — all 297 rendered diagrams with source code.
+[Gallery](https://base58ed.github.io/rusty-mermaid/gallery/index.html) — all 297 rendered diagrams with source code.
 
 [Syntax Guide](docs/syntax-guide.md) ·
 [Architecture](docs/architecture.md) ·
@@ -58,7 +58,7 @@ let kind = rusty_mermaid::detect(input); // Some(DiagramKind::Flowchart)
 
 ## Supported Diagrams
 
-25 diagram types with full mermaid.js syntax parity. See the [gallery](docs/gallery/index.html) for rendered examples with source code.
+25 diagram types with full mermaid.js syntax parity. See the [gallery](https://base58ed.github.io/rusty-mermaid/gallery/index.html) for rendered examples with source code.
 
 | Category | Types |
 |----------|-------|
