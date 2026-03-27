@@ -4,7 +4,12 @@ Mermaid diagram rendering in pure Rust. Parse mermaid syntax, lay out with dagre
 
 **25 diagram types. 5 rendering backends. Zero unsafe code.**
 
-[Gallery](https://base58ed.github.io/rusty-mermaid/gallery.html) — see all 297 rendered diagrams with source code.
+[Gallery](https://base58ed.github.io/rusty-mermaid/gallery.html) — all 297 rendered diagrams with source code.
+
+[Syntax Guide](docs/syntax-guide.md) ·
+[Architecture](docs/architecture.md) ·
+[Testing Strategy](docs/testing.md) ·
+[Contributing](CONTRIBUTING.md)
 
 ## Install
 
