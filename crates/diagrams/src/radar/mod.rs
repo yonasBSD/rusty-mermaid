@@ -86,15 +86,15 @@ pub fn to_scene_themed(chart: &RadarChart, theme: &Theme) -> Scene {
         });
     }
 
-    draw_graticule(&mut scene, chart, &area, theme);
-    draw_axes(&mut scene, chart, &area, theme);
-    draw_curves(&mut scene, chart, &area);
-    draw_legend(&mut scene, chart, &area, theme);
+    render_graticule(&mut scene, chart, &area, theme);
+    render_axes(&mut scene, chart, &area, theme);
+    render_curves(&mut scene, chart, &area);
+    render_legend(&mut scene, chart, &area, theme);
 
     scene
 }
 
-fn draw_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
+fn render_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
     let grid_color = theme.grid_stroke;
     let grid_style = Style {
         stroke: Some(grid_color),
@@ -127,7 +127,7 @@ fn draw_graticule(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme
     }
 }
 
-fn draw_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
+fn render_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
     let grid_color = theme.grid_stroke;
 
     for (i, axis) in chart.axes.iter().enumerate() {
@@ -189,7 +189,7 @@ fn draw_axes(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Th
     }
 }
 
-fn draw_curves(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
+fn render_curves(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
     for (ci, curve) in chart.curves.iter().enumerate() {
         let color = RADAR_COLORS[ci % RADAR_COLORS.len()];
         let fill = Color::rgba(color.r, color.g, color.b, 40);
@@ -227,7 +227,7 @@ fn draw_curves(scene: &mut Scene, chart: &RadarChart, area: &RadarArea) {
     }
 }
 
-fn draw_legend(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
+fn render_legend(scene: &mut Scene, chart: &RadarChart, area: &RadarArea, theme: &Theme) {
     if chart.curves.len() <= 1 {
         return;
     }

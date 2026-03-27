@@ -115,14 +115,14 @@ pub fn to_scene_themed(chart: &XyChart, theme: &Theme) -> Scene {
         },
     });
 
-    draw_y_axis(&mut scene, chart, theme, &area, y_min, y_max);
-    draw_x_axis(&mut scene, chart, theme, &area);
-    draw_plots(&mut scene, chart, &area, y_min, theme);
+    render_y_axis(&mut scene, chart, theme, &area, y_min, y_max);
+    render_x_axis(&mut scene, chart, theme, &area);
+    render_plots(&mut scene, chart, &area, y_min, theme);
 
     scene
 }
 
-fn draw_y_axis(
+fn render_y_axis(
     scene: &mut Scene,
     chart: &XyChart,
     theme: &Theme,
@@ -228,7 +228,7 @@ fn draw_y_axis(
     }
 }
 
-fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotArea) {
+fn render_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotArea) {
     // Axis line
     scene.push(Primitive::Path {
         segments: vec![
@@ -299,7 +299,7 @@ fn draw_x_axis(scene: &mut Scene, chart: &XyChart, theme: &Theme, area: &PlotAre
     }
 }
 
-fn draw_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64, theme: &Theme) {
+fn render_plots(scene: &mut Scene, chart: &XyChart, area: &PlotArea, y_min: f64, theme: &Theme) {
     let bar_plots: Vec<usize> = chart
         .plots
         .iter()

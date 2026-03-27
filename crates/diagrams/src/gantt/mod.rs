@@ -118,9 +118,9 @@ pub fn to_scene_themed(chart: &GanttChart, theme: &Theme) -> Scene {
         });
     }
 
-    draw_sections(&mut scene, &section_ranges, &area, theme);
-    draw_axis(&mut scene, &area, theme, min_day, max_day);
-    draw_bars(&mut scene, &bars, &area, theme);
+    render_sections(&mut scene, &section_ranges, &area, theme);
+    render_axis(&mut scene, &area, theme, min_day, max_day);
+    render_bars(&mut scene, &bars, &area, theme);
 
     scene
 }
@@ -170,7 +170,7 @@ fn compute_bar_layout(
     (bars, section_ranges)
 }
 
-fn draw_sections(scene: &mut Scene, ranges: &[SectionRange], area: &ChartArea, theme: &Theme) {
+fn render_sections(scene: &mut Scene, ranges: &[SectionRange], area: &ChartArea, theme: &Theme) {
     for sr in ranges {
         let color = SECTION_COLORS[sr.idx % SECTION_COLORS.len()];
         let sec_h = sr.end - sr.start;
@@ -204,7 +204,7 @@ fn draw_sections(scene: &mut Scene, ranges: &[SectionRange], area: &ChartArea, t
     }
 }
 
-fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, max_day: i32) {
+fn render_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, max_day: i32) {
     let axis_line_y = area.axis_line_y();
 
     // Top axis line
@@ -318,7 +318,7 @@ fn draw_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, m
     }
 }
 
-fn draw_bars(scene: &mut Scene, bars: &[BarPos], area: &ChartArea, theme: &Theme) {
+fn render_bars(scene: &mut Scene, bars: &[BarPos], area: &ChartArea, theme: &Theme) {
     for bar in bars {
         let color = SECTION_COLORS[bar.section_idx % SECTION_COLORS.len()];
         let is_milestone = bar.tags.contains(&TaskTag::Milestone);
