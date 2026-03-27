@@ -26,25 +26,24 @@ flowchart LR
 <summary>Mermaid source</summary>
 
 ```
-graph BT
+flowchart BT
     core["core"]
-    graph["graph"]
+    graph_crate["graph"]
     dagre["dagre"]
     diagrams["diagrams"]
-    svg["svg"]
+    svg_crate["svg"]
     raster["raster"]
     viewport["viewport"]
-    wgpu["wgpu-backend"]
-    gpui["gpui-backend"]
+    wgpu["wgpu"]
+    gpui["gpui"]
     facade["rusty-mermaid"]
 
-    dagre --> graph
+    dagre --> graph_crate
     dagre --> core
-    graph --> core
+    graph_crate --> core
     diagrams --> dagre
-    diagrams --> graph
     diagrams --> core
-    svg --> core
+    svg_crate --> core
     raster --> core
     viewport --> core
     wgpu --> core
@@ -52,12 +51,9 @@ graph BT
     gpui --> core
     gpui --> viewport
     facade --> diagrams
-    facade --> svg
+    facade --> svg_crate
     facade --> raster
     facade --> viewport
-    facade --> wgpu
-    facade --> gpui
-    facade --> core
 ```
 
 </details>
