@@ -10,17 +10,17 @@
     <path d="M780 50 L780 350" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 50 L180 350" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 46 L180 54" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M180 50 L180 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="180" y="32" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 1</text>
     <path d="M380 46 L380 54" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M380 50 L380 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="380" y="32" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 8</text>
     <path d="M580 46 L580 54" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M580 50 L580 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="580" y="32" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 15</text>
     <path d="M780 46 L780 54" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M780 50 L780 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="780" y="32" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 22</text>
+    <path d="M180 50 L180 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M380 50 L380 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M580 50 L580 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M780 50 L780 350" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <rect x="180" y="70" width="142.86" height="24" rx="3" ry="3" fill="#4e79a7c8" />
     <text x="172" y="82" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API Design</text>
     <rect x="322.86" y="100" width="200" height="24" rx="3" ry="3" fill="#4e79a7c8" />

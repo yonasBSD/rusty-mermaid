@@ -6,11 +6,11 @@
     <path d="M780 76 L780 206" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 76 L180 206" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 72 L180 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M180 76 L180 206" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="180" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jun 1</text>
     <path d="M600 72 L600 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M600 76 L600 206" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="600" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jun 8</text>
+    <path d="M180 76 L180 206" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M600 76 L600 206" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <rect x="180" y="76" width="180" height="24" rx="3" ry="3" fill="#4e79a7c8" />
     <text x="172" y="88" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Research</text>
     <rect x="360" y="106" width="240" height="24" rx="3" ry="3" fill="#4e79a7c8" />

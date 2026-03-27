@@ -49,7 +49,14 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
     let height = CENTER_Y + RADIUS + 40.0;
     let mut scene = Scene::new(width, height);
 
-    // Title
+    render_pie_title(&mut scene, chart, theme);
+    render_slices(&mut scene, chart, total, theme);
+    render_legend(&mut scene, chart, theme);
+
+    scene
+}
+
+fn render_pie_title(scene: &mut Scene, chart: &PieChart, theme: &Theme) {
     if let Some(title) = &chart.title {
         scene.push(Primitive::Text {
             position: Point::new(CENTER_X, TITLE_Y),
@@ -63,8 +70,9 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
             },
         });
     }
+}
 
-    // Slices
+fn render_slices(scene: &mut Scene, chart: &PieChart, total: f64, theme: &Theme) {
     let mut start_angle: f64 = -TAU / 4.0; // start at top (12 o'clock)
     for (i, slice) in chart.slices.iter().enumerate() {
         let fraction = slice.value / total;
@@ -76,9 +84,8 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
         let end_angle = start_angle + sweep;
         let color = PIE_COLORS[i % PIE_COLORS.len()];
 
-        // Arc slice as path
         render_arc_slice(
-            &mut scene,
+            scene,
             CENTER_X,
             CENTER_Y,
             RADIUS,
@@ -108,14 +115,14 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
 
         start_angle = end_angle;
     }
+}
 
-    // Legend
+fn render_legend(scene: &mut Scene, chart: &PieChart, theme: &Theme) {
     let legend_x = CENTER_X + RADIUS + LEGEND_X_OFFSET;
     let mut legend_y = CENTER_Y - (chart.slices.len() as f64 * LEGEND_LINE_HEIGHT) / 2.0;
     for (i, slice) in chart.slices.iter().enumerate() {
         let color = PIE_COLORS[i % PIE_COLORS.len()];
 
-        // Color swatch
         scene.push(Primitive::Rect {
             bbox: rusty_mermaid_core::BBox::new(
                 legend_x + LEGEND_SWATCH_SIZE / 2.0,
@@ -131,7 +138,6 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
             },
         });
 
-        // Label text
         let mut label = slice.label.clone();
         if chart.show_data {
             label.push_str(&format!(" [{}]", slice.value));
@@ -152,8 +158,6 @@ pub fn to_scene_themed(chart: &PieChart, theme: &Theme) -> Scene {
 
         legend_y += LEGEND_LINE_HEIGHT;
     }
-
-    scene
 }
 
 fn render_arc_slice(

@@ -11,17 +11,17 @@
     <path d="M780 76 L780 346" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 76 L180 346" fill="none" stroke="#c8c8c864" stroke-width="0.5" />
     <path d="M180 72 L180 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M180 76 L180 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="180" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 1</text>
     <path d="M351.43 72 L351.43 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M351.43 76 L351.43 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="351.43" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 15</text>
     <path d="M522.86 72 L522.86 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M522.86 76 L522.86 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="522.86" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Jan 29</text>
     <path d="M694.29 72 L694.29 80" fill="none" stroke="#333333" stroke-width="1" />
-    <path d="M694.29 76 L694.29 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <text x="694.29" y="58" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Feb 13</text>
+    <path d="M180 76 L180 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M351.43 76 L351.43 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M522.86 76 L522.86 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
+    <path d="M694.29 76 L694.29 346" fill="none" stroke="#c8c8c83c" stroke-width="0.5" stroke-dasharray="4 3" />
     <rect x="180" y="96" width="110.2" height="24" rx="3" ry="3" fill="#4e79a7c8" />
     <text x="172" y="108" text-anchor="end" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wireframes</text>
     <rect x="228.98" y="126" width="122.45" height="24" rx="3" ry="3" fill="#4e79a7c8" />

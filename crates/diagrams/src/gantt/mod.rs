@@ -205,6 +205,12 @@ fn render_sections(scene: &mut Scene, ranges: &[SectionRange], area: &ChartArea,
 }
 
 fn render_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32, max_day: i32) {
+    render_axis_line(scene, area, theme);
+    render_axis_ticks(scene, area, theme, min_day, max_day);
+    render_axis_grid(scene, area, theme, min_day, max_day);
+}
+
+fn render_axis_line(scene: &mut Scene, area: &ChartArea, theme: &Theme) {
     let axis_line_y = area.axis_line_y();
 
     // Top axis line
@@ -222,22 +228,24 @@ fn render_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32,
         marker_end: None,
     });
 
+    let border_style = Style {
+        stroke: Some(Color::rgba(
+            theme.grid_stroke.r,
+            theme.grid_stroke.g,
+            theme.grid_stroke.b,
+            100,
+        )),
+        stroke_width: Some(0.5),
+        ..Default::default()
+    };
+
     // Right edge border
     scene.push(Primitive::Path {
         segments: vec![
             PathSegment::MoveTo(Point::new(area.chart_right, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_right, area.height - MARGIN)),
         ],
-        style: Style {
-            stroke: Some(Color::rgba(
-                theme.grid_stroke.r,
-                theme.grid_stroke.g,
-                theme.grid_stroke.b,
-                100,
-            )),
-            stroke_width: Some(0.5),
-            ..Default::default()
-        },
+        style: border_style.clone(),
         marker_start: None,
         marker_end: None,
     });
@@ -248,21 +256,20 @@ fn render_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32,
             PathSegment::MoveTo(Point::new(area.chart_left, axis_line_y)),
             PathSegment::LineTo(Point::new(area.chart_left, area.height - MARGIN)),
         ],
-        style: Style {
-            stroke: Some(Color::rgba(
-                theme.grid_stroke.r,
-                theme.grid_stroke.g,
-                theme.grid_stroke.b,
-                100,
-            )),
-            stroke_width: Some(0.5),
-            ..Default::default()
-        },
+        style: border_style,
         marker_start: None,
         marker_end: None,
     });
+}
 
-    // Ticks, grid lines, and labels
+fn render_axis_ticks(
+    scene: &mut Scene,
+    area: &ChartArea,
+    theme: &Theme,
+    min_day: i32,
+    max_day: i32,
+) {
+    let axis_line_y = area.axis_line_y();
     let tick_interval = compute_tick_interval(area.total_days as i32);
     let mut day = min_day;
     while day <= max_day {
@@ -282,6 +289,35 @@ fn render_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32,
             marker_end: None,
         });
 
+        let label = format_day_label(day);
+        scene.push(Primitive::Text {
+            position: Point::new(x, area.axis_y + AXIS_HEIGHT * 0.4),
+            content: label,
+            anchor: TextAnchor::Middle,
+            style: TextStyle {
+                font_size: theme.font_size_small,
+                fill: Some(theme.node_text),
+                ..Default::default()
+            },
+        });
+
+        day += tick_interval;
+    }
+}
+
+fn render_axis_grid(
+    scene: &mut Scene,
+    area: &ChartArea,
+    theme: &Theme,
+    min_day: i32,
+    max_day: i32,
+) {
+    let axis_line_y = area.axis_line_y();
+    let tick_interval = compute_tick_interval(area.total_days as i32);
+    let mut day = min_day;
+    while day <= max_day {
+        let x = area.day_to_x(day);
+
         scene.push(Primitive::Path {
             segments: vec![
                 PathSegment::MoveTo(Point::new(x, axis_line_y)),
@@ -300,18 +336,6 @@ fn render_axis(scene: &mut Scene, area: &ChartArea, theme: &Theme, min_day: i32,
             },
             marker_start: None,
             marker_end: None,
-        });
-
-        let label = format_day_label(day);
-        scene.push(Primitive::Text {
-            position: Point::new(x, area.axis_y + AXIS_HEIGHT * 0.4),
-            content: label,
-            anchor: TextAnchor::Middle,
-            style: TextStyle {
-                font_size: theme.font_size_small,
-                fill: Some(theme.node_text),
-                ..Default::default()
-            },
         });
 
         day += tick_interval;

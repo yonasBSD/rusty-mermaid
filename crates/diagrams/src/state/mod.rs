@@ -161,6 +161,17 @@ fn render_leaf_nodes(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 
 fn render_leaf_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
     match node.shape {
+        Shape::StateStart | Shape::StateEnd => render_start_end_node(node, scene, theme),
+        Shape::ForkJoin => render_fork_join_node(node, scene, theme),
+        Shape::Choice => render_choice_node(node, scene, theme),
+        Shape::Note => render_note_node(node, scene, theme),
+        Shape::History => render_history_node(node, scene, theme),
+        Shape::RoundedRect | _ => render_state_box(node, scene, theme),
+    }
+}
+
+fn render_start_end_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    match node.shape {
         Shape::StateStart => {
             scene.push(Primitive::Circle {
                 center: Point::new(node.x, node.y),
@@ -193,94 +204,100 @@ fn render_leaf_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
                 },
             });
         }
-        Shape::ForkJoin => {
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(node.x, node.y, node.width, node.height),
-                rx: 0.0,
-                ry: 0.0,
-                style: Style {
-                    fill: Some(theme.start_fill),
-                    stroke: Some(theme.start_fill),
-                    ..Default::default()
-                },
-            });
-        }
-        Shape::Choice => {
-            let hw = node.width / 2.0;
-            let hh = node.height / 2.0;
-            scene.push(Primitive::Polygon {
-                points: vec![
-                    Point::new(node.x, node.y - hh),
-                    Point::new(node.x + hw, node.y),
-                    Point::new(node.x, node.y + hh),
-                    Point::new(node.x - hw, node.y),
-                ],
-                style: merge_custom_style(node.custom_style.as_ref(), theme),
-            });
-        }
-        Shape::Note => {
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(node.x, node.y, node.width, node.height),
-                rx: 0.0,
-                ry: 0.0,
-                style: Style {
-                    fill: Some(theme.note_fill),
-                    stroke: Some(theme.note_stroke),
-                    stroke_width: Some(1.0),
-                    ..Default::default()
-                },
-            });
-            scene.push(Primitive::Text {
-                position: Point::new(node.x, node.y),
-                content: node.label.clone(),
-                anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: theme.font_size_edge_label,
-                    fill: Some(theme.note_text),
-                    ..Default::default()
-                },
-            });
-        }
-        Shape::History => {
-            let r = node.width / 2.0;
-            scene.push(Primitive::Circle {
-                center: Point::new(node.x, node.y),
-                radius: r,
-                style: Style {
-                    fill: Some(theme.composite_fill),
-                    stroke: Some(theme.node_stroke),
-                    stroke_width: Some(theme.default_stroke_width),
-                    ..Default::default()
-                },
-            });
-            scene.push(Primitive::Text {
-                position: Point::new(node.x, node.y),
-                content: "H".to_string(),
-                anchor: TextAnchor::Middle,
-                style: TextStyle {
-                    font_size: theme.font_size_edge_label,
-                    fill: Some(theme.node_text),
-                    ..Default::default()
-                },
-            });
-        }
-        Shape::RoundedRect | _ => {
-            let style = merge_custom_style(node.custom_style.as_ref(), theme);
-            let node_fill = style.fill;
-            scene.push(Primitive::Rect {
-                bbox: BBox::new(node.x, node.y, node.width, node.height),
-                rx: 5.0,
-                ry: 5.0,
-                style,
-            });
-            scene.push(Primitive::Text {
-                position: Point::new(node.x, node.y),
-                content: node.label.clone(),
-                anchor: TextAnchor::Middle,
-                style: contrasting_label_style(node_fill, theme),
-            });
-        }
+        _ => {}
     }
+}
+
+fn render_fork_join_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(node.x, node.y, node.width, node.height),
+        rx: 0.0,
+        ry: 0.0,
+        style: Style {
+            fill: Some(theme.start_fill),
+            stroke: Some(theme.start_fill),
+            ..Default::default()
+        },
+    });
+}
+
+fn render_choice_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    let hw = node.width / 2.0;
+    let hh = node.height / 2.0;
+    scene.push(Primitive::Polygon {
+        points: vec![
+            Point::new(node.x, node.y - hh),
+            Point::new(node.x + hw, node.y),
+            Point::new(node.x, node.y + hh),
+            Point::new(node.x - hw, node.y),
+        ],
+        style: merge_custom_style(node.custom_style.as_ref(), theme),
+    });
+}
+
+fn render_note_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(node.x, node.y, node.width, node.height),
+        rx: 0.0,
+        ry: 0.0,
+        style: Style {
+            fill: Some(theme.note_fill),
+            stroke: Some(theme.note_stroke),
+            stroke_width: Some(1.0),
+            ..Default::default()
+        },
+    });
+    scene.push(Primitive::Text {
+        position: Point::new(node.x, node.y),
+        content: node.label.clone(),
+        anchor: TextAnchor::Middle,
+        style: TextStyle {
+            font_size: theme.font_size_edge_label,
+            fill: Some(theme.note_text),
+            ..Default::default()
+        },
+    });
+}
+
+fn render_history_node(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    let r = node.width / 2.0;
+    scene.push(Primitive::Circle {
+        center: Point::new(node.x, node.y),
+        radius: r,
+        style: Style {
+            fill: Some(theme.composite_fill),
+            stroke: Some(theme.node_stroke),
+            stroke_width: Some(theme.default_stroke_width),
+            ..Default::default()
+        },
+    });
+    scene.push(Primitive::Text {
+        position: Point::new(node.x, node.y),
+        content: "H".to_string(),
+        anchor: TextAnchor::Middle,
+        style: TextStyle {
+            font_size: theme.font_size_edge_label,
+            fill: Some(theme.node_text),
+            ..Default::default()
+        },
+    });
+}
+
+fn render_state_box(node: &NodeLayout, scene: &mut Scene, theme: &Theme) {
+    let style = merge_custom_style(node.custom_style.as_ref(), theme);
+    let node_fill = style.fill;
+    scene.push(Primitive::Rect {
+        bbox: BBox::new(node.x, node.y, node.width, node.height),
+        rx: 5.0,
+        ry: 5.0,
+        style,
+    });
+    scene.push(Primitive::Text {
+        position: Point::new(node.x, node.y),
+        content: node.label.clone(),
+        anchor: TextAnchor::Middle,
+        style: contrasting_label_style(node_fill, theme),
+    });
 }
 
 fn render_dividers(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
