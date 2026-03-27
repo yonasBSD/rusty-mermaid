@@ -49,6 +49,18 @@ struct TaskPos {
     section_idx: usize,
 }
 
+struct TimelineLayout {
+    tasks: Vec<TaskPos>,
+    section_ranges: Vec<(f64, f64, Option<String>, usize)>,
+    width: f64,
+    height: f64,
+    axis_x: f64,
+    axis_y: f64,
+    event_box_w: f64,
+    event_box_h: f64,
+    title_y: Option<f64>,
+}
+
 fn title_width(title: &str, theme: &Theme) -> f64 {
     let style = TextStyle {
         font_size: theme.font_size_title,
@@ -59,13 +71,17 @@ fn title_width(title: &str, theme: &Theme) -> f64 {
 
 // ── LR layout: vertical axis, tasks left, events right ──
 
-fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+fn layout_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> TimelineLayout {
     let axis_x = MARGIN + TASK_BOX_W + GAP;
     let mut y = MARGIN;
 
-    if let Some(_title) = &diagram.title {
+    let title_y = if diagram.title.is_some() {
+        let ty = MARGIN + theme.font_size_title * 0.4;
         y += theme.font_size_title + GAP;
-    }
+        Some(ty)
+    } else {
+        None
+    };
 
     // Compute max event box width from content
     let event_style = TextStyle {
@@ -80,7 +96,6 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         .map(|e| SimpleTextMeasure::measure_raw(e, &event_style).width + GAP)
         .fold(EVENT_BOX_W, f64::max);
 
-    let title_bottom = y;
     let mut tasks: Vec<TaskPos> = Vec::new();
     let mut section_ranges: Vec<(f64, f64, Option<String>, usize)> = Vec::new();
 
@@ -109,7 +124,6 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         .map(|t| title_width(t, theme) + MARGIN * 2.0)
         .unwrap_or(0.0);
     let width = content_w.max(title_w);
-    // Bottom extends to last task + its events
     let last_bottom = tasks
         .last()
         .map(|t| {
@@ -118,41 +132,65 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
         })
         .unwrap_or(y);
     let height = last_bottom + MARGIN;
-    let mut scene = Scene::new(width, height);
 
+    TimelineLayout {
+        tasks,
+        section_ranges,
+        width,
+        height,
+        axis_x,
+        axis_y: 0.0, // unused in horizontal layout
+        event_box_w,
+        event_box_h: EVENT_BOX_H,
+        title_y,
+    }
+}
+
+fn render_horizontal_chrome(
+    scene: &mut Scene,
+    layout: &TimelineLayout,
+    diagram: &TimelineDiagram,
+    theme: &Theme,
+) {
     // Title
     if let Some(title) = &diagram.title {
         render_title(
-            &mut scene,
+            scene,
             title,
-            width / 2.0,
-            MARGIN + theme.font_size_title * 0.4,
+            layout.width / 2.0,
+            layout.title_y.unwrap_or(0.0),
             theme,
         );
     }
 
     // Vertical axis — extends from first task to last task
-    let axis_start = tasks
+    let title_bottom = layout
+        .title_y
+        .map(|_| MARGIN + theme.font_size_title + GAP)
+        .unwrap_or(MARGIN);
+    let axis_start = layout
+        .tasks
         .first()
         .map(|t| t.axis_pos - task_event_height(t.events.len()) / 2.0 - GAP / 2.0)
         .unwrap_or(title_bottom);
+    let last_bottom = layout.height - MARGIN;
     let axis_end = last_bottom + MARGIN / 2.0;
     render_axis_line(
-        &mut scene,
-        Point::new(axis_x, axis_start),
-        Point::new(axis_x, axis_end),
+        scene,
+        Point::new(layout.axis_x, axis_start),
+        Point::new(layout.axis_x, axis_end),
         theme,
     );
 
     // Sections
-    let label_x = MARGIN + 8.0; // left-aligned, away from axis
-    for (start, end, name, si) in &section_ranges {
+    let label_x = MARGIN + 8.0;
+    for (start, end, name, si) in &layout.section_ranges {
         let sec_cy = (*start + *end) / 2.0;
         let sec_h = *end - *start + GAP;
-        render_section_bg(&mut scene, width / 2.0, sec_cy, width - MARGIN, sec_h, *si);
+        render_section_bg(scene, layout.width / 2.0, sec_cy, layout.width - MARGIN, sec_h, *si);
         if let Some(name) = name {
             render_section_label_left(
-                &mut scene,
+                scene,
                 label_x,
                 *start + SECTION_HEADER_H * 0.4,
                 name,
@@ -161,13 +199,14 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
             );
         }
     }
+}
 
-    // Tasks + events
-    for tp in &tasks {
+fn render_horizontal_tasks(scene: &mut Scene, layout: &TimelineLayout, theme: &Theme) {
+    for tp in &layout.tasks {
         let color = SECTION_COLORS[tp.section_idx % SECTION_COLORS.len()];
-        let task_x = axis_x - GAP - TASK_BOX_W / 2.0;
+        let task_x = layout.axis_x - GAP - TASK_BOX_W / 2.0;
         render_box(
-            &mut scene,
+            scene,
             &BoxSpec {
                 bbox: BBox::new(task_x, tp.axis_pos, TASK_BOX_W, TASK_BOX_H),
                 color,
@@ -176,23 +215,23 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
             &tp.name,
             theme,
         );
-        render_dot(&mut scene, axis_x, tp.axis_pos, color);
+        render_dot(scene, layout.axis_x, tp.axis_pos, color);
 
-        let event_x = axis_x + GAP + event_box_w / 2.0;
-        let total_h = tp.events.len() as f64 * (EVENT_BOX_H + 4.0);
-        let start_y = tp.axis_pos - total_h / 2.0 + EVENT_BOX_H / 2.0;
+        let event_x = layout.axis_x + GAP + layout.event_box_w / 2.0;
+        let total_h = tp.events.len() as f64 * (layout.event_box_h + 4.0);
+        let start_y = tp.axis_pos - total_h / 2.0 + layout.event_box_h / 2.0;
         for (ei, event) in tp.events.iter().enumerate() {
-            let ey = start_y + ei as f64 * (EVENT_BOX_H + 4.0);
+            let ey = start_y + ei as f64 * (layout.event_box_h + 4.0);
             render_connector(
-                &mut scene,
-                Point::new(axis_x + 5.0, tp.axis_pos),
-                Point::new(event_x - event_box_w / 2.0, ey),
+                scene,
+                Point::new(layout.axis_x + 5.0, tp.axis_pos),
+                Point::new(event_x - layout.event_box_w / 2.0, ey),
                 theme,
             );
             render_box(
-                &mut scene,
+                scene,
                 &BoxSpec {
-                    bbox: BBox::new(event_x, ey, event_box_w, EVENT_BOX_H),
+                    bbox: BBox::new(event_x, ey, layout.event_box_w, layout.event_box_h),
                     color,
                     bold: false,
                 },
@@ -201,13 +240,19 @@ fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
             );
         }
     }
+}
 
+fn render_horizontal(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+    let layout = layout_horizontal(diagram, theme);
+    let mut scene = Scene::new(layout.width, layout.height);
+    render_horizontal_chrome(&mut scene, &layout, diagram, theme);
+    render_horizontal_tasks(&mut scene, &layout, theme);
     scene
 }
 
 // ── TB layout: horizontal axis, tasks above, events below ──
 
-fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+fn layout_vertical(diagram: &TimelineDiagram, theme: &Theme) -> TimelineLayout {
     let title_offset = if diagram.title.is_some() {
         theme.font_size_title + GAP * 2.0
     } else {
@@ -221,6 +266,12 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     };
     let axis_y = MARGIN + title_offset + section_label_h + TASK_BOX_H + GAP;
     let mut x = MARGIN;
+
+    let title_y = if diagram.title.is_some() {
+        Some(MARGIN + theme.font_size_title * 0.4)
+    } else {
+        None
+    };
 
     // Compute max event box width from content
     let event_style = TextStyle {
@@ -273,52 +324,78 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
     let width = (x + MARGIN).max(title_w);
     let events_h = max_events as f64 * (EVENT_BOX_H + 4.0);
     let height = axis_y + GAP + events_h + MARGIN;
-    let mut scene = Scene::new(width, height);
 
+    TimelineLayout {
+        tasks,
+        section_ranges,
+        width,
+        height,
+        axis_x: 0.0, // unused in vertical layout
+        axis_y,
+        event_box_w,
+        event_box_h: EVENT_BOX_H,
+        title_y,
+    }
+}
+
+fn render_vertical_chrome(
+    scene: &mut Scene,
+    layout: &TimelineLayout,
+    diagram: &TimelineDiagram,
+    theme: &Theme,
+) {
     // Title
     if let Some(title) = &diagram.title {
         render_title(
-            &mut scene,
+            scene,
             title,
-            width / 2.0,
-            MARGIN + theme.font_size_title * 0.4,
+            layout.width / 2.0,
+            layout.title_y.unwrap_or(0.0),
             theme,
         );
     }
 
     // Horizontal axis — from first task to last task
-    let axis_start = tasks
+    let axis_start = layout
+        .tasks
         .first()
         .map(|t| t.axis_pos - TASK_BOX_W / 2.0 - GAP / 2.0)
         .unwrap_or(MARGIN);
-    let axis_end = tasks
+    let axis_end = layout
+        .tasks
         .last()
         .map(|t| t.axis_pos + TASK_BOX_W / 2.0 + GAP / 2.0)
-        .unwrap_or(width - MARGIN);
+        .unwrap_or(layout.width - MARGIN);
     render_axis_line(
-        &mut scene,
-        Point::new(axis_start, axis_y),
-        Point::new(axis_end, axis_y),
+        scene,
+        Point::new(axis_start, layout.axis_y),
+        Point::new(axis_end, layout.axis_y),
         theme,
     );
 
     // Section label boxes + backgrounds — equal padding top and bottom
-    let section_box_y = axis_y - TASK_BOX_H - GAP * 2.0 - SECTION_HEADER_H / 2.0;
+    let section_box_y = layout.axis_y - TASK_BOX_H - GAP * 2.0 - SECTION_HEADER_H / 2.0;
     let content_top = section_box_y - SECTION_HEADER_H / 2.0;
-    let content_bottom = axis_y + GAP + max_events as f64 * (EVENT_BOX_H + 4.0);
+    let max_events = layout
+        .tasks
+        .iter()
+        .map(|t| t.events.len())
+        .max()
+        .unwrap_or(0);
+    let content_bottom = layout.axis_y + GAP + max_events as f64 * (layout.event_box_h + 4.0);
     let bg_pad = GAP / 2.0;
     let bg_top = content_top - bg_pad;
     let bg_bottom = content_bottom + bg_pad;
     let bg_cy = (bg_top + bg_bottom) / 2.0;
     let bg_h = bg_bottom - bg_top;
-    for (start, end, name, si) in &section_ranges {
+    for (start, end, name, si) in &layout.section_ranges {
         let sec_cx = (*start + *end) / 2.0;
         let sec_w = *end - *start + GAP;
-        render_section_bg(&mut scene, sec_cx, bg_cy, sec_w, bg_h, *si);
+        render_section_bg(scene, sec_cx, bg_cy, sec_w, bg_h, *si);
         if let Some(name) = name {
             let color = SECTION_COLORS[*si % SECTION_COLORS.len()];
             render_box(
-                &mut scene,
+                scene,
                 &BoxSpec {
                     bbox: BBox::new(sec_cx, section_box_y, sec_w - GAP, SECTION_HEADER_H),
                     color,
@@ -329,14 +406,22 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
             );
         }
     }
+}
 
-    // Tasks (above axis) + vertical line + events (below axis)
-    let events_bottom = axis_y + GAP + max_events as f64 * (EVENT_BOX_H + 4.0);
-    for tp in &tasks {
+fn render_vertical_tasks(scene: &mut Scene, layout: &TimelineLayout, theme: &Theme) {
+    let max_events = layout
+        .tasks
+        .iter()
+        .map(|t| t.events.len())
+        .max()
+        .unwrap_or(0);
+    let events_bottom = layout.axis_y + GAP + max_events as f64 * (layout.event_box_h + 4.0);
+
+    for tp in &layout.tasks {
         let color = SECTION_COLORS[tp.section_idx % SECTION_COLORS.len()];
-        let task_y = axis_y - GAP - TASK_BOX_H / 2.0;
+        let task_y = layout.axis_y - GAP - TASK_BOX_H / 2.0;
         render_box(
-            &mut scene,
+            scene,
             &BoxSpec {
                 bbox: BBox::new(tp.axis_pos, task_y, TASK_BOX_W, TASK_BOX_H),
                 color,
@@ -345,25 +430,25 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
             &tp.name,
             theme,
         );
-        render_dot(&mut scene, tp.axis_pos, axis_y, color);
+        render_dot(scene, tp.axis_pos, layout.axis_y, color);
 
         // Vertical line from axis to bottom of events area
         if !tp.events.is_empty() {
             render_connector(
-                &mut scene,
-                Point::new(tp.axis_pos, axis_y + 5.0),
+                scene,
+                Point::new(tp.axis_pos, layout.axis_y + 5.0),
                 Point::new(tp.axis_pos, events_bottom),
                 theme,
             );
         }
 
-        let start_y = axis_y + GAP + EVENT_BOX_H / 2.0;
+        let start_y = layout.axis_y + GAP + layout.event_box_h / 2.0;
         for (ei, event) in tp.events.iter().enumerate() {
-            let ey = start_y + ei as f64 * (EVENT_BOX_H + 4.0);
+            let ey = start_y + ei as f64 * (layout.event_box_h + 4.0);
             render_box(
-                &mut scene,
+                scene,
                 &BoxSpec {
-                    bbox: BBox::new(tp.axis_pos, ey, event_box_w, EVENT_BOX_H),
+                    bbox: BBox::new(tp.axis_pos, ey, layout.event_box_w, layout.event_box_h),
                     color,
                     bold: false,
                 },
@@ -372,7 +457,13 @@ fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
             );
         }
     }
+}
 
+fn render_vertical(diagram: &TimelineDiagram, theme: &Theme) -> Scene {
+    let layout = layout_vertical(diagram, theme);
+    let mut scene = Scene::new(layout.width, layout.height);
+    render_vertical_chrome(&mut scene, &layout, diagram, theme);
+    render_vertical_tasks(&mut scene, &layout, theme);
     scene
 }
 
