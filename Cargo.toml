@@ -37,15 +37,15 @@ categories = ["rendering", "visualization"]
 readme = "README.md"
 
 [workspace.dependencies]
-rusty-mermaid-core = { path = "crates/core" }
-rusty-mermaid-graph = { path = "crates/graph" }
-rusty-mermaid-dagre = { path = "crates/dagre" }
-rusty-mermaid-diagrams = { path = "crates/diagrams" }
-rusty-mermaid-svg = { path = "crates/svg" }
-rusty-mermaid-viewport = { path = "crates/viewport" }
-rusty-mermaid-raster = { path = "crates/raster" }
-rusty-mermaid-gpui = { path = "crates/gpui-backend" }
-rusty-mermaid-wgpu = { path = "crates/wgpu-backend" }
+rusty-mermaid-core = { version = "0.1.0", path = "crates/core" }
+rusty-mermaid-graph = { version = "0.1.0", path = "crates/graph" }
+rusty-mermaid-dagre = { version = "0.1.0", path = "crates/dagre" }
+rusty-mermaid-diagrams = { version = "0.1.0", path = "crates/diagrams" }
+rusty-mermaid-svg = { version = "0.1.0", path = "crates/svg" }
+rusty-mermaid-viewport = { version = "0.1.0", path = "crates/viewport" }
+rusty-mermaid-raster = { version = "0.1.0", path = "crates/raster" }
+rusty-mermaid-gpui = { version = "0.1.0", path = "crates/gpui-backend" }
+rusty-mermaid-wgpu = { version = "0.1.0", path = "crates/wgpu-backend" }
 thiserror = "2"
 
 # Fast debug builds - optimize for compile speed
