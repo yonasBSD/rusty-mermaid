@@ -73,9 +73,9 @@ fn process_markdown(content: &str, doc_name: &str, images_dir: &Path) -> (String
                     // Image tag
                     result.push_str(&format!("![{}](images/{})\n", doc_name, svg_name));
 
-                    // Collapsible source
+                    // Collapsible source (plain ``` to prevent GitHub rendering)
                     result.push_str("\n<details>\n<summary>Mermaid source</summary>\n\n");
-                    result.push_str("```mermaid\n");
+                    result.push_str("```\n");
                     result.push_str(&mermaid_src);
                     result.push_str("```\n\n</details>\n");
                 }
