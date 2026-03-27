@@ -13,7 +13,7 @@ Copy-paste examples for all 25 diagram types. See the [gallery](gallery.html) fo
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 architecture-beta
     group cloud(cloud)[Cloud Platform]
     group backend(server)[Backend] in cloud
@@ -48,7 +48,7 @@ architecture-beta
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 block-beta
   columns 3
   a["Header"]:3
@@ -80,7 +80,7 @@ block-beta
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 C4Container
   title Container Diagram
   Person(user, "User", "Interacts with system")
@@ -114,7 +114,7 @@ C4Container
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 classDiagram
     class Animal {
         <<abstract>>
@@ -180,7 +180,7 @@ classDiagram
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 erDiagram
     CUSTOMER {
         int id PK
@@ -238,7 +238,7 @@ erDiagram
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 flowchart TD
     A([Stadium]):::green --> B{Diamond}:::red
     B --> C[(Cylinder)]:::blue
@@ -275,7 +275,7 @@ flowchart TD
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 gantt
     title Sprint Plan
     dateFormat YYYY-MM-DD
@@ -311,7 +311,7 @@ gantt
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 gitGraph
     commit id: "init"
     commit id: "setup"
@@ -349,7 +349,7 @@ gitGraph
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 ishikawa-beta
     Low Quality Output
     People
@@ -392,7 +392,7 @@ ishikawa-beta
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 journey
   title E-Commerce Experience
   section Browse
@@ -430,7 +430,7 @@ journey
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 kanban
     Todo
         t1[Fix login bug] @{priority: high, assigned: alice, ticket: BUG-101}
@@ -462,7 +462,7 @@ kanban
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 mindmap
     Central Idea
         [Rectangle]
@@ -493,7 +493,7 @@ mindmap
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 packet-beta
 title "TCP Header"
 0-15: "Source Port"
@@ -533,7 +533,7 @@ title "TCP Header"
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 pie showData title Browser Market Share
     "Chrome" : 65.3
     "Safari" : 18.7
@@ -562,7 +562,7 @@ pie showData title Browser Market Share
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 quadrantChart
   title Priority Matrix
   x-axis Low Urgency --> High Urgency
@@ -598,7 +598,7 @@ quadrantChart
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 radar-beta
 title Car Comparison
 ticks 4
@@ -629,7 +629,7 @@ curve suv["SUV"]{6,7,8,5,6}
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 requirementDiagram
 
     requirement REQ_01 {
@@ -692,7 +692,7 @@ requirementDiagram
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 sankey-beta
 Coal,Electricity,46
 Gas,Electricity,27
@@ -725,7 +725,7 @@ Electricity,Transport,15
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 sequenceDiagram
     Alice->>Bob: Start
     Note right of Alice: Before loop
@@ -764,7 +764,7 @@ sequenceDiagram
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 stateDiagram-v2
     [*] --> Active
     state Active {
@@ -800,7 +800,7 @@ stateDiagram-v2
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 timeline
     title Company History
     section Foundation
@@ -834,7 +834,7 @@ timeline
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 treemap
     Operations
         Salaries: 700
@@ -868,7 +868,7 @@ treemap
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 treeView-beta
     src
         main.rs
@@ -905,7 +905,7 @@ treeView-beta
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 venn-beta
     title Data Engineering
     set A["SQL"]:35
@@ -938,7 +938,7 @@ venn-beta
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 xychart-beta
     title "Sales vs Target"
     x-axis [Q1, Q2, Q3, Q4]

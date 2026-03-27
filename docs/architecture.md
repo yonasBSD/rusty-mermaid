@@ -11,7 +11,7 @@ rusty-mermaid is a pure-Rust port of [mermaid.js](https://mermaid.js.org/) and i
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 flowchart LR
     A[mermaid text] --> B[parse] --> C[IR] --> D[layout] --> E[Scene] --> F[backend] --> G[output]
 ```
@@ -25,7 +25,7 @@ flowchart LR
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 graph BT
     core["core<br/><i>primitives, Scene, Theme</i>"]
     graph["graph<br/><i>Graph&lt;N,E&gt;</i>"]
@@ -71,7 +71,7 @@ What happens when a user calls `rusty_mermaid::to_svg(input)`:
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 flowchart LR
     Input["mermaid text"] --> Detect["detect(input)<br/>→ DiagramKind"]
     Detect --> Parse["parser::parse(input)<br/>→ IR struct"]
@@ -190,7 +190,7 @@ Used by diagrams that have nodes and edges laid out by dagre: **flowchart, state
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 flowchart LR
     subgraph "Bridge Pattern"
         P["parser.rs<br/>text → IR"] --> B["bridge.rs<br/>IR → Graph → dagre → LayoutResult"]
@@ -220,7 +220,7 @@ Used by diagrams with custom layout logic: **pie, sequence, timeline, kanban, ga
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 flowchart LR
     subgraph "Direct Pattern"
         P["parser.rs<br/>text → IR"] --> S["mod.rs / to_scene_themed()<br/>IR → Scene (custom layout + emit)"]
@@ -279,7 +279,7 @@ Every backend iterates `scene.elements()` and pattern-matches on `Primitive`:
 <details>
 <summary>Mermaid source</summary>
 
-```mermaid
+```
 sequenceDiagram
     participant User
     participant Facade
