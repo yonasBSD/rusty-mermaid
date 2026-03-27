@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>architecture - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link active" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="architecture" class="type-section">
+<details open class="section-details">
+<summary><h2>architecture <span class="section-count">(5)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">arch_api_gateway</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 481.25 491.77" width="481.25" height="491.77">
+  <g transform="translate(20, 20)">
+    <rect x="10" y="10" width="421.25" height="459.77" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="20" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">API</text>
+    <path d="M176.89 183.73 L264.36 268.04" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M140 357.01 L255.86 322.8" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M301.25 94.76 L185.4 128.97" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <rect x="85.4" y="103.73" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="135.4" cy="131.73" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="135.4" y="131.73" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">DB</text>
+    <text x="135.4" y="163.73" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Database</text>
+    <rect x="40" y="331.77" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="90" cy="359.77" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
+    <text x="90" y="359.77" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">DSK</text>
+    <text x="90" y="391.77" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Storage</text>
+    <rect x="301.25" y="40" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <circle cx="351.25" cy="68" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
+    <text x="351.25" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">DSK</text>
+    <text x="351.25" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Storage 2</text>
+    <rect x="255.86" y="268.04" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <circle cx="305.86" cy="296.04" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
+    <text x="305.86" y="296.04" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">SRV</text>
+    <text x="305.86" y="328.04" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Server</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>architecture-beta
+    group api(cloud)[API]
+
+    service db(database)[Database] in api
+    service disk1(disk)[Storage] in api
+    service disk2(disk)[Storage 2] in api
+    service server(server)[Server] in api
+
+    db:L -- R:server
+    disk1:T -- B:server
+    disk2:T -- B:db
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">arch_junctions</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710.27 522.92" width="710.27" height="522.92">
+  <g transform="translate(20, 20)">
+    <path d="M140 201.72 L256.91 235.82" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M229.66 362.92 L262.65 246.15" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M272.91 238.63 L395.07 246" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M404.84 238.48 L431.03 120" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M411.07 248.16 L530.27 273.16" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <rect x="40" y="147.14" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="90" cy="175.14" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="175.14" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
+    <text x="90" y="207.14" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Service A</text>
+    <rect x="168.36" y="362.92" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="218.36" cy="390.92" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
+    <text x="218.36" y="390.92" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">SRV</text>
+    <text x="218.36" y="422.92" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Service B</text>
+    <rect x="389.87" y="40" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <circle cx="439.87" cy="68" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
+    <text x="439.87" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">SRV</text>
+    <text x="439.87" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Service C</text>
+    <rect x="530.27" y="243.65" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <circle cx="580.27" cy="271.65" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
+    <text x="580.27" y="271.65" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DB</text>
+    <text x="580.27" y="303.65" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Database</text>
+    <rect x="256.91" y="230.15" width="16" height="16" rx="2" ry="2" fill="#787878" />
+    <rect x="395.07" y="238.48" width="16" height="16" rx="2" ry="2" fill="#787878" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>architecture-beta
+    service a(server)[Service A]
+    service b(server)[Service B]
+    service c(server)[Service C]
+    service d(database)[Database]
+    junction j1
+    junction j2
+    a:R -- L:j1
+    b:R -- L:j1
+    j1:R -- L:j2
+    j2:R -- L:c
+    j2:B -- T:d
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">arch_multi_group</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 755.75 502.98" width="755.75" height="502.98">
+  <g transform="translate(20, 20)">
+    <rect x="308.44" y="10" width="397.31" height="470.98" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="318.44" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Cloud Platform</text>
+    <rect x="10" y="186.7" width="380.91" height="183.76" rx="6" ry="6" fill="none" stroke="#f28e2c" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="20" y="200.7" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Backend</text>
+    <path d="M140 260.27 L260.91 268.89" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M327.02 232.45 L372.32 120" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M360.91 266.54 L481.35 252.3" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M497.35 259.07 L584.3 342.98" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <rect x="40" y="216.7" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="90" cy="244.7" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="244.7" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
+    <text x="90" y="276.7" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Web Server</text>
+    <rect x="260.91" y="232.45" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="310.91" cy="260.45" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
+    <text x="310.91" y="260.45" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">SRV</text>
+    <text x="310.91" y="292.45" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">API Server</text>
+    <rect x="338.44" y="40" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <circle cx="388.44" cy="68" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
+    <text x="388.44" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">DB</text>
+    <text x="388.44" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">PostgreSQL</text>
+    <rect x="575.75" y="342.98" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <circle cx="625.75" cy="370.98" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
+    <text x="625.75" y="370.98" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DSK</text>
+    <text x="625.75" y="402.98" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Redis Cache</text>
+    <rect x="481.35" y="243.35" width="16" height="16" rx="2" ry="2" fill="#787878" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>architecture-beta
+    group cloud(cloud)[Cloud Platform]
+    group backend(server)[Backend] in cloud
+    service web(server)[Web Server] in backend
+    service api(server)[API Server] in backend
+    service db(database)[PostgreSQL] in cloud
+    service cache(disk)[Redis Cache] in cloud
+    junction mid in cloud
+    web:R -- L:api
+    api:B -- T:db
+    api:R -- L:mid
+    mid:R -- L:cache
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">arch_network</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 668.93 495.26" width="668.93" height="495.26">
+  <defs>
+    <marker id="arrow-point-c8c8c8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#c8c8c8" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="248.51" y="10" width="370.42" height="368.37" rx="6" ry="6" fill="none" stroke="#4e79a7" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="258.51" y="24" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Cloud Platform</text>
+    <rect x="10" y="207.4" width="370.29" height="265.86" rx="6" ry="6" fill="none" stroke="#f28e2c" stroke-width="1.5" stroke-dasharray="7 5" />
+    <text x="20" y="221.4" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Internal Network</text>
+    <path d="M533.46 120 L517.01 240.37" fill="none" stroke="#c8c8c8" stroke-width="1.5" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M488.93 102.65 L378.51 152.68" fill="none" stroke="#c8c8c8" stroke-width="1.5" marker-end="url(#arrow-point-c8c8c8)" />
+    <path d="M461.54 302.83 L350.29 352.8" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M322.87 215.33 L305.93 335.26" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M250.29 351.99 L140 300.67" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <rect x="488.93" y="40" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="538.93" cy="68" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="538.93" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">SRV</text>
+    <text x="538.93" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Load Balancer</text>
+    <rect x="461.54" y="240.37" width="100" height="80" rx="6" ry="6" fill="#fdf1e5" stroke="#f28e2c" stroke-width="1.5" />
+    <circle cx="511.54" cy="268.37" r="12" fill="#f28e2c3c" stroke="#f28e2c" stroke-width="1" />
+    <text x="511.54" y="268.37" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c">SRV</text>
+    <text x="511.54" y="300.37" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">App Server 1</text>
+    <rect x="278.51" y="135.33" width="100" height="80" rx="6" ry="6" fill="#fbeaeb" stroke="#e15759" stroke-width="1.5" />
+    <circle cx="328.51" cy="163.33" r="12" fill="#e157593c" stroke="#e15759" stroke-width="1" />
+    <text x="328.51" y="163.33" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759">SRV</text>
+    <text x="328.51" y="195.33" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">App Server 2</text>
+    <rect x="250.29" y="335.26" width="100" height="80" rx="6" ry="6" fill="#eef6f5" stroke="#76b7b2" stroke-width="1.5" />
+    <circle cx="300.29" cy="363.26" r="12" fill="#76b7b23c" stroke="#76b7b2" stroke-width="1" />
+    <text x="300.29" y="363.26" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#76b7b2">DB</text>
+    <text x="300.29" y="395.26" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
+    <rect x="40" y="237.4" width="100" height="80" rx="6" ry="6" fill="#ebf3e9" stroke="#59a14f" stroke-width="1.5" />
+    <circle cx="90" cy="265.4" r="12" fill="#59a14f3c" stroke="#59a14f" stroke-width="1" />
+    <text x="90" y="265.4" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f">DB</text>
+    <text x="90" y="297.4" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Primary DB</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>architecture-beta
+    group cloud(cloud)[Cloud Platform]
+    group internal(server)[Internal Network]
+
+    service lb(server)[Load Balancer] in cloud
+    service app1(server)[App Server 1] in cloud
+    service app2(server)[App Server 2] in cloud
+    service cache(database)[Cache] in internal
+    service db(database)[Primary DB] in internal
+
+    lb:B --&gt; T:app1
+    lb:B --&gt; T:app2
+    app1:R -- L:cache
+    app2:R -- L:cache
+    cache:B -- T:db
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">arch_single_service</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200" width="220" height="200">
+  <g transform="translate(20, 20)">
+    <rect x="40" y="40" width="100" height="80" rx="6" ry="6" fill="#e9eef4" stroke="#4e79a7" stroke-width="1.5" />
+    <circle cx="90" cy="68" r="12" fill="#4e79a73c" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="68" text-anchor="middle" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7">DB</text>
+    <text x="90" y="100" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Standalone DB</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>architecture-beta
+    service db(database)[Standalone DB]
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

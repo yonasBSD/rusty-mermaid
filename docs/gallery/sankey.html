@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sankey - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link active" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="sankey" class="type-section">
+<details open class="section-details">
+<summary><h2>sankey <span class="section-count">(6)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">sankey_basic</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 878.4 440" width="878.4" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M139.2 89.6 C409.2 89.6 409.2 89.6 679.2 89.6" fill="none" stroke="#4e79a764" stroke-width="139.2" />
+    <path d="M139.2 261.68 C409.2 261.68 409.2 180.08 679.2 180.08" fill="none" stroke="#76b7b264" stroke-width="41.76" />
+    <path d="M139.2 194 C409.2 194 409.2 247.76 679.2 247.76" fill="none" stroke="#4e79a764" stroke-width="69.6" />
+    <path d="M139.2 331.28 C409.2 331.28 409.2 331.28 679.2 331.28" fill="none" stroke="#76b7b264" stroke-width="97.44" />
+    <rect x="129.2" y="20" width="10" height="208.8" fill="#4e79a7" />
+    <text x="123.2" y="124.4" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Source A 150</text>
+    <rect x="679.2" y="20" width="10" height="180.96" fill="#f28e2c" />
+    <text x="695.2" y="110.48" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Target X 130</text>
+    <rect x="679.2" y="212.96" width="10" height="167.04" fill="#e15759" />
+    <text x="695.2" y="296.48" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Target Y 120</text>
+    <rect x="129.2" y="240.8" width="10" height="139.2" fill="#76b7b2" />
+    <text x="123.2" y="310.4" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Source B 100</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sankey-beta
+Source A,Target X,100
+Source A,Target Y,50
+Source B,Target X,30
+Source B,Target Y,70
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">sankey_chain</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 912.8 440" width="912.8" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M173.6 200 C237.35 200 237.35 200 301.1 200" fill="none" stroke="#4e79a764" stroke-width="360" />
+    <path d="M311.1 200 C374.85 200 374.85 200 438.6 200" fill="none" stroke="#f28e2c64" stroke-width="360" />
+    <path d="M448.6 200 C512.35 200 512.35 200 576.1 200" fill="none" stroke="#e1575964" stroke-width="324" />
+    <path d="M586.1 200 C649.85 200 649.85 200 713.6 200" fill="none" stroke="#76b7b264" stroke-width="270" />
+    <rect x="163.6" y="20" width="10" height="360" fill="#4e79a7" />
+    <text x="157.6" y="200" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Raw Material 200</text>
+    <rect x="301.1" y="20" width="10" height="360" fill="#f28e2c" />
+    <text x="317.1" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Factory 200</text>
+    <rect x="438.6" y="38" width="10" height="324" fill="#e15759" />
+    <text x="454.6" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Warehouse 180</text>
+    <rect x="576.1" y="65" width="10" height="270" fill="#76b7b2" />
+    <text x="592.1" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Retail 150</text>
+    <rect x="713.6" y="74" width="10" height="252" fill="#59a14f" />
+    <text x="729.6" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Consumer 140</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sankey-beta
+Raw Material,Factory,200
+Factory,Warehouse,180
+Warehouse,Retail,150
+Retail,Consumer,140
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">sankey_energy</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 878.4 440" width="878.4" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M122 89.67 C254.5 89.67 254.5 113.67 387 113.67" fill="none" stroke="#4e79a764" stroke-width="139.34" />
+    <path d="M122 212.23 C254.5 212.23 254.5 224.23 387 224.23" fill="none" stroke="#e1575964" stroke-width="81.79" />
+    <path d="M122 292.39 C254.5 292.39 254.5 292.39 387 292.39" fill="none" stroke="#76b7b264" stroke-width="54.52" />
+    <path d="M122 343.77 C254.5 343.77 254.5 331.77 387 331.77" fill="none" stroke="#59a14f64" stroke-width="24.23" />
+    <path d="M122 373.94 C254.5 373.94 254.5 349.94 387 349.94" fill="none" stroke="#edc94964" stroke-width="12.12" />
+    <path d="M397 97.01 C529.5 97.01 529.5 79.01 662 79.01" fill="none" stroke="#f28e2c64" stroke-width="106.02" />
+    <path d="M397 192.43 C529.5 192.43 529.5 186.43 662 186.43" fill="none" stroke="#f28e2c64" stroke-width="84.82" />
+    <path d="M397 272.7 C529.5 272.7 529.5 278.7 662 278.7" fill="none" stroke="#f28e2c64" stroke-width="75.73" />
+    <path d="M397 333.28 C529.5 333.28 529.5 351.28 662 351.28" fill="none" stroke="#f28e2c64" stroke-width="45.44" />
+    <rect x="112" y="20" width="10" height="139.34" fill="#4e79a7" />
+    <text x="106" y="89.67" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Coal 46</text>
+    <rect x="387" y="44" width="10" height="312" fill="#f28e2c" />
+    <text x="403" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Electricity 103</text>
+    <rect x="112" y="171.34" width="10" height="81.79" fill="#e15759" />
+    <text x="106" y="212.23" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Gas 27</text>
+    <rect x="112" y="265.13" width="10" height="54.52" fill="#76b7b2" />
+    <text x="106" y="292.39" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Nuclear 18</text>
+    <rect x="112" y="331.65" width="10" height="24.23" fill="#59a14f" />
+    <text x="106" y="343.77" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wind 8</text>
+    <rect x="112" y="367.88" width="10" height="12.12" fill="#edc949" />
+    <text x="106" y="373.94" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solar 4</text>
+    <rect x="662" y="26" width="10" height="106.02" fill="#af7aa1" />
+    <text x="678" y="79.01" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Residential 35</text>
+    <rect x="662" y="144.02" width="10" height="84.82" fill="#ff9da7" />
+    <text x="678" y="186.43" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Commercial 28</text>
+    <rect x="662" y="240.83" width="10" height="75.73" fill="#bab0ac" />
+    <text x="678" y="278.7" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Industrial 25</text>
+    <rect x="662" y="328.56" width="10" height="45.44" fill="#8c564b" />
+    <text x="678" y="351.28" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Transport 15</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sankey-beta
+Coal,Electricity,46
+Gas,Electricity,27
+Nuclear,Electricity,18
+Wind,Electricity,8
+Solar,Electricity,4
+Electricity,Residential,35
+Electricity,Commercial,28
+Electricity,Industrial,25
+Electricity,Transport,15
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">sankey_multi</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 947.2 440" width="947.2" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M165 104 C297.5 104 297.5 92 430 92" fill="none" stroke="#4e79a764" stroke-width="144" />
+    <path d="M165 284 C297.5 284 297.5 224 430 224" fill="none" stroke="#76b7b264" stroke-width="96" />
+    <path d="M165 200 C297.5 200 297.5 308 430 308" fill="none" stroke="#4e79a764" stroke-width="48" />
+    <path d="M165 350 C297.5 350 297.5 362 430 362" fill="none" stroke="#76b7b264" stroke-width="36" />
+    <path d="M440 74 C572.5 74 572.5 74 705 74" fill="none" stroke="#f28e2c64" stroke-width="108" />
+    <path d="M440 206 C572.5 206 572.5 158 705 158" fill="none" stroke="#59a14f64" stroke-width="60" />
+    <path d="M440 146 C572.5 146 572.5 218 705 218" fill="none" stroke="#f28e2c64" stroke-width="36" />
+    <path d="M440 254 C572.5 254 572.5 254 705 254" fill="none" stroke="#59a14f64" stroke-width="36" />
+    <path d="M440 308 C572.5 308 572.5 308 705 308" fill="none" stroke="#e1575964" stroke-width="48" />
+    <path d="M440 362 C572.5 362 572.5 362 705 362" fill="none" stroke="#edc94964" stroke-width="36" />
+    <rect x="155" y="32" width="10" height="192" fill="#4e79a7" />
+    <text x="149" y="128" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Agriculture 160</text>
+    <rect x="430" y="20" width="10" height="144" fill="#f28e2c" />
+    <text x="446" y="92" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Food Processing 120</text>
+    <rect x="430" y="284" width="10" height="48" fill="#e15759" />
+    <text x="446" y="308" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Biofuels 40</text>
+    <rect x="155" y="236" width="10" height="132" fill="#76b7b2" />
+    <text x="149" y="302" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mining 110</text>
+    <rect x="430" y="176" width="10" height="96" fill="#59a14f" />
+    <text x="446" y="224" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Manufacturing 80</text>
+    <rect x="430" y="344" width="10" height="36" fill="#edc949" />
+    <text x="446" y="362" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Construction 30</text>
+    <rect x="705" y="20" width="10" height="168" fill="#af7aa1" />
+    <text x="721" y="104" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Retail 140</text>
+    <rect x="705" y="200" width="10" height="72" fill="#ff9da7" />
+    <text x="721" y="236" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Export 60</text>
+    <rect x="705" y="284" width="10" height="48" fill="#bab0ac" />
+    <text x="721" y="308" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Transport 40</text>
+    <rect x="705" y="344" width="10" height="36" fill="#8c564b" />
+    <text x="721" y="362" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Infrastructure 30</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sankey-beta
+Agriculture,Food Processing,120
+Agriculture,Biofuels,40
+Mining,Manufacturing,80
+Mining,Construction,30
+Food Processing,Retail,90
+Food Processing,Export,30
+Manufacturing,Retail,50
+Manufacturing,Export,30
+Biofuels,Transport,40
+Construction,Infrastructure,30
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">sankey_quoted</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 964.4 440" width="964.4" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M208 134.75 C340.5 134.75 340.5 128.75 473 128.75" fill="none" stroke="#4e79a764" stroke-width="217.5" />
+    <path d="M208 308.75 C340.5 308.75 340.5 314.75 473 314.75" fill="none" stroke="#4e79a764" stroke-width="130.5" />
+    <path d="M483 266.9 C615.5 266.9 615.5 37.4 748 37.4" fill="none" stroke="#e1575964" stroke-width="34.8" />
+    <path d="M483 46.1 C615.5 46.1 615.5 80.9 748 80.9" fill="none" stroke="#f28e2c64" stroke-width="52.2" />
+    <path d="M483 154.85 C615.5 154.85 615.5 201.65 748 201.65" fill="none" stroke="#f28e2c64" stroke-width="165.3" />
+    <path d="M483 332.15 C615.5 332.15 615.5 332.15 748 332.15" fill="none" stroke="#e1575964" stroke-width="95.7" />
+    <rect x="198" y="26" width="10" height="348" fill="#4e79a7" />
+    <text x="192" y="200" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Heating &amp; Cooling 80</text>
+    <rect x="473" y="20" width="10" height="217.5" fill="#f28e2c" />
+    <text x="489" y="128.75" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Residential 50</text>
+    <rect x="473" y="249.5" width="10" height="130.5" fill="#e15759" />
+    <text x="489" y="314.75" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Office Buildings 30</text>
+    <rect x="748" y="20" width="10" height="87" fill="#76b7b2" />
+    <text x="764" y="63.5" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Energy Loss 20</text>
+    <rect x="748" y="119" width="10" height="261" fill="#59a14f" />
+    <text x="764" y="249.5" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Useful Heat 60</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sankey-beta
+&quot;Heating &amp; Cooling&quot;,Residential,50
+&quot;Heating &amp; Cooling&quot;,&quot;Office Buildings&quot;,30
+&quot;Office Buildings&quot;,&quot;Energy Loss&quot;,8
+Residential,&quot;Energy Loss&quot;,12
+Residential,&quot;Useful Heat&quot;,38
+&quot;Office Buildings&quot;,&quot;Useful Heat&quot;,22
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">sankey_single</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 835.4 440" width="835.4" height="440">
+  <g transform="translate(20, 20)">
+    <path d="M113.4 200 C383.4 200 383.4 200 653.4 200" fill="none" stroke="#4e79a764" stroke-width="360" />
+    <rect x="103.4" y="20" width="10" height="360" fill="#4e79a7" />
+    <text x="97.4" y="200" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Input 100</text>
+    <rect x="653.4" y="20" width="10" height="360" fill="#f28e2c" />
+    <text x="669.4" y="200" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Output 100</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sankey-beta
+Input,Output,100
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

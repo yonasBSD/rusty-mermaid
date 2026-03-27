@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>radar - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link active" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="radar" class="type-section">
+<details open class="section-details">
+<summary><h2>radar <span class="section-count">(6)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">radar_many_curves</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 550" width="620" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Team</text>
+    <polygon points="230,244 264.24,268.88 251.16,309.12 208.84,309.12 195.76,268.88" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,208 298.48,257.75 272.32,338.25 187.68,338.25 161.52,257.75" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,172 332.71,246.63 293.48,367.37 166.52,367.37 127.29,246.63" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,136 366.95,235.5 314.64,396.5 145.36,396.5 93.05,235.5" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 401.19,224.38 335.8,425.62 124.2,425.62 58.81,224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rust</text>
+    <path d="M230 280 L401.19 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="414.5" y="220.05" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go</text>
+    <path d="M230 280 L335.8 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="344.03" y="436.95" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Python</text>
+    <path d="M230 280 L124.2 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="115.97" y="436.95" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SQL</text>
+    <path d="M230 280 L58.81 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="45.5" y="220.05" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">DevOps</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">2</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">4</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">6</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">8</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">10</text>
+    <polygon points="230,118 332.71,246.63 304.06,381.94 145.36,396.5 144.4,252.19" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="118" r="3" fill="#4e79a7" />
+    <circle cx="332.71" cy="246.63" r="3" fill="#4e79a7" />
+    <circle cx="304.06" cy="381.94" r="3" fill="#4e79a7" />
+    <circle cx="145.36" cy="396.5" r="3" fill="#4e79a7" />
+    <circle cx="144.4" cy="252.19" r="3" fill="#4e79a7" />
+    <polygon points="230,190 384.07,229.94 314.64,396.5 166.52,367.37 110.17,241.06" fill="#f28e2c28" stroke="#f28e2c" stroke-width="2" />
+    <circle cx="230" cy="190" r="3" fill="#f28e2c" />
+    <circle cx="384.07" cy="229.94" r="3" fill="#f28e2c" />
+    <circle cx="314.64" cy="396.5" r="3" fill="#f28e2c" />
+    <circle cx="166.52" cy="367.37" r="3" fill="#f28e2c" />
+    <circle cx="110.17" cy="241.06" r="3" fill="#f28e2c" />
+    <polygon points="230,154 349.83,241.06 325.22,411.06 134.78,411.06 93.05,235.5" fill="#e1575928" stroke="#e15759" stroke-width="2" />
+    <circle cx="230" cy="154" r="3" fill="#e15759" />
+    <circle cx="349.83" cy="241.06" r="3" fill="#e15759" />
+    <circle cx="325.22" cy="411.06" r="3" fill="#e15759" />
+    <circle cx="134.78" cy="411.06" r="3" fill="#e15759" />
+    <circle cx="93.05" cy="235.5" r="3" fill="#e15759" />
+    <rect x="440" y="100" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="458" y="106" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Alice</text>
+    <rect x="440" y="120" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="458" y="126" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bob</text>
+    <rect x="440" y="140" width="12" height="12" rx="2" ry="2" fill="#e15759" />
+    <text x="458" y="146" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Carol</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>radar-beta
+title Team
+ticks 5
+max 10
+axis Rust,Go,Python,SQL,DevOps
+curve alice[&quot;Alice&quot;]{9,6,7,8,5}
+curve bob[&quot;Bob&quot;]{5,9,8,6,7}
+curve carol[&quot;Carol&quot;]{7,7,9,9,8}
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">radar_minimal</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" width="500" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Triangle</text>
+    <polygon points="230,244 261.18,298 198.82,298" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,208 292.35,316 167.65,316" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,172 323.53,334 136.47,334" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,136 354.71,352 105.29,352" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 385.88,370 74.12,370" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">X</text>
+    <path d="M230 280 L385.88 370" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="398.01" y="377" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Y</text>
+    <path d="M230 280 L74.12 370" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="61.99" y="377" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Z</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">1</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">3</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">4</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">6</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">7</text>
+    <polygon points="230,151.43 296.81,318.57 74.12,370" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="151.43" r="3" fill="#4e79a7" />
+    <circle cx="296.81" cy="318.57" r="3" fill="#4e79a7" />
+    <circle cx="74.12" cy="370" r="3" fill="#4e79a7" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>radar-beta
+title Triangle
+axis X,Y,Z
+curve a[&quot;A&quot;]{5,3,7}
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">radar_pentagon</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 550" width="620" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Product Review</text>
+    <polygon points="230,244 264.24,268.88 251.16,309.12 208.84,309.12 195.76,268.88" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,208 298.48,257.75 272.32,338.25 187.68,338.25 161.52,257.75" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,172 332.71,246.63 293.48,367.37 166.52,367.37 127.29,246.63" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,136 366.95,235.5 314.64,396.5 145.36,396.5 93.05,235.5" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 401.19,224.38 335.8,425.62 124.2,425.62 58.81,224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Build</text>
+    <path d="M230 280 L401.19 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="414.5" y="220.05" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Performance</text>
+    <path d="M230 280 L335.8 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="344.03" y="436.95" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Docs</text>
+    <path d="M230 280 L124.2 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="115.97" y="436.95" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Community</text>
+    <path d="M230 280 L58.81 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="45.5" y="220.05" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Stability</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">2</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">4</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">6</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">8</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">10</text>
+    <polygon points="230,208 332.71,246.63 261.74,323.69 177.1,352.81 110.17,241.06" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="208" r="3" fill="#4e79a7" />
+    <circle cx="332.71" cy="246.63" r="3" fill="#4e79a7" />
+    <circle cx="261.74" cy="323.69" r="3" fill="#4e79a7" />
+    <circle cx="177.1" cy="352.81" r="3" fill="#4e79a7" />
+    <circle cx="110.17" cy="241.06" r="3" fill="#4e79a7" />
+    <polygon points="230,154 366.95,235.5 293.48,367.37 155.94,381.94 75.93,229.94" fill="#f28e2c28" stroke="#f28e2c" stroke-width="2" />
+    <circle cx="230" cy="154" r="3" fill="#f28e2c" />
+    <circle cx="366.95" cy="235.5" r="3" fill="#f28e2c" />
+    <circle cx="293.48" cy="367.37" r="3" fill="#f28e2c" />
+    <circle cx="155.94" cy="381.94" r="3" fill="#f28e2c" />
+    <circle cx="75.93" cy="229.94" r="3" fill="#f28e2c" />
+    <rect x="440" y="100" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="458" y="106" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Version 1</text>
+    <rect x="440" y="120" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="458" y="126" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Version 2</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>radar-beta
+title Product Review
+ticks 5
+max 10
+axis Build,Performance,Docs,Community,Stability
+curve v1[&quot;Version 1&quot;]{4,6,3,5,7}
+curve v2[&quot;Version 2&quot;]{7,8,6,7,9}
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">radar_performance</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 550" width="620" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Car Comparison</text>
+    <polygon points="230,235 272.8,266.09 256.45,316.41 203.55,316.41 187.2,266.09" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,190 315.6,252.19 282.9,352.81 177.1,352.81 144.4,252.19" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,145 358.39,238.28 309.35,389.22 150.65,389.22 101.61,238.28" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 401.19,224.38 335.8,425.62 124.2,425.62 58.81,224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Speed</text>
+    <path d="M230 280 L401.19 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="414.5" y="220.05" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Comfort</text>
+    <path d="M230 280 L335.8 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="344.03" y="436.95" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Safety</text>
+    <path d="M230 280 L124.2 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="115.97" y="436.95" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Economy</text>
+    <path d="M230 280 L58.81 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="45.5" y="220.05" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Style</text>
+    <text x="239.72" y="235.51" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">2</text>
+    <text x="246.45" y="191.01" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">5</text>
+    <text x="253.17" y="146.52" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">8</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">10</text>
+    <polygon points="230,118 315.6,252.19 304.06,381.94 198.26,323.69 75.93,229.94" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="118" r="3" fill="#4e79a7" />
+    <circle cx="315.6" cy="252.19" r="3" fill="#4e79a7" />
+    <circle cx="304.06" cy="381.94" r="3" fill="#4e79a7" />
+    <circle cx="198.26" cy="323.69" r="3" fill="#4e79a7" />
+    <circle cx="75.93" cy="229.94" r="3" fill="#4e79a7" />
+    <polygon points="230,190 366.95,235.5 325.22,411.06 155.94,381.94 144.4,252.19" fill="#f28e2c28" stroke="#f28e2c" stroke-width="2" />
+    <circle cx="230" cy="190" r="3" fill="#f28e2c" />
+    <circle cx="366.95" cy="235.5" r="3" fill="#f28e2c" />
+    <circle cx="325.22" cy="411.06" r="3" fill="#f28e2c" />
+    <circle cx="155.94" cy="381.94" r="3" fill="#f28e2c" />
+    <circle cx="144.4" cy="252.19" r="3" fill="#f28e2c" />
+    <polygon points="230,172 349.83,241.06 314.64,396.5 177.1,352.81 127.29,246.63" fill="#e1575928" stroke="#e15759" stroke-width="2" />
+    <circle cx="230" cy="172" r="3" fill="#e15759" />
+    <circle cx="349.83" cy="241.06" r="3" fill="#e15759" />
+    <circle cx="314.64" cy="396.5" r="3" fill="#e15759" />
+    <circle cx="177.1" cy="352.81" r="3" fill="#e15759" />
+    <circle cx="127.29" cy="246.63" r="3" fill="#e15759" />
+    <rect x="440" y="100" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="458" y="106" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sports Car</text>
+    <rect x="440" y="120" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="458" y="126" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Family Sedan</text>
+    <rect x="440" y="140" width="12" height="12" rx="2" ry="2" fill="#e15759" />
+    <text x="458" y="146" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SUV</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>radar-beta
+title Car Comparison
+ticks 4
+max 10
+axis Speed,Comfort,Safety,Economy,Style
+curve sportsCar[&quot;Sports Car&quot;]{9,5,7,3,9}
+curve sedan[&quot;Family Sedan&quot;]{5,8,9,7,5}
+curve suv[&quot;SUV&quot;]{6,7,8,5,6}
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">radar_single_curve</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" width="500" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Solo</text>
+    <polygon points="230,244 264.24,268.88 251.16,309.12 208.84,309.12 195.76,268.88" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,208 298.48,257.75 272.32,338.25 187.68,338.25 161.52,257.75" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,172 332.71,246.63 293.48,367.37 166.52,367.37 127.29,246.63" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,136 366.95,235.5 314.64,396.5 145.36,396.5 93.05,235.5" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 401.19,224.38 335.8,425.62 124.2,425.62 58.81,224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <path d="M230 280 L401.19 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="414.5" y="220.05" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+    <path d="M230 280 L335.8 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="344.03" y="436.95" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <path d="M230 280 L124.2 425.62" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="115.97" y="436.95" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">D</text>
+    <path d="M230 280 L58.81 224.38" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="45.5" y="220.05" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">E</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">2</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">4</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">6</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">8</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">10</text>
+    <polygon points="230,154 366.95,235.5 282.9,352.81 134.78,411.06 93.05,235.5" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="154" r="3" fill="#4e79a7" />
+    <circle cx="366.95" cy="235.5" r="3" fill="#4e79a7" />
+    <circle cx="282.9" cy="352.81" r="3" fill="#4e79a7" />
+    <circle cx="134.78" cy="411.06" r="3" fill="#4e79a7" />
+    <circle cx="93.05" cy="235.5" r="3" fill="#4e79a7" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>radar-beta
+title Solo
+ticks 5
+max 10
+axis A,B,C,D,E
+curve self[&quot;Self&quot;]{7,8,5,9,8}
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">radar_skills</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 550" width="620" height="550">
+  <g transform="translate(20, 20)">
+    <text x="230" y="60" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Developer Skills</text>
+    <polygon points="230,244 261.18,262 261.18,298 230,316 198.82,298 198.82,262" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,208 292.35,244 292.35,316 230,352 167.65,316 167.65,244" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,172 323.53,226 323.53,334 230,388 136.47,334 136.47,226" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,136 354.71,208 354.71,352 230,424 105.29,352 105.29,208" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <polygon points="230,100 385.88,190 385.88,370 230,460 74.12,370 74.12,190" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <path d="M230 280 L230 100" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="86" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rust</text>
+    <path d="M230 280 L385.88 190" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="398.01" y="183" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">TypeScript</text>
+    <path d="M230 280 L385.88 370" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="398.01" y="377" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Python</text>
+    <path d="M230 280 L230 460" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="230" y="474" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SQL</text>
+    <path d="M230 280 L74.12 370" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="61.99" y="377" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">DevOps</text>
+    <path d="M230 280 L74.12 190" fill="none" stroke="#c8c8c8" stroke-width="0.8" />
+    <text x="61.99" y="183" text-anchor="end" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design</text>
+    <text x="238.38" y="244.4" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">2</text>
+    <text x="243.76" y="208.81" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">4</text>
+    <text x="249.14" y="173.21" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">5</text>
+    <text x="254.52" y="137.62" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">7</text>
+    <text x="259.9" y="102.02" text-anchor="start" dominant-baseline="central" font-size="9px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">9</text>
+    <polygon points="230,120 333.92,220 351.24,350 230,380 160.72,320 178.04,250" fill="#4e79a728" stroke="#4e79a7" stroke-width="2" />
+    <circle cx="230" cy="120" r="3" fill="#4e79a7" />
+    <circle cx="333.92" cy="220" r="3" fill="#4e79a7" />
+    <circle cx="351.24" cy="350" r="3" fill="#4e79a7" />
+    <circle cx="230" cy="380" r="3" fill="#4e79a7" />
+    <circle cx="160.72" cy="320" r="3" fill="#4e79a7" />
+    <circle cx="178.04" cy="250" r="3" fill="#4e79a7" />
+    <polygon points="230,200 385.88,190 316.6,330 230,420 91.44,360 126.08,220" fill="#f28e2c28" stroke="#f28e2c" stroke-width="2" />
+    <circle cx="230" cy="200" r="3" fill="#f28e2c" />
+    <circle cx="385.88" cy="190" r="3" fill="#f28e2c" />
+    <circle cx="316.6" cy="330" r="3" fill="#f28e2c" />
+    <circle cx="230" cy="420" r="3" fill="#f28e2c" />
+    <circle cx="91.44" cy="360" r="3" fill="#f28e2c" />
+    <circle cx="126.08" cy="220" r="3" fill="#f28e2c" />
+    <rect x="440" y="100" width="12" height="12" rx="2" ry="2" fill="#4e79a7" />
+    <text x="458" y="106" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Alice</text>
+    <rect x="440" y="120" width="12" height="12" rx="2" ry="2" fill="#f28e2c" />
+    <text x="458" y="126" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>radar-beta
+title Developer Skills
+axis Rust,TypeScript,Python,SQL,DevOps,Design
+curve alice[&quot;Alice&quot;]{8,6,7,5,4,3}
+curve bob[&quot;Bob&quot;]{4,9,5,7,8,6}
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

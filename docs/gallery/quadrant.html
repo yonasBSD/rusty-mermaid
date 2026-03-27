@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>quadrant - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link active" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="quadrant" class="type-section">
+<details open class="section-details">
+<summary><h2>quadrant <span class="section-count">(6)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">quadrant_extreme</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Corner Cases</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Left</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Right</text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bottom</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top</text>
+    </g>
+    <circle cx="53" cy="545" r="5" fill="#4e79a7" />
+    <text x="53" y="558" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Origin</text>
+    <circle cx="53" cy="55" r="5" fill="#4e79a7" />
+    <text x="53" y="68" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top Left</text>
+    <circle cx="543" cy="55" r="5" fill="#4e79a7" />
+    <text x="543" y="68" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Top Right</text>
+    <circle cx="543" cy="545" r="5" fill="#4e79a7" />
+    <text x="543" y="558" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bottom Right</text>
+    <circle cx="298" cy="300" r="5" fill="#4e79a7" />
+    <text x="298" y="313" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Center</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>quadrantChart
+    title Corner Cases
+    x-axis Left --&gt; Right
+    y-axis Bottom --&gt; Top
+    Origin: [0.01, 0.01]
+    Top Left: [0.01, 0.99]
+    Top Right: [0.99, 0.99]
+    Bottom Right: [0.99, 0.01]
+    Center: [0.5, 0.5]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">quadrant_gartner</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Analytics Platforms</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <text x="423" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#365474">Leaders</text>
+    <text x="173" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#3e7037">Challengers</text>
+    <text x="173" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a58c33">Niche Players</text>
+    <text x="423" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a9631e">Visionaries</text>
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Completeness of Vision</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333"></text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ability to Execute</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333"></text>
+    </g>
+    <circle cx="438" cy="150" r="5" fill="#4e79a7" />
+    <text x="438" y="163" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Microsoft</text>
+    <circle cx="348" cy="225" r="5" fill="#4e79a7" />
+    <text x="348" y="238" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Salesforce</text>
+    <circle cx="323" cy="300" r="5" fill="#4e79a7" />
+    <text x="323" y="313" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SAP</text>
+    <circle cx="298" cy="275" r="5" fill="#4e79a7" />
+    <text x="298" y="288" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Oracle</text>
+    <circle cx="273" cy="340" r="5" fill="#4e79a7" />
+    <text x="273" y="353" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">IBM</text>
+    <circle cx="338" cy="310" r="5" fill="#4e79a7" />
+    <text x="338" y="323" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Qlik</text>
+    <circle cx="408" cy="200" r="5" fill="#4e79a7" />
+    <text x="408" y="213" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Tableau</text>
+    <circle cx="248" cy="250" r="5" fill="#4e79a7" />
+    <text x="248" y="263" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SAS</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>quadrantChart
+  title Analytics Platforms
+  x-axis Completeness of Vision --&gt;
+  y-axis Ability to Execute --&gt;
+  quadrant-1 Leaders
+  quadrant-2 Challengers
+  quadrant-3 Niche Players
+  quadrant-4 Visionaries
+  Microsoft: [0.78, 0.80]
+  Salesforce: [0.60, 0.65]
+  SAP: [0.55, 0.50]
+  Oracle: [0.50, 0.55]
+  IBM: [0.45, 0.42]
+  Qlik: [0.58, 0.48]
+  Tableau: [0.72, 0.70]
+  SAS: [0.40, 0.60]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">quadrant_labels</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Skill Assessment</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <text x="423" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#365474">Master</text>
+    <text x="173" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#3e7037">Invest</text>
+    <text x="173" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a58c33">Ignore</text>
+    <text x="423" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a9631e">Automate</text>
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Beginner</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Expert</text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rarely Used</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Daily Use</text>
+    </g>
+    <circle cx="448" cy="100" r="5" fill="#4e79a7" />
+    <text x="448" y="113" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Git</text>
+    <circle cx="298" cy="200" r="5" fill="#4e79a7" />
+    <text x="298" y="213" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Docker</text>
+    <circle cx="198" cy="350" r="5" fill="#4e79a7" />
+    <text x="198" y="363" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Kubernetes</text>
+    <circle cx="398" cy="150" r="5" fill="#4e79a7" />
+    <text x="398" y="163" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SQL</text>
+    <circle cx="248" cy="450" r="5" fill="#4e79a7" />
+    <text x="248" y="463" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Regex</text>
+    <circle cx="348" cy="250" r="5" fill="#4e79a7" />
+    <text x="348" y="263" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Bash</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>quadrantChart
+    title Skill Assessment
+    x-axis Beginner --&gt; Expert
+    y-axis Rarely Used --&gt; Daily Use
+    quadrant-1 Master
+    quadrant-2 Invest
+    quadrant-3 Ignore
+    quadrant-4 Automate
+    Git: [0.8, 0.9]
+    Docker: [0.5, 0.7]
+    Kubernetes: [0.3, 0.4]
+    SQL: [0.7, 0.8]
+    Regex: [0.4, 0.2]
+    Bash: [0.6, 0.6]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">quadrant_many_points</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Technology Radar</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <text x="423" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#365474">Adopt</text>
+    <text x="173" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#3e7037">Trial</text>
+    <text x="173" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a58c33">Assess</text>
+    <text x="423" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a9631e">Hold</text>
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Adopt</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hold</text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low Risk</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High Risk</text>
+    </g>
+    <circle cx="123" cy="450" r="5" fill="#4e79a7" />
+    <text x="123" y="463" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rust</text>
+    <circle cx="173" cy="400" r="5" fill="#4e79a7" />
+    <text x="173" y="413" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go</text>
+    <circle cx="98" cy="300" r="5" fill="#4e79a7" />
+    <text x="98" y="313" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Python</text>
+    <circle cx="298" cy="350" r="5" fill="#4e79a7" />
+    <text x="298" y="363" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Java</text>
+    <circle cx="373" cy="275" r="5" fill="#4e79a7" />
+    <text x="373" y="288" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ruby</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>quadrantChart
+    title Technology Radar
+    x-axis Adopt --&gt; Hold
+    y-axis Low Risk --&gt; High Risk
+    quadrant-1 Adopt
+    quadrant-2 Trial
+    quadrant-3 Assess
+    quadrant-4 Hold
+    Rust: [0.15, 0.20]
+    Go: [0.25, 0.30]
+    Python: [0.10, 0.50]
+    Java: [0.50, 0.40]
+    Ruby: [0.65, 0.55]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">quadrant_minimal</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 608" width="608" height="608">
+  <g transform="translate(20, 20)">
+    <rect x="298" y="20" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="20" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="270" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="270" width="250" height="250" fill="#fdf1e5" />
+    <rect x="48" y="20" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M298 20 L298 520" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 270 L548 270" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="534" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low</text>
+    <text x="423" y="534" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High</text>
+    <g transform="rotate(-90, 34, 395)">
+      <text x="34" y="395" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low</text>
+    </g>
+    <g transform="rotate(-90, 34, 145)">
+      <text x="34" y="145" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High</text>
+    </g>
+    <circle cx="198" cy="170" r="5" fill="#4e79a7" />
+    <text x="198" y="183" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">A</text>
+    <circle cx="448" cy="420" r="5" fill="#4e79a7" />
+    <text x="448" y="433" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">B</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>quadrantChart
+    x-axis Low --&gt; High
+    y-axis Low --&gt; High
+    A: [0.3, 0.7]
+    B: [0.8, 0.2]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">quadrant_priority</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 638" width="608" height="638">
+  <g transform="translate(20, 20)">
+    <text x="298" y="30" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Priority Matrix</text>
+    <rect x="298" y="50" width="250" height="250" fill="#e9eef4" />
+    <rect x="48" y="50" width="250" height="250" fill="#ebf3e9" />
+    <rect x="48" y="300" width="250" height="250" fill="#fcf8e9" />
+    <rect x="298" y="300" width="250" height="250" fill="#fdf1e5" />
+    <text x="423" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#365474">Do First</text>
+    <text x="173" y="175" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#3e7037">Schedule</text>
+    <text x="173" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a58c33">Delegate</text>
+    <text x="423" y="425" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#a9631e">Eliminate</text>
+    <rect x="48" y="50" width="500" height="500" fill="none" stroke="#c8c8c8" stroke-width="1.5" />
+    <path d="M298 50 L298 550" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <path d="M48 300 L548 300" fill="none" stroke="#c8c8c8" stroke-width="1" />
+    <text x="173" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low Urgency</text>
+    <text x="423" y="564" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High Urgency</text>
+    <g transform="rotate(-90, 34, 425)">
+      <text x="34" y="425" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Low Impact</text>
+    </g>
+    <g transform="rotate(-90, 34, 175)">
+      <text x="34" y="175" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">High Impact</text>
+    </g>
+    <circle cx="498" cy="75" r="5" fill="#4e79a7" />
+    <text x="498" y="88" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Critical Bug</text>
+    <circle cx="198" cy="200" r="5" fill="#4e79a7" />
+    <text x="198" y="213" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">New Feature</text>
+    <circle cx="148" cy="400" r="5" fill="#4e79a7" />
+    <text x="148" y="413" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code Cleanup</text>
+    <circle cx="348" cy="450" r="5" fill="#4e79a7" />
+    <text x="348" y="463" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Docs Update</text>
+    <circle cx="473" cy="125" r="5" fill="#4e79a7" />
+    <text x="473" y="138" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Security Patch</text>
+    <circle cx="248" cy="300" r="5" fill="#4e79a7" />
+    <text x="248" y="313" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">UI Polish</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>quadrantChart
+  title Priority Matrix
+  x-axis Low Urgency --&gt; High Urgency
+  y-axis Low Impact --&gt; High Impact
+  quadrant-1 Do First
+  quadrant-2 Schedule
+  quadrant-3 Delegate
+  quadrant-4 Eliminate
+  Critical Bug: [0.9, 0.95]
+  New Feature: [0.3, 0.7]
+  Code Cleanup: [0.2, 0.3]
+  Docs Update: [0.6, 0.2]
+  Security Patch: [0.85, 0.85]
+  UI Polish: [0.4, 0.5]
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

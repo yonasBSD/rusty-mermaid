@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sequence - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link active" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="sequence" class="type-section">
+<details open class="section-details">
+<summary><h2>sequence <span class="section-count">(20)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">seq_activation</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 517 333.6" width="517" height="333.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 236.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M212.7 56.8 L212.7 236.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M410.9 56.8 L410.9 236.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <rect x="405.9" y="136.8" width="10" height="40" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <rect x="207.7" y="96.8" width="10" height="120" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <path d="M57.5 96.8 L205.3 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="132.6" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M217.7 136.8 L403.5 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="311.8" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sub-request</text>
+    <path d="M405.9 176.8 L220.1 176.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="311.8" y="164.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sub-response</text>
+    <path d="M207.7 216.8 L59.9 216.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="132.6" y="204.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="364.8" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="410.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="236.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="255.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="236.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="255.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="364.8" y="236.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="410.9" y="255.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;+Bob: Request
+    Bob-&gt;&gt;+Charlie: Sub-request
+    Charlie--&gt;&gt;-Bob: Sub-response
+    Bob--&gt;&gt;-Alice: Response
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_activation_nested</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 499.8 473.6" width="499.8" height="473.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 376.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M229.9 56.8 L229.9 376.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M393.7 56.8 L393.7 376.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <rect x="388.7" y="206.8" width="10" height="40" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <rect x="224.9" y="166.8" width="10" height="150" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <rect x="224.9" y="96.8" width="10" height="260" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <path d="M57.5 96.8 L222.5 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="141.2" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outer call</text>
+    <path d="M234.9 136.8 C274.9 126.9 274.9 176.7 237.23 167.38" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="275.9" y="151.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inner self-call</text>
+    <path d="M234.9 206.8 L386.3 206.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="311.8" y="194.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Delegate</text>
+    <path d="M388.7 246.8 L237.3 246.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="311.8" y="234.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
+    <path d="M234.9 286.8 C274.9 276.9 274.9 326.7 237.23 317.38" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="275.9" y="301.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Inner done</text>
+    <path d="M224.9 356.8 L59.9 356.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="141.2" y="344.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Outer done</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="201" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="229.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="347.6" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="393.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="376.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="395.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="201" y="376.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="229.9" y="395.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="347.6" y="376.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="393.7" y="395.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;+Bob: Outer call
+    Bob-&gt;&gt;+Bob: Inner self-call
+    Bob-&gt;&gt;+Charlie: Delegate
+    Charlie--&gt;&gt;-Bob: Done
+    Bob--&gt;&gt;-Bob: Inner done
+    Bob--&gt;&gt;-Alice: Outer done
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_actor</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 584 401.6" width="584" height="401.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M53.2 90.8 L53.2 270.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M260 90.8 L260 270.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M496 90.8 L496 270.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M53.2 130.8 L257.6 130.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="156.6" y="118.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">GET /api/data</text>
+    <path d="M260 170.8 L493.6 170.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="378" y="158.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan>SELECT </tspan>
+      <tspan font-style="italic"> FROM data</tspan>
+    </text>
+    <path d="M496 210.8 L262.4 210.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="378" y="198.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Results</text>
+    <path d="M260 250.8 L55.6 250.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="156.6" y="238.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">JSON response</text>
+    <circle cx="53.2" cy="29" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <rect x="40.2" y="41" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="53.2" y="74" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">User</text>
+    <rect x="218.2" y="20" width="83.6" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="260" y="55.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Server</text>
+    <rect x="468" y="20" width="56" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="496" y="55.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">DB</text>
+    <circle cx="53.2" cy="279.8" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <rect x="40.2" y="291.8" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="53.2" y="324.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">User</text>
+    <rect x="218.2" y="270.8" width="83.6" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="260" y="306.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Server</text>
+    <rect x="468" y="270.8" width="56" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="496" y="306.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">DB</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    actor User
+    participant Server
+    participant DB
+    User-&gt;&gt;Server: GET /api/data
+    Server-&gt;&gt;DB: SELECT * FROM data
+    DB--&gt;&gt;Server: Results
+    Server--&gt;&gt;User: JSON response
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_alt</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 327.4 413.6" width="327.4" height="413.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="271.4" height="180" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="36" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="26" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">alt</text>
+    <text x="50" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Success</text>
+    <path d="M8 180.8 L279.4 180.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
+    <text x="16" y="194.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Failure]</text>
+    <path d="M8 232.8 L279.4 232.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
+    <text x="16" y="246.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Timeout]</text>
+    <path d="M57.5 56.8 L57.5 316.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M238.5 56.8 L238.5 316.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L236.1 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="148" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M238.5 180.8 L59.9 180.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="148" y="168.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">200 OK</text>
+    <path d="M238.5 232.8 L59.9 232.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="148" y="220.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">500 Error</text>
+    <path d="M238.5 284.8 L59.9 284.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="148" y="272.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">408 Timeout</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="209.6" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="238.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="316.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="335.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="209.6" y="316.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="238.5" y="335.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Request
+    alt Success
+        Bob--&gt;&gt;Alice: 200 OK
+    else Failure
+        Bob--&gt;&gt;Alice: 500 Error
+    else Timeout
+        Bob--&gt;&gt;Alice: 408 Timeout
+    end
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_arrows</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 387.6 533.6" width="387.6" height="533.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+    <marker id="arrow-open-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="#333333" stroke-width="1" stroke-linejoin="round" />
+    </marker>
+    <marker id="marker-cross-333333" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M2 2 Q5 4.5 8 8 M8 2 Q5 5.5 2 8" fill="none" stroke="#333333" stroke-width="1.5" stroke-linecap="round" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 436.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M298.7 56.8 L298.7 436.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L296.3 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="178.1" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solid filled</text>
+    <path d="M57.5 136.8 L296.3 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="178.1" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solid filled again</text>
+    <path d="M57.5 176.8 L296.3 176.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-open-333333)" />
+    <text x="178.1" y="164.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solid open</text>
+    <path d="M57.5 216.8 L296.3 216.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#marker-cross-333333)" />
+    <text x="178.1" y="204.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solid cross</text>
+    <path d="M57.5 256.8 L298.7 256.8" fill="none" stroke="#333333" stroke-width="1.5" />
+    <text x="178.1" y="244.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Solid async</text>
+    <path d="M57.5 296.8 L296.3 296.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="178.1" y="284.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dotted filled</text>
+    <path d="M57.5 336.8 L296.3 336.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-open-333333)" />
+    <text x="178.1" y="324.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dotted open</text>
+    <path d="M57.5 376.8 L296.3 376.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#marker-cross-333333)" />
+    <text x="178.1" y="364.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dotted cross</text>
+    <path d="M57.5 416.8 L298.7 416.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" />
+    <text x="178.1" y="404.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dotted async</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="269.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="298.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="436.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="455.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="269.8" y="436.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="298.7" y="455.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    participant A as Alice
+    participant B as Bob
+    A-&gt;&gt;B: Solid filled
+    A-&gt;&gt;B: Solid filled again
+    A-&gt;B: Solid open
+    A-xB: Solid cross
+    A-)B: Solid async
+    A--&gt;&gt;B: Dotted filled
+    A--&gt;B: Dotted open
+    A--xB: Dotted cross
+    A--)B: Dotted async
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_autonumber</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 439.6 293.6" width="439.6" height="293.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M186.9 56.8 L186.9 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M333.5 56.8 L333.5 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L184.5 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="122.2" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">First</text>
+    <circle cx="58.5" cy="96.8" r="8" fill="#333333" />
+    <text x="58.5" y="96.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">1</text>
+    <path d="M186.9 136.8 L331.1 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="260.2" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Second</text>
+    <circle cx="187.9" cy="136.8" r="8" fill="#333333" />
+    <text x="187.9" y="136.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">2</text>
+    <path d="M333.5 176.8 L59.9 176.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="195.5" y="164.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Third</text>
+    <circle cx="332.5" cy="176.8" r="8" fill="#333333" />
+    <text x="332.5" y="176.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">3</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="158" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="186.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="287.4" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="333.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="196.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="158" y="196.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="186.9" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="287.4" y="196.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="333.5" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    autonumber
+    Alice-&gt;&gt;Bob: First
+    Bob-&gt;&gt;Charlie: Second
+    Charlie--&gt;&gt;Alice: Third
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_autonumber_custom</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 517 293.6" width="517" height="293.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M212.7 56.8 L212.7 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M410.9 56.8 L410.9 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L210.3 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step ten</text>
+    <circle cx="58.5" cy="96.8" r="8" fill="#333333" />
+    <text x="58.5" y="96.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">10</text>
+    <path d="M212.7 136.8 L408.5 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="311.8" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step fifteen</text>
+    <circle cx="213.7" cy="136.8" r="8" fill="#333333" />
+    <text x="213.7" y="136.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">15</text>
+    <path d="M410.9 176.8 L59.9 176.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="234.2" y="164.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Step twenty</text>
+    <circle cx="409.9" cy="176.8" r="8" fill="#333333" />
+    <text x="409.9" y="176.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">20</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="364.8" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="410.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="196.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="196.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="364.8" y="196.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="410.9" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    autonumber 10 5
+    Alice-&gt;&gt;Bob: Step ten
+    Bob-&gt;&gt;Charlie: Step fifteen
+    Charlie--&gt;&gt;Alice: Step twenty
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_basic</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 336 293.6" width="336" height="293.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M247.1 56.8 L247.1 196.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L244.7 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="152.3" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hello Bob</text>
+    <path d="M247.1 136.8 L59.9 136.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="152.3" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hi Alice</text>
+    <path d="M57.5 176.8 L244.7 176.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="152.3" y="164.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">How are you?</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="218.2" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="247.1" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="196.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="218.2" y="196.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="247.1" y="215.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Hello Bob
+    Bob--&gt;&gt;Alice: Hi Alice
+    Alice-&gt;&gt;Bob: How are you?
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_break</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 542.8 469.6" width="542.8" height="469.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="156.8" width="486.8" height="116" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="156.8" width="52" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="34" y="166.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">break</text>
+    <text x="66" y="166.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Invalid input</text>
+    <path d="M57.5 56.8 L57.5 372.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M272.9 56.8 L272.9 372.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M436.7 56.8 L436.7 372.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L270.5 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="165.2" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M272.9 136.8 L434.3 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="354.8" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validate</text>
+    <path d="M436.7 220.8 L275.3 220.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="354.8" y="208.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Error</text>
+    <path d="M272.9 260.8 L59.9 260.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="165.2" y="248.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">400 Bad Request</text>
+    <path d="M436.7 312.8 L275.3 312.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="354.8" y="300.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OK</text>
+    <path d="M272.9 352.8 L59.9 352.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="165.2" y="340.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">200 OK</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="244" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="272.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="390.6" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="436.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="372.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="391.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="244" y="372.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="272.9" y="391.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="390.6" y="372.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="436.7" y="391.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Request
+    Bob-&gt;&gt;Charlie: Validate
+    break Invalid input
+        Charlie--&gt;&gt;Bob: Error
+        Bob--&gt;&gt;Alice: 400 Bad Request
+    end
+    Charlie--&gt;&gt;Bob: OK
+    Bob--&gt;&gt;Alice: 200 OK
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_combo_notes_fragments</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 293 764.8" width="293" height="764.8">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="193.6" width="237" height="377.6" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="193.6" width="44" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="30" y="203.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">loop</text>
+    <text x="58" y="203.6" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Retry</text>
+    <rect x="8" y="354.4" width="237" height="204.8" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="354.4" width="36" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="26" y="364.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">alt</text>
+    <text x="50" y="364.4" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Success</text>
+    <path d="M8 418.4 L245 418.4" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
+    <text x="16" y="432.4" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Failure]</text>
+    <path d="M57.5 56.8 L57.5 668" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M204.1 56.8 L204.1 668" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L201.7 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="130.8" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <path d="M57.5 257.6 L201.7 257.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="130.8" y="245.6" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Attempt</text>
+    <path d="M204.1 418.4 L59.9 418.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="130.8" y="406.4" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">OK</text>
+    <path d="M204.1 470.4 L59.9 470.4" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="130.8" y="458.4" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Error</text>
+    <rect x="67.5" y="136.8" width="114.6" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="124.8" y="155.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Before loop</text>
+    <rect x="34.8" y="297.6" width="192" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="130.8" y="316" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Waiting for response</text>
+    <rect x="79.5" y="510.4" width="114.6" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="136.8" y="528.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Log failure</text>
+    <rect x="30.3" y="611.2" width="54.4" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="57.5" y="629.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="175.2" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="204.1" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="668" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="686.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="175.2" y="668" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="204.1" y="686.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Start
+    Note right of Alice: Before loop
+    loop Retry
+        Alice-&gt;&gt;Bob: Attempt
+        Note over Alice,Bob: Waiting for response
+        alt Success
+            Bob--&gt;&gt;Alice: OK
+        else Failure
+            Bob--&gt;&gt;Alice: Error
+            Note left of Bob: Log failure
+        end
+    end
+    Note over Alice: Done
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_critical</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 455 441.6" width="455" height="441.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="399" height="168" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="76" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="46" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">critical</text>
+    <text x="90" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Commit</text>
+    <path d="M8 220.8 L407 220.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
+    <text x="16" y="234.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Rollback]</text>
+    <path d="M57.5 56.8 L57.5 344.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M238.5 56.8 L238.5 344.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M367 56.8 L367 344.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L236.1 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="148" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Transaction</text>
+    <path d="M238.5 180.8 L364.6 180.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="302.75" y="168.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write</text>
+    <path d="M367 220.8 L240.9 220.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="302.75" y="208.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ACK</text>
+    <path d="M238.5 272.8 L364.6 272.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="302.75" y="260.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Revert</text>
+    <path d="M238.5 324.8 L59.9 324.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="148" y="312.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Result</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="209.6" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="238.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="339" y="20" width="56" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="367" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">DB</text>
+    <rect x="20" y="344.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="363.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="209.6" y="344.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="238.5" y="363.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="339" y="344.8" width="56" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="367" y="363.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">DB</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Transaction
+    critical Commit
+        Bob-&gt;&gt;DB: Write
+        DB--&gt;&gt;Bob: ACK
+    option Rollback
+        Bob-&gt;&gt;DB: Revert
+    end
+    Bob--&gt;&gt;Alice: Result
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_loop</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310.2 349.6" width="310.2" height="349.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="254.2" height="76" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="44" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="30" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">loop</text>
+    <text x="58" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Every minute</text>
+    <path d="M57.5 56.8 L57.5 252.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M221.3 56.8 L221.3 252.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L218.9 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="139.4" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M221.3 180.8 L59.9 180.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="139.4" y="168.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Heartbeat</text>
+    <path d="M57.5 232.8 L218.9 232.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="139.4" y="220.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="192.4" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="221.3" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="252.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="271.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="192.4" y="252.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="221.3" y="271.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Request
+    loop Every minute
+        Bob-&gt;&gt;Alice: Heartbeat
+    end
+    Alice-&gt;&gt;Bob: Done
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_many_actors</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 974.8 613.6" width="974.8" height="613.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M61.8 56.8 L61.8 516.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M281.5 56.8 L281.5 516.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M501.2 56.8 L501.2 516.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M623.3 56.8 L623.3 516.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M761.3 56.8 L761.3 516.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M886.8 56.8 L886.8 516.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M61.8 96.8 L279.1 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="171.65" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">HTTP Request</text>
+    <path d="M281.5 136.8 L498.8 136.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="391.35" y="124.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validate token</text>
+    <path d="M501.2 176.8 L283.9 176.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="391.35" y="164.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Valid</text>
+    <path d="M281.5 216.8 L620.9 216.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="452.4" y="204.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Forward</text>
+    <path d="M623.3 256.8 L758.9 256.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="692.3" y="244.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Lookup</text>
+    <path d="M761.3 296.8 L625.7 296.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="692.3" y="284.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Miss</text>
+    <path d="M623.3 336.8 L884.4 336.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="755.05" y="324.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Query</text>
+    <path d="M886.8 376.8 L625.7 376.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="755.05" y="364.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Results</text>
+    <path d="M623.3 416.8 L758.9 416.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="692.3" y="404.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Store</text>
+    <path d="M623.3 456.8 L283.9 456.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="452.4" y="444.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
+    <path d="M281.5 496.8 L64.2 496.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="171.65" y="484.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">HTTP Response</text>
+    <rect x="20" y="20" width="83.6" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.8" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Client</text>
+    <rect x="235.4" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="281.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Gateway</text>
+    <rect x="468" y="20" width="66.4" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="501.2" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Auth</text>
+    <rect x="594.4" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="623.3" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">API</text>
+    <rect x="723.8" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="761.3" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
+    <rect x="858.8" y="20" width="56" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="886.8" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">DB</text>
+    <rect x="20" y="516.8" width="83.6" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="61.8" y="535.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Client</text>
+    <rect x="235.4" y="516.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="281.5" y="535.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Gateway</text>
+    <rect x="468" y="516.8" width="66.4" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="501.2" y="535.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Auth</text>
+    <rect x="594.4" y="516.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="623.3" y="535.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">API</text>
+    <rect x="723.8" y="516.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="761.3" y="535.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
+    <rect x="858.8" y="516.8" width="56" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="886.8" y="535.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">DB</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    participant Client
+    participant Gateway
+    participant Auth
+    participant API
+    participant Cache
+    participant DB
+    Client-&gt;&gt;Gateway: HTTP Request
+    Gateway-&gt;&gt;Auth: Validate token
+    Auth--&gt;&gt;Gateway: Valid
+    Gateway-&gt;&gt;API: Forward
+    API-&gt;&gt;Cache: Lookup
+    Cache--&gt;&gt;API: Miss
+    API-&gt;&gt;DB: Query
+    DB--&gt;&gt;API: Results
+    API-&gt;&gt;Cache: Store
+    API--&gt;&gt;Gateway: Response
+    Gateway--&gt;&gt;Client: HTTP Response
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_mixed_actors</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 732.4 481.6" width="732.4" height="481.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M53.2 90.8 L53.2 350.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M260 90.8 L260 350.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M445.3 90.8 L445.3 350.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M634.9 90.8 L634.9 350.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M53.2 130.8 L257.6 130.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="156.6" y="118.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Click button</text>
+    <path d="M260 170.8 L442.9 170.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="352.65" y="158.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API call</text>
+    <path d="M445.3 210.8 L262.4 210.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="352.65" y="198.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
+    <path d="M260 250.8 L55.6 250.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="156.6" y="238.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Show result</text>
+    <path d="M634.9 290.8 L447.7 290.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="540.1" y="278.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Check logs</text>
+    <path d="M445.3 330.8 L632.5 330.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="540.1" y="318.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Log data</text>
+    <circle cx="53.2" cy="29" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <rect x="40.2" y="41" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="53.2" y="74" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">User</text>
+    <rect x="209.6" y="20" width="100.8" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="260" y="55.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Frontend</text>
+    <rect x="399.2" y="20" width="92.2" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="445.3" y="55.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Backend</text>
+    <circle cx="634.9" cy="29" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <rect x="621.9" y="41" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="634.9" y="74" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Admin</text>
+    <circle cx="53.2" cy="359.8" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <rect x="40.2" y="371.8" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="53.2" y="404.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">User</text>
+    <rect x="209.6" y="350.8" width="100.8" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="260" y="386.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Frontend</text>
+    <rect x="399.2" y="350.8" width="92.2" height="70.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="445.3" y="386.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Backend</text>
+    <circle cx="634.9" cy="359.8" r="9" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <rect x="621.9" y="371.8" width="26" height="23" rx="7" ry="7" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="634.9" y="404.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Admin</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    actor User
+    participant Frontend
+    participant Backend
+    actor Admin
+    User-&gt;&gt;Frontend: Click button
+    Frontend-&gt;&gt;Backend: API call
+    Backend--&gt;&gt;Frontend: Response
+    Frontend--&gt;&gt;User: Show result
+    Admin-&gt;&gt;Backend: Check logs
+    Backend--&gt;&gt;Admin: Log data
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_nested</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275.8 457.6" width="275.8" height="457.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="219.8" height="184" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="44" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="30" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">loop</text>
+    <text x="58" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Retry</text>
+    <rect x="8" y="160.8" width="219.8" height="128" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="160.8" width="36" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="26" y="170.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">alt</text>
+    <text x="50" y="170.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Available</text>
+    <path d="M8 224.8 L227.8 224.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
+    <text x="16" y="238.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Unavailable]</text>
+    <path d="M57.5 56.8 L57.5 360.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M186.9 56.8 L186.9 360.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L184.5 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="122.2" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <path d="M186.9 224.8 L59.9 224.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="122.2" y="212.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Data</text>
+    <path d="M186.9 276.8 L59.9 276.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="122.2" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wait</text>
+    <path d="M57.5 340.8 L184.5 340.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="122.2" y="328.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Done</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="158" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="186.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="360.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="379.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="158" y="360.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="186.9" y="379.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Start
+    loop Retry
+        alt Available
+            Bob-&gt;&gt;Alice: Data
+        else Unavailable
+            Bob-&gt;&gt;Alice: Wait
+        end
+    end
+    Alice-&gt;&gt;Bob: Done
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_notes</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 532.5 560.8" width="532.5" height="560.8">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M124.6 56.8 L124.6 464" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M271.2 56.8 L271.2 464" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M426.4 56.8 L426.4 464" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M124.6 96.8 L268.8 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="197.9" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M271.2 290.4 L424 290.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="348.8" y="278.4" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Forward</text>
+    <rect x="0" y="136.8" width="114.6" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="57.3" y="155.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sender note</text>
+    <rect x="281.2" y="213.6" width="131.8" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="347.1" y="232" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Receiver note</text>
+    <rect x="295.8" y="330.4" width="106" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="348.8" y="348.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Spans both</text>
+    <rect x="41.5" y="407.2" width="166.2" height="36.8" fill="#fff8c8b2" stroke="#aaaa33" stroke-width="1" />
+    <text x="124.6" y="425.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Single actor note</text>
+    <rect x="87.1" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="124.6" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="242.3" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="271.2" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="380.3" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="426.4" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="87.1" y="464" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="124.6" y="482.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="242.3" y="464" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="271.2" y="482.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="380.3" y="464" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="426.4" y="482.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    participant Alice
+    participant Bob
+    participant Charlie
+    Alice-&gt;&gt;Bob: Request
+    Note left of Alice: Sender note
+    Note right of Bob: Receiver note
+    Bob-&gt;&gt;Charlie: Forward
+    Note over Bob,Charlie: Spans both
+    Note over Alice: Single actor note
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_opt</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448.2 389.6" width="448.2" height="389.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="392.2" height="116" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="36" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="26" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">opt</text>
+    <text x="50" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cache available</text>
+    <path d="M57.5 56.8 L57.5 292.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M212.7 56.8 L212.7 292.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M350.7 56.8 L350.7 292.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L210.3 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M212.7 180.8 L348.3 180.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="281.7" y="168.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Lookup</text>
+    <path d="M350.7 220.8 L215.1 220.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="281.7" y="208.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Hit</text>
+    <path d="M212.7 272.8 L59.9 272.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="260.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="313.2" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="350.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
+    <rect x="20" y="292.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="311.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="292.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="311.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="313.2" y="292.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="350.7" y="311.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cache</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Request
+    opt Cache available
+        Bob-&gt;&gt;Cache: Lookup
+        Cache--&gt;&gt;Bob: Hit
+    end
+    Bob--&gt;&gt;Alice: Response
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_par</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580.2 401.6" width="580.2" height="401.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="8" y="116.8" width="524.2" height="128" rx="3" ry="3" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" stroke-dasharray="6 4" />
+    <rect x="8" y="116.8" width="36" height="20" rx="2" ry="2" fill="#a8ae8e" />
+    <text x="26" y="126.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#ffffff" font-weight="bold">par</text>
+    <text x="50" y="126.8" text-anchor="start" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Task A</text>
+    <path d="M8 180.8 L532.2 180.8" fill="none" stroke="#a8ae8e" stroke-width="0.5" stroke-dasharray="6 4" />
+    <text x="16" y="194.8" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">[Task B]</text>
+    <path d="M57.5 56.8 L57.5 304.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M212.7 56.8 L212.7 304.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M347.7 56.8 L347.7 304.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M487 56.8 L487 304.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 L210.3 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Start</text>
+    <path d="M212.7 180.8 L345.3 180.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="280.2" y="168.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Do A</text>
+    <path d="M212.7 232.8 L484.6 232.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="349.85" y="220.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Do B</text>
+    <path d="M212.7 284.8 L59.9 284.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="272.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">All done</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="301.6" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="347.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="453.8" y="20" width="66.4" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="487" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Dave</text>
+    <rect x="20" y="304.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="323.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="304.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="323.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="301.6" y="304.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="347.7" y="323.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="453.8" y="304.8" width="66.4" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="487" y="323.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Dave</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Bob: Start
+    par Task A
+        Bob-&gt;&gt;Charlie: Do A
+    and Task B
+        Bob-&gt;&gt;Dave: Do B
+    end
+    Bob--&gt;&gt;Alice: All done
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_self_msg</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 373.9 393.6" width="373.9" height="393.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 296.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M212.7 56.8 L212.7 296.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M57.5 96.8 C97.5 86.9 97.5 136.7 59.83 127.38" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="98.5" y="111.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Think</text>
+    <path d="M57.5 166.8 L210.3 166.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="154.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Decision</text>
+    <path d="M212.7 206.8 C252.7 196.9 252.7 246.7 215.03 237.38" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="253.7" y="221.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Process</text>
+    <path d="M212.7 276.8 L59.9 276.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="135.1" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Result</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="20" y="296.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="315.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="296.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="315.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;Alice: Think
+    Alice-&gt;&gt;Bob: Decision
+    Bob-&gt;&gt;Bob: Process
+    Bob--&gt;&gt;Alice: Result
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">seq_self_msg_activated</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 534.1 473.6" width="534.1" height="473.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M57.5 56.8 L57.5 376.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M212.7 56.8 L212.7 376.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <path d="M367.9 56.8 L367.9 376.8" fill="none" stroke="#afa5c8" stroke-width="1" />
+    <rect x="362.9" y="206.8" width="10" height="110" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <rect x="207.7" y="96.8" width="10" height="260" fill="#c8bee6b4" stroke="#999999" stroke-width="0.5" />
+    <path d="M57.5 96.8 L205.3 96.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="132.6" y="84.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Request</text>
+    <path d="M217.7 136.8 C257.7 126.9 257.7 176.7 220.03 167.38" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="258.7" y="151.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Validate</text>
+    <path d="M217.7 206.8 L360.5 206.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="290.3" y="194.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Forward</text>
+    <path d="M372.9 246.8 C412.9 236.9 412.9 286.7 375.23 277.38" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <text x="413.9" y="261.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Process</text>
+    <path d="M362.9 316.8 L220.1 316.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="290.3" y="304.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Result</text>
+    <path d="M207.7 356.8 L59.9 356.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <text x="132.6" y="344.8" text-anchor="middle" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Response</text>
+    <rect x="20" y="20" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="20" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="321.8" y="20" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="367.9" y="38.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+    <rect x="20" y="376.8" width="75" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="57.5" y="395.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Alice</text>
+    <rect x="183.8" y="376.8" width="57.8" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="212.7" y="395.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bob</text>
+    <rect x="321.8" y="376.8" width="92.2" height="36.8" rx="5" ry="5" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="367.9" y="395.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Charlie</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>sequenceDiagram
+    Alice-&gt;&gt;+Bob: Request
+    Bob-&gt;&gt;Bob: Validate
+    Bob-&gt;&gt;+Charlie: Forward
+    Charlie-&gt;&gt;Charlie: Process
+    Charlie--&gt;&gt;-Bob: Result
+    Bob--&gt;&gt;-Alice: Response
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

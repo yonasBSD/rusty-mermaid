@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>timeline - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link active" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="timeline" class="type-section">
+<details open class="section-details">
+<summary><h2>timeline <span class="section-count">(6)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">timeline_basic</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 280" width="900" height="280">
+  <g transform="translate(20, 20)">
+    <text x="430" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">History of Computing</text>
+    <path d="M20 132 L800 132" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="18" width="800" height="212" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="30" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1940s</text>
+    <circle cx="90" cy="132" r="4" fill="#4e79a7" />
+    <path d="M90 137 L90 220" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="20" y="152" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ENIAC</text>
+    <rect x="20" y="186" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Colossus</text>
+    <rect x="190" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1950s</text>
+    <circle cx="250" cy="132" r="4" fill="#4e79a7" />
+    <path d="M250 137 L250 220" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="152" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">FORTRAN</text>
+    <rect x="180" y="186" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">LISP</text>
+    <rect x="350" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="410" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1960s</text>
+    <circle cx="410" cy="132" r="4" fill="#4e79a7" />
+    <path d="M410 137 L410 220" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="340" y="152" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="410" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ARPANET</text>
+    <rect x="340" y="186" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="410" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Unix</text>
+    <rect x="510" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="570" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1970s</text>
+    <circle cx="570" cy="132" r="4" fill="#4e79a7" />
+    <path d="M570 137 L570 220" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="500" y="152" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="570" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C Language</text>
+    <rect x="500" y="186" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="570" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ethernet</text>
+    <rect x="670" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="730" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1980s</text>
+    <circle cx="730" cy="132" r="4" fill="#4e79a7" />
+    <path d="M730 137 L730 220" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="660" y="152" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="730" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">IBM PC</text>
+    <rect x="660" y="186" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="730" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Macintosh</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>timeline
+    title History of Computing
+    1940s : ENIAC : Colossus
+    1950s : FORTRAN : LISP
+    1960s : ARPANET : Unix
+    1970s : C Language : Ethernet
+    1980s : IBM PC : Macintosh
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">timeline_events</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1357.26 314" width="1357.26" height="314">
+  <g transform="translate(20, 20)">
+    <text x="658.63" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Space Exploration</text>
+    <path d="M44.77 132 L1232.49 132" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="18" width="1257.26" height="246" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="54.77" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1957</text>
+    <circle cx="114.77" cy="132" r="4" fill="#4e79a7" />
+    <path d="M114.77 137 L114.77 254" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="20" y="152" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Sputnik</text>
+    <rect x="20" y="186" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Laika</text>
+    <rect x="264.31" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1961</text>
+    <circle cx="324.31" cy="132" r="4" fill="#4e79a7" />
+    <path d="M324.31 137 L324.31 254" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="229.54" y="152" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Gagarin</text>
+    <rect x="229.54" y="186" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Shepard</text>
+    <rect x="473.86" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="533.86" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1969</text>
+    <circle cx="533.86" cy="132" r="4" fill="#4e79a7" />
+    <path d="M533.86 137 L533.86 254" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="439.09" y="152" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="533.86" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Apollo 11</text>
+    <rect x="439.09" y="186" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="533.86" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Moon landing</text>
+    <rect x="439.09" y="220" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="533.86" y="235" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Armstrong walks</text>
+    <rect x="683.4" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="743.4" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1981</text>
+    <circle cx="743.4" cy="132" r="4" fill="#4e79a7" />
+    <path d="M743.4 137 L743.4 254" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="648.63" y="152" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="743.4" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Space Shuttle</text>
+    <rect x="648.63" y="186" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="743.4" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Columbia launch</text>
+    <rect x="892.94" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="952.94" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1998</text>
+    <circle cx="952.94" cy="132" r="4" fill="#4e79a7" />
+    <path d="M952.94 137 L952.94 254" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="858.17" y="152" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="952.94" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">ISS construction begins</text>
+    <rect x="1102.49" y="76" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="1162.49" y="94" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2020</text>
+    <circle cx="1162.49" cy="132" r="4" fill="#4e79a7" />
+    <path d="M1162.49 137 L1162.49 254" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="1067.71" y="152" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="1162.49" y="167" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">SpaceX Crew Dragon</text>
+    <rect x="1067.71" y="186" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="1162.49" y="201" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Mars Perseverance</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>timeline
+    title Space Exploration
+    1957 : Sputnik : Laika
+    1961 : Gagarin : Shepard
+    1969 : Apollo 11 : Moon landing : Armstrong walks
+    1981 : Space Shuttle : Columbia launch
+    1998 : ISS construction begins
+    2020 : SpaceX Crew Dragon : Mars Perseverance
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">timeline_sections</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1397.26 328" width="1397.26" height="328">
+  <g transform="translate(20, 20)">
+    <text x="678.63" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Company History</text>
+    <path d="M44.77 180 L1272.49 180" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="66" width="419.09" height="212" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="20" y="76" width="399.09" height="28" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="219.54" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Foundation</text>
+    <rect x="449.09" y="66" width="419.09" height="212" rx="4" ry="4" fill="#f28e2c1e" />
+    <rect x="459.09" y="76" width="399.09" height="28" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="658.63" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Growth</text>
+    <rect x="888.17" y="66" width="419.09" height="212" rx="4" ry="4" fill="#e157591e" />
+    <rect x="898.17" y="76" width="399.09" height="28" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="1097.71" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Maturity</text>
+    <rect x="54.77" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2010</text>
+    <circle cx="114.77" cy="180" r="4" fill="#4e79a7" />
+    <path d="M114.77 185 L114.77 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="20" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Company founded</text>
+    <rect x="20" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="114.77" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">First office</text>
+    <rect x="264.31" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2011</text>
+    <circle cx="324.31" cy="180" r="4" fill="#4e79a7" />
+    <path d="M324.31 185 L324.31 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="229.54" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="324.31" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Seed funding</text>
+    <rect x="493.86" y="124" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="553.86" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2013</text>
+    <circle cx="553.86" cy="180" r="4" fill="#f28e2c" />
+    <path d="M553.86 185 L553.86 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="459.09" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="553.86" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Series A</text>
+    <rect x="459.09" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="553.86" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">50 employees</text>
+    <rect x="703.4" y="124" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="763.4" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2015</text>
+    <circle cx="763.4" cy="180" r="4" fill="#f28e2c" />
+    <path d="M763.4 185 L763.4 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="668.63" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="763.4" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Series B</text>
+    <rect x="668.63" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="763.4" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">International expansion</text>
+    <rect x="932.94" y="124" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="992.94" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2018</text>
+    <circle cx="992.94" cy="180" r="4" fill="#e15759" />
+    <path d="M992.94 185 L992.94 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="898.17" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="992.94" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">IPO</text>
+    <rect x="1142.49" y="124" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="1202.49" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2020</text>
+    <circle cx="1202.49" cy="180" r="4" fill="#e15759" />
+    <path d="M1202.49 185 L1202.49 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="1107.71" y="200" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="1202.49" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">1000 employees</text>
+    <rect x="1107.71" y="234" width="189.54" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="1202.49" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Global presence</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>timeline
+    title Company History
+    section Foundation
+        2010 : Company founded : First office
+        2011 : Seed funding
+    section Growth
+        2013 : Series A : 50 employees
+        2015 : Series B : International expansion
+    section Maturity
+        2018 : IPO
+        2020 : 1000 employees : Global presence
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">timeline_simple</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 224" width="580" height="224">
+  <g transform="translate(20, 20)">
+    <path d="M20 76 L480 76" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="-38" width="480" height="212" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="30" y="20" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="38" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Morning</text>
+    <circle cx="90" cy="76" r="4" fill="#4e79a7" />
+    <path d="M90 81 L90 164" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="20" y="96" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="111" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wake up</text>
+    <rect x="20" y="130" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="145" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Breakfast</text>
+    <rect x="190" y="20" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="38" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Afternoon</text>
+    <circle cx="250" cy="76" r="4" fill="#4e79a7" />
+    <path d="M250 81 L250 164" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="96" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="111" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Work</text>
+    <rect x="180" y="130" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="145" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Lunch</text>
+    <rect x="350" y="20" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="410" y="38" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Evening</text>
+    <circle cx="410" cy="76" r="4" fill="#4e79a7" />
+    <path d="M410 81 L410 164" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="340" y="96" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="410" y="111" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dinner</text>
+    <rect x="340" y="130" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="410" y="145" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Relax</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>timeline
+    Morning : Wake up : Breakfast
+    Afternoon : Work : Lunch
+    Evening : Dinner : Relax
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">timeline_tb</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 586" width="380" height="586">
+  <g transform="translate(20, 20)">
+    <text x="170" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Daily Routine</text>
+    <path d="M160 84 L160 536" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="46" width="320" height="182" rx="4" ry="4" fill="#4e79a71e" />
+    <text x="28" y="67.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Morning</text>
+    <rect x="10" y="228" width="320" height="182" rx="4" ry="4" fill="#f28e2c1e" />
+    <text x="28" y="249.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Work</text>
+    <rect x="10" y="410" width="320" height="126" rx="4" ry="4" fill="#e157591e" />
+    <text x="28" y="431.2" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Evening</text>
+    <rect x="20" y="110" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="128" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">6AM</text>
+    <circle cx="160" cy="128" r="4" fill="#4e79a7" />
+    <path d="M165 128 L180 109" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="94" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="109" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Wake up</text>
+    <path d="M165 128 L180 143" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="128" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="143" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Exercise</text>
+    <rect x="20" y="182" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="80" y="200" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">8AM</text>
+    <circle cx="160" cy="200" r="4" fill="#4e79a7" />
+    <path d="M165 200 L180 198" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="183" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="198" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Breakfast</text>
+    <rect x="20" y="292" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="80" y="310" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">9AM</text>
+    <circle cx="160" cy="310" r="4" fill="#f28e2c" />
+    <path d="M165 310 L180 291" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="276" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="250" y="291" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Standup</text>
+    <path d="M165 310 L180 325" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="310" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="250" y="325" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code review</text>
+    <rect x="20" y="364" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="80" y="382" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">12PM</text>
+    <circle cx="160" cy="382" r="4" fill="#f28e2c" />
+    <path d="M165 382 L180 380" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="365" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="250" y="380" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Lunch</text>
+    <rect x="20" y="474" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="80" y="492" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">6PM</text>
+    <circle cx="160" cy="492" r="4" fill="#e15759" />
+    <path d="M165 492 L180 473" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="458" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="250" y="473" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dinner</text>
+    <path d="M165 492 L180 507" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="492" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="250" y="507" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Family time</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>timeline TB
+    title Daily Routine
+    section Morning
+        6AM : Wake up : Exercise
+        8AM : Breakfast
+    section Work
+        9AM : Standup : Code review
+        12PM : Lunch
+    section Evening
+        6PM : Dinner : Family time
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">timeline_title</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 328" width="1100" height="328">
+  <g transform="translate(20, 20)">
+    <text x="530" y="26.4" text-anchor="middle" dominant-baseline="central" font-size="16px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Programming Languages</text>
+    <path d="M20 180 L1000 180" fill="none" stroke="#333333" stroke-width="2" />
+    <rect x="10" y="66" width="320" height="212" rx="4" ry="4" fill="#4e79a71e" />
+    <rect x="20" y="76" width="300" height="28" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="170" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Early</text>
+    <rect x="350" y="66" width="320" height="212" rx="4" ry="4" fill="#f28e2c1e" />
+    <rect x="360" y="76" width="300" height="28" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="510" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Structured</text>
+    <rect x="690" y="66" width="320" height="212" rx="4" ry="4" fill="#e157591e" />
+    <rect x="700" y="76" width="300" height="28" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="850" y="90" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Modern</text>
+    <rect x="30" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1957</text>
+    <circle cx="90" cy="180" r="4" fill="#4e79a7" />
+    <path d="M90 185 L90 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="20" y="200" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="90" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">FORTRAN</text>
+    <rect x="190" y="124" width="120" height="36" rx="4" ry="4" fill="#4e79a750" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1959</text>
+    <circle cx="250" cy="180" r="4" fill="#4e79a7" />
+    <path d="M250 185 L250 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="180" y="200" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">COBOL</text>
+    <rect x="180" y="234" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#4e79a7" stroke-width="1" />
+    <text x="250" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">LISP</text>
+    <rect x="370" y="124" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="430" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1972</text>
+    <circle cx="430" cy="180" r="4" fill="#f28e2c" />
+    <path d="M430 185 L430 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="360" y="200" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="430" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">C</text>
+    <rect x="530" y="124" width="120" height="36" rx="4" ry="4" fill="#f28e2c50" stroke="#f28e2c" stroke-width="1" />
+    <text x="590" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">1980</text>
+    <circle cx="590" cy="180" r="4" fill="#f28e2c" />
+    <path d="M590 185 L590 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="520" y="200" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="590" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Ada</text>
+    <rect x="520" y="234" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#f28e2c" stroke-width="1" />
+    <text x="590" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Smalltalk</text>
+    <rect x="710" y="124" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="770" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2010</text>
+    <circle cx="770" cy="180" r="4" fill="#e15759" />
+    <path d="M770 185 L770 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="700" y="200" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="770" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Rust</text>
+    <rect x="700" y="234" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="770" y="249" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Go</text>
+    <rect x="870" y="124" width="120" height="36" rx="4" ry="4" fill="#e1575950" stroke="#e15759" stroke-width="1" />
+    <text x="930" y="142" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">2014</text>
+    <circle cx="930" cy="180" r="4" fill="#e15759" />
+    <path d="M930 185 L930 268" fill="none" stroke="#333333" stroke-width="0.5" stroke-dasharray="4 3" />
+    <rect x="860" y="200" width="140" height="30" rx="12" ry="12" fill="#ececffb2" stroke="#e15759" stroke-width="1" />
+    <text x="930" y="215" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Swift</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>timeline
+    title Programming Languages
+    section Early
+        1957 : FORTRAN
+        1959 : COBOL : LISP
+    section Structured
+        1972 : C
+        1980 : Ada : Smalltalk
+    section Modern
+        2010 : Rust : Go
+        2014 : Swift
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

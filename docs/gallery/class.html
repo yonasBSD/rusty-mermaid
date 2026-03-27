@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>class - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link active" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="class" class="type-section">
+<details open class="section-details">
+<summary><h2>class <span class="section-count">(10)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">class_annotations</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 715.76 314" width="715.76" height="314">
+  <defs>
+    <marker id="arrow-barb-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="#333333" stroke-width="1" stroke-linejoin="round" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M106.3 106 L106.3 110.57 C106.3 117.53 106.3 131.47 106.3 144 C106.3 156.53 106.3 167.67 106.3 173.23 L106.3 178.8" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-start="url(#arrow-barb-333333)" />
+    <rect x="59.3" y="133" width="94" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="106.3" y="145.4" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">implements</text>
+    <rect x="0" y="8.4" width="212.6" height="95.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="106.3" y="17.2" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;interface&gt;&gt;</text>
+    <text x="106.3" y="33.9" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Shape</text>
+    <path d="M0 40.9 L212.6 40.9" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M0 44.9 L212.6 44.9" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="60.66" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+area() : double</text>
+    <text x="8" y="77.46" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+perimeter() : double</text>
+    <rect x="262.6" y="0" width="133.36" height="112" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="329.28" y="8.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;enumeration&gt;&gt;</text>
+    <text x="329.28" y="25.5" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Color</text>
+    <path d="M262.6 32.5 L395.96 32.5" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="270.6" y="48.26" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">RED</text>
+    <text x="270.6" y="65.06" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">GREEN</text>
+    <text x="270.6" y="81.86" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">BLUE</text>
+    <path d="M262.6 90.9 L395.96 90.9" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="21.5" y="178.8" width="169.6" height="95.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="106.3" y="187.6" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;abstract&gt;&gt;</text>
+    <text x="106.3" y="204.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">AbstractRenderer</text>
+    <path d="M21.5 211.3 L191.1 211.3" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M21.5 215.3 L191.1 215.3" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="29.5" y="231.06" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+render()*</text>
+    <text x="29.5" y="247.86" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">#setup()</text>
+    <rect x="445.96" y="16.8" width="229.8" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="560.86" y="25.6" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;service&gt;&gt;</text>
+    <text x="560.86" y="42.3" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">UserService</text>
+    <path d="M445.96 49.3 L675.76 49.3" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M445.96 53.3 L675.76 53.3" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="453.96" y="69.06" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+getUser(id int) : User</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class Shape {
+        &lt;&lt;interface&gt;&gt;
+        +area() double
+        +perimeter() double
+    }
+    class Color {
+        &lt;&lt;enumeration&gt;&gt;
+        RED
+        GREEN
+        BLUE
+    }
+    class AbstractRenderer {
+        &lt;&lt;abstract&gt;&gt;
+        +render()*
+        #setup()
+    }
+    class UserService {
+        &lt;&lt;service&gt;&gt;
+        +getUser(id int) User
+    }
+    Shape &lt;|.. AbstractRenderer : implements
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_basic</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 235.4 271.6" width="235.4" height="271.6">
+  <defs>
+    <marker id="arrow-barb-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="#333333" stroke-width="1" stroke-linejoin="round" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M97.7 101.6 L97.7 103.37 C97.7 107.53 97.7 115.87 97.7 124.2 C97.7 132.53 97.7 140.87 97.7 145.03 L97.7 149.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#arrow-barb-333333)" />
+    <rect x="0" y="0" width="195.4" height="99.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="97.7" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Animal</text>
+    <path d="M0 18.2 L195.4 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="33.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String name</text>
+    <text x="8" y="50.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+int age</text>
+    <path d="M0 59.8 L195.4 59.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="75.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+makeSound() : void</text>
+    <rect x="21.5" y="149.2" width="152.4" height="82.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="97.7" y="160.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Dog</text>
+    <path d="M21.5 167.4 L173.9 167.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="29.5" y="183.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String breed</text>
+    <path d="M21.5 192.2 L173.9 192.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="29.5" y="207.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+bark() : void</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class Animal {
+        +String name
+        +int age
+        +makeSound() void
+    }
+    class Dog {
+        +String breed
+        +bark() void
+    }
+    Animal &lt;|-- Dog
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_cardinality</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 425.6" width="201" height="425.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+    <marker id="marker-composition-333333" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 6 L6 0 L12 6 L6 12 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M80.5 78.4 L80.5 83.97 C80.5 89.53 80.5 100.67 80.5 111.8 C80.5 122.93 80.5 134.07 80.5 139.63 L80.5 142.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="50.7" y="99.4" width="59.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="80.5" y="111.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">places</text>
+    <text x="89.5" y="87.4" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">1</text>
+    <text x="89.5" y="136.2" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">0..*</text>
+    <path d="M80.5 225.6 L80.5 229.17 C80.5 234.73 80.5 245.87 80.5 257 C80.5 268.13 80.5 279.27 80.5 284.83 L80.5 290.4" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-composition-333333)" />
+    <rect x="42.1" y="244.6" width="76.8" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="80.5" y="257" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">contains</text>
+    <text x="89.5" y="232.6" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">1</text>
+    <text x="89.5" y="281.4" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">1..*</text>
+    <rect x="8.6" y="0" width="143.8" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="80.5" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Customer</text>
+    <path d="M8.6 18.2 L152.4 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="16.6" y="33.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String name</text>
+    <text x="16.6" y="50.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String email</text>
+    <path d="M8.6 59.8 L152.4 59.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="0" y="145.2" width="161" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="80.5" y="156.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Order</text>
+    <path d="M0 163.4 L161 163.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="179.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+int orderId</text>
+    <text x="8" y="195.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+Date orderDate</text>
+    <path d="M0 205 L161 205" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="0" y="290.4" width="161" height="95.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="80.5" y="301.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">OrderItem</text>
+    <path d="M0 308.6 L161 308.6" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="324.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String product</text>
+    <text x="8" y="341.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+int quantity</text>
+    <text x="8" y="357.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+double price</text>
+    <path d="M0 367 L161 367" fill="none" stroke="#9370db" stroke-width="0.5" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class Customer {
+        +String name
+        +String email
+    }
+    class Order {
+        +int orderId
+        +Date orderDate
+    }
+    class OrderItem {
+        +String product
+        +int quantity
+        +double price
+    }
+    Customer &quot;1&quot; --&gt; &quot;0..*&quot; Order : places
+    Order &quot;1&quot; *-- &quot;1..*&quot; OrderItem : contains
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_complex</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 663.7 521.6" width="663.7" height="521.6">
+  <defs>
+    <marker id="arrow-barb-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="#333333" stroke-width="1" stroke-linejoin="round" />
+    </marker>
+    <marker id="marker-aggregation-333333" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 6 L6 0 L12 6 L6 12 Z" fill="white" stroke="#333333" stroke-width="1" />
+    </marker>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M508.23 300.41 L512.58 304.37 C518.7 309.93 530.95 321.07 537.08 333.6 C543.2 346.13 543.2 360.07 543.2 367.03 L543.2 374" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#arrow-barb-333333)" />
+    <rect x="509.1" y="319.8" width="68.2" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="543.2" y="332.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">extends</text>
+    <path d="M358.57 300.41 L354.22 304.37 C348.1 309.93 335.85 321.07 329.72 332.2 C323.6 343.33 323.6 354.47 323.6 360.03 L323.6 365.6" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#arrow-barb-333333)" />
+    <rect x="289.5" y="319.8" width="68.2" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="323.6" y="332.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">extends</text>
+    <path d="M482.8 101.2 L482.8 104.77 C482.8 110.33 482.8 121.47 480.04 132.6 C477.29 143.73 471.78 154.87 469.02 160.43 L466.27 166" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-aggregation-333333)" />
+    <rect x="461.6" y="120.2" width="42.4" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="482.8" y="132.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">owns</text>
+    <text x="489.37" y="110.1" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">1</text>
+    <text x="477.17" y="159.43" text-anchor="start" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">0..*</text>
+    <path d="M213.44 90.8 L223.56 97.77 C233.68 104.73 253.91 118.67 273.57 131.61 C293.23 144.56 312.32 156.52 321.86 162.5 L329.37 167.2" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <rect x="235.75" y="120.2" width="76.8" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="274.15" y="132.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">examines</text>
+    <path d="M131.21 90.8 L127.43 97.77 C123.64 104.73 116.07 118.67 112.29 134.33 C108.5 150 108.5 167.4 108.5 176.1 L108.5 182.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="74.4" y="120.2" width="68.2" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="108.5" y="132.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">creates</text>
+    <rect x="331.4" y="166" width="204" height="132.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="433.4" y="174.8" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;abstract&gt;&gt;</text>
+    <text x="433.4" y="191.5" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Animal</text>
+    <path d="M331.4 198.5 L535.4 198.5" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="339.4" y="214.26" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String name</text>
+    <text x="339.4" y="231.06" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+int age</text>
+    <path d="M331.4 240.1 L535.4 240.1" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="339.4" y="255.86" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
+      <tspan>+makeSound() : </tspan>
+      <tspan font-style="italic"> void</tspan>
+    </text>
+    <text x="339.4" y="272.66" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+move() : void</text>
+    <rect x="462.7" y="374" width="161" height="99.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="543.2" y="385.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Dog</text>
+    <path d="M462.7 392.2 L623.7 392.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="470.7" y="407.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String breed</text>
+    <path d="M462.7 417 L623.7 417" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="470.7" y="432.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+bark() : void</text>
+    <text x="470.7" y="449.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+fetch() : void</text>
+    <rect x="234.5" y="365.6" width="178.2" height="116" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="323.6" y="376.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Cat</text>
+    <path d="M234.5 383.8 L412.7 383.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="242.5" y="399.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String color</text>
+    <text x="242.5" y="416.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+boolean indoor</text>
+    <path d="M234.5 425.4 L412.7 425.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="242.5" y="441.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+purr() : void</text>
+    <text x="242.5" y="457.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+scratch() : void</text>
+    <rect x="367.9" y="0" width="229.8" height="99.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="482.8" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Owner</text>
+    <path d="M367.9 18.2 L597.7 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="375.9" y="33.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String firstName</text>
+    <text x="375.9" y="50.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String lastName</text>
+    <path d="M367.9 59.8 L597.7 59.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="375.9" y="75.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+getFullName() : String</text>
+    <rect x="0" y="8.4" width="307.2" height="82.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="153.6" y="19.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Veterinarian</text>
+    <path d="M0 26.6 L307.2 26.6" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="42.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String license</text>
+    <path d="M0 51.4 L307.2 51.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="67.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+examine(animal Animal) : Report</text>
+    <rect x="19.4" y="184.8" width="178.2" height="95.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="108.5" y="196" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Report</text>
+    <path d="M19.4 203 L197.6 203" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="27.4" y="218.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+Date date</text>
+    <text x="27.4" y="235.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String diagnosis</text>
+    <text x="27.4" y="252.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+boolean healthy</text>
+    <path d="M19.4 261.4 L197.6 261.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class Animal {
+        &lt;&lt;abstract&gt;&gt;
+        +String name
+        +int age
+        +makeSound()* void
+        +move() void
+    }
+    class Dog {
+        +String breed
+        +bark() void
+        +fetch() void
+    }
+    class Cat {
+        +String color
+        +boolean indoor
+        +purr() void
+        +scratch() void
+    }
+    class Owner {
+        +String firstName
+        +String lastName
+        +getFullName() String
+    }
+    class Veterinarian {
+        +String license
+        +examine(animal Animal) Report
+    }
+    class Report {
+        +Date date
+        +String diagnosis
+        +boolean healthy
+    }
+    Animal &lt;|-- Dog : extends
+    Animal &lt;|-- Cat : extends
+    Owner &quot;1&quot; o-- &quot;0..*&quot; Animal : owns
+    Veterinarian ..&gt; Animal : examines
+    Veterinarian --&gt; Report : creates
+    note for Animal &quot;Base class for all animals&quot;
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_direction</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 984.2 101.6" width="984.2" height="101.6">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M169.6 30.8 L177.35 30.8 C185.1 30.8 200.6 30.8 216.1 30.8 C231.6 30.8 247.1 30.8 254.85 30.8 L260.2 30.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="190.6" y="18.4" width="51" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="216.1" y="30.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">feeds</text>
+    <path d="M552.6 30.8 L562.5 30.8 C572.4 30.8 592.2 30.8 612 30.8 C631.8 30.8 651.6 30.8 661.5 30.8 L669 30.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="573.6" y="18.4" width="76.8" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="612" y="30.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">produces</text>
+    <rect x="0" y="0" width="169.6" height="61.6" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="84.8" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Input</text>
+    <path d="M0 18.2 L169.6 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M0 22.2 L169.6 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+read() : String</text>
+    <rect x="262.6" y="0" width="290" height="61.6" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="407.6" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Processor</text>
+    <path d="M262.6 18.2 L552.6 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M262.6 22.2 L552.6 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="270.6" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+process(data String) : Result</text>
+    <rect x="671.4" y="0" width="272.8" height="61.6" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="807.8" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Output</text>
+    <path d="M671.4 18.2 L944.2 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M671.4 22.2 L944.2 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="679.4" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+write(result Result) : void</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    direction LR
+    class Input {
+        +read() String
+    }
+    class Processor {
+        +process(data String) Result
+    }
+    class Output {
+        +write(result Result) void
+    }
+    Input --&gt; Processor : feeds
+    Processor --&gt; Output : produces
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_generics</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 863.8 135.2" width="863.8" height="135.2">
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="195.4" height="95.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="97.7" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">List&lt;T&gt;</text>
+    <path d="M0 18.2 L195.4 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M0 22.2 L195.4 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+add(item T) : void</text>
+    <text x="8" y="54.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+get(index int) : T</text>
+    <text x="8" y="71.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+size() : int</text>
+    <rect x="245.4" y="0" width="281.4" height="95.2" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="386.1" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Map&lt;K, V&gt;</text>
+    <path d="M245.4 18.2 L526.8 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M245.4 22.2 L526.8 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="253.4" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+put(key K, value V) : void</text>
+    <text x="253.4" y="54.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+get(key K) : V</text>
+    <text x="253.4" y="71.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+containsKey(key K) : boolean</text>
+    <rect x="576.8" y="8.4" width="247" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="700.3" y="17.2" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">&lt;&lt;interface&gt;&gt;</text>
+    <text x="700.3" y="33.9" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Comparable&lt;T&gt;</text>
+    <path d="M576.8 40.9 L823.8 40.9" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M576.8 44.9 L823.8 44.9" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="584.8" y="60.66" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+compareTo(other T) : int</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class List~T~ {
+        +add(item T) void
+        +get(index int) T
+        +size() int
+    }
+    class Map~K, V~ {
+        +put(key K, value V) void
+        +get(key K) V
+        +containsKey(key K) boolean
+    }
+    class Comparable~T~ {
+        &lt;&lt;interface&gt;&gt;
+        +compareTo(other T) int
+    }
+    List~T~ ..&gt; Comparable~T~ : uses
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_members</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 398.8 256.8" width="398.8" height="256.8">
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="358.8" height="216.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="179.4" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">BankAccount</text>
+    <path d="M0 18.2 L358.8 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="33.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String owner</text>
+    <text x="8" y="50.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+BigDecimal balance</text>
+    <text x="8" y="67.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">-String accountNumber</text>
+    <text x="8" y="84.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">#String bankCode</text>
+    <text x="8" y="101.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">~int pin</text>
+    <path d="M0 110.2 L358.8 110.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="125.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+deposit(amount BigDecimal) : void</text>
+    <text x="8" y="142.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+withdraw(amount BigDecimal) : boolean</text>
+    <text x="8" y="159.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">-validatePin(pin int) : boolean</text>
+    <text x="8" y="176.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">#getStatement() : String$</text>
+    <text x="8" y="193.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">~transferInternal(to BankAccount)*</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class BankAccount {
+        +String owner
+        +BigDecimal balance
+        -String accountNumber
+        #String bankCode
+        ~int pin
+        +deposit(amount BigDecimal) void
+        +withdraw(amount BigDecimal) boolean
+        -validatePin(pin int) boolean
+        #getStatement() String$
+        ~transferInternal(to BankAccount)*
+    }
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_namespaces</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 542.2 475.2" width="542.2" height="475.2">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <rect x="77.4" y="306.8" width="424.8" height="128.4" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <text x="85.4" y="318.8" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Domain</text>
+    <rect x="0" y="0" width="488.85" height="256.8" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <text x="8" y="12" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Service</text>
+    <path d="M184.3 231.8 L184.3 235.97 C184.3 240.13 184.3 248.47 184.3 256.8 C184.3 265.13 184.3 273.47 184.3 281.8 C184.3 290.13 184.3 298.47 184.3 306.8 C184.3 315.13 184.3 323.47 184.3 327.63 L184.3 329.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M334.05 86.6 L342.83 92.17 C351.6 97.73 369.15 108.87 377.93 126.53 C386.7 144.2 386.7 168.4 386.7 191.2 C386.7 214 386.7 235.4 386.7 250.27 C386.7 265.13 386.7 273.47 386.7 281.8 C386.7 290.13 386.7 298.47 386.7 306.8 C386.7 315.13 386.7 323.47 386.7 327.63 L386.7 329.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M236.95 86.6 L228.17 92.17 C219.4 97.73 201.85 108.87 193.07 120 C184.3 131.13 184.3 142.27 184.3 147.83 L184.3 151" fill="none" stroke="#333333" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow-point-333333)" />
+    <rect x="137.3" y="107.6" width="94" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="184.3" y="120" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">depends on</text>
+    <rect x="112.4" y="331.8" width="143.8" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="184.3" y="343" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">User</text>
+    <path d="M112.4 350 L256.2 350" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="120.4" y="365.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String name</text>
+    <text x="120.4" y="382.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+String email</text>
+    <path d="M112.4 391.6 L256.2 391.6" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="306.2" y="331.8" width="161" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="386.7" y="343" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Order</text>
+    <path d="M306.2 350 L467.2 350" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="314.2" y="365.76" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+int orderId</text>
+    <text x="314.2" y="382.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+Date createdAt</text>
+    <path d="M306.2 391.6 L467.2 391.6" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="35" y="153.4" width="298.6" height="78.4" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="184.3" y="164.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">UserService</text>
+    <path d="M35 171.6 L333.6 171.6" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M35 175.6 L333.6 175.6" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="43" y="191.36" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+getUser(id int) : User</text>
+    <text x="43" y="208.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+createUser(name String) : User</text>
+    <rect x="136.2" y="25" width="298.6" height="61.6" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="285.5" y="36.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">OrderService</text>
+    <path d="M136.2 43.2 L434.8 43.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M136.2 47.2 L434.8 47.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="144.2" y="62.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+placeOrder(userId int) : Order</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    namespace Domain {
+        class User {
+            +String name
+            +String email
+        }
+        class Order {
+            +int orderId
+            +Date createdAt
+        }
+    }
+    namespace Service {
+        class UserService {
+            +getUser(id int) User
+            +createUser(name String) User
+        }
+        class OrderService {
+            +placeOrder(userId int) Order
+        }
+    }
+    UserService --&gt; User
+    OrderService --&gt; Order
+    OrderService ..&gt; UserService : depends on
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_relationships</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 395.8 296" width="395.8" height="296">
+  <defs>
+    <marker id="arrow-barb-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="white" stroke="#333333" stroke-width="1" stroke-linejoin="round" />
+    </marker>
+    <marker id="marker-composition-333333" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 6 L6 0 L12 6 L6 12 Z" fill="#333333" />
+    </marker>
+    <marker id="marker-aggregation-333333" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 6 L6 0 L12 6 L6 12 Z" fill="white" stroke="#333333" stroke-width="1" />
+    </marker>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M309.7 43.2 L309.7 46.37 C309.7 51.93 309.7 63.07 293.68 74.96 C277.67 86.86 245.63 99.53 229.62 105.86 L213.6 112.19" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#arrow-barb-333333)" />
+    <rect x="258.4" y="61.8" width="102.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="309.7" y="74.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">inheritance</text>
+    <path d="M208.79 149.44 L216.22 153.97 C225.35 159.53 243.63 170.67 252.76 181.8 C261.9 192.93 261.9 204.07 261.9 209.63 L261.9 215.2" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-composition-333333)" />
+    <rect x="210.6" y="169.4" width="102.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="261.9" y="181.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">composition</text>
+    <path d="M173.6 42.8 L173.6 46.37 C173.6 51.93 173.6 63.07 173.6 74.2 C173.6 85.33 173.6 96.47 173.6 102.03 L173.6 107.6" fill="none" stroke="#333333" stroke-width="1.5" marker-start="url(#marker-aggregation-333333)" />
+    <rect x="122.3" y="61.8" width="102.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="173.6" y="74.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">aggregation</text>
+    <path d="M41.8 40.8 L41.8 46.37 C41.8 51.93 41.8 63.07 57.1 74.88 C72.4 86.69 103 99.18 118.3 105.43 L131.38 110.77" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="-5.2" y="61.8" width="94" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="41.8" y="74.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">dependency</text>
+    <path d="M141.75 148.4 L133.06 153.97 C124.37 159.53 106.98 170.67 98.29 181.8 C89.6 192.93 89.6 204.07 89.6 209.63 L89.6 215.2" fill="none" stroke="#333333" stroke-width="1.5" />
+    <rect x="38.3" y="169.4" width="102.6" height="24.8" rx="2" ry="2" fill="#f5f3ffbf" stroke="#f5f3ffbf" stroke-width="0.5" />
+    <text x="89.6" y="181.8" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">association</text>
+    <rect x="263.6" y="0" width="92.2" height="40.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="309.7" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Vehicle</text>
+    <path d="M263.6 18.2 L355.8 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M263.6 22.2 L355.8 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="133.6" y="107.6" width="80" height="40.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="173.6" y="118.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Car</text>
+    <path d="M133.6 125.8 L213.6 125.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M133.6 129.8 L213.6 129.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="220.1" y="215.2" width="83.6" height="40.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="261.9" y="226.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Engine</text>
+    <path d="M220.1 233.4 L303.7 233.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M220.1 237.4 L303.7 237.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="133.6" y="0" width="80" height="40.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="173.6" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Fleet</text>
+    <path d="M133.6 18.2 L213.6 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M133.6 22.2 L213.6 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="0" y="0" width="83.6" height="40.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="41.8" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Driver</text>
+    <path d="M0 18.2 L83.6 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M0 22.2 L83.6 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <rect x="9.1" y="215.2" width="161" height="40.8" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="89.6" y="226.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">InsurancePolicy</text>
+    <path d="M9.1 233.4 L170.1 233.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M9.1 237.4 L170.1 237.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class Vehicle
+    class Car
+    class Engine
+    class Fleet
+    class Driver
+    class InsurancePolicy
+
+    Vehicle &lt;|-- Car : inheritance
+    Car *-- Engine : composition
+    Fleet o-- Car : aggregation
+    Driver --&gt; Car : dependency
+    Car -- InsurancePolicy : association
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">class_styling</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 209.6 324.8" width="209.6" height="324.8">
+  <defs>
+    <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
+    </marker>
+  </defs>
+  <g transform="translate(20, 20)">
+    <path d="M84.8 61.6 L84.8 65.77 C84.8 69.93 84.8 78.27 84.8 86.6 C84.8 94.93 84.8 103.27 84.8 107.43 L84.8 109.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M84.8 173.2 L84.8 177.37 C84.8 181.53 84.8 189.87 84.8 198.2 C84.8 206.53 84.8 214.87 84.8 219.03 L84.8 220.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="0" y="0" width="169.6" height="61.6" rx="3" ry="3" fill="#ff99ff" stroke="#333333" stroke-width="2" />
+    <text x="84.8" y="11.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Controller</text>
+    <path d="M0 18.2 L169.6 18.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M0 22.2 L169.6 22.2" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="8" y="37.96" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+handleRequest()</text>
+    <rect x="25.8" y="111.6" width="118" height="61.6" rx="3" ry="3" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="84.8" y="122.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Service</text>
+    <path d="M25.8 129.8 L143.8 129.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M25.8 133.8 L143.8 133.8" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="33.8" y="149.56" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+process()</text>
+    <rect x="25.8" y="223.2" width="118" height="61.6" rx="3" ry="3" fill="#ddffdd" stroke="#339933" />
+    <text x="84.8" y="234.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Repository</text>
+    <path d="M25.8 241.4 L143.8 241.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <path d="M25.8 245.4 L143.8 245.4" fill="none" stroke="#9370db" stroke-width="0.5" />
+    <text x="33.8" y="261.16" text-anchor="start" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">+findAll()</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>classDiagram
+    class Controller:::highlight {
+        +handleRequest()
+    }
+    class Service {
+        +process()
+    }
+    class Repository {
+        +findAll()
+    }
+    Controller --&gt; Service
+    Service --&gt; Repository
+    classDef highlight fill:#f9f,stroke:#333,stroke-width:2px
+    classDef dimmed fill:#eee,stroke:#999
+    style Repository fill:#dfd,stroke:#393
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>

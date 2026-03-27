@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kanban - rusty-mermaid Gallery</title>
+<style>
+
+:root {
+  --bg: #f8f9fa;
+  --fg: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --svg-bg: #ffffff;
+  --svg-border: #e8e8e8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0e0e0;
+  --nav-hover: #f0f0f0;
+  --nav-active: #e3e8f0;
+  --code-bg: #f4f4f4;
+  --accent: #4a6cf7;
+  --muted: #666;
+  --header-bg: #1a1a2e;
+  --header-fg: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-border: #333;
+  --svg-bg: #2a2a2a;
+  --svg-border: #444;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-border: #333;
+  --nav-hover: #2a2a2a;
+  --nav-active: #2d3748;
+  --code-bg: #2d2d2d;
+  --accent: #6b8aff;
+  --muted: #999;
+  --header-bg: #0d0d1a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 0.15rem; }
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--header-fg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.theme-toggle:hover { border-color: rgba(255,255,255,0.6); }
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 0.75rem 0;
+}
+.nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link.active {
+  background: var(--nav-active);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-link .count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem;
+}
+.type-section { margin-bottom: 2rem; }
+.section-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+.section-details > summary::-webkit-details-marker { display: none; }
+.section-details > summary::before {
+  content: "\25BC";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  vertical-align: middle;
+}
+.section-details:not([open]) > summary::before { transform: rotate(-90deg); }
+.section-details > summary h2 {
+  display: inline;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.section-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-title {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--card-border);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+.svg-container {
+  padding: 1rem;
+  background: var(--svg-bg);
+  border-bottom: 1px solid var(--svg-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: auto;
+}
+.svg-container svg {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+.mmd-source > summary {
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.mmd-source > summary:hover { color: var(--accent); }
+.mmd-source pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.mmd-source code { font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace; }
+@media (max-width: 960px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.index-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.index-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.index-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.index-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.index-card-header .count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--code-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+.index-card-thumb {
+  padding: 0.75rem;
+  background: var(--svg-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-height: 200px;
+  overflow: hidden;
+}
+.index-card-thumb svg {
+  max-width: 100%;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+}
+.breadcrumb {
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+}
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>rusty-mermaid Gallery</h1>
+    <div class="subtitle">25 diagram types &mdash; 297 diagrams rendered by rusty-mermaid</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">Light / Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="breadcrumb"><a href="index.html">Gallery</a></div>
+    <a href="architecture.html" class="nav-link" data-type="architecture">architecture <span class="count">5</span></a>
+<a href="block.html" class="nav-link" data-type="block">block <span class="count">5</span></a>
+<a href="c4.html" class="nav-link" data-type="c4">c4 <span class="count">5</span></a>
+<a href="class.html" class="nav-link" data-type="class">class <span class="count">10</span></a>
+<a href="er.html" class="nav-link" data-type="er">er <span class="count">6</span></a>
+<a href="flowchart.html" class="nav-link" data-type="flowchart">flowchart <span class="count">122</span></a>
+<a href="gantt.html" class="nav-link" data-type="gantt">gantt <span class="count">5</span></a>
+<a href="gitgraph.html" class="nav-link" data-type="gitgraph">gitgraph <span class="count">5</span></a>
+<a href="ishikawa.html" class="nav-link" data-type="ishikawa">ishikawa <span class="count">6</span></a>
+<a href="journey.html" class="nav-link" data-type="journey">journey <span class="count">6</span></a>
+<a href="kanban.html" class="nav-link active" data-type="kanban">kanban <span class="count">5</span></a>
+<a href="mindmap.html" class="nav-link" data-type="mindmap">mindmap <span class="count">7</span></a>
+<a href="packet.html" class="nav-link" data-type="packet">packet <span class="count">5</span></a>
+<a href="pie.html" class="nav-link" data-type="pie">pie <span class="count">5</span></a>
+<a href="quadrant.html" class="nav-link" data-type="quadrant">quadrant <span class="count">6</span></a>
+<a href="radar.html" class="nav-link" data-type="radar">radar <span class="count">6</span></a>
+<a href="requirement.html" class="nav-link" data-type="requirement">requirement <span class="count">5</span></a>
+<a href="sankey.html" class="nav-link" data-type="sankey">sankey <span class="count">6</span></a>
+<a href="sequence.html" class="nav-link" data-type="sequence">sequence <span class="count">20</span></a>
+<a href="state.html" class="nav-link" data-type="state">state <span class="count">27</span></a>
+<a href="timeline.html" class="nav-link" data-type="timeline">timeline <span class="count">6</span></a>
+<a href="treemap.html" class="nav-link" data-type="treemap">treemap <span class="count">6</span></a>
+<a href="treeview.html" class="nav-link" data-type="treeview">treeview <span class="count">6</span></a>
+<a href="venn.html" class="nav-link" data-type="venn">venn <span class="count">6</span></a>
+<a href="xychart.html" class="nav-link" data-type="xychart">xychart <span class="count">6</span></a>
+  </nav>
+  <main class="main">
+    <section id="kanban" class="type-section">
+<details open class="section-details">
+<summary><h2>kanban <span class="section-count">(5)</span></h2></summary>
+<div class="card-grid">
+<div class="card">
+<div class="card-title">kanban_basic</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 243.2" width="920" height="243.2">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="171.2" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Backlog</text>
+    <rect x="26" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design homepage</text>
+    <rect x="26" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write API docs</text>
+    <rect x="26" y="144.8" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="162" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Research competitors</text>
+    <rect x="232" y="16" width="200" height="171.2" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">In Progress</text>
+    <rect x="242" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Build login page</text>
+    <rect x="242" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Set up CI/CD</text>
+    <rect x="448" y="16" width="200" height="171.2" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Review</text>
+    <rect x="458" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Code review PR #42</text>
+    <rect x="664" y="16" width="200" height="171.2" rx="8" ry="8" fill="#e1575914" stroke="#e157593c" stroke-width="1" />
+    <rect x="664" y="16" width="200" height="36" rx="8" ry="8" fill="#e1575932" />
+    <text x="764" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Done</text>
+    <rect x="674" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#e1575950" stroke-width="1" />
+    <text x="764" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Deploy staging</text>
+    <rect x="674" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#e1575950" stroke-width="1" />
+    <text x="764" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Database migration</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>kanban
+    Backlog
+        id1[Design homepage]
+        id2[Write API docs]
+        id3[Research competitors]
+    In Progress
+        id4[Build login page]
+        id5[Set up CI/CD]
+    Review
+        id6[Code review PR #42]
+    Done
+        id7[Deploy staging]
+        id8[Database migration]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">kanban_many_columns</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1136 200.8" width="1136" height="200.8">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="128.8" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Backlog</text>
+    <rect x="26" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Write spec</text>
+    <rect x="26" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Design mockup</text>
+    <rect x="232" y="16" width="200" height="128.8" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Ready</text>
+    <rect x="242" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Implement auth</text>
+    <rect x="448" y="16" width="200" height="128.8" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">In Progress</text>
+    <rect x="458" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Build dashboard</text>
+    <rect x="664" y="16" width="200" height="128.8" rx="8" ry="8" fill="#e1575914" stroke="#e157593c" stroke-width="1" />
+    <rect x="664" y="16" width="200" height="36" rx="8" ry="8" fill="#e1575932" />
+    <text x="764" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#e15759" font-weight="bold">Review</text>
+    <rect x="674" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#e1575950" stroke-width="1" />
+    <text x="764" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">PR review</text>
+    <rect x="880" y="16" width="200" height="128.8" rx="8" ry="8" fill="#af7aa114" stroke="#af7aa13c" stroke-width="1" />
+    <rect x="880" y="16" width="200" height="36" rx="8" ry="8" fill="#af7aa132" />
+    <text x="980" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#af7aa1" font-weight="bold">Done</text>
+    <rect x="890" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#af7aa150" stroke-width="1" />
+    <text x="980" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Deploy v1.0</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>kanban
+    Backlog
+        t1[Write spec]
+        t2[Design mockup]
+    Ready
+        t3[Implement auth]
+    In Progress
+        t4[Build dashboard]
+    Review
+        t5[PR review]
+    Done
+        t6[Deploy v1.0]
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">kanban_metadata</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 277.76" width="704" height="277.76">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="205.76" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Todo</text>
+    <rect x="26" y="60" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="78.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Fix login bug</text>
+    <text x="116" y="90.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">High · @alice · BUG-101</text>
+    <rect x="26" y="113.92" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="132.56" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Add dark mode</text>
+    <text x="116" y="144.08" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Medium · @bob</text>
+    <rect x="26" y="167.84" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="186.48" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Update deps</text>
+    <text x="116" y="198" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">Low</text>
+    <rect x="232" y="16" width="200" height="205.76" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">In Progress</text>
+    <rect x="242" y="60" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="78.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">API refactor</text>
+    <text x="332" y="90.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">High · @charlie · FEAT-202</text>
+    <rect x="448" y="16" width="200" height="205.76" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Done</text>
+    <rect x="458" y="60" width="180" height="45.92" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="78.64" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Release v1.0</text>
+    <text x="548" y="90.16" text-anchor="middle" dominant-baseline="central" font-size="11px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#787878">REL-001</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>kanban
+    Todo
+        t1[Fix login bug] @{priority: high, assigned: alice, ticket: BUG-101}
+        t2[Add dark mode] @{priority: medium, assigned: bob}
+        t3[Update deps] @{priority: low}
+    In Progress
+        t4[API refactor] @{priority: high, assigned: charlie, ticket: FEAT-202}
+    Done
+        t5[Release v1.0] @{ticket: REL-001}
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">kanban_simple</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 243.2" width="704" height="243.2">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="171.2" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">To Do</text>
+    <rect x="26" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Buy groceries</text>
+    <rect x="26" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Clean house</text>
+    <rect x="26" y="144.8" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="162" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Walk the dog</text>
+    <rect x="232" y="16" width="200" height="171.2" rx="8" ry="8" fill="#f28e2c14" stroke="#f28e2c3c" stroke-width="1" />
+    <rect x="232" y="16" width="200" height="36" rx="8" ry="8" fill="#f28e2c32" />
+    <text x="332" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#f28e2c" font-weight="bold">Doing</text>
+    <rect x="242" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#f28e2c50" stroke-width="1" />
+    <text x="332" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Cook dinner</text>
+    <rect x="448" y="16" width="200" height="171.2" rx="8" ry="8" fill="#59a14f14" stroke="#59a14f3c" stroke-width="1" />
+    <rect x="448" y="16" width="200" height="36" rx="8" ry="8" fill="#59a14f32" />
+    <text x="548" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#59a14f" font-weight="bold">Done</text>
+    <rect x="458" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Laundry</text>
+    <rect x="458" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#59a14f50" stroke-width="1" />
+    <text x="548" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Dishes</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>kanban
+    To Do
+        Buy groceries
+        Clean house
+        Walk the dog
+    Doing
+        Cook dinner
+    Done
+        Laundry
+        Dishes
+</code></pre>
+</details>
+</div>
+<div class="card">
+<div class="card-title">kanban_single_column</div>
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 272 200.8" width="272" height="200.8">
+  <g transform="translate(20, 20)">
+    <rect x="16" y="16" width="200" height="128.8" rx="8" ry="8" fill="#4e79a714" stroke="#4e79a73c" stroke-width="1" />
+    <rect x="16" y="16" width="200" height="36" rx="8" ry="8" fill="#4e79a732" />
+    <text x="116" y="34" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#4e79a7" font-weight="bold">Todo</text>
+    <rect x="26" y="60" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="77.2" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Only column</text>
+    <rect x="26" y="102.4" width="180" height="34.4" rx="6" ry="6" fill="#ffffff" stroke="#4e79a750" stroke-width="1" />
+    <text x="116" y="119.6" text-anchor="middle" dominant-baseline="central" font-size="12px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">Two items</text>
+  </g>
+</svg>
+</div>
+<details class="mmd-source">
+<summary>Source (.mmd)</summary>
+<pre><code>kanban
+    Todo
+        task1[Only column]
+        task2[Two items]
+</code></pre>
+</details>
+</div>
+</div>
+</details>
+</section>
+  </main>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function() {
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.setAttribute("data-theme", "dark");
+})();
+(function() {
+  const sections = document.querySelectorAll(".type-section");
+  const links = document.querySelectorAll(".nav-link");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const link = document.querySelector('.nav-link[data-type="' + e.target.id + '"]');
+        if (link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>
