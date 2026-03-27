@@ -30,6 +30,11 @@ resolver = "3"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+repository = "https://github.com/base58ed/rusty-mermaid"
+homepage = "https://github.com/base58ed/rusty-mermaid"
+keywords = ["mermaid", "diagrams", "svg", "rendering"]
+categories = ["rendering", "visualization"]
+readme = "README.md"
 
 [workspace.dependencies]
 rusty-mermaid-core = { path = "crates/core" }

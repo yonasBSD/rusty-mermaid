@@ -3,6 +3,10 @@ name = "rusty-mermaid-graph"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "Directed multigraph with compound (hierarchical) node support"
 
 [dependencies]
