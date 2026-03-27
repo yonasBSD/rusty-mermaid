@@ -1,79 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1228.05 488" width="1228.05" height="488">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 832.55 404" width="832.55" height="404">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <path d="M1073.18 199.2 L1078.19 195.03 C1083.2 190.87 1093.23 182.53 1098.24 174.2 C1103.25 165.87 1103.25 157.53 1103.25 153.37 L1103.25 151.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M1013.52 199.2 L1008.51 195.03 C1003.5 190.87 993.47 182.53 988.46 170.07 C983.45 157.6 983.45 141 983.45 124.4 C983.45 107.8 983.45 91.2 928.54 76.81 C873.63 62.41 763.82 50.22 708.91 44.13 L656.39 38.3" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M1103.25 99.6 L1103.25 95.43 C1103.25 91.27 1103.25 82.93 1028.38 72.21 C953.5 61.48 803.75 48.36 728.88 41.8 L656.39 35.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M1000.75 298.8 L1007.85 294.63 C1014.95 290.47 1029.15 282.13 1036.25 273.8 C1043.35 265.47 1043.35 257.13 1043.35 252.97 L1043.35 251.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M937.19 298.8 L933.6 294.63 C930.02 290.47 922.86 282.13 919.28 269.67 C915.7 257.2 915.7 240.6 915.7 224 C915.7 207.4 915.7 190.8 932.82 177.95 C949.95 165.11 984.2 156.01 1001.32 151.46 L1016.13 147.53" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M927.23 298.8 L921.97 294.63 C916.72 290.47 906.21 282.13 900.95 269.67 C895.7 257.2 895.7 240.6 895.7 224 C895.7 207.4 895.7 190.8 895.7 174.2 C895.7 157.6 895.7 141 895.7 124.4 C895.7 107.8 895.7 91.2 855.42 77.34 C815.13 63.48 734.57 52.37 694.28 46.81 L656.38 41.58" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M767.3 99.6 L767.3 95.43 C767.3 91.27 767.3 82.93 747.85 74.6 C728.39 66.27 689.49 57.93 670.04 53.77 L652.93 50.1" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M534.8 99.6 L534.8 95.43 C534.8 91.27 534.8 82.93 534.8 74.6 C534.8 66.27 534.8 57.93 534.8 53.77 L534.8 52" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M298.1 99.6 L298.1 95.43 C298.1 91.27 298.1 82.93 317.9 74.6 C337.71 66.27 377.32 57.93 397.12 53.77 L414.58 50.09" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M381.39 199.2 L386.04 195.03 C390.69 190.87 400 182.53 404.65 170.07 C409.3 157.6 409.3 141 409.3 124.4 C409.3 107.8 409.3 91.2 419.8 78.73 C430.3 66.27 451.3 57.93 461.8 53.77 L470.07 50.49" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M326.01 199.2 L321.36 195.03 C316.71 190.87 307.4 182.53 302.75 174.2 C298.1 165.87 298.1 157.53 298.1 153.37 L298.1 151.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M159.69 199.2 L164.23 195.03 C168.76 190.87 177.83 182.53 182.37 170.07 C186.9 157.6 186.9 141 186.9 124.4 C186.9 107.8 186.9 91.2 225.02 77.44 C263.13 63.69 339.37 52.78 377.48 47.32 L413.22 42.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M104.64 199.2 L99.92 195.03 C95.21 190.87 85.78 182.53 105.32 172.92 C124.87 163.3 173.38 152.41 197.64 146.96 L219.56 142.04" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M603.9 413.2 L663 406.57 C722.1 399.93 840.3 386.67 899.4 375.87 C958.5 365.07 958.5 356.73 958.5 352.57 L958.5 350.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M603.9 405.63 L631.13 400.26 C658.37 394.88 712.83 384.14 740.07 370.47 C767.3 356.8 767.3 340.2 767.3 323.6 C767.3 307 767.3 290.4 767.3 273.8 C767.3 257.2 767.3 240.6 767.3 224 C767.3 207.4 767.3 190.8 767.3 178.33 C767.3 165.87 767.3 157.53 767.3 153.37 L767.3 151.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M524.76 398.4 L526.43 394.23 C528.11 390.07 531.45 381.73 533.13 369.27 C534.8 356.8 534.8 340.2 534.8 323.6 C534.8 307 534.8 290.4 534.8 273.8 C534.8 257.2 534.8 240.6 534.8 224 C534.8 207.4 534.8 190.8 534.8 178.33 C534.8 165.87 534.8 157.53 534.8 153.37 L534.8 151.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M514.8 398.4 L514.8 394.23 C514.8 390.07 514.8 381.73 514.8 369.27 C514.8 356.8 514.8 340.2 514.8 323.6 C514.8 307 514.8 290.4 514.8 273.8 C514.8 257.2 514.8 240.6 514.8 224 C514.8 207.4 514.8 190.8 491.38 177.12 C467.97 163.44 421.13 152.67 397.72 147.29 L376.64 142.45" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M434.57 398.4 L421.09 394.23 C407.62 390.07 380.66 381.73 367.18 369.27 C353.7 356.8 353.7 340.2 353.7 323.6 C353.7 307 353.7 290.4 353.7 277.93 C353.7 265.47 353.7 257.13 353.7 252.97 L353.7 251.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M425.7 411.59 L376.87 405.22 C328.03 398.86 230.37 386.13 181.53 371.46 C132.7 356.8 132.7 340.2 132.7 323.6 C132.7 307 132.7 290.4 132.7 277.93 C132.7 265.47 132.7 257.13 132.7 252.97 L132.7 251.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M425.7 414.58 L354.75 407.72 C283.8 400.85 141.9 387.13 70.95 371.96 C0 356.8 0 340.2 0 323.6 C0 307 0 290.4 0 273.8 C0 257.2 0 240.6 0 224 C0 207.4 0 190.8 0 174.2 C0 157.6 0 141 0 124.4 C0 107.8 0 91.2 69.27 76.45 C138.53 61.7 277.07 48.8 346.33 42.35 L413.21 36.12" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="415.6" y="0" width="238.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="534.8" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="534.8" dy="0">core</tspan>
-      <tspan x="534.8" dy="16.8">primitives, Scene, Theme</tspan>
-    </text>
-    <rect x="1018.45" y="99.6" width="169.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1103.25" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="1103.25" dy="0">graph</tspan>
-      <tspan x="1103.25" dy="16.8">Graph&amp;lt;N,E&amp;gt;</tspan>
-    </text>
-    <rect x="962.85" y="199.2" width="161" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="1043.35" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="1043.35" dy="0">dagre</tspan>
-      <tspan x="1043.35" dy="16.8">Sugiyama layout</tspan>
-    </text>
-    <rect x="873.7" y="298.8" width="169.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="958.5" y="315.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="958.5" dy="0">diagrams</tspan>
-      <tspan x="958.5" dy="16.8">24 diagram types</tspan>
-    </text>
-    <rect x="673.9" y="99.6" width="186.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="767.3" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="767.3" dy="0">svg</tspan>
-      <tspan x="767.3" dy="16.8">Scene → SVG string</tspan>
-    </text>
-    <rect x="445.7" y="99.6" width="178.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="534.8" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="534.8" dy="0">raster</tspan>
-      <tspan x="534.8" dy="16.8">Scene → PNG bytes</tspan>
-    </text>
-    <rect x="221.9" y="99.6" width="152.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="298.1" y="116" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="298.1" dy="0">viewport</tspan>
-      <tspan x="298.1" dy="16.8">pan/zoom state</tspan>
-    </text>
-    <rect x="281.8" y="199.2" width="143.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="353.7" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="353.7" dy="0">wgpu-backend</tspan>
-      <tspan x="353.7" dy="16.8">Scene → vello</tspan>
-    </text>
-    <rect x="35" y="199.2" width="195.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="132.7" y="215.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="132.7" dy="0">gpui-backend</tspan>
-      <tspan x="132.7" dy="16.8">Scene → gpui canvas</tspan>
-    </text>
-    <rect x="425.7" y="398.4" width="178.2" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="514.8" y="414.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="514.8" dy="0">rusty-mermaid</tspan>
-      <tspan x="514.8" dy="16.8">public API facade</tspan>
-    </text>
+    <path d="M733.16 165.6 L736.81 161.43 C740.46 157.27 747.75 148.93 751.4 140.6 C755.05 132.27 755.05 123.93 755.05 119.77 L755.05 118" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M704.44 165.6 L700.79 161.43 C697.14 157.27 689.85 148.93 686.2 137.87 C682.55 126.8 682.55 113 682.55 99.2 C682.55 85.4 682.55 71.6 646.15 58.71 C609.75 45.82 536.95 33.84 500.55 27.85 L466.52 22.25" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M755.05 82.8 L755.05 78.63 C755.05 74.47 755.05 66.13 706.57 55.77 C658.08 45.41 561.12 33.03 512.63 26.83 L466.53 20.95" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M680.94 248.4 L687.25 244.23 C693.56 240.07 706.18 231.73 712.49 223.4 C718.8 215.07 718.8 206.73 718.8 202.57 L718.8 200.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M648.26 248.4 L646.26 244.23 C644.27 240.07 640.29 231.73 638.29 220.67 C636.3 209.6 636.3 195.8 636.3 182 C636.3 168.2 636.3 154.4 649.84 142.78 C663.38 131.16 690.47 121.72 704.01 116.99 L715.28 113.06" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M640.33 248.4 L636.33 244.23 C632.32 240.07 624.31 231.73 620.31 220.67 C616.3 209.6 616.3 195.8 616.3 182 C616.3 168.2 616.3 154.4 616.3 140.6 C616.3 126.8 616.3 113 616.3 99.2 C616.3 85.4 616.3 71.6 590.94 59.04 C565.58 46.47 514.87 35.14 489.51 29.48 L466.49 24.34" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M551.65 82.8 L551.65 78.63 C551.65 74.47 551.65 66.13 537.07 56.96 C522.48 47.8 493.32 37.79 478.73 32.79 L466.42 28.57" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M430.95 82.8 L430.95 78.63 C430.95 74.47 430.95 66.13 430.95 57.8 C430.95 49.47 430.95 41.13 430.95 36.97 L430.95 35.2" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M238.65 82.8 L238.65 78.63 C238.65 74.47 238.65 66.13 265.17 56.26 C291.68 46.38 344.72 34.97 371.23 29.26 L395.4 24.05" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M305.01 165.6 L309.39 161.43 C313.76 157.27 322.5 148.93 326.88 137.87 C331.25 126.8 331.25 113 331.25 99.2 C331.25 85.4 331.25 71.6 342.33 60.1 C353.42 48.6 375.58 39.39 386.67 34.79 L395.53 31.11" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M268.33 165.6 L263.38 161.43 C258.44 157.27 248.54 148.93 243.6 140.6 C238.65 132.27 238.65 123.93 238.65 119.77 L238.65 118" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M122.66 165.6 L127.76 161.43 C132.86 157.27 143.05 148.93 148.15 137.87 C153.25 126.8 153.25 113 153.25 99.2 C153.25 85.4 153.25 71.6 194 58.62 C234.75 45.65 316.25 33.5 357 27.42 L395.38 21.7" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M86.54 165.6 L82.46 161.43 C78.37 157.27 70.21 148.93 87.16 139.84 C104.12 130.74 146.18 120.88 167.22 115.95 L185.91 111.56" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M482.1 335.49 L511.1 330.61 C540.1 325.73 598.1 315.96 627.1 306.92 C656.1 297.87 656.1 289.53 656.1 285.37 L656.1 283.6" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M466.23 331.2 L480.47 327.03 C494.71 322.87 523.18 314.53 537.41 303.47 C551.65 292.4 551.65 278.6 551.65 264.8 C551.65 251 551.65 237.2 551.65 223.4 C551.65 209.6 551.65 195.8 551.65 182 C551.65 168.2 551.65 154.4 551.65 143.33 C551.65 132.27 551.65 123.93 551.65 119.77 L551.65 118" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M418.42 331.2 L420.51 327.03 C422.6 322.87 426.77 314.53 428.86 303.47 C430.95 292.4 430.95 278.6 430.95 264.8 C430.95 251 430.95 237.2 430.95 223.4 C430.95 209.6 430.95 195.8 430.95 182 C430.95 168.2 430.95 154.4 430.95 143.33 C430.95 132.27 430.95 123.93 430.95 119.77 L430.95 118" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M410.5 331.2 L410.57 327.03 C410.65 322.87 410.8 314.53 410.87 303.47 C410.95 292.4 410.95 278.6 410.95 264.8 C410.95 251 410.95 237.2 410.95 223.4 C410.95 209.6 410.95 195.8 410.95 182 C410.95 168.2 410.95 154.4 390.63 142.62 C370.32 130.84 329.68 121.07 309.37 116.19 L291.38 111.87" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M361.71 331.2 L349.39 327.03 C337.08 322.87 312.44 314.53 300.12 303.47 C287.8 292.4 287.8 278.6 287.8 264.8 C287.8 251 287.8 237.2 287.8 226.13 C287.8 215.07 287.8 206.73 287.8 202.57 L287.8 200.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M338.3 337.92 L299.02 332.64 C259.73 327.35 181.17 316.77 141.88 304.59 C102.6 292.4 102.6 278.6 102.6 264.8 C102.6 251 102.6 237.2 102.6 226.13 C102.6 215.07 102.6 206.73 102.6 202.57 L102.6 200.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M338.3 340.34 L281.92 334.65 C225.53 328.96 112.77 317.58 56.38 304.99 C0 292.4 0 278.6 0 264.8 C0 251 0 237.2 0 223.4 C0 209.6 0 195.8 0 182 C0 168.2 0 154.4 0 140.6 C0 126.8 0 113 0 99.2 C0 85.4 0 71.6 66.29 58.33 C132.58 45.06 265.17 32.33 331.46 25.96 L395.36 19.82" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="397.75" y="-0" width="66.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="430.95" y="16.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">core</text>
+    <rect x="717.55" y="82.8" width="75" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="755.05" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">graph</text>
+    <rect x="681.3" y="165.6" width="75" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="718.8" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">dagre</text>
+    <rect x="605.7" y="248.4" width="100.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="656.1" y="264.8" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">diagrams</text>
+    <rect x="522.75" y="82.8" width="57.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="551.65" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">svg</text>
+    <rect x="389.15" y="82.8" width="83.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="430.95" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">raster</text>
+    <rect x="188.25" y="82.8" width="100.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="238.65" y="99.2" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">viewport</text>
+    <rect x="220.2" y="165.6" width="135.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="287.8" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">wgpu-backend</text>
+    <rect x="35" y="165.6" width="135.2" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="102.6" y="182" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">gpui-backend</text>
+    <rect x="338.3" y="331.2" width="143.8" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="410.2" y="347.6" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">rusty-mermaid</text>
   </g>
 </svg>

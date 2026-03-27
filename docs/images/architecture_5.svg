@@ -1,22 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 565.2 159.6" width="565.2" height="159.6">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 333 142.8" width="333" height="142.8">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="-0" y="0" width="525.2" height="119.6" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <rect x="0" y="0" width="293" height="102.8" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
     <text x="8" y="12" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Direct Pattern</text>
-    <path d="M134.4 59.8 L138.57 59.8 C142.73 59.8 151.07 59.8 159.4 59.8 C167.73 59.8 176.07 59.8 180.23 59.8 L182 59.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="25" y="35" width="109.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="79.7" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="79.7" dy="0">parser.rs</tspan>
-      <tspan x="79.7" dy="16.8">text → IR</tspan>
-    </text>
-    <rect x="184.4" y="35" width="315.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="342.3" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="342.3" dy="0">mod.rs / to_scene_themed()</tspan>
-      <tspan x="342.3" dy="16.8">IR → Scene (custom layout + emit)</tspan>
-    </text>
+    <path d="M134.4 51.4 L138.57 51.4 C142.73 51.4 151.07 51.4 159.4 51.4 C167.73 51.4 176.07 51.4 180.23 51.4 L182 51.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="25" y="35" width="109.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="79.7" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">parser.rs</text>
+    <rect x="184.4" y="35" width="83.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="226.2" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">mod.rs</text>
   </g>
 </svg>

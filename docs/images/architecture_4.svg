@@ -1,28 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870.8 159.6" width="870.8" height="159.6">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492.4 142.8" width="492.4" height="142.8">
   <defs>
     <marker id="arrow-point-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M10 5 L0 10 L4 5 L0 0 Z" fill="#333333" />
     </marker>
   </defs>
   <g transform="translate(20, 20)">
-    <rect x="-0" y="0" width="830.8" height="119.6" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
+    <rect x="0" y="0" width="452.4" height="102.8" rx="5" ry="5" fill="#ecf2dc99" stroke="#a8ae8e" stroke-width="1" />
     <text x="8" y="12" text-anchor="start" dominant-baseline="central" font-size="13px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333" font-weight="bold">Bridge Pattern</text>
-    <path d="M134.4 59.8 L138.57 59.8 C142.73 59.8 151.07 59.8 159.4 59.8 C167.73 59.8 176.07 59.8 180.23 59.8 L182 59.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <path d="M500.2 59.8 L504.37 59.8 C508.53 59.8 516.87 59.8 525.2 59.8 C533.53 59.8 541.87 59.8 546.03 59.8 L547.8 59.8" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
-    <rect x="25" y="35" width="109.4" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="79.7" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="79.7" dy="0">parser.rs</tspan>
-      <tspan x="79.7" dy="16.8">text → IR</tspan>
-    </text>
-    <rect x="184.4" y="35" width="315.8" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="342.3" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="342.3" dy="0">bridge.rs</tspan>
-      <tspan x="342.3" dy="16.8">IR → Graph → dagre → LayoutResult</tspan>
-    </text>
-    <rect x="550.2" y="35" width="255.6" height="49.6" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
-    <text x="678" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">
-      <tspan x="678" dy="0">mod.rs / to_scene_themed()</tspan>
-      <tspan x="678" dy="16.8">LayoutResult → Scene</tspan>
-    </text>
+    <path d="M134.4 51.4 L138.57 51.4 C142.73 51.4 151.07 51.4 159.4 51.4 C167.73 51.4 176.07 51.4 180.23 51.4 L182 51.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <path d="M293.8 51.4 L297.97 51.4 C302.13 51.4 310.47 51.4 318.8 51.4 C327.13 51.4 335.47 51.4 339.63 51.4 L341.4 51.4" fill="none" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-point-333333)" />
+    <rect x="25" y="35" width="109.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="79.7" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">parser.rs</text>
+    <rect x="184.4" y="35" width="109.4" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="239.1" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">bridge.rs</text>
+    <rect x="343.8" y="35" width="83.6" height="32.8" fill="#ececffb2" stroke="#9370db" stroke-width="1.5" />
+    <text x="385.6" y="51.4" text-anchor="middle" dominant-baseline="central" font-size="14px" font-family="'Intel One Mono', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Menlo', monospace" fill="#333333">mod.rs</text>
   </g>
 </svg>

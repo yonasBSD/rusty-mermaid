@@ -11,7 +11,7 @@ rusty-mermaid is a pure-Rust port of [mermaid.js](https://mermaid.js.org/) and i
 <details>
 <summary>Mermaid source</summary>
 
-```
+```mermaid
 flowchart LR
     A[mermaid text] --> B[parse] --> C[IR] --> D[layout] --> E[Scene] --> F[backend] --> G[output]
 ```
@@ -25,18 +25,18 @@ flowchart LR
 <details>
 <summary>Mermaid source</summary>
 
-```
+```mermaid
 graph BT
-    core["core<br/><i>primitives, Scene, Theme</i>"]
-    graph["graph<br/><i>Graph&lt;N,E&gt;</i>"]
-    dagre["dagre<br/><i>Sugiyama layout</i>"]
-    diagrams["diagrams<br/><i>24 diagram types</i>"]
-    svg["svg<br/><i>Scene → SVG string</i>"]
-    raster["raster<br/><i>Scene → PNG bytes</i>"]
-    viewport["viewport<br/><i>pan/zoom state</i>"]
-    wgpu["wgpu-backend<br/><i>Scene → vello</i>"]
-    gpui["gpui-backend<br/><i>Scene → gpui canvas</i>"]
-    facade["rusty-mermaid<br/><i>public API facade</i>"]
+    core["core"]
+    graph["graph"]
+    dagre["dagre"]
+    diagrams["diagrams"]
+    svg["svg"]
+    raster["raster"]
+    viewport["viewport"]
+    wgpu["wgpu-backend"]
+    gpui["gpui-backend"]
+    facade["rusty-mermaid"]
 
     dagre --> graph
     dagre --> core
@@ -71,16 +71,13 @@ What happens when a user calls `rusty_mermaid::to_svg(input)`:
 <details>
 <summary>Mermaid source</summary>
 
-```
+```mermaid
 flowchart LR
-    Input["mermaid text"] --> Detect["detect(input)<br/>→ DiagramKind"]
-    Detect --> Parse["parser::parse(input)<br/>→ IR struct"]
-    Parse --> Layout["bridge::layout(&ir)<br/>→ LayoutResult"]
-    Layout --> Build["to_scene_themed(&layout, &theme)<br/>→ Scene"]
-    Build --> Backend["SvgRenderer::render(&scene)<br/>→ String"]
-
-    style Input fill:#f5f5ff,stroke:#9370db
-    style Backend fill:#f5f5ff,stroke:#9370db
+    Input["mermaid text"] --> Detect["detect()"]
+    Detect --> Parse["parse()"]
+    Parse --> Layout["layout()"]
+    Layout --> Build["to_scene_themed()"]
+    Build --> Backend["render()"]
 ```
 
 </details>
@@ -190,11 +187,11 @@ Used by diagrams that have nodes and edges laid out by dagre: **flowchart, state
 <details>
 <summary>Mermaid source</summary>
 
-```
+```mermaid
 flowchart LR
     subgraph "Bridge Pattern"
-        P["parser.rs<br/>text → IR"] --> B["bridge.rs<br/>IR → Graph → dagre → LayoutResult"]
-        B --> S["mod.rs / to_scene_themed()<br/>LayoutResult → Scene"]
+        P["parser.rs"] --> B["bridge.rs"]
+        B --> S["mod.rs"]
     end
 ```
 
@@ -220,10 +217,10 @@ Used by diagrams with custom layout logic: **pie, sequence, timeline, kanban, ga
 <details>
 <summary>Mermaid source</summary>
 
-```
+```mermaid
 flowchart LR
     subgraph "Direct Pattern"
-        P["parser.rs<br/>text → IR"] --> S["mod.rs / to_scene_themed()<br/>IR → Scene (custom layout + emit)"]
+        P["parser.rs"] --> S["mod.rs"]
     end
 ```
 
@@ -279,7 +276,7 @@ Every backend iterates `scene.elements()` and pattern-matches on `Primitive`:
 <details>
 <summary>Mermaid source</summary>
 
-```
+```mermaid
 sequenceDiagram
     participant User
     participant Facade

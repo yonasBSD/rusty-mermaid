@@ -166,7 +166,10 @@ pub fn strip_html_tags(s: &str) -> String {
     let mut result = String::with_capacity(s.len());
     let mut rest = s;
     while let Some(start) = rest.find('<') {
-        result.push_str(&rest[..start]);
+        // Check for HTML entity at this position (before checking for tag)
+        let before_tag = &rest[..start];
+        // Decode entities in the text before the <
+        result.push_str(&decode_html_entities(before_tag));
         if let Some(end) = rest[start..].find('>') {
             let tag = &rest[start..start + end + 1];
             // Convert line-break tags to newlines for multi-line rendering
@@ -179,12 +182,20 @@ pub fn strip_html_tags(s: &str) -> String {
             rest = &rest[start + end + 1..];
         } else {
             // No closing '>' — treat rest as plain text
-            result.push_str(&rest[start..]);
+            result.push_str(&decode_html_entities(&rest[start..]));
             rest = "";
         }
     }
-    result.push_str(rest);
+    result.push_str(&decode_html_entities(rest));
     result
+}
+
+fn decode_html_entities(s: &str) -> String {
+    s.replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&amp;", "&")
+        .replace("&quot;", "\"")
+        .replace("&#39;", "'")
 }
 
 /// Parse `:::className`, returning the class name.
