@@ -141,10 +141,8 @@ Dagre functions are ported from JS reference. Diagram renderers naturally need (
 | ~~6~~ | ~~Add parser tests for 9 under-tested types (+52 tests)~~ | **Done** |
 | ~~7~~ | ~~Replace dagre unwraps~~ | **Already clean — 0 production unwraps** |
 
-### Low priority
+| ~~8~~ | ~~Break up pie (117→14), state (123→9), gantt (113→5)~~ | **Done** |
+| ~~9~~ | ~~Reduce 6-param functions (render_face, render_section_label_left)~~ | **Done** |
+| ~~10~~ | ~~SVG marker dedup Vec::contains → HashSet~~ | **Done** |
 
-| # | Action | Impact | Effort |
-|---|--------|--------|--------|
-| 8 | Break up pie/state/gantt renderers (113-123 lines) | Readability | 1 hour |
-| 9 | Reduce 6-param rendering functions | Readability | 30 min |
-| 10 | Add SVG marker dedup HashSet optimization | Performance | 15 min |
+**All action items complete. 1,793 tests, 0 failures.**
