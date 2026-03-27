@@ -7,7 +7,7 @@ Generated: 2026-03-27 (full audit, post-fixes)
 | Metric | Value |
 |--------|-------|
 | Production .rs files | 153 |
-| Total tests | 1,743 |
+| Total tests | 1,793 |
 | SVG goldens | 297 |
 | Golden .mmd files | 300 |
 | Property tests | 25 (all diagram types) + 6 dagre + 29 curve |
@@ -129,13 +129,17 @@ Dagre functions are ported from JS reference. Diagram renderers naturally need (
 
 ## 9. Remaining Action Items
 
-### Medium priority
+### Completed
 
-| # | Action | Impact | Effort |
-|---|--------|--------|--------|
-| 5 | Break up timeline renderers (168 + 145 lines) | Readability | 1 hour |
-| 6 | Add parser unit tests for 19 under-tested diagram types | Coverage | 2 hours |
-| 7 | Replace dagre `.unwrap()` with `.expect("context")` | Debuggability | 1 hour |
+| # | Action | Status |
+|---|--------|--------|
+| ~~1~~ | ~~Replace 25 hardcoded font sizes with theme fields~~ | **Done** |
+| ~~2~~ | ~~Raster backend tests~~ | **Already had 10 tests** |
+| ~~3~~ | ~~Break up class parser (363 lines)~~ | **Audit error — was 67 lines** |
+| ~~4~~ | ~~Rename draw_* → render_* (11 functions)~~ | **Done** |
+| ~~5~~ | ~~Break up timeline renderers (168+145 → 5+5 line orchestrators)~~ | **Done** |
+| ~~6~~ | ~~Add parser tests for 9 under-tested types (+52 tests)~~ | **Done** |
+| ~~7~~ | ~~Replace dagre unwraps~~ | **Already clean — 0 production unwraps** |
 
 ### Low priority
 
