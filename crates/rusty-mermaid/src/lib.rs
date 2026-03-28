@@ -46,7 +46,10 @@ pub mod svg {
 pub fn to_png(input: &str, theme: &Theme, dpi: f64) -> Result<Vec<u8>, ParseError> {
     use rusty_mermaid_core::Renderer;
     let scene = render(input, theme)?;
-    let config = rusty_mermaid_raster::RasterConfig { scale: dpi, theme: theme.clone() };
+    let config = rusty_mermaid_raster::RasterConfig {
+        scale: dpi,
+        theme: theme.clone(),
+    };
     Ok(rusty_mermaid_raster::RasterRenderer::with_config(config).render(&scene))
 }
 
@@ -62,16 +65,5 @@ pub mod viewport {
     pub use rusty_mermaid_viewport::*;
 }
 
-// ── Feature: wgpu ──
-
-#[cfg(feature = "wgpu")]
-pub mod wgpu {
-    pub use rusty_mermaid_wgpu::*;
-}
-
-// ── Feature: gpui ──
-
-#[cfg(feature = "gpui")]
-pub mod gpui {
-    pub use rusty_mermaid_gpui::*;
-}
+// GPU backends (wgpu, gpui) are not published to crates.io.
+// Use path deps directly: rusty-mermaid-wgpu / rusty-mermaid-gpui.

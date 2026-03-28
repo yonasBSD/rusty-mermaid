@@ -12,7 +12,7 @@ use crate::common::layout::{ArrowEnd, EdgeLayout, NodeLayout, StrokeType};
 use super::center::{
     center_bullseyes, center_content, center_external_connections, fix_region_order,
 };
-use super::ir::{NotePosition, StateDiagram, StateKind, StateNode, StateNote, StateTransition};
+use super::ir::{NotePosition, StateDiagram, StateKind, StateTransition};
 use super::scope::{ScopeCtx, add_scope, collect_all_notes, region_count, resolve_state_styles};
 
 pub(super) const PADDING_X: f64 = 16.0;
@@ -310,6 +310,7 @@ fn extract_edges(
 }
 
 /// Re-clip edge endpoints for non-rect shapes and restore bullseye alignment.
+#[allow(clippy::too_many_arguments)]
 fn clip_edge_endpoints(
     graph: &Graph<NodeLabel, EdgeLabel>,
     points: &mut [Point],

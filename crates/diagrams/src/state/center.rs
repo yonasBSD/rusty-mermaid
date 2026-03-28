@@ -1,6 +1,5 @@
 use std::collections::{BTreeMap, HashSet};
 
-use rusty_mermaid_core::Point;
 use rusty_mermaid_dagre::{EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 

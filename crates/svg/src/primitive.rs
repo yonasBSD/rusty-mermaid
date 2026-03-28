@@ -344,6 +344,7 @@ fn transform_to_attr(t: &Transform) -> String {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_arc(
     doc: &mut SvgDocument,
     center: &rusty_mermaid_core::Point,

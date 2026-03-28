@@ -262,20 +262,12 @@ impl ForceConfig {
 }
 
 /// The force-directed graph: nodes + edges.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ForceGraph {
     pub nodes: Vec<ForceNode>,
     pub edges: Vec<ForceEdge>,
 }
 
-impl Default for ForceGraph {
-    fn default() -> Self {
-        Self {
-            nodes: Vec::new(),
-            edges: Vec::new(),
-        }
-    }
-}
 
 impl ForceGraph {
     pub fn new() -> Self {

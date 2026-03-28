@@ -1,6 +1,6 @@
 /// Venn diagram: overlapping circles representing set relationships.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct VennDiagram {
     pub title: Option<String>,
     pub sets: Vec<VennSet>,
@@ -19,16 +19,6 @@ pub struct VennUnion {
     pub set_ids: Vec<String>,
     pub label: Option<String>,
     pub size: f64,
-}
-
-impl Default for VennDiagram {
-    fn default() -> Self {
-        Self {
-            title: None,
-            sets: Vec::new(),
-            unions: Vec::new(),
-        }
-    }
 }
 
 #[cfg(test)]

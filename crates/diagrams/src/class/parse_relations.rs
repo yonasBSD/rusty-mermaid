@@ -75,10 +75,7 @@ fn parse_rel_operator(
 }
 
 fn parse_rel_marker(input: &mut &str) -> Option<RelationType> {
-    if input.starts_with("<|") {
-        *input = &input[2..];
-        Some(RelationType::Extension)
-    } else if input.starts_with("|>") {
+    if input.starts_with("<|") || input.starts_with("|>") {
         *input = &input[2..];
         Some(RelationType::Extension)
     } else if input.starts_with("()") {
@@ -90,10 +87,7 @@ fn parse_rel_marker(input: &mut &str) -> Option<RelationType> {
     } else if input.starts_with('o') && !input[1..].starts_with(|c: char| c.is_alphanumeric()) {
         *input = &input[1..];
         Some(RelationType::Aggregation)
-    } else if input.starts_with('>') {
-        *input = &input[1..];
-        Some(RelationType::Dependency)
-    } else if input.starts_with('<') {
+    } else if input.starts_with('>') || input.starts_with('<') {
         *input = &input[1..];
         Some(RelationType::Dependency)
     } else {

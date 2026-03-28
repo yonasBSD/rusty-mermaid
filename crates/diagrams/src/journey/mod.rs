@@ -177,6 +177,7 @@ fn render_sections(
     x
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_task(
     scene: &mut Scene,
     task: &ir::JourneyTask,
@@ -234,7 +235,13 @@ fn render_task(
         marker_end: None,
     });
 
-    render_face(scene, Point::new(task_cx, score_y), task.score, color, theme);
+    render_face(
+        scene,
+        Point::new(task_cx, score_y),
+        task.score,
+        color,
+        theme,
+    );
 
     for (ai, actor) in task.actors.iter().enumerate() {
         if let Some(idx) = actors.iter().position(|a| a == actor) {

@@ -7,9 +7,10 @@ use crate::sequence::ir::*;
 use super::layout::{
     ACTIVATION_WIDTH, ActivationLayout, ActorLayout, DIAGRAM_MARGIN, FRAGMENT_LABEL_HEIGHT,
     FRAGMENT_PADDING, FragmentLayout, FragmentSectionLayout, MESSAGE_MARGIN, MessageLayout,
-    NOTE_MARGIN, NOTE_MAX_WIDTH, NOTE_PADDING, NoteLayout, SELF_MSG_HEIGHT, SELF_MSG_WIDTH,
-    actor_center_x,
+    NOTE_MARGIN, NOTE_PADDING, NoteLayout, SELF_MSG_HEIGHT, SELF_MSG_WIDTH, actor_center_x,
 };
+
+const NOTE_MAX_WIDTH: f64 = 200.0;
 
 /// Mutable state accumulated during the top-down layout pass.
 pub(super) struct LayoutPass<'a, T: TextMeasure> {

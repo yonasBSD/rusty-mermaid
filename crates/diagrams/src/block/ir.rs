@@ -1,6 +1,6 @@
 /// Block diagram: grid-based layout with shapes and edges.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct BlockDiagram {
     pub columns: usize,
     pub blocks: Vec<Block>,
@@ -43,15 +43,6 @@ pub enum EdgeStyle {
     Thick,
 }
 
-impl Default for BlockDiagram {
-    fn default() -> Self {
-        Self {
-            columns: 0,
-            blocks: Vec::new(),
-            edges: Vec::new(),
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {

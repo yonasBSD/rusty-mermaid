@@ -162,10 +162,8 @@ mod tests {
 
     #[test]
     fn siblings_at_same_depth() {
-        let t = parse(
-            "treeView-beta\n    root\n        child1\n        child2\n        child3",
-        )
-        .unwrap();
+        let t = parse("treeView-beta\n    root\n        child1\n        child2\n        child3")
+            .unwrap();
         assert_eq!(t.roots[0].children.len(), 3);
         assert_eq!(t.roots[0].children[2].name, "child3");
     }
@@ -183,10 +181,7 @@ mod tests {
 
     #[test]
     fn node_count_complex_tree() {
-        let t = parse(
-            "treeView-beta\n    r\n        a\n            a1\n        b",
-        )
-        .unwrap();
+        let t = parse("treeView-beta\n    r\n        a\n            a1\n        b").unwrap();
         assert_eq!(t.node_count(), 4);
     }
 }

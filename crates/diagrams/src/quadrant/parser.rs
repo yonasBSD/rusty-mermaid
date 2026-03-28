@@ -56,13 +56,12 @@ pub fn parse(input: &str) -> Result<QuadrantChart, ParseError> {
 
         // Quadrant labels: "quadrant-1 Label"
         if let Some(rest) = line.strip_prefix("quadrant-") {
-            if let Some((num_str, label)) = rest.split_once(' ') {
-                if let Ok(num) = num_str.trim().parse::<usize>() {
-                    if (1..=4).contains(&num) {
-                        chart.quadrants[num - 1] = Some(label.trim().trim_matches('"').to_string());
-                        continue;
-                    }
-                }
+            if let Some((num_str, label)) = rest.split_once(' ')
+                && let Ok(num) = num_str.trim().parse::<usize>()
+                && (1..=4).contains(&num)
+            {
+                chart.quadrants[num - 1] = Some(label.trim().trim_matches('"').to_string());
+                continue;
             }
             return Err(make_err(input, line_no));
         }

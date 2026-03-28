@@ -5,7 +5,7 @@ pub fn parse(input: &str) -> Result<TreemapDiagram, ParseError> {
     let mut header_found = false;
     let mut entries: Vec<(usize, String, Option<f64>)> = Vec::new();
 
-    for (_line_no, raw_line) in input.lines().enumerate() {
+    for raw_line in input.lines() {
         let trimmed = raw_line.trim();
         if trimmed.is_empty() || trimmed.starts_with("%%") || trimmed.starts_with("classDef") {
             continue;

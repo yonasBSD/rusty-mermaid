@@ -156,6 +156,7 @@ fn render_legend(scene: &mut Scene, chart: &PieChart, theme: &Theme) {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_arc_slice(
     scene: &mut Scene,
     cx: f64,

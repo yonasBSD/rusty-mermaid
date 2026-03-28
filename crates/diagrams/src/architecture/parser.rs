@@ -5,7 +5,7 @@ pub fn parse(input: &str) -> Result<ArchDiagram, ParseError> {
     let mut diagram = ArchDiagram::default();
     let mut header_found = false;
 
-    for (_line_no, raw_line) in input.lines().enumerate() {
+    for raw_line in input.lines() {
         let line = raw_line.trim();
         if line.is_empty() || line.starts_with("%%") {
             continue;
@@ -45,10 +45,10 @@ pub fn parse(input: &str) -> Result<ArchDiagram, ParseError> {
         }
 
         // Edge: id:DIR <--/--> DIR:id
-        if line.contains("--") {
-            if let Some(e) = parse_edge(line) {
-                diagram.edges.push(e);
-            }
+        if line.contains("--")
+            && let Some(e) = parse_edge(line)
+        {
+            diagram.edges.push(e);
         }
     }
 
@@ -297,8 +297,7 @@ mod tests {
 
     #[test]
     fn comments_ignored() {
-        let d = parse("architecture-beta\n  %% this is a comment\n  service s(server)[S]")
-            .unwrap();
+        let d = parse("architecture-beta\n  %% this is a comment\n  service s(server)[S]").unwrap();
         assert_eq!(d.services.len(), 1);
     }
 

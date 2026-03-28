@@ -212,10 +212,11 @@ fn render_merge_lines(
     ctx: &GitLayoutCtx,
 ) {
     for (i, commit) in commits.iter().enumerate() {
-        if let Some(parent_idx) = commit.parent_idx {
-            if commits[parent_idx].branch != commit.branch {
-                let parent_lane = branch_lanes[&commits[parent_idx].branch];
-                let commit_lane = branch_lanes[&commit.branch];
+        if let Some(parent_idx) = commit.parent_idx
+            && commits[parent_idx].branch != commit.branch
+        {
+            let parent_lane = branch_lanes[&commits[parent_idx].branch];
+            let commit_lane = branch_lanes[&commit.branch];
                 let (x1, y1) = ctx.pos(parent_idx, parent_lane);
                 let (x2, y2) = ctx.pos(i, commit_lane);
                 let color = LANE_COLORS[commit_lane % LANE_COLORS.len()];
@@ -250,7 +251,6 @@ fn render_merge_lines(
                     marker_start: None,
                     marker_end: None,
                 });
-            }
         }
     }
 }

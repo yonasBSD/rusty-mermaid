@@ -113,11 +113,7 @@ impl SvgRenderer {
             );
             doc.open_tag(
                 "rect",
-                &[
-                    ("width", "100%"),
-                    ("height", "100%"),
-                    ("fill", &bg_hex),
-                ],
+                &[("width", "100%"), ("height", "100%"), ("fill", &bg_hex)],
             );
             doc.close_tag("rect");
         }

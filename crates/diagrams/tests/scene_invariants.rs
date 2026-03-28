@@ -10,8 +10,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use rusty_mermaid_core::{Primitive, Scene};
 use rusty_mermaid_core::Theme;
+use rusty_mermaid_core::{Primitive, Scene};
 use rusty_mermaid_diagrams::render_to_scene;
 
 fn golden_mmd_dir() -> PathBuf {

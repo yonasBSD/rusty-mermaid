@@ -220,6 +220,7 @@ fn render_category_bones(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_cause_bones(
     scene: &mut Scene,
     cat: &ir::Category,

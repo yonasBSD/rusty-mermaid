@@ -217,8 +217,7 @@ fn worst_aspect(
             let row_area = row_value * area_scale;
             let row_len = row_area / shorter;
             let item_len = item_area / row_len.max(0.001);
-            let ratio = (item_len / row_len.max(0.001)).max(row_len / item_len.max(0.001));
-            ratio
+            (item_len / row_len.max(0.001)).max(row_len / item_len.max(0.001))
         })
         .fold(0.0f64, f64::max)
 }

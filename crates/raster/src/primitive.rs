@@ -239,7 +239,7 @@ fn to_skia_color(c: Color) -> tiny_skia::Color {
 }
 
 fn resolve_fill(style: &Style) -> Option<tiny_skia::Color> {
-    style.fill.map(|c| to_skia_color(c))
+    style.fill.map(to_skia_color)
 }
 
 fn resolve_stroke(style: &Style, theme: &Theme) -> Option<(tiny_skia::Color, f32)> {
@@ -624,6 +624,7 @@ fn render_text(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn blit_glyph(
     pixmap: &mut Pixmap,
     bitmap: &[u8],
@@ -677,6 +678,7 @@ fn blit_glyph(
 
 // ── SVG Arc to Cubic Bezier conversion ──
 
+#[allow(clippy::too_many_arguments)]
 fn arc_to_cubics(
     pb: &mut PathBuilder,
     from: Point,
@@ -754,6 +756,7 @@ fn arc_to_cubics(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn arc_segment_to_cubic(
     pb: &mut PathBuilder,
     cx: f64,

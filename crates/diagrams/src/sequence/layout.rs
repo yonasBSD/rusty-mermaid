@@ -18,7 +18,6 @@ pub(super) const SELF_MSG_HEIGHT: f64 = 30.0;
 pub(super) const DIAGRAM_MARGIN: f64 = 20.0;
 const ACTOR_BOTTOM_MARGIN: f64 = 20.0;
 const MIN_ACTOR_WIDTH: f64 = 50.0;
-pub(super) const NOTE_MAX_WIDTH: f64 = 200.0;
 pub(super) const FRAGMENT_LABEL_HEIGHT: f64 = 24.0;
 
 // Stick figure dimensions for ParticipantKind::Actor.

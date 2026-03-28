@@ -5,7 +5,7 @@ pub fn parse(input: &str) -> Result<BlockDiagram, ParseError> {
     let mut diagram = BlockDiagram::default();
     let mut header_found = false;
 
-    for (_line_no, raw_line) in input.lines().enumerate() {
+    for raw_line in input.lines() {
         let line = raw_line.trim();
         if line.is_empty() || line.starts_with("%%") {
             continue;
@@ -83,7 +83,7 @@ pub fn parse(input: &str) -> Result<BlockDiagram, ParseError> {
 
     // Default columns if not specified
     if diagram.columns == 0 {
-        diagram.columns = diagram.blocks.len().min(4).max(1);
+        diagram.columns = diagram.blocks.len().clamp(1, 4);
     }
 
     Ok(diagram)

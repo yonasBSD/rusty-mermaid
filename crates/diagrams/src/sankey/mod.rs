@@ -101,8 +101,8 @@ fn assign_columns(n: usize, adj: &Adjacency) -> (Vec<usize>, Vec<Vec<usize>>) {
         }
     }
     for _pass in 0..6 {
-        for d in 0..=max_depth {
-            for &node_idx in &columns[d] {
+        for col in &mut columns[..=max_depth] {
+            for &node_idx in col.iter() {
                 let neighbors: Vec<f64> = adj.incoming[node_idx]
                     .iter()
                     .map(|&(src, _)| node_y_center[src])
@@ -117,12 +117,12 @@ fn assign_columns(n: usize, adj: &Adjacency) -> (Vec<usize>, Vec<Vec<usize>>) {
                         neighbors.iter().sum::<f64>() / neighbors.len() as f64;
                 }
             }
-            columns[d].sort_by(|&a, &b| {
+            col.sort_by(|&a, &b| {
                 node_y_center[a]
                     .partial_cmp(&node_y_center[b])
                     .unwrap_or(std::cmp::Ordering::Equal)
             });
-            for (rank, &node_idx) in columns[d].iter().enumerate() {
+            for (rank, &node_idx) in col.iter().enumerate() {
                 node_y_center[node_idx] = rank as f64;
             }
         }
@@ -300,6 +300,7 @@ fn render_links(scene: &mut Scene, link_layouts: &[LinkLayout], node_x0: &[f64])
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_nodes(
     scene: &mut Scene,
     names: &[String],

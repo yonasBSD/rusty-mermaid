@@ -35,10 +35,8 @@ fn parse_statements(input: &mut &str, diagram: &mut RequirementDiagram) -> Modal
         if input.is_empty() {
             break;
         }
-        if !try_parse_statement(input, diagram)? {
-            if !input.is_empty() {
-                *input = &input[1..];
-            }
+        if !try_parse_statement(input, diagram)? && !input.is_empty() {
+            *input = &input[1..];
         }
     }
     Ok(())
@@ -71,11 +69,11 @@ fn try_parse_statement(input: &mut &str, diagram: &mut RequirementDiagram) -> Mo
     if input.starts_with("direction") {
         let cp = *input;
         *input = &input[9..];
-        if let Ok(_) = ws.parse_next(input) {
-            if let Ok(dir) = parse_direction(input) {
-                diagram.direction = dir;
-                return Ok(true);
-            }
+        if ws.parse_next(input).is_ok()
+            && let Ok(dir) = parse_direction(input)
+        {
+            diagram.direction = dir;
+            return Ok(true);
         }
         *input = cp;
     }
@@ -133,7 +131,7 @@ fn try_parse_req_type(input: &mut &str) -> Option<RequirementType> {
     ] {
         if input.starts_with(prefix) {
             let after = &input[prefix.len()..];
-            if after.starts_with(|c: char| c == ' ' || c == '\t' || c == ':') {
+            if after.starts_with([' ', '\t', ':']) {
                 *input = &input[prefix.len()..];
                 return Some(rt);
             }
@@ -271,7 +269,7 @@ fn parse_rel_type(input: &mut &str) -> ModalResult<RelationshipType> {
     ] {
         if input.starts_with(keyword) {
             let after = &input[keyword.len()..];
-            if after.is_empty() || after.starts_with(|c: char| c == ' ' || c == '\t' || c == '-') {
+            if after.is_empty() || after.starts_with([' ', '\t', '-']) {
                 *input = &input[keyword.len()..];
                 return Ok(rt);
             }
@@ -328,7 +326,7 @@ fn req_identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 fn take_line<'i>(input: &mut &'i str) -> &'i str {

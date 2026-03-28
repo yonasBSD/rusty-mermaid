@@ -48,11 +48,11 @@ fn render_connectors(scene: &mut Scene, rows: &[FlatRow], line_style: &Style) {
         let first_child = i + 1;
         if first_child < rows.len() && rows[first_child].depth > depth {
             let mut last_child = first_child;
-            for j in (first_child + 1)..rows.len() {
-                if rows[j].depth <= depth {
+            for (j, row) in rows.iter().enumerate().skip(first_child + 1) {
+                if row.depth <= depth {
                     break;
                 }
-                if rows[j].depth == depth + 1 {
+                if row.depth == depth + 1 {
                     last_child = j;
                 }
             }

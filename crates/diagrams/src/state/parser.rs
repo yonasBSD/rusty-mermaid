@@ -65,10 +65,8 @@ fn parse_body(input: &mut &str, ctx: &mut ParseCtx, is_top_level: bool) -> Modal
         if input.is_empty() || input.starts_with('}') {
             break;
         }
-        if !try_parse_statement(input, ctx, is_top_level)? {
-            if !input.is_empty() {
-                *input = &input[1..];
-            }
+        if !try_parse_statement(input, ctx, is_top_level)? && !input.is_empty() {
+            *input = &input[1..];
         }
     }
     Ok(())

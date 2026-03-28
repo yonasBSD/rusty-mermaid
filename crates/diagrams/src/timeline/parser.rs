@@ -94,7 +94,7 @@ fn parse_timeline(input: &mut &str) -> ModalResult<TimelineDiagram> {
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
@@ -185,8 +185,7 @@ mod tests {
 
     #[test]
     fn events_with_special_chars() {
-        let d =
-            parse("timeline\n    2024 : Event #1 (alpha) : Bug-fix & release").unwrap();
+        let d = parse("timeline\n    2024 : Event #1 (alpha) : Bug-fix & release").unwrap();
         assert_eq!(d.sections[0].tasks[0].events.len(), 2);
         assert_eq!(d.sections[0].tasks[0].events[0], "Event #1 (alpha)");
         assert_eq!(d.sections[0].tasks[0].events[1], "Bug-fix & release");

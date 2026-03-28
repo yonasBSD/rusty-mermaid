@@ -13,6 +13,8 @@ const PADDING_Y: f64 = 8.0;
 const LINE_GAP: f64 = 4.0;
 const MIN_NODE_WIDTH: f64 = 120.0;
 
+type NodeInfoMap = BTreeMap<String, (String, Vec<String>)>;
+
 /// Layout result for requirement diagrams.
 #[derive(Debug)]
 pub struct LayoutResult {
@@ -93,14 +95,10 @@ fn build_req_graph(
     measurer: &impl TextMeasure,
     style: &TextStyle,
     line_height: f64,
-) -> (
-    Graph<NodeLabel, EdgeLabel>,
-    BTreeMap<String, NodeId>,
-    BTreeMap<String, (String, Vec<String>)>,
-) {
+) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, NodeInfoMap) {
     let mut graph: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
-    let mut node_infos: BTreeMap<String, (String, Vec<String>)> = BTreeMap::new();
+    let mut node_infos: NodeInfoMap = BTreeMap::new();
 
     for req in &diagram.requirements {
         let mut lines = Vec::new();

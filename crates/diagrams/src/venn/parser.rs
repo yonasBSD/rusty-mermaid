@@ -100,11 +100,11 @@ fn parse_label_size(s: &str) -> (Option<String>, Option<f64>) {
     let mut label = None;
     let mut rest = s;
 
-    if rest.starts_with('[') {
-        if let Some(end) = rest.find(']') {
-            label = Some(rest[1..end].trim().trim_matches('"').to_string());
-            rest = &rest[end + 1..];
-        }
+    if rest.starts_with('[')
+        && let Some(end) = rest.find(']')
+    {
+        label = Some(rest[1..end].trim().trim_matches('"').to_string());
+        rest = &rest[end + 1..];
     }
 
     let size = if let Some(size_str) = rest.strip_prefix(':') {

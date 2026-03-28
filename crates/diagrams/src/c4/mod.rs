@@ -8,6 +8,9 @@ use rusty_mermaid_core::{
     TextStyle, Theme, intersect_rect,
 };
 
+/// Element position: (x, y, width, height).
+type PositionMap = HashMap<String, (f64, f64, f64, f64)>;
+
 use crate::common::palette::{
     BORDER_RADIUS, DASH_PATTERN, DATABASE_WIDTH_RATIO, STROKE_WIDTH, tint_color,
 };
@@ -49,7 +52,7 @@ pub fn to_scene(diagram: &C4Diagram, theme: &Theme) -> Scene {
 fn compute_positions(
     diagram: &C4Diagram,
     theme: &Theme,
-) -> (HashMap<String, (f64, f64, f64, f64)>, f64, f64) {
+) -> (PositionMap, f64, f64) {
     let title_h = if diagram.title.is_some() { 36.0 } else { 0.0 };
 
     let mut free_elements: Vec<usize> = Vec::new();
@@ -63,7 +66,7 @@ fn compute_positions(
         }
     }
 
-    let mut positions: HashMap<String, (f64, f64, f64, f64)> = HashMap::new();
+    let mut positions: PositionMap = HashMap::new();
     let mut cursor_y = SCENE_PAD + title_h;
     let mut max_right = 0.0f64;
 
@@ -135,7 +138,7 @@ fn render_c4_title(scene: &mut Scene, diagram: &C4Diagram, scene_w: f64, theme: 
 fn render_boundaries(
     scene: &mut Scene,
     diagram: &C4Diagram,
-    positions: &HashMap<String, (f64, f64, f64, f64)>,
+    positions: &PositionMap,
     theme: &Theme,
 ) {
     for boundary in &diagram.boundaries {
@@ -172,7 +175,7 @@ fn render_boundaries(
 fn render_edges(
     scene: &mut Scene,
     diagram: &C4Diagram,
-    positions: &HashMap<String, (f64, f64, f64, f64)>,
+    positions: &PositionMap,
     theme: &Theme,
 ) -> Vec<(f64, f64, String)> {
     let visual_widths: HashMap<String, f64> = diagram
@@ -241,7 +244,7 @@ fn render_edges(
 fn render_elements(
     scene: &mut Scene,
     diagram: &C4Diagram,
-    positions: &HashMap<String, (f64, f64, f64, f64)>,
+    positions: &PositionMap,
     theme: &Theme,
 ) {
     for elem in &diagram.elements {
@@ -324,12 +327,12 @@ fn layout_row(
     indices: &[usize],
     start_x: f64,
     cursor_y: &mut f64,
-    positions: &mut HashMap<String, (f64, f64, f64, f64)>,
+    positions: &mut PositionMap,
     max_right: &mut f64,
     theme: &Theme,
 ) {
     let cols = COLS.min(indices.len()).max(1);
-    let rows = (indices.len() + cols - 1) / cols;
+    let rows = indices.len().div_ceil(cols);
 
     // Compute per-element widths, then use the max per row for uniform sizing
     let widths: Vec<f64> = indices

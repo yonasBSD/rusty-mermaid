@@ -42,14 +42,14 @@ fn parse_mindmap(input: &mut &str) -> ModalResult<MindmapDiagram> {
             if input.is_empty() {
                 break;
             }
-            let peek = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+            let peek = input.trim_start_matches([' ', '\t']);
             if peek.starts_with("::icon(") {
                 let raw = take_raw_line(input);
                 let trimmed = raw.trim();
-                if let Some(icon_content) = trimmed.strip_prefix("::icon(") {
-                    if let Some(icon) = icon_content.strip_suffix(')') {
-                        node.icon = Some(icon.to_string());
-                    }
+                if let Some(icon_content) = trimmed.strip_prefix("::icon(")
+                    && let Some(icon) = icon_content.strip_suffix(')')
+                {
+                    node.icon = Some(icon.to_string());
                 }
             } else if peek.starts_with(":::") {
                 let raw = take_raw_line(input);

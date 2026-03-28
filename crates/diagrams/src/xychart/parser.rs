@@ -45,25 +45,25 @@ fn parse_xychart(input: &mut &str) -> ModalResult<XyChart> {
             continue;
         }
 
-        if line.starts_with("x-axis") {
-            chart.x_axis = parse_axis_def(&line[6..]);
+        if let Some(rest) = line.strip_prefix("x-axis") {
+            chart.x_axis = parse_axis_def(rest);
             continue;
         }
 
-        if line.starts_with("y-axis") {
-            chart.y_axis = parse_axis_def(&line[6..]);
+        if let Some(rest) = line.strip_prefix("y-axis") {
+            chart.y_axis = parse_axis_def(rest);
             continue;
         }
 
-        if line.starts_with("line") {
-            if let Some(plot) = parse_plot_data(&line[4..], PlotType::Line) {
+        if let Some(rest) = line.strip_prefix("line") {
+            if let Some(plot) = parse_plot_data(rest, PlotType::Line) {
                 chart.plots.push(plot);
             }
             continue;
         }
 
-        if line.starts_with("bar") {
-            if let Some(plot) = parse_plot_data(&line[3..], PlotType::Bar) {
+        if let Some(rest) = line.strip_prefix("bar") {
+            if let Some(plot) = parse_plot_data(rest, PlotType::Bar) {
                 chart.plots.push(plot);
             }
             continue;
@@ -189,7 +189,7 @@ fn parse_plot_data(rest: &str, plot_type: PlotType) -> Option<PlotData> {
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 fn take_line<'i>(input: &mut &'i str) -> &'i str {
@@ -290,10 +290,9 @@ mod tests {
 
     #[test]
     fn mixed_bar_and_line() {
-        let c = parse(
-            "xychart-beta\n    x-axis [A, B, C]\n    bar [10, 20, 30]\n    line [5, 15, 25]",
-        )
-        .unwrap();
+        let c =
+            parse("xychart-beta\n    x-axis [A, B, C]\n    bar [10, 20, 30]\n    line [5, 15, 25]")
+                .unwrap();
         assert_eq!(c.plots.len(), 2);
         assert_eq!(c.plots[0].plot_type, PlotType::Bar);
         assert_eq!(c.plots[1].plot_type, PlotType::Line);

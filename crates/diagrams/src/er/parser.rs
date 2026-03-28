@@ -35,10 +35,8 @@ fn parse_statements(input: &mut &str, diagram: &mut ErDiagram) -> ModalResult<()
         if input.is_empty() {
             break;
         }
-        if !try_parse_statement(input, diagram)? {
-            if !input.is_empty() {
-                *input = &input[1..];
-            }
+        if !try_parse_statement(input, diagram)? && !input.is_empty() {
+            *input = &input[1..];
         }
     }
     Ok(())
@@ -71,11 +69,11 @@ fn try_parse_statement(input: &mut &str, diagram: &mut ErDiagram) -> ModalResult
     if input.starts_with("direction") {
         let cp = *input;
         *input = &input[9..];
-        if let Ok(_) = ws.parse_next(input) {
-            if let Ok(dir) = parse_direction(input) {
-                diagram.direction = dir;
-                return Ok(true);
-            }
+        if ws.parse_next(input).is_ok()
+            && let Ok(dir) = parse_direction(input)
+        {
+            diagram.direction = dir;
+            return Ok(true);
         }
         *input = cp;
     }
@@ -107,7 +105,7 @@ fn try_parse_statement(input: &mut &str, diagram: &mut ErDiagram) -> ModalResult
         let cp = *input;
         if let Ok(id) = entity_identifier(input) {
             // Check it's followed by newline/EOF (not a relationship)
-            let rest_trimmed = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+            let rest_trimmed = input.trim_start_matches([' ', '\t']);
             if rest_trimmed.is_empty()
                 || rest_trimmed.starts_with('\n')
                 || rest_trimmed.starts_with("%%")
@@ -172,7 +170,7 @@ fn parse_attribute(input: &mut &str) -> Option<Attribute> {
         return None;
     }
 
-    let mut parts = line.splitn(2, |c: char| c == ' ' || c == '\t');
+    let mut parts = line.splitn(2, [' ', '\t']);
     let attr_type = parts.next()?.trim().to_string();
     let rest = parts.next().unwrap_or("").trim();
 
@@ -330,15 +328,12 @@ fn try_text_cardinality(input: &mut &str) -> Option<Cardinality> {
         ("1+", Cardinality::OneOrMore),
         ("0+", Cardinality::ZeroOrMore),
     ] {
-        if trimmed.starts_with(prefix) {
-            let after = &trimmed[prefix.len()..];
-            if after.is_empty()
-                || after.starts_with(|c: char| c == ' ' || c == '\t' || c == '-' || c == '.')
-            {
-                let consumed = input.len() - trimmed.len() + prefix.len();
-                *input = &input[consumed..];
-                return Some(card);
-            }
+        if let Some(after) = trimmed.strip_prefix(prefix)
+            && (after.is_empty() || after.starts_with([' ', '\t', '-', '.']))
+        {
+            let consumed = input.len() - trimmed.len() + prefix.len();
+            *input = &input[consumed..];
+            return Some(card);
         }
     }
     None
@@ -391,7 +386,7 @@ fn entity_identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> {
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 fn take_to_eol<'i>(input: &mut &'i str) -> &'i str {

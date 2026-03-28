@@ -1,7 +1,7 @@
-/// Deterministic font selection for non-SVG backends.
-///
-/// O(1) per character. No charmap probing, no allocation.
-/// SVG delegates to the browser — this module is for raster, gpui, and vello.
+//! Deterministic font selection for non-SVG backends.
+//!
+//! O(1) per character. No charmap probing, no allocation.
+//! SVG delegates to the browser — this module is for raster, gpui, and vello.
 
 // ── Canonical font family names ──
 // All backends read from here. Single source of truth.
@@ -145,7 +145,7 @@ pub const fn font_for_char(ch: char) -> FontSlot {
         // Devanagari, Bengali, Tamil, etc.
         0x0900..=0x0DFF => FontSlot::ExtendedText,
         // Thai, Lao
-        0x0E00..=0x0E7F | 0x0E80..=0x0EFF => FontSlot::ExtendedText,
+        0x0E00..=0x0EFF => FontSlot::ExtendedText,
 
         // Everything else → ExtendedText (best effort)
         _ => FontSlot::ExtendedText,

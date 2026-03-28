@@ -7,14 +7,20 @@ pub struct GanttChart {
     pub sections: Vec<GanttSection>,
 }
 
-impl GanttChart {
-    pub fn new() -> Self {
+impl Default for GanttChart {
+    fn default() -> Self {
         Self {
             title: None,
             date_format: "YYYY-MM-DD".to_string(),
             axis_format: None,
             sections: Vec::new(),
         }
+    }
+}
+
+impl GanttChart {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

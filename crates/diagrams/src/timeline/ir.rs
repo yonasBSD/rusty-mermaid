@@ -8,13 +8,19 @@ pub struct TimelineDiagram {
     pub sections: Vec<TimelineSection>,
 }
 
-impl TimelineDiagram {
-    pub fn new() -> Self {
+impl Default for TimelineDiagram {
+    fn default() -> Self {
         Self {
             title: None,
             direction: Direction::LR,
             sections: Vec::new(),
         }
+    }
+}
+
+impl TimelineDiagram {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

@@ -45,10 +45,8 @@ fn parse_statements(
         if input.is_empty() || input.starts_with('}') {
             break;
         }
-        if !try_parse_statement(input, diagram, namespace)? {
-            if !input.is_empty() {
-                *input = &input[1..];
-            }
+        if !try_parse_statement(input, diagram, namespace)? && !input.is_empty() {
+            *input = &input[1..];
         }
     }
     Ok(())
@@ -101,11 +99,11 @@ fn try_parse_statement(
     if input.starts_with("direction") {
         let cp = *input;
         *input = &input[9..];
-        if let Ok(_) = ws.parse_next(input) {
-            if let Ok(dir) = parse_direction(input) {
-                diagram.direction = dir;
-                return Ok(true);
-            }
+        if ws.parse_next(input).is_ok()
+            && let Ok(dir) = parse_direction(input)
+        {
+            diagram.direction = dir;
+            return Ok(true);
         }
         *input = cp;
     }
@@ -113,7 +111,7 @@ fn try_parse_statement(
     // namespace
     if input.starts_with("namespace") {
         let cp = *input;
-        if let Ok(()) = parse_namespace(input, diagram) {
+        if parse_namespace(input, diagram).is_ok() {
             return Ok(true);
         }
         *input = cp;
@@ -332,35 +330,35 @@ pub fn parse_member_string(raw: &str) -> ClassMember {
     let rest = rest.trim();
 
     // Classifier suffix
-    let (rest, classifier) = if rest.ends_with('$') {
-        (&rest[..rest.len() - 1], Classifier::Static)
-    } else if rest.ends_with('*') {
-        (&rest[..rest.len() - 1], Classifier::Abstract)
+    let (rest, classifier) = if let Some(stripped) = rest.strip_suffix('$') {
+        (stripped, Classifier::Static)
+    } else if let Some(stripped) = rest.strip_suffix('*') {
+        (stripped, Classifier::Abstract)
     } else {
         (rest, Classifier::None)
     };
 
     // Method: has parentheses
-    if let Some(paren_start) = rest.find('(') {
-        if let Some(paren_end) = rest[paren_start..].find(')') {
-            let name = rest[..paren_start].trim().to_string();
-            let params = rest[paren_start + 1..paren_start + paren_end]
-                .trim()
-                .to_string();
-            let after = rest[paren_start + paren_end + 1..].trim();
-            let return_type = if after.is_empty() {
-                None
-            } else {
-                Some(after.to_string())
-            };
-            return ClassMember {
-                name,
-                visibility,
-                classifier,
-                return_type,
-                parameters: Some(params),
-            };
-        }
+    if let Some(paren_start) = rest.find('(')
+        && let Some(paren_end) = rest[paren_start..].find(')')
+    {
+        let name = rest[..paren_start].trim().to_string();
+        let params = rest[paren_start + 1..paren_start + paren_end]
+            .trim()
+            .to_string();
+        let after = rest[paren_start + paren_end + 1..].trim();
+        let return_type = if after.is_empty() {
+            None
+        } else {
+            Some(after.to_string())
+        };
+        return ClassMember {
+            name,
+            visibility,
+            classifier,
+            return_type,
+            parameters: Some(params),
+        };
     }
 
     // Attribute: may have type before or after name
@@ -483,7 +481,7 @@ pub(super) fn class_identifier<'i>(input: &mut &'i str) -> ModalResult<&'i str> 
 }
 
 pub(super) fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 pub(super) fn take_to_eol<'i>(input: &mut &'i str) -> &'i str {

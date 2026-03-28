@@ -5,7 +5,7 @@ pub fn parse(input: &str) -> Result<IshikawaDiagram, ParseError> {
     let mut header_found = false;
     let mut entries: Vec<(usize, String)> = Vec::new();
 
-    for (_line_no, raw_line) in input.lines().enumerate() {
+    for raw_line in input.lines() {
         let trimmed = raw_line.trim();
         if trimmed.is_empty() || trimmed.starts_with("%%") {
             continue;
@@ -153,8 +153,7 @@ mod tests {
 
     #[test]
     fn special_chars_in_names() {
-        let d = parse("ishikawa-beta\n    Bug #42\n    Cat & Dog\n        Cause: yes")
-            .unwrap();
+        let d = parse("ishikawa-beta\n    Bug #42\n    Cat & Dog\n        Cause: yes").unwrap();
         assert_eq!(d.effect, "Bug #42");
         assert_eq!(d.categories[0].name, "Cat & Dog");
         assert_eq!(d.categories[0].causes[0].name, "Cause: yes");

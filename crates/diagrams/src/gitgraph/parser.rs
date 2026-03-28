@@ -70,7 +70,7 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
             .strip_prefix("branch")
             .expect("guarded by starts_with")
             .trim();
-        let parts: Vec<&str> = rest.splitn(2, |c: char| c == ' ' || c == '\t').collect();
+        let parts: Vec<&str> = rest.splitn(2, [' ', '\t']).collect();
         let name = parts[0].to_string();
         let order = parts
             .get(1)
@@ -89,7 +89,7 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
             .strip_prefix("merge")
             .expect("guarded by starts_with")
             .trim();
-        let parts: Vec<&str> = rest.splitn(2, |c: char| c == ' ' || c == '\t').collect();
+        let parts: Vec<&str> = rest.splitn(2, [' ', '\t']).collect();
         let branch = parts[0].to_string();
         let opts = parts.get(1).copied().unwrap_or("");
         let id = extract_option(opts, "id:");
@@ -119,13 +119,11 @@ fn parse_statement(line: &str) -> Option<GitStatement> {
 fn extract_option(text: &str, key: &str) -> Option<String> {
     let idx = text.find(key)?;
     let rest = text[idx + key.len()..].trim();
-    if rest.starts_with('"') {
-        let end = rest[1..].find('"')?;
-        Some(rest[1..1 + end].to_string())
+    if let Some(after_quote) = rest.strip_prefix('"') {
+        let end = after_quote.find('"')?;
+        Some(after_quote[..end].to_string())
     } else {
-        let end = rest
-            .find(|c: char| c == ' ' || c == '\t')
-            .unwrap_or(rest.len());
+        let end = rest.find([' ', '\t']).unwrap_or(rest.len());
         Some(rest[..end].to_string())
     }
 }
@@ -141,7 +139,7 @@ fn extract_commit_type(text: &str) -> CommitType {
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 fn take_line<'i>(input: &mut &'i str) -> &'i str {

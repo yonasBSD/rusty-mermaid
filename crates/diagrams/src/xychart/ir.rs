@@ -8,8 +8,8 @@ pub struct XyChart {
     pub horizontal: bool,
 }
 
-impl XyChart {
-    pub fn new() -> Self {
+impl Default for XyChart {
+    fn default() -> Self {
         Self {
             title: None,
             x_axis: AxisDef::Band {
@@ -24,6 +24,12 @@ impl XyChart {
             plots: Vec::new(),
             horizontal: false,
         }
+    }
+}
+
+impl XyChart {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

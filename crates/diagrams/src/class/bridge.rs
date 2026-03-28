@@ -269,20 +269,20 @@ fn extract_namespace_layouts(
     let mut max_y: f64 = 0.0;
 
     for ns in &diagram.namespaces {
-        if let Some(&nid) = id_map.get(&ns.id) {
-            if let Some(n) = graph.node(nid) {
-                if n.width > 0.0 && n.height > 0.0 {
-                    namespaces.push(NamespaceLayout {
-                        id: ns.id.clone(),
-                        x: n.x,
-                        y: n.y,
-                        width: n.width,
-                        height: n.height,
-                    });
-                    max_x = max_x.max(n.x + n.width / 2.0);
-                    max_y = max_y.max(n.y + n.height / 2.0);
-                }
-            }
+        if let Some(&nid) = id_map.get(&ns.id)
+            && let Some(n) = graph.node(nid)
+            && n.width > 0.0
+            && n.height > 0.0
+        {
+            namespaces.push(NamespaceLayout {
+                id: ns.id.clone(),
+                x: n.x,
+                y: n.y,
+                width: n.width,
+                height: n.height,
+            });
+            max_x = max_x.max(n.x + n.width / 2.0);
+            max_y = max_y.max(n.y + n.height / 2.0);
         }
     }
 

@@ -5,12 +5,18 @@ pub struct GitGraph {
     pub statements: Vec<GitStatement>,
 }
 
-impl GitGraph {
-    pub fn new() -> Self {
+impl Default for GitGraph {
+    fn default() -> Self {
         Self {
             direction: GitDirection::LR,
             statements: Vec::new(),
         }
+    }
+}
+
+impl GitGraph {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

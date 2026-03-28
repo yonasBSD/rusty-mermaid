@@ -103,7 +103,7 @@ fn parse_slice(input: &mut &str) -> Option<PieSlice> {
 }
 
 fn skip_horizontal_ws(input: &mut &str) {
-    *input = input.trim_start_matches(|c: char| c == ' ' || c == '\t');
+    *input = input.trim_start_matches([' ', '\t']);
 }
 
 fn take_to_eol<'i>(input: &mut &'i str) -> &'i str {

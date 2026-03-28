@@ -1,5 +1,5 @@
 /// A parsed pie chart.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PieChart {
     pub title: Option<String>,
     pub show_data: bool,
@@ -8,11 +8,7 @@ pub struct PieChart {
 
 impl PieChart {
     pub fn new() -> Self {
-        Self {
-            title: None,
-            show_data: false,
-            slices: Vec::new(),
-        }
+        Self::default()
     }
 
     pub fn total(&self) -> f64 {

@@ -1,5 +1,6 @@
 pub mod ir;
 pub mod layout;
+#[allow(dead_code)]
 mod layout_pass;
 pub mod parser;
 

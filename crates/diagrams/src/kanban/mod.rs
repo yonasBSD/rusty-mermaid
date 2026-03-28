@@ -168,6 +168,7 @@ fn render_column_header(
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_cards(
     scene: &mut Scene,
     col: &ir::KanbanColumn,

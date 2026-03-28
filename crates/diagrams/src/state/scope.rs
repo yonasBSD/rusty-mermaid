@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashSet};
 
-use rusty_mermaid_core::{Shape, SimpleTextMeasure, Style, TextMeasure, TextStyle};
+use rusty_mermaid_core::{Style, TextMeasure, TextStyle};
 use rusty_mermaid_dagre::{EdgeLabel, NodeLabel};
 use rusty_mermaid_graph::{Graph, NodeId};
 
@@ -106,6 +106,7 @@ pub(super) fn add_state_nodes<'a, M: TextMeasure>(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn add_composite_state<'a, M: TextMeasure>(
     s: &'a StateNode,
     children: &'a [StateNode],
@@ -134,10 +135,10 @@ pub(super) fn add_composite_state<'a, M: TextMeasure>(
             all_transitions,
         );
         for child in children {
-            if let Some(&child_nid) = ctx.id_map.get(child.id.as_str()) {
-                if ctx.graph.parent(child_nid).is_none() {
-                    ctx.graph.set_parent(child_nid, nid);
-                }
+            if let Some(&child_nid) = ctx.id_map.get(child.id.as_str())
+                && ctx.graph.parent(child_nid).is_none()
+            {
+                ctx.graph.set_parent(child_nid, nid);
             }
         }
     } else {
@@ -161,14 +162,15 @@ pub(super) fn add_composite_state<'a, M: TextMeasure>(
         ctx.graph.set_parent(end_nid, nid);
         ctx.synthetic_ids.insert(inner_end_key.clone());
         ctx.id_map.insert(inner_end_key, end_nid);
-        if let Some(last) = children.last() {
-            if let Some(&child_nid) = ctx.id_map.get(last.id.as_str()) {
-                ctx.graph.add_edge(child_nid, end_nid, EdgeLabel::default());
-            }
+        if let Some(last) = children.last()
+            && let Some(&child_nid) = ctx.id_map.get(last.id.as_str())
+        {
+            ctx.graph.add_edge(child_nid, end_nid, EdgeLabel::default());
         }
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn add_concurrent_regions<'a, M: TextMeasure>(
     s: &'a StateNode,
     regions: &'a [super::ir::ConcurrentRegion],
@@ -195,10 +197,10 @@ pub(super) fn add_concurrent_regions<'a, M: TextMeasure>(
         );
 
         for child in &region.children {
-            if let Some(&child_nid) = ctx.id_map.get(child.id.as_str()) {
-                if ctx.graph.parent(child_nid).is_none() {
-                    ctx.graph.set_parent(child_nid, region_nid);
-                }
+            if let Some(&child_nid) = ctx.id_map.get(child.id.as_str())
+                && ctx.graph.parent(child_nid).is_none()
+            {
+                ctx.graph.set_parent(child_nid, region_nid);
             }
         }
     }
@@ -232,10 +234,10 @@ pub(super) fn add_concurrent_regions<'a, M: TextMeasure>(
         ctx.synthetic_ids.insert(inner_end_key.to_string());
         ctx.id_map.insert(inner_end_key.to_string(), exit_nid);
         for region in regions {
-            if let Some(last) = region.children.last() {
-                if let Some(&cn) = ctx.id_map.get(last.id.as_str()) {
-                    ctx.graph.add_edge(cn, exit_nid, EdgeLabel::default());
-                }
+            if let Some(last) = region.children.last()
+                && let Some(&cn) = ctx.id_map.get(last.id.as_str())
+            {
+                ctx.graph.add_edge(cn, exit_nid, EdgeLabel::default());
             }
         }
     }

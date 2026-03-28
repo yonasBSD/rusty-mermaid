@@ -1,6 +1,6 @@
 /// User journey diagram: horizontal task flow with scored sections.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct JourneyDiagram {
     pub title: Option<String>,
     pub sections: Vec<JourneySection>,
@@ -17,15 +17,6 @@ pub struct JourneyTask {
     pub name: String,
     pub score: u8, // 0–5
     pub actors: Vec<String>,
-}
-
-impl Default for JourneyDiagram {
-    fn default() -> Self {
-        Self {
-            title: None,
-            sections: Vec::new(),
-        }
-    }
 }
 
 impl JourneyDiagram {

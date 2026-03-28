@@ -54,11 +54,11 @@ fn parse_kanban(input: &mut &str) -> ModalResult<KanbanBoard> {
             let mut card = KanbanCard::new(id, label);
 
             // Check for inline metadata @{ ... }
-            if let Some(meta_start) = trimmed.find("@{") {
-                if let Some(meta_end) = trimmed[meta_start..].find('}') {
-                    let meta = &trimmed[meta_start + 2..meta_start + meta_end];
-                    parse_metadata(meta, &mut card);
-                }
+            if let Some(meta_start) = trimmed.find("@{")
+                && let Some(meta_end) = trimmed[meta_start..].find('}')
+            {
+                let meta = &trimmed[meta_start + 2..meta_start + meta_end];
+                parse_metadata(meta, &mut card);
             }
 
             if let Some(col) = &mut current_column {
@@ -84,19 +84,19 @@ fn parse_node_id_label(content: &str) -> (String, String) {
     };
 
     // id[label] or id(label) or just id
-    if let Some(bracket_start) = content.find('[') {
-        if let Some(bracket_end) = content.rfind(']') {
-            let id = content[..bracket_start].trim();
-            let label = &content[bracket_start + 1..bracket_end];
-            return (id.to_string(), label.to_string());
-        }
+    if let Some(bracket_start) = content.find('[')
+        && let Some(bracket_end) = content.rfind(']')
+    {
+        let id = content[..bracket_start].trim();
+        let label = &content[bracket_start + 1..bracket_end];
+        return (id.to_string(), label.to_string());
     }
-    if let Some(paren_start) = content.find('(') {
-        if let Some(paren_end) = content.rfind(')') {
-            let id = content[..paren_start].trim();
-            let label = &content[paren_start + 1..paren_end];
-            return (id.to_string(), label.to_string());
-        }
+    if let Some(paren_start) = content.find('(')
+        && let Some(paren_end) = content.rfind(')')
+    {
+        let id = content[..paren_start].trim();
+        let label = &content[paren_start + 1..paren_end];
+        return (id.to_string(), label.to_string());
     }
     // Plain text: id = label
     let id = content.split_whitespace().next().unwrap_or(content);

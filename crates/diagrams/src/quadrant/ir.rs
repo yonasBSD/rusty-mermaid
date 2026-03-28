@@ -1,6 +1,6 @@
 /// Quadrant chart: 2×2 labeled grid with scatter points.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct QuadrantChart {
     pub title: Option<String>,
     pub x_axis: Option<(String, Option<String>)>, // (left, right)
@@ -14,18 +14,6 @@ pub struct QuadrantPoint {
     pub label: String,
     pub x: f64, // 0.0–1.0
     pub y: f64, // 0.0–1.0
-}
-
-impl Default for QuadrantChart {
-    fn default() -> Self {
-        Self {
-            title: None,
-            x_axis: None,
-            y_axis: None,
-            quadrants: [None, None, None, None],
-            points: Vec::new(),
-        }
-    }
 }
 
 #[cfg(test)]

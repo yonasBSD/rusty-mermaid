@@ -1,6 +1,6 @@
 /// Architecture diagram: services, groups, and directional edges.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ArchDiagram {
     pub groups: Vec<ArchGroup>,
     pub services: Vec<ArchService>,
@@ -46,17 +46,6 @@ pub enum Dir {
     B,
     L,
     R,
-}
-
-impl Default for ArchDiagram {
-    fn default() -> Self {
-        Self {
-            groups: Vec::new(),
-            services: Vec::new(),
-            junctions: Vec::new(),
-            edges: Vec::new(),
-        }
-    }
 }
 
 impl ArchDiagram {

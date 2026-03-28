@@ -6,7 +6,7 @@ pub fn parse(input: &str) -> Result<C4Diagram, ParseError> {
     let mut header_found = false;
     let mut boundary_stack: Vec<String> = Vec::new();
 
-    for (_line_no, raw_line) in input.lines().enumerate() {
+    for raw_line in input.lines() {
         let line = raw_line.trim();
         if line.is_empty() || line.starts_with("%%") {
             continue;
@@ -99,19 +99,19 @@ fn try_parse_boundary(line: &str) -> Option<C4Boundary> {
 fn try_parse_rel(line: &str) -> Option<C4Rel> {
     let prefixes = ["BiRel", "Rel_U", "Rel_D", "Rel_L", "Rel_R", "Rel_B", "Rel"];
     for prefix in prefixes {
-        if let Some(rest) = line.strip_prefix(prefix) {
-            if rest.starts_with('(') || rest.starts_with('_') {
-                // Rel_Back etc — skip the suffix
-                let paren_rest = rest.find('(').map(|i| &rest[i..])?;
-                let args = extract_args(paren_rest)?;
-                if args.len() >= 3 {
-                    return Some(C4Rel {
-                        from: args[0].clone(),
-                        to: args[1].clone(),
-                        label: args[2].clone(),
-                        technology: args.get(3).cloned(),
-                    });
-                }
+        if let Some(rest) = line.strip_prefix(prefix)
+            && (rest.starts_with('(') || rest.starts_with('_'))
+        {
+            // Rel_Back etc — skip the suffix
+            let paren_rest = rest.find('(').map(|i| &rest[i..])?;
+            let args = extract_args(paren_rest)?;
+            if args.len() >= 3 {
+                return Some(C4Rel {
+                    from: args[0].clone(),
+                    to: args[1].clone(),
+                    label: args[2].clone(),
+                    technology: args.get(3).cloned(),
+                });
             }
         }
     }
@@ -276,9 +276,10 @@ mod tests {
 
     #[test]
     fn element_with_technology() {
-        let d =
-            parse("C4Container\n  Container(web, \"Web App\", \"React\", \"User-facing frontend\")")
-                .unwrap();
+        let d = parse(
+            "C4Container\n  Container(web, \"Web App\", \"React\", \"User-facing frontend\")",
+        )
+        .unwrap();
         assert_eq!(d.elements[0].technology.as_deref(), Some("React"));
         assert_eq!(
             d.elements[0].description.as_deref(),

@@ -36,7 +36,7 @@ pub fn to_scene(diagram: &BlockDiagram, theme: &Theme) -> Scene {
     let cols = diagram.columns.max(1);
     let (positions, grid_pos) = compute_block_positions(&diagram.blocks, cols);
 
-    let total_rows = (grid_pos + cols - 1) / cols;
+    let total_rows = grid_pos.div_ceil(cols);
     let grid_w = cols as f64 * (CELL_W + GAP) - GAP;
     let grid_h = total_rows as f64 * (CELL_H + GAP) - GAP;
     let mut scene = Scene::new(grid_w + SCENE_PAD * 2.0, grid_h + SCENE_PAD * 2.0);

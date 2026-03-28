@@ -1,14 +1,12 @@
 /// A parsed kanban board.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct KanbanBoard {
     pub columns: Vec<KanbanColumn>,
 }
 
 impl KanbanBoard {
     pub fn new() -> Self {
-        Self {
-            columns: Vec::new(),
-        }
+        Self::default()
     }
 }
 
