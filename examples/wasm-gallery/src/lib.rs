@@ -378,7 +378,7 @@ fn render_gallery(
         render_static(canvas, surface, gpu, i);
 
         // Get CSS dimensions (before DPR scaling)
-        let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(DIAGRAMS[i].1) else {
+        let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(DIAGRAMS[i].1, &Theme::default()) else {
             continue;
         };
         let is_dark = web_sys::window()

@@ -184,7 +184,7 @@ fn check_y_ordering(golden: &GoldenFile, result: &LayoutResult, name: &str) {
         let entries: Vec<_> = result.node_map.values().collect();
         for a in &entries {
             for b in &entries {
-                let (_, ax, ay, ar) = **a;
+                let (_, _ax, ay, ar) = **a;
                 let (_, _bx, by, br) = **b;
                 if ar < br {
                     assert!(
@@ -205,7 +205,7 @@ fn check_y_ordering(golden: &GoldenFile, result: &LayoutResult, name: &str) {
 fn check_positions_close(
     golden: &GoldenFile,
     result: &LayoutResult,
-    name: &str,
+    _name: &str,
     tol: f64,
 ) -> Vec<String> {
     let mut diffs = Vec::new();
