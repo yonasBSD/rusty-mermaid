@@ -1,6 +1,11 @@
 # rusty-mermaid
 
-Mermaid diagram rendering in pure Rust. Parse mermaid syntax, lay out with dagre, render to SVG/PNG/PDF/GPU.
+[![CI](https://github.com/base58ed/rusty-mermaid/actions/workflows/ci.yml/badge.svg)](https://github.com/base58ed/rusty-mermaid/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/rusty-mermaid.svg)](https://crates.io/crates/rusty-mermaid)
+[![docs.rs](https://docs.rs/rusty-mermaid/badge.svg)](https://docs.rs/rusty-mermaid)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Mermaid diagram rendering in pure Rust. Parse mermaid syntax, lay out with dagre, render to SVG/PNG/GPU.
 
 **25 diagram types. 5 rendering backends. Zero unsafe code.**
 
