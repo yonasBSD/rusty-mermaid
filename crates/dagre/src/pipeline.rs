@@ -10,8 +10,35 @@ use crate::{
 
 /// Run the full dagre Sugiyama layout pipeline.
 ///
-/// After this call, every node has `x`, `y` set, and every edge has `points` set.
-/// The graph's coordinate origin is (marginx, marginy).
+/// Mutates `graph` in place, assigning `x`/`y` coordinates to every node and
+/// populating `points` on every edge. The coordinate origin is
+/// (`config.marginx`, `config.marginy`).
+///
+/// The pipeline phases, in order:
+/// 1. **Cycle removal** -- reverse back-edges to make the graph acyclic
+/// 2. **Rank assignment** -- assign each node to a layer ([`crate::rank`])
+/// 3. **Normalize** -- split long edges with dummy nodes ([`crate::normalize`])
+/// 4. **Order** -- minimize crossings within each rank ([`crate::order`])
+/// 5. **Position** -- assign x/y via Brandes-Kopf ([`crate::position`])
+/// 6. **Denormalize** -- remove dummy nodes, reconstruct edge routes
+///
+/// # Examples
+///
+/// ```
+/// use rusty_mermaid_graph::Graph;
+/// use rusty_mermaid_dagre::config::DagreConfig;
+/// use rusty_mermaid_dagre::labels::{NodeLabel, EdgeLabel};
+/// use rusty_mermaid_dagre::pipeline::layout;
+///
+/// let mut g = Graph::new();
+/// let a = g.add_node(NodeLabel::new(40.0, 20.0));
+/// let b = g.add_node(NodeLabel::new(40.0, 20.0));
+/// g.add_edge(a, b, EdgeLabel::default());
+///
+/// layout(&mut g, &DagreConfig::default());
+///
+/// assert!(g.node(a).unwrap().y < g.node(b).unwrap().y); // a above b in TB
+/// ```
 pub fn layout(graph: &mut Graph<NodeLabel, EdgeLabel>, config: &DagreConfig) {
     // Work with halved ranksep (to make room for edge labels on intermediate ranks)
     let mut cfg = config.clone();

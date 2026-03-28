@@ -1,3 +1,41 @@
+//! Diagram parsers and renderers for rusty-mermaid.
+//!
+//! Parses mermaid syntax and produces a [`Scene`](rusty_mermaid_core::Scene) --
+//! the backend-agnostic intermediate representation consumed by SVG, raster,
+//! and GPU backends. Supports 24 diagram types, each behind a feature gate.
+//!
+//! # Key functions
+//!
+//! * [`detect`] -- identify the [`DiagramKind`] from the first significant line.
+//! * [`render_to_scene`] -- parse + layout + render in one call.
+//!
+//! # Key types
+//!
+//! * [`DiagramKind`] -- enum of all supported diagram types.
+//! * [`ParseError`] -- error returned when syntax is invalid.
+//!
+//! Each diagram module follows a common structure:
+//!
+//! * `ir.rs` -- data model for the parsed diagram.
+//! * `parser.rs` -- mermaid syntax parser producing the IR.
+//! * `mod.rs` -- `to_scene()` that converts IR (with layout) into a `Scene`.
+//!
+//! Theme is a standard parameter -- all rendering reads colors, padding, and
+//! typography from [`Theme`](rusty_mermaid_core::Theme) fields.
+//!
+//! # Examples
+//!
+//! ```
+//! use rusty_mermaid_core::Theme;
+//! use rusty_mermaid_diagrams::{detect, render_to_scene, DiagramKind};
+//!
+//! let input = "flowchart TD\n    A --> B";
+//! assert_eq!(detect(input), Some(DiagramKind::Flowchart));
+//!
+//! let scene = render_to_scene(input, &Theme::default()).unwrap();
+//! assert!(scene.width > 0.0);
+//! ```
+
 pub mod common;
 
 #[cfg(feature = "flowchart")]

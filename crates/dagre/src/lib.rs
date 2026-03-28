@@ -1,3 +1,50 @@
+//! Sugiyama-style layered graph layout engine, ported from dagre.js.
+//!
+//! Converts a directed graph into a layered layout with positioned nodes and
+//! routed edges. The main entry point is [`pipeline::layout()`], which runs
+//! the full pipeline:
+//!
+//! 1. **Rank assignment** -- assign each node to a horizontal layer
+//! 2. **Normalize** -- insert dummy nodes for long edges
+//! 3. **Order** -- minimize edge crossings within each layer
+//! 4. **Position** -- assign x/y coordinates (Brandes-Kopf algorithm)
+//!
+//! # Key types
+//!
+//! - [`DagreConfig`] -- layout parameters (direction, spacing, algorithm choices)
+//! - [`NodeLabel`] -- node dimensions (input) and position (output)
+//! - [`EdgeLabel`] -- edge label dimensions (input) and routed points (output)
+//! - [`RankDir`](rusty_mermaid_core::Direction) -- layout flow direction (TB, LR, etc.)
+//!
+//! # Examples
+//!
+//! ```
+//! use rusty_mermaid_graph::Graph;
+//! use rusty_mermaid_dagre::config::DagreConfig;
+//! use rusty_mermaid_dagre::labels::{NodeLabel, EdgeLabel};
+//! use rusty_mermaid_dagre::pipeline::layout;
+//!
+//! let mut g = Graph::new();
+//! let a = g.add_node(NodeLabel::new(60.0, 30.0));
+//! let b = g.add_node(NodeLabel::new(60.0, 30.0));
+//! let c = g.add_node(NodeLabel::new(60.0, 30.0));
+//! g.add_edge(a, b, EdgeLabel::default());
+//! g.add_edge(b, c, EdgeLabel::default());
+//!
+//! let config = DagreConfig::default();
+//! layout(&mut g, &config);
+//!
+//! // After layout, every node has x/y coordinates
+//! let a_pos = g.node(a).unwrap();
+//! assert!(a_pos.x > 0.0 && a_pos.y > 0.0);
+//!
+//! // Edges have routed waypoints
+//! for eid in g.edge_ids() {
+//!     let e = g.edge(eid).unwrap();
+//!     assert!(!e.points.is_empty());
+//! }
+//! ```
+
 pub mod config;
 pub mod labels;
 

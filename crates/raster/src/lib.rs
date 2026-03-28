@@ -1,3 +1,28 @@
+//! Raster (PNG) rendering backend for rusty-mermaid.
+//!
+//! Converts a [`Scene`] into PNG bytes using
+//! [tiny-skia](https://crates.io/crates/tiny-skia) for CPU-based rasterisation.
+//!
+//! Implements the [`Renderer`] trait from core
+//! (`Output = Vec<u8>`).
+//!
+//! # Key types
+//!
+//! * [`RasterRenderer`] -- the rendering backend.
+//! * [`RasterConfig`] -- DPI scale factor and [`Theme`].
+//!   Scale defaults to `2.0` (Retina); set to `1.0` for 1x output.
+//!
+//! # Examples
+//!
+//! ```
+//! use rusty_mermaid_core::{Renderer, Scene};
+//! use rusty_mermaid_raster::RasterRenderer;
+//!
+//! let scene = Scene::new(200.0, 100.0);
+//! let png: Vec<u8> = RasterRenderer::new().render(&scene);
+//! assert_eq!(&png[..4], &[0x89, b'P', b'N', b'G']);
+//! ```
+
 mod primitive;
 
 use rusty_mermaid_core::{Color, Renderer, Scene, Theme};

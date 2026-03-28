@@ -1,3 +1,56 @@
+//! Foundation crate for rusty-mermaid: primitives, Scene, Theme, geometry, and text measurement.
+//!
+//! This crate defines the universal intermediate representation that all diagram
+//! types produce and all rendering backends consume. The central type is [`Scene`],
+//! a collection of [`Primitive`] drawing elements (rects, circles, paths, text, etc.)
+//! that is completely backend-agnostic.
+//!
+//! # Key types
+//!
+//! - [`Scene`] / [`Primitive`] -- the contract between layout and rendering
+//! - [`Theme`] / [`Style`] / [`TextStyle`] -- visual configuration
+//! - [`Color`] / [`Point`] / [`BBox`] -- geometric primitives
+//! - [`Shape`] -- node shape catalog (rect, diamond, circle, etc.)
+//! - [`Direction`] -- layout flow direction (TB, BT, LR, RL)
+//!
+//! # Key traits
+//!
+//! - [`Renderer`] -- backends implement this to consume a [`Scene`]
+//! - [`TextMeasure`] -- text dimension measurement for layout
+//!
+//! # Examples
+//!
+//! ```
+//! use rusty_mermaid_core::{
+//!     Scene, Primitive, Style, Color, Point, BBox, TextStyle, TextAnchor,
+//! };
+//!
+//! let mut scene = Scene::new(200.0, 100.0);
+//!
+//! // Add a filled rectangle
+//! scene.push(Primitive::Rect {
+//!     bbox: BBox::new(100.0, 50.0, 120.0, 40.0),
+//!     rx: 4.0,
+//!     ry: 4.0,
+//!     style: Style {
+//!         fill: Some(Color::rgb(236, 236, 255)),
+//!         stroke: Some(Color::rgb(147, 112, 219)),
+//!         stroke_width: Some(2.0),
+//!         ..Style::default()
+//!     },
+//! });
+//!
+//! // Add a text label
+//! scene.push(Primitive::Text {
+//!     position: Point::new(100.0, 50.0),
+//!     content: "Hello".into(),
+//!     anchor: TextAnchor::Middle,
+//!     style: TextStyle::default(),
+//! });
+//!
+//! assert_eq!(scene.len(), 2);
+//! ```
+
 pub mod constants;
 pub mod curve;
 pub mod font_fallback;

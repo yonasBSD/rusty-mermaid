@@ -1,3 +1,33 @@
+//! SVG rendering backend for rusty-mermaid.
+//!
+//! Converts a [`Scene`] into an SVG string by
+//! walking each primitive and emitting the corresponding SVG element. Marker
+//! definitions are generated per-color so arrow heads match their edge stroke.
+//!
+//! Implements the [`Renderer`] trait from core
+//! (`Output = String`).
+//!
+//! # Key types
+//!
+//! * [`SvgRenderer`] -- the rendering backend.
+//! * [`SvgConfig`] -- padding, default stroke color/width.
+//!   Use [`SvgConfig::from_theme`] to derive settings from a
+//!   [`Theme`].
+//!
+//! [`SvgRenderer::render_themed`] adds a background `<rect>` when the theme
+//! background is not white (e.g. dark themes).
+//!
+//! # Examples
+//!
+//! ```
+//! use rusty_mermaid_core::{Renderer, Scene};
+//! use rusty_mermaid_svg::SvgRenderer;
+//!
+//! let scene = Scene::new(200.0, 100.0);
+//! let svg: String = SvgRenderer::new().render(&scene);
+//! assert!(svg.contains("<svg"));
+//! ```
+
 pub mod document;
 pub mod markers;
 pub mod path;
