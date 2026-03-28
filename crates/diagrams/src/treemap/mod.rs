@@ -341,7 +341,6 @@ fn render_section(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ir::TreemapDiagram;
 
     fn render(input: &str) -> Scene {
         let d = parser::parse(input).unwrap();

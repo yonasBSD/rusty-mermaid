@@ -427,7 +427,7 @@ fn render_static(
         return;
     }
     let (_, mmd) = DIAGRAMS[idx];
-    let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(mmd) else {
+    let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(mmd, &Theme::default()) else {
         return;
     };
 
@@ -480,7 +480,7 @@ fn render_current(
         el.set_text_content(Some(name));
     }
 
-    let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(mmd) else {
+    let Ok(scene) = rusty_mermaid_diagrams::render_to_scene(mmd, &Theme::default()) else {
         web_sys::console::error_1(
             &format!("Failed to parse: {}", DIAGRAMS[app.current_idx].0).into(),
         );
