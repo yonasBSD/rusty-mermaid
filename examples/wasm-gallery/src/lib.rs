@@ -392,7 +392,6 @@ fn render_gallery(
             Theme::light()
         };
         let css_w = scene.width + theme.padding * 2.0;
-        let css_h = scene.height + theme.padding * 2.0;
 
         // Capture as data URL
         let data_url = canvas.to_data_url().unwrap_or_default();

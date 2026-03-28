@@ -32,6 +32,7 @@ struct GoldenConfig {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GoldenOutput {
     nodes: Vec<GoldenNode>,
     edges: Vec<GoldenEdge>,
@@ -40,6 +41,7 @@ struct GoldenOutput {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GoldenNode {
     id: String,
     x: f64,
@@ -51,6 +53,7 @@ struct GoldenNode {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GoldenEdge {
     src: String,
     dst: String,
@@ -64,6 +67,7 @@ struct GoldenEdge {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GoldenPoint {
     x: f64,
     y: f64,
@@ -79,6 +83,7 @@ fn parse_rankdir(s: &str) -> Direction {
     }
 }
 
+#[allow(dead_code)]
 struct LayoutResult {
     node_map: HashMap<String, (NodeId, f64, f64, i32)>, // id → (nid, x, y, rank)
     edge_points: Vec<(String, String, Vec<(f64, f64)>)>,
