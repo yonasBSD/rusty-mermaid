@@ -27,7 +27,7 @@ default-members = [
 resolver = "3"
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/base58ed/rusty-mermaid"
@@ -37,15 +37,15 @@ categories = ["rendering", "visualization"]
 readme = "README.md"
 
 [workspace.dependencies]
-rusty-mermaid-core = { version = "0.1.0", path = "crates/core" }
-rusty-mermaid-graph = { version = "0.1.0", path = "crates/graph" }
-rusty-mermaid-dagre = { version = "0.1.0", path = "crates/dagre" }
-rusty-mermaid-diagrams = { version = "0.1.0", path = "crates/diagrams" }
-rusty-mermaid-svg = { version = "0.1.0", path = "crates/svg" }
-rusty-mermaid-viewport = { version = "0.1.0", path = "crates/viewport" }
-rusty-mermaid-raster = { version = "0.1.0", path = "crates/raster" }
-rusty-mermaid-gpui = { version = "0.1.0", path = "crates/gpui-backend" }
-rusty-mermaid-wgpu = { version = "0.1.0", path = "crates/wgpu-backend" }
+rusty-mermaid-core = { version = "0.2.0", path = "crates/core" }
+rusty-mermaid-graph = { version = "0.2.0", path = "crates/graph" }
+rusty-mermaid-dagre = { version = "0.2.0", path = "crates/dagre" }
+rusty-mermaid-diagrams = { version = "0.2.0", path = "crates/diagrams" }
+rusty-mermaid-svg = { version = "0.2.0", path = "crates/svg" }
+rusty-mermaid-viewport = { version = "0.2.0", path = "crates/viewport" }
+rusty-mermaid-raster = { version = "0.2.0", path = "crates/raster" }
+rusty-mermaid-gpui = { version = "0.2.0", path = "crates/gpui-backend" }
+rusty-mermaid-wgpu = { version = "0.2.0", path = "crates/wgpu-backend" }
 thiserror = "2"
 
 # Fast debug builds - optimize for compile speed
