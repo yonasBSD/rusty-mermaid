@@ -217,40 +217,40 @@ fn render_merge_lines(
         {
             let parent_lane = branch_lanes[&commits[parent_idx].branch];
             let commit_lane = branch_lanes[&commit.branch];
-                let (x1, y1) = ctx.pos(parent_idx, parent_lane);
-                let (x2, y2) = ctx.pos(i, commit_lane);
-                let color = LANE_COLORS[commit_lane % LANE_COLORS.len()];
+            let (x1, y1) = ctx.pos(parent_idx, parent_lane);
+            let (x2, y2) = ctx.pos(i, commit_lane);
+            let color = LANE_COLORS[commit_lane % LANE_COLORS.len()];
 
-                let (cp1, cp2) = if ctx.is_horizontal {
-                    (
-                        Point::new((x1 + x2) / 2.0, y1),
-                        Point::new((x1 + x2) / 2.0, y2),
-                    )
-                } else {
-                    (
-                        Point::new(x1, (y1 + y2) / 2.0),
-                        Point::new(x2, (y1 + y2) / 2.0),
-                    )
-                };
+            let (cp1, cp2) = if ctx.is_horizontal {
+                (
+                    Point::new((x1 + x2) / 2.0, y1),
+                    Point::new((x1 + x2) / 2.0, y2),
+                )
+            } else {
+                (
+                    Point::new(x1, (y1 + y2) / 2.0),
+                    Point::new(x2, (y1 + y2) / 2.0),
+                )
+            };
 
-                scene.push(Primitive::Path {
-                    segments: vec![
-                        PathSegment::MoveTo(Point::new(x1, y1)),
-                        PathSegment::CubicTo {
-                            cp1,
-                            cp2,
-                            to: Point::new(x2, y2),
-                        },
-                    ],
-                    style: Style {
-                        stroke: Some(color),
-                        stroke_width: Some(2.0),
-                        stroke_dasharray: Some(vec![5.0, 3.0]),
-                        ..Default::default()
+            scene.push(Primitive::Path {
+                segments: vec![
+                    PathSegment::MoveTo(Point::new(x1, y1)),
+                    PathSegment::CubicTo {
+                        cp1,
+                        cp2,
+                        to: Point::new(x2, y2),
                     },
-                    marker_start: None,
-                    marker_end: None,
-                });
+                ],
+                style: Style {
+                    stroke: Some(color),
+                    stroke_width: Some(2.0),
+                    stroke_dasharray: Some(vec![5.0, 3.0]),
+                    ..Default::default()
+                },
+                marker_start: None,
+                marker_end: None,
+            });
         }
     }
 }

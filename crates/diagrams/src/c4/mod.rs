@@ -49,10 +49,7 @@ pub fn to_scene(diagram: &C4Diagram, theme: &Theme) -> Scene {
     scene
 }
 
-fn compute_positions(
-    diagram: &C4Diagram,
-    theme: &Theme,
-) -> (PositionMap, f64, f64) {
+fn compute_positions(diagram: &C4Diagram, theme: &Theme) -> (PositionMap, f64, f64) {
     let title_h = if diagram.title.is_some() { 36.0 } else { 0.0 };
 
     let mut free_elements: Vec<usize> = Vec::new();
@@ -241,12 +238,7 @@ fn render_edges(
     edge_labels
 }
 
-fn render_elements(
-    scene: &mut Scene,
-    diagram: &C4Diagram,
-    positions: &PositionMap,
-    theme: &Theme,
-) {
+fn render_elements(scene: &mut Scene, diagram: &C4Diagram, positions: &PositionMap, theme: &Theme) {
     for elem in &diagram.elements {
         let Some(&(cx, cy, ew, _)) = positions.get(&elem.alias) else {
             continue;

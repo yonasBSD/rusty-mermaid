@@ -268,7 +268,6 @@ pub struct ForceGraph {
     pub edges: Vec<ForceEdge>,
 }
 
-
 impl ForceGraph {
     pub fn new() -> Self {
         Self::default()

@@ -43,7 +43,6 @@ pub enum EdgeStyle {
     Thick,
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -95,7 +95,11 @@ fn build_req_graph(
     measurer: &impl TextMeasure,
     style: &TextStyle,
     line_height: f64,
-) -> (Graph<NodeLabel, EdgeLabel>, BTreeMap<String, NodeId>, NodeInfoMap) {
+) -> (
+    Graph<NodeLabel, EdgeLabel>,
+    BTreeMap<String, NodeId>,
+    NodeInfoMap,
+) {
     let mut graph: Graph<NodeLabel, EdgeLabel> = Graph::new();
     let mut id_map: BTreeMap<String, NodeId> = BTreeMap::new();
     let mut node_infos: NodeInfoMap = BTreeMap::new();

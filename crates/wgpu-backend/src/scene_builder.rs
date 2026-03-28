@@ -7,9 +7,8 @@ use vello::kurbo::{
 use vello::peniko::{Blob, Color as VelloColor, Fill, FontData};
 
 use rusty_mermaid_core::{
-    Color, MarkerShape, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme,
-    Transform, marker_geometry, parse_inline_markdown, transform_marker_circle,
-    transform_marker_curves, transform_marker_points,
+    Color, MarkerType, PathSegment, Point, Primitive, Style, TextAnchor, Theme, Transform,
+    parse_inline_markdown,
 };
 use rusty_mermaid_viewport::ViewportState;
 

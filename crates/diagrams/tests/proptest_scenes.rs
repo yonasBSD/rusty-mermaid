@@ -81,7 +81,7 @@ fn arb_id() -> impl Strategy<Value = String> {
 
 /// Generate a random positive number
 fn arb_value() -> impl Strategy<Value = f64> {
-    (1.0f64..1000.0)
+    1.0f64..1000.0
 }
 
 proptest! {
