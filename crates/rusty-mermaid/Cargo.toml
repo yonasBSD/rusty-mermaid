@@ -16,6 +16,7 @@ rusty-mermaid-diagrams = { workspace = true }
 
 # Opt-in backends
 rusty-mermaid-svg = { workspace = true, optional = true }
+rusty-mermaid-excalidraw = { workspace = true, optional = true }
 rusty-mermaid-raster = { workspace = true, optional = true }
 rusty-mermaid-viewport = { workspace = true, optional = true }
 
@@ -26,5 +27,6 @@ rusty-mermaid-viewport = { workspace = true, optional = true }
 [features]
 default = []
 svg = ["dep:rusty-mermaid-svg"]
+excalidraw = ["dep:rusty-mermaid-excalidraw"]
 raster = ["dep:rusty-mermaid-raster"]
 viewport = ["dep:rusty-mermaid-viewport"]

@@ -5,6 +5,7 @@ members = [
     "crates/dagre",
     "crates/diagrams",
     "crates/svg",
+    "crates/excalidraw",
     "crates/viewport",
     "crates/raster",
     "crates/gpui-backend",
@@ -20,6 +21,7 @@ default-members = [
     "crates/dagre",
     "crates/diagrams",
     "crates/svg",
+    "crates/excalidraw",
     "crates/viewport",
     "crates/raster",
     "crates/rusty-mermaid",
@@ -42,6 +44,7 @@ rusty-mermaid-graph = { version = "0.2.0", path = "crates/graph" }
 rusty-mermaid-dagre = { version = "0.2.0", path = "crates/dagre" }
 rusty-mermaid-diagrams = { version = "0.2.0", path = "crates/diagrams" }
 rusty-mermaid-svg = { version = "0.2.0", path = "crates/svg" }
+rusty-mermaid-excalidraw = { version = "0.2.0", path = "crates/excalidraw" }
 rusty-mermaid-viewport = { version = "0.2.0", path = "crates/viewport" }
 rusty-mermaid-raster = { version = "0.2.0", path = "crates/raster" }
 rusty-mermaid-gpui = { version = "0.2.0", path = "crates/gpui-backend" }

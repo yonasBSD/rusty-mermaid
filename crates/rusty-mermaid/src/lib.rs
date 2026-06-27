@@ -40,6 +40,21 @@ pub mod svg {
     pub use rusty_mermaid_svg::*;
 }
 
+// ── Feature: excalidraw ──
+
+/// Render a Mermaid diagram to an editable `.excalidraw` JSON document. Shapes
+/// become native Excalidraw elements and graph edges become bound arrows.
+#[cfg(feature = "excalidraw")]
+pub fn to_excalidraw(input: &str, theme: &Theme) -> Result<String, ParseError> {
+    let scene = render(input, theme)?;
+    Ok(rusty_mermaid_excalidraw::to_json(&scene, theme))
+}
+
+#[cfg(feature = "excalidraw")]
+pub mod excalidraw {
+    pub use rusty_mermaid_excalidraw::*;
+}
+
 // ── Feature: raster ──
 
 #[cfg(feature = "raster")]
