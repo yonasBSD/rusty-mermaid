@@ -75,8 +75,8 @@ pub use marker_shapes::{
 };
 pub use renderer::Renderer;
 pub use scene::{
-    Element, ElementId, ElementKind, MarkerType, PathSegment, Primitive, Scene, TextAnchor,
-    Transform, path_end_tangent, path_start_tangent,
+    EdgeBinding, Element, ElementId, ElementKind, MarkerType, PathSegment, Primitive, Scene,
+    TextAnchor, Transform, path_end_tangent, path_start_tangent,
 };
 pub use shape::Shape;
 pub use style::{FontWeight, Style, TextStyle, Theme};

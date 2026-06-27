@@ -60,6 +60,17 @@ impl fmt::Display for ElementKind {
     }
 }
 
+/// A reconstructed graph binding: which edge connects which two nodes, by their
+/// [`ElementId`]s. Diagram builders record these so backends (e.g. Excalidraw)
+/// can set real start/end bindings instead of inferring endpoints from geometry.
+/// Endpoints are a graph fact known before layout, not a layout output.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EdgeBinding {
+    pub edge: ElementId,
+    pub src: ElementId,
+    pub dst: ElementId,
+}
+
 /// A primitive paired with an optional semantic identity.
 #[derive(Debug, Clone)]
 pub struct Element {
@@ -73,6 +84,7 @@ pub struct Scene {
     pub width: f64,
     pub height: f64,
     elements: Vec<Element>,
+    edge_bindings: Vec<EdgeBinding>,
 }
 
 impl Scene {
@@ -81,6 +93,7 @@ impl Scene {
             width,
             height,
             elements: Vec::new(),
+            edge_bindings: Vec::new(),
         }
     }
 
@@ -100,6 +113,16 @@ impl Scene {
             primitive,
             id: Some(id),
         });
+    }
+
+    /// Attach an [`ElementId`] to an already-pushed element by index. Lets a
+    /// builder tag the primary primitive of a multi-primitive node after
+    /// rendering it, without threading the id through every shape arm. No-op if
+    /// the index is out of range. O(1).
+    pub fn set_id(&mut self, index: usize, id: ElementId) {
+        if let Some(el) = self.elements.get_mut(index) {
+            el.id = Some(id);
+        }
     }
 
     pub fn elements(&self) -> &[Element] {
@@ -134,6 +157,18 @@ impl Scene {
             .enumerate()
             .filter(|(_, e)| e.id.as_ref().is_some_and(|id| id.kind == kind))
             .collect()
+    }
+
+    /// Record that an edge connects `src` to `dst` (all by ElementId). Backends
+    /// that support real connectors use these instead of guessing endpoints from
+    /// geometry. Additive: backends that ignore bindings are unaffected.
+    pub fn push_edge_binding(&mut self, binding: EdgeBinding) {
+        self.edge_bindings.push(binding);
+    }
+
+    /// The graph bindings the diagram builder recorded (edge → src, dst).
+    pub fn edge_bindings(&self) -> &[EdgeBinding] {
+        &self.edge_bindings
     }
 }
 
@@ -746,5 +781,21 @@ mod tests {
         assert!((pt.x - 100.0).abs() < 1e-10);
         // Tangent from cp2(100,50) → to(100,100): straight down
         assert!((angle - std::f64::consts::FRAC_PI_2).abs() < 0.01);
+    }
+
+    #[test]
+    fn edge_bindings_record_graph_endpoints() {
+        let mut scene = Scene::new(100.0, 100.0);
+        assert!(scene.edge_bindings().is_empty());
+        scene.push_edge_binding(EdgeBinding {
+            edge: ElementId::edge("A->B"),
+            src: ElementId::node("A"),
+            dst: ElementId::node("B"),
+        });
+        let bindings = scene.edge_bindings();
+        assert_eq!(bindings.len(), 1);
+        assert_eq!(bindings[0].edge, ElementId::edge("A->B"));
+        assert_eq!(bindings[0].src, ElementId::node("A"));
+        assert_eq!(bindings[0].dst, ElementId::node("B"));
     }
 }
