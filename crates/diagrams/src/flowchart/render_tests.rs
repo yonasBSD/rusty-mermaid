@@ -33,6 +33,34 @@ fn simple_flowchart_to_scene() {
 }
 
 #[test]
+fn nodes_and_edges_carry_ids_and_bindings() {
+    let d = crate::flowchart::parser::parse("graph TD\n    A --> B").unwrap();
+    let layout = crate::flowchart::bridge::layout(&d);
+    let scene = to_scene(&layout, &Theme::default());
+
+    // The edge binding resolves the A-->B edge to its endpoint nodes.
+    let bindings = scene.edge_bindings();
+    assert_eq!(bindings.len(), 1, "one edge binding for A-->B");
+    assert_eq!(bindings[0].src, ElementId::node("A"));
+    assert_eq!(bindings[0].dst, ElementId::node("B"));
+
+    // Both endpoint nodes resolve to real scene elements, and so does the edge —
+    // so the Excalidraw backend can bind the arrow to its source/target.
+    assert!(
+        scene.find_by_id(&ElementId::node("A")).is_some(),
+        "node A element exists"
+    );
+    assert!(
+        scene.find_by_id(&ElementId::node("B")).is_some(),
+        "node B element exists"
+    );
+    assert!(
+        scene.find_by_id(&bindings[0].edge).is_some(),
+        "the bound edge element exists"
+    );
+}
+
+#[test]
 fn diamond_node_produces_polygon() {
     let d = crate::flowchart::parser::parse("flowchart TD\n    A{Decision}").unwrap();
     let layout = crate::flowchart::bridge::layout(&d);

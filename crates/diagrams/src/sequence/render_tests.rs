@@ -26,6 +26,40 @@ fn basic_scene_valid() {
 }
 
 #[test]
+fn message_binds_to_its_actors() {
+    let mut d = two_actor_diagram();
+    d.items.push(SequenceItem::Message(Message::new(
+        "Alice",
+        "Bob",
+        ArrowStyle::SOLID_FILLED,
+    )));
+    let scene = make_scene(&d);
+
+    // The message resolves to its two actors (matched by lifeline x-position).
+    let bindings = scene.edge_bindings();
+    assert_eq!(bindings.len(), 1, "one message binding");
+    let b = &bindings[0];
+    let (src, dst) = (b.src.id.as_str(), b.dst.id.as_str());
+    assert!(
+        (src == "Alice" && dst == "Bob") || (src == "Bob" && dst == "Alice"),
+        "binding connects the two actors, got {src}->{dst}"
+    );
+    // Both actor elements and the message edge resolve to real scene elements.
+    assert!(
+        scene.find_by_id(&b.src).is_some(),
+        "src actor element exists"
+    );
+    assert!(
+        scene.find_by_id(&b.dst).is_some(),
+        "dst actor element exists"
+    );
+    assert!(
+        scene.find_by_id(&b.edge).is_some(),
+        "message edge element exists"
+    );
+}
+
+#[test]
 fn actors_produce_rects_and_text() {
     let d = two_actor_diagram();
     let scene = make_scene(&d);

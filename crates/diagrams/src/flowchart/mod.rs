@@ -3,8 +3,8 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, CurveType, MarkerType, PathSegment, Point, Primitive, Scene, Shape, Style, TextAnchor,
-    TextStyle, Theme, interpolate,
+    BBox, CurveType, EdgeBinding, ElementId, MarkerType, PathSegment, Point, Primitive, Scene,
+    Shape, Style, TextAnchor, TextStyle, Theme, interpolate,
 };
 
 const SUBGRAPH_LABEL_OFFSET_X: f64 = 8.0;
@@ -95,7 +95,7 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     }
 
     // Z-order: subgraphs (background) → edges + markers → nodes (foreground).
-    for edge in &layout.edges {
+    for (idx, edge) in layout.edges.iter().enumerate() {
         if edge.points.len() >= 2 {
             let mut segments = interpolate(&edge.points, CurveType::Basis);
 
@@ -120,11 +120,23 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             let sw = estyle.stroke_width.unwrap_or(theme.default_stroke_width);
             shorten_path_for_markers(&mut segments, marker_start, marker_end, sw);
 
-            scene.push(Primitive::Path {
-                segments,
-                style: estyle,
-                marker_start,
-                marker_end,
+            // Identify the edge and record its graph endpoints so the Excalidraw
+            // backend can bind the arrow to its source/target nodes. The `#idx`
+            // suffix keeps parallel edges (multiple A-->B) distinct.
+            let edge_id = ElementId::edge(format!("{}->{}#{}", edge.src, edge.dst, idx));
+            scene.push_identified(
+                Primitive::Path {
+                    segments,
+                    style: estyle,
+                    marker_start,
+                    marker_end,
+                },
+                edge_id.clone(),
+            );
+            scene.push_edge_binding(EdgeBinding {
+                edge: edge_id,
+                src: ElementId::node(&edge.src),
+                dst: ElementId::node(&edge.dst),
             });
             if let Some(label) = &edge.label {
                 let mid = edge.points[edge.points.len() / 2];
@@ -134,7 +146,14 @@ fn layout_to_scene(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     }
 
     for node in &layout.nodes {
+        // Tag the node's primary (first-pushed) primitive with its id so edges
+        // can resolve their endpoints. Multi-primitive shapes (double circle,
+        // diamond) leave their decorations un-identified.
+        let first = scene.len();
         render_node(node, scene, theme);
+        if scene.len() > first {
+            scene.set_id(first, ElementId::node(&node.id));
+        }
     }
 }
 

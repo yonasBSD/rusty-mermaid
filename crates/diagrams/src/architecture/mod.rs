@@ -4,7 +4,8 @@ pub mod parser;
 use std::collections::HashMap;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
+    BBox, Color, EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
+    TextStyle, Theme,
     force_layout::{ForceConfig, ForceGraph, ForceNode, layout as force_layout},
     intersect_rect,
 };
@@ -252,7 +253,7 @@ fn render_arch_edges(
     positions: &HashMap<String, (f64, f64, f64, f64)>,
     theme: &Theme,
 ) {
-    for edge in &diagram.edges {
+    for (idx, edge) in diagram.edges.iter().enumerate() {
         let Some(&(x1, y1, w1, h1)) = positions.get(&edge.from) else {
             continue;
         };
@@ -274,15 +275,26 @@ fn render_arch_edges(
             None
         };
 
-        scene.push(Primitive::Path {
-            segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
-            style: Style {
-                stroke: Some(theme.grid_stroke),
-                stroke_width: Some(1.5),
-                ..Default::default()
+        // Identify the edge and record its endpoints so the Excalidraw backend
+        // can bind the connector to its services (when it has an arrowhead).
+        let edge_id = ElementId::edge(format!("{}->{}#{}", edge.from, edge.to, idx));
+        scene.push_identified(
+            Primitive::Path {
+                segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
+                style: Style {
+                    stroke: Some(theme.grid_stroke),
+                    stroke_width: Some(1.5),
+                    ..Default::default()
+                },
+                marker_start,
+                marker_end,
             },
-            marker_start,
-            marker_end,
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: ElementId::node(&edge.from),
+            dst: ElementId::node(&edge.to),
         });
     }
 }
@@ -298,7 +310,11 @@ fn render_services(
             continue;
         };
         let color = COLORS[si % COLORS.len()];
+        let first = scene.len();
         render_service(scene, svc, cx, cy, color, theme);
+        if scene.len() > first {
+            scene.set_id(first, ElementId::node(&svc.id)); // tag the service box for edge binding
+        }
     }
 }
 
@@ -312,15 +328,18 @@ fn render_junctions(
         let Some(&(cx, cy, _, _)) = positions.get(&junc.id) else {
             continue;
         };
-        scene.push(Primitive::Rect {
-            bbox: BBox::new(cx, cy, JUNCTION_SIZE, JUNCTION_SIZE),
-            rx: 2.0,
-            ry: 2.0,
-            style: Style {
-                fill: Some(theme.muted_text),
-                ..Default::default()
+        scene.push_identified(
+            Primitive::Rect {
+                bbox: BBox::new(cx, cy, JUNCTION_SIZE, JUNCTION_SIZE),
+                rx: 2.0,
+                ry: 2.0,
+                style: Style {
+                    fill: Some(theme.muted_text),
+                    ..Default::default()
+                },
             },
-        });
+            ElementId::node(&junc.id),
+        );
     }
 }
 
@@ -428,6 +447,31 @@ mod tests {
             })
             .count();
         assert_eq!(rects, 2);
+    }
+
+    #[test]
+    fn services_and_edges_are_identified_and_bound() {
+        let scene = render(
+            "architecture-beta\n  service a(server)[A]\n  service b(server)[B]\n  a:R -- L:b",
+        );
+        // Both services resolve to identified elements.
+        assert!(
+            scene.find_by_id(&ElementId::node("a")).is_some(),
+            "service a is identified"
+        );
+        assert!(
+            scene.find_by_id(&ElementId::node("b")).is_some(),
+            "service b is identified"
+        );
+        // The edge binding resolves to the two services.
+        let bindings = scene.edge_bindings();
+        assert_eq!(bindings.len(), 1, "one edge binding");
+        assert_eq!(bindings[0].src, ElementId::node("a"));
+        assert_eq!(bindings[0].dst, ElementId::node("b"));
+        assert!(
+            scene.find_by_id(&bindings[0].edge).is_some(),
+            "the edge element exists"
+        );
     }
 
     #[test]

@@ -5,8 +5,8 @@ mod layout_pass;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, FontWeight, MarkerType, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
-    TextStyle, Theme,
+    BBox, EdgeBinding, ElementId, FontWeight, MarkerType, PathSegment, Point, Primitive, Scene,
+    Style, TextAnchor, TextStyle, Theme,
 };
 
 use crate::common::palette::DOTTED_PATTERN;
@@ -31,8 +31,8 @@ fn render_layout(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
     render_activations(l, scene, theme);
     render_messages(l, scene, theme);
     render_notes(l, scene, theme);
-    render_actors(&l.actors, scene, theme);
-    render_actors(&l.bottom_actors, scene, theme);
+    render_actors(&l.actors, scene, theme, true);
+    render_actors(&l.bottom_actors, scene, theme, false);
     if let Some(title) = &l.title {
         render_title(title, l, scene, theme);
     }
@@ -184,16 +184,48 @@ fn render_activations(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
 // ---------------------------------------------------------------------------
 
 fn render_messages(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
-    for msg in &l.messages {
+    for (idx, msg) in l.messages.iter().enumerate() {
+        let first = scene.len();
         if msg.is_self {
             render_self_message(msg, scene, theme);
         } else {
             render_regular_message(msg, scene, theme);
         }
+        // Identify the message arrow (its first primitive) and bind it to the
+        // actors at its endpoints, matched by lifeline x-position (a sequence
+        // message carries x-coords, not participant ids).
+        if scene.len() > first {
+            let edge = ElementId::edge(format!("msg{idx}"));
+            scene.set_id(first, edge.clone());
+            if let (Some(src), Some(dst)) = (
+                actor_at_x(&l.actors, msg.from_x),
+                actor_at_x(&l.actors, msg.to_x),
+            ) {
+                scene.push_edge_binding(EdgeBinding {
+                    edge,
+                    src: ElementId::node(src),
+                    dst: ElementId::node(dst),
+                });
+            }
+        }
         if let Some(n) = msg.number {
             render_msg_number(msg, n, scene, theme);
         }
     }
+}
+
+/// The id of the actor whose lifeline is nearest `x` (messages reference actors
+/// by x-position, not id). O(actors).
+fn actor_at_x(actors: &[ActorLayout], x: f64) -> Option<&str> {
+    actors
+        .iter()
+        .min_by(|a, b| {
+            (a.x - x)
+                .abs()
+                .partial_cmp(&(b.x - x).abs())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
+        .map(|a| a.id.as_str())
 }
 
 fn render_regular_message(msg: &MessageLayout, scene: &mut Scene, theme: &Theme) {
@@ -357,11 +389,17 @@ fn render_notes(l: &SequenceLayout, scene: &mut Scene, theme: &Theme) {
 // Participant boxes (top + mirrored bottom)
 // ---------------------------------------------------------------------------
 
-fn render_actors(actors: &[ActorLayout], scene: &mut Scene, theme: &Theme) {
+fn render_actors(actors: &[ActorLayout], scene: &mut Scene, theme: &Theme, identify: bool) {
     for actor in actors {
+        // Tag the top actors with their participant id so message arrows can bind
+        // to them; the mirrored bottom row stays un-identified (same id otherwise).
+        let first = scene.len();
         match actor.kind {
             ParticipantKind::Box => render_actor_box(actor, scene, theme),
             ParticipantKind::Actor => render_actor_stick(actor, scene, theme),
+        }
+        if identify && scene.len() > first {
+            scene.set_id(first, ElementId::node(&actor.id));
         }
     }
 }
