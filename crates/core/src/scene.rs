@@ -163,6 +163,19 @@ impl Scene {
     /// that support real connectors use these instead of guessing endpoints from
     /// geometry. Additive: backends that ignore bindings are unaffected.
     pub fn push_edge_binding(&mut self, binding: EdgeBinding) {
+        debug_assert_eq!(
+            binding.edge.kind,
+            ElementKind::Edge,
+            "EdgeBinding.edge must identify an edge"
+        );
+        debug_assert!(
+            matches!(binding.src.kind, ElementKind::Node | ElementKind::Compound),
+            "EdgeBinding.src must be a node or compound"
+        );
+        debug_assert!(
+            matches!(binding.dst.kind, ElementKind::Node | ElementKind::Compound),
+            "EdgeBinding.dst must be a node or compound"
+        );
         self.edge_bindings.push(binding);
     }
 

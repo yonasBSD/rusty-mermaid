@@ -22,8 +22,10 @@ pub fn render_elements(scene: &Scene, theme: &Theme) -> Vec<ExElement> {
 pub fn to_json(scene: &Scene, theme: &Theme) -> String {
     let elements = render_elements(scene, theme);
     let doc = ExScene::new(elements, color_hex(theme.background));
-    // serde derives on plain data — serialization is infallible here.
-    serde_json::to_string(&doc).unwrap_or_default()
+    // ExScene is plain serde-derived data with no maps keyed by non-strings and
+    // no custom Serialize, so this cannot fail. Panicking beats unwrap_or_default:
+    // an empty string would be a silently-corrupt document a caller treats as ok.
+    serde_json::to_string(&doc).expect("ExScene serialization is infallible")
 }
 
 /// `#rrggbb` for an (opaque) [`Color`].
@@ -89,6 +91,65 @@ mod tests {
                 shape.bound_elements.iter().any(|be| be.id == arrow.id),
                 "shape {shape_id} lists the arrow as a back-ref"
             );
+        }
+    }
+
+    #[test]
+    fn arrow_into_a_diamond_node_leaves_the_unbindable_end_unbound() {
+        // A decision node `{...}` lowers to a Polygon → an Excalidraw `line`, and
+        // Excalidraw refuses bindings to a line. The arrow must bind its bindable
+        // end (the rectangle) and leave the diamond end unbound, with no back-ref
+        // on the line — so start/end and boundElements stay symmetric per endpoint.
+        let theme = Theme::light();
+        let scene = rusty_mermaid_diagrams::render_to_scene(
+            "graph TD\n    A[Start] --> B{Decision}",
+            &theme,
+        )
+        .unwrap();
+        let elements = render_elements(&scene, &theme);
+
+        let arrow = elements
+            .iter()
+            .find(|e| matches!(e.kind, ElementKind::Arrow { .. }))
+            .expect("one arrow for A-->B");
+        let ElementKind::Arrow {
+            start_binding,
+            end_binding,
+            ..
+        } = &arrow.kind
+        else {
+            panic!("expected an arrow");
+        };
+        let start = start_binding
+            .as_ref()
+            .expect("start binds to the rectangle (A)");
+        assert!(
+            end_binding.is_none(),
+            "the diamond end (B) is a line — Excalidraw won't bind it, so we don't"
+        );
+
+        // The diamond did lower to a line, and no line carries an arrow back-ref.
+        assert!(
+            elements
+                .iter()
+                .any(|e| matches!(e.kind, ElementKind::Line { .. })),
+            "the diamond lowered to a line"
+        );
+        let rect = elements
+            .iter()
+            .find(|e| e.id == start.element_id)
+            .expect("the bound rectangle exists");
+        assert!(
+            rect.bound_elements.iter().any(|be| be.id == arrow.id),
+            "the rectangle lists the arrow as a back-ref"
+        );
+        for e in &elements {
+            if matches!(e.kind, ElementKind::Line { .. }) {
+                assert!(
+                    e.bound_elements.is_empty(),
+                    "a line never hosts an arrow back-ref"
+                );
+            }
         }
     }
 

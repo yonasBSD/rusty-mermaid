@@ -61,9 +61,12 @@ pub struct ExElement {
     pub kind: ElementKind,
 }
 
-/// Type-specific element data, tagged by Excalidraw's `type` field.
+/// Type-specific element data, tagged by Excalidraw's `type` field. Excalidraw's
+/// type tags are all lowercase single words (`rectangle`, `freedraw`, ...), so
+/// the tag is renamed `lowercase`, not `camelCase` — the latter only coincides
+/// with the wire format while every variant stays one word.
 #[derive(Debug, Clone, Serialize)]
-#[serde(tag = "type", rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "lowercase")]
 pub enum ElementKind {
     Rectangle,
     Ellipse,
@@ -81,8 +84,8 @@ pub enum ElementKind {
         line_height: f64,
         original_text: String,
     },
-    /// A connector. `line` for plain polylines (closed polygons too), `arrow`
-    /// when an endpoint has an arrowhead — both share this shape.
+    /// A connector arrow: carries optional endpoint bindings and arrowheads. The
+    /// plain-polyline / closed-polygon case (no arrowheads) is the `Line` variant.
     #[serde(rename_all = "camelCase")]
     Arrow {
         points: Vec<[f64; 2]>,

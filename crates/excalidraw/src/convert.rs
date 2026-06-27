@@ -63,12 +63,20 @@ impl<'a> Converter<'a> {
     fn emit(&mut self, primitive: &Primitive, source: Option<&ElementId>) {
         if let Primitive::Group { children, .. } = primitive {
             let gid = self.mint_id();
+            let group_start = self.elements.len();
             for child in children {
                 let before = self.elements.len();
                 self.emit(child, None);
                 for el in &mut self.elements[before..] {
                     el.group_ids.push(gid.clone());
                 }
+            }
+            // A group carrying a source id (a node rendered as a group) is bound
+            // via its first emitted child, so edges to it still resolve.
+            if let Some(src) = source
+                && self.elements.len() > group_start
+            {
+                self.index.insert(src.clone(), group_start);
             }
             return;
         }
@@ -306,8 +314,9 @@ impl<'a> Converter<'a> {
             opacity: opacity_pct(style.opacity),
             group_ids: Vec::new(),
             roundness: None,
-            // Deterministic per element (golden tests). diagrammy re-stamps fresh
-            // seed/versionNonce on ingest.
+            // Deterministic per element so output is reproducible and
+            // golden-testable. A consumer merging several diagrams onto one
+            // canvas should re-stamp seed/versionNonce to keep them unique.
             seed: n.wrapping_mul(2_654_435_761).wrapping_add(1),
             version: 1,
             version_nonce: n.wrapping_mul(40_503).wrapping_add(7),
@@ -330,11 +339,18 @@ impl<'a> Converter<'a> {
             ) else {
                 continue; // an endpoint or edge that didn't emit an element
             };
-            // Only arrows bind in Excalidraw; a plain line edge can't.
+            // Only an arrow carries bindings; a plain line edge can't.
             if !matches!(self.elements[ei].kind, ElementKind::Arrow { .. }) {
                 continue;
             }
+            // Bind each end ONLY to a bindable host. Excalidraw refuses a binding
+            // to a `line` (a diamond/polygon node lowers to one) and drops it on
+            // import — so emitting one would be a dead binding the canvas silently
+            // discards. Per-endpoint binding keeps start/end + boundElements
+            // symmetric for whichever ends actually bind.
             let arrow_id = self.elements[ei].id.clone();
+            let bind_start = is_bindable(&self.elements[si].kind);
+            let bind_end = is_bindable(&self.elements[di].kind);
             let src_id = self.elements[si].id.clone();
             let dst_id = self.elements[di].id.clone();
             if let ElementKind::Arrow {
@@ -343,24 +359,29 @@ impl<'a> Converter<'a> {
                 ..
             } = &mut self.elements[ei].kind
             {
-                *start_binding = Some(Binding {
-                    element_id: src_id,
-                    focus: 0.0,
-                    gap: 4.0,
-                });
-                *end_binding = Some(Binding {
-                    element_id: dst_id,
-                    focus: 0.0,
-                    gap: 4.0,
+                if bind_start {
+                    *start_binding = Some(Binding {
+                        element_id: src_id,
+                        focus: 0.0,
+                        gap: 4.0,
+                    });
+                }
+                if bind_end {
+                    *end_binding = Some(Binding {
+                        element_id: dst_id,
+                        focus: 0.0,
+                        gap: 4.0,
+                    });
+                }
+            }
+            if bind_start {
+                self.elements[si].bound_elements.push(BoundElement {
+                    id: arrow_id.clone(),
+                    kind: "arrow".to_string(),
                 });
             }
-            self.elements[si].bound_elements.push(BoundElement {
-                id: arrow_id.clone(),
-                kind: "arrow".to_string(),
-            });
-            // A self-loop (e.g. a sequence self-message) binds the same shape on
-            // both ends — record the back-ref once, not twice.
-            if di != si {
+            // Self-loop dedup: the same shape on both ends lists the arrow once.
+            if bind_end && di != si {
                 self.elements[di].bound_elements.push(BoundElement {
                     id: arrow_id,
                     kind: "arrow".to_string(),
@@ -368,6 +389,18 @@ impl<'a> Converter<'a> {
             }
         }
     }
+}
+
+/// Whether an Excalidraw element kind can host an arrow binding. Excalidraw
+/// rejects bindings to `line`/`arrow`; a diamond/polygon node lowers to `line`.
+fn is_bindable(kind: &ElementKind) -> bool {
+    matches!(
+        kind,
+        ElementKind::Rectangle
+            | ElementKind::Ellipse
+            | ElementKind::Diamond
+            | ElementKind::Text { .. }
+    )
 }
 
 /// Flatten path segments to an absolute polyline (cubics/quads → `CUBIC_STEPS`
