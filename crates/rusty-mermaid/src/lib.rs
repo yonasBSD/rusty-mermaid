@@ -80,5 +80,19 @@ pub mod viewport {
     pub use rusty_mermaid_viewport::*;
 }
 
+// ── Feature: layout ──
+
+/// Generic graph layout for a consumer that lays out its own graphs (not just
+/// mermaid diagrams). `dagre::prelude::*` gives everything to build a graph, run
+/// the layered layout, and read positions back; `force_layout` is the
+/// force-directed engine, which honors fixed (pinned) nodes.
+#[cfg(feature = "layout")]
+pub mod dagre {
+    pub use rusty_mermaid_dagre::*;
+}
+
+#[cfg(feature = "layout")]
+pub use rusty_mermaid_core::force_layout;
+
 // GPU backends (wgpu, gpui) are not published to crates.io.
 // Use path deps directly: rusty-mermaid-wgpu / rusty-mermaid-gpui.

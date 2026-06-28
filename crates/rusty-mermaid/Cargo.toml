@@ -20,6 +20,9 @@ rusty-mermaid-excalidraw = { workspace = true, optional = true }
 rusty-mermaid-raster = { workspace = true, optional = true }
 rusty-mermaid-viewport = { workspace = true, optional = true }
 
+# Opt-in layout algorithms (dagre brings graph + core transitively)
+rusty-mermaid-dagre = { workspace = true, optional = true }
+
 # GPU backends — not published to crates.io, use path deps directly
 # rusty-mermaid-wgpu = { workspace = true, optional = true }
 # rusty-mermaid-gpui = { workspace = true, optional = true }
@@ -30,3 +33,6 @@ svg = ["dep:rusty-mermaid-svg"]
 excalidraw = ["dep:rusty-mermaid-excalidraw"]
 raster = ["dep:rusty-mermaid-raster"]
 viewport = ["dep:rusty-mermaid-viewport"]
+# Generic graph layout: the dagre prelude + the force-directed layout, for a
+# consumer that lays out its own graphs (not just mermaid diagrams).
+layout = ["dep:rusty-mermaid-dagre"]
