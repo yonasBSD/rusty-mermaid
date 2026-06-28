@@ -63,3 +63,25 @@ pub mod util;
 
 pub use config::{Acyclicer, Align, DagreConfig, RankAlign, Ranker};
 pub use labels::{EdgeLabel, LabelPos, NodeLabel};
+
+/// Everything needed to build a graph, run the layout, and read results, in one
+/// import: `use rusty_mermaid_dagre::prelude::*;`. Pulls the graph + geometry
+/// types from the sibling crates so a consumer needn't depend on their paths.
+///
+/// ```
+/// use rusty_mermaid_dagre::prelude::*;
+///
+/// let mut g: Graph<NodeLabel, EdgeLabel> = Graph::new();
+/// let a = g.add_node(NodeLabel::new(60.0, 30.0));
+/// let b = g.add_node(NodeLabel::new(60.0, 30.0));
+/// g.add_edge(a, b, EdgeLabel::default());
+/// layout(&mut g, &DagreConfig::default());
+/// assert!(g.node(b).unwrap().y > g.node(a).unwrap().y); // TB: b ranks below a
+/// ```
+pub mod prelude {
+    pub use crate::config::DagreConfig;
+    pub use crate::labels::{EdgeLabel, NodeLabel};
+    pub use crate::pipeline::layout;
+    pub use rusty_mermaid_core::{Direction, Point};
+    pub use rusty_mermaid_graph::{EdgeId, Graph, NodeId};
+}
