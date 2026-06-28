@@ -339,18 +339,26 @@ impl<'a> Converter<'a> {
             ) else {
                 continue; // an endpoint or edge that didn't emit an element
             };
-            // Only an arrow carries bindings; a plain line edge can't.
-            if !matches!(self.elements[ei].kind, ElementKind::Arrow { .. }) {
-                continue;
-            }
             // Bind each end ONLY to a bindable host. Excalidraw refuses a binding
             // to a `line` (a diamond/polygon node lowers to one) and drops it on
             // import — so emitting one would be a dead binding the canvas silently
             // discards. Per-endpoint binding keeps start/end + boundElements
             // symmetric for whichever ends actually bind.
-            let arrow_id = self.elements[ei].id.clone();
             let bind_start = is_bindable(&self.elements[si].kind);
             let bind_end = is_bindable(&self.elements[di].kind);
+            if !bind_start && !bind_end {
+                continue; // neither endpoint can bind — leave the edge as it lowered
+            }
+            // A bound edge must be an Excalidraw `arrow` to carry the binding. A
+            // markerless connector (an ER relationship, a mindmap/treeview link, a
+            // plain class association) lowered to a `line`; upgrade it in place to
+            // a headless arrow — visually identical, but now bindable. Anything
+            // that still isn't an arrow (a stray shape id) is skipped.
+            upgrade_line_to_arrow(&mut self.elements[ei].kind);
+            if !matches!(self.elements[ei].kind, ElementKind::Arrow { .. }) {
+                continue;
+            }
+            let arrow_id = self.elements[ei].id.clone();
             let src_id = self.elements[si].id.clone();
             let dst_id = self.elements[di].id.clone();
             if let ElementKind::Arrow {
@@ -389,6 +397,28 @@ impl<'a> Converter<'a> {
             }
         }
     }
+}
+
+/// Upgrade a markerless connector `Line` to a headless `Arrow` in place, so a
+/// recorded edge binding can attach to it. A no-op for any other kind (already
+/// an arrow, or a shape). The geometry is preserved; only bindings (which an
+/// Excalidraw `line` cannot hold) become possible.
+fn upgrade_line_to_arrow(kind: &mut ElementKind) {
+    let ElementKind::Line {
+        points,
+        last_committed_point,
+    } = kind
+    else {
+        return;
+    };
+    *kind = ElementKind::Arrow {
+        points: std::mem::take(points),
+        last_committed_point: last_committed_point.take(),
+        start_binding: None,
+        end_binding: None,
+        start_arrowhead: None,
+        end_arrowhead: None,
+    };
 }
 
 /// Whether an Excalidraw element kind can host an arrow binding. Excalidraw

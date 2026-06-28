@@ -2,8 +2,8 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
-    TextStyle, Theme,
+    BBox, Color, EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, SimpleTextMeasure,
+    Style, TextAnchor, TextStyle, Theme,
     force_layout::{ForceConfig, ForceGraph, ForceNode, layout as force_layout},
 };
 
@@ -102,36 +102,53 @@ fn layout_nodes(flat_nodes: &mut [FlatNode], edges: &[(usize, usize)], theme: &T
     }
 }
 
+// Nodes have no ids in the IR; identity is the flat-node index. The same
+// `node_id` formula is used here and at the node-tag site so bindings resolve.
+fn node_id(idx: usize) -> ElementId {
+    ElementId::node(format!("n{idx}"))
+}
+
 fn render_mindmap_edges(scene: &mut Scene, flat_nodes: &[FlatNode], edges: &[(usize, usize)]) {
-    for &(parent_idx, child_idx) in edges {
+    for (edge_idx, &(parent_idx, child_idx)) in edges.iter().enumerate() {
         let p = &flat_nodes[parent_idx];
         let c = &flat_nodes[child_idx];
         let color = section_color(c.section);
         let alpha_color = Color::rgba(color.r, color.g, color.b, 150);
 
         let mid_x = (p.x + c.x) / 2.0;
-        scene.push(Primitive::Path {
-            segments: vec![
-                PathSegment::MoveTo(Point::new(p.x, p.y)),
-                PathSegment::CubicTo {
-                    cp1: Point::new(mid_x, p.y),
-                    cp2: Point::new(mid_x, c.y),
-                    to: Point::new(c.x, c.y),
+        // The link has no arrowhead; the binding upgrades it to a headless arrow
+        // so it stays a live parent→child connector on the canvas.
+        let edge_id = ElementId::edge(format!("n{parent_idx}->n{child_idx}#{edge_idx}"));
+        scene.push_identified(
+            Primitive::Path {
+                segments: vec![
+                    PathSegment::MoveTo(Point::new(p.x, p.y)),
+                    PathSegment::CubicTo {
+                        cp1: Point::new(mid_x, p.y),
+                        cp2: Point::new(mid_x, c.y),
+                        to: Point::new(c.x, c.y),
+                    },
+                ],
+                style: Style {
+                    stroke: Some(alpha_color),
+                    stroke_width: Some(2.0),
+                    ..Default::default()
                 },
-            ],
-            style: Style {
-                stroke: Some(alpha_color),
-                stroke_width: Some(2.0),
-                ..Default::default()
+                marker_start: None,
+                marker_end: None,
             },
-            marker_start: None,
-            marker_end: None,
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: node_id(parent_idx),
+            dst: node_id(child_idx),
         });
     }
 }
 
 fn render_mindmap_nodes(scene: &mut Scene, flat_nodes: &[FlatNode], theme: &Theme) {
-    for node in flat_nodes {
+    for (idx, node) in flat_nodes.iter().enumerate() {
         let color = section_color(node.section);
         let is_root = node.depth == 0;
         let is_parent = node.has_children;
@@ -161,7 +178,11 @@ fn render_mindmap_nodes(scene: &mut Scene, flat_nodes: &[FlatNode], theme: &Them
         };
 
         let bbox = BBox::new(node.x, node.y, node.width, node.height);
+        let first = scene.len();
         render_shape(scene, &bbox, node.shape, fill, stroke);
+        if scene.len() > first {
+            scene.set_id(first, node_id(idx));
+        }
 
         scene.push(Primitive::Text {
             position: Point::new(node.x, node.y),

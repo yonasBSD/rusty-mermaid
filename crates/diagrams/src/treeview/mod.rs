@@ -2,7 +2,8 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
+    EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle,
+    Theme,
 };
 
 use ir::{TreeNode, TreeView};
@@ -75,14 +76,33 @@ fn render_connectors(scene: &mut Scene, rows: &[FlatRow], line_style: &Style) {
     }
 }
 
+// Rows have no ids in the IR; identity is the row index. The same formula is
+// used here and at the label-tag site so bindings resolve.
+fn row_id(idx: usize) -> ElementId {
+    ElementId::node(format!("r{idx}"))
+}
+
+// The horizontal stub from a parent's column to a child label is the natural
+// 1:1 parent→child connector, so it carries the binding. The vertical
+// connectors span several children and stay plain structural lines.
+//
+// O(n) over the rows: a depth stack yields each row's parent (the nearest
+// preceding row one level shallower) in amortized O(1).
 fn render_stubs(scene: &mut Scene, rows: &[FlatRow], line_style: &Style) {
+    let mut ancestors: Vec<usize> = Vec::new();
     for (row_idx, row) in rows.iter().enumerate() {
+        while ancestors
+            .last()
+            .is_some_and(|&p| rows[p].depth >= row.depth)
+        {
+            ancestors.pop();
+        }
+        let parent = ancestors.last().copied();
         if row.depth > 0 {
             let x = SCENE_PAD + row.depth as f64 * INDENT_W;
             let y = SCENE_PAD + row_idx as f64 * LINE_H + LINE_H / 2.0;
             let parent_vx = x - INDENT_W + CONNECTOR_GAP;
-
-            scene.push(Primitive::Path {
+            let stub = Primitive::Path {
                 segments: vec![
                     PathSegment::MoveTo(Point::new(parent_vx, y)),
                     PathSegment::LineTo(Point::new(x - 2.0, y)),
@@ -90,8 +110,22 @@ fn render_stubs(scene: &mut Scene, rows: &[FlatRow], line_style: &Style) {
                 style: line_style.clone(),
                 marker_start: None,
                 marker_end: None,
-            });
+            };
+            // The stub has no arrowhead; the binding upgrades it to a headless
+            // arrow so the parent→child link is a live connector on the canvas.
+            if let Some(parent_idx) = parent {
+                let edge_id = ElementId::edge(format!("r{parent_idx}->r{row_idx}#{row_idx}"));
+                scene.push_identified(stub, edge_id.clone());
+                scene.push_edge_binding(EdgeBinding {
+                    edge: edge_id,
+                    src: row_id(parent_idx),
+                    dst: row_id(row_idx),
+                });
+            } else {
+                scene.push(stub);
+            }
         }
+        ancestors.push(row_idx);
     }
 }
 
@@ -117,6 +151,7 @@ fn render_tree_labels(scene: &mut Scene, rows: &[FlatRow], theme: &Theme) {
                 ..Default::default()
             },
         });
+        scene.set_id(scene.len() - 1, row_id(row_idx));
     }
 }
 

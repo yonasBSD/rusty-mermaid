@@ -3,8 +3,8 @@ pub mod ir;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, CurveType, PathSegment, Point, Primitive, Scene, Style, TextAnchor, TextStyle, Theme,
-    interpolate,
+    BBox, CurveType, EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, Style,
+    TextAnchor, TextStyle, Theme, interpolate,
 };
 
 use crate::common::palette::DOTTED_PATTERN;
@@ -39,12 +39,15 @@ fn render_entity(entity: &bridge::EntityLayout, scene: &mut Scene, theme: &Theme
         stroke_width: Some(theme.default_stroke_width),
         ..Default::default()
     });
-    scene.push(Primitive::Rect {
-        bbox: BBox::new(entity.x, entity.y, entity.width, entity.height),
-        rx: 0.0,
-        ry: 0.0,
-        style,
-    });
+    scene.push_identified(
+        Primitive::Rect {
+            bbox: BBox::new(entity.x, entity.y, entity.width, entity.height),
+            rx: 0.0,
+            ry: 0.0,
+            style,
+        },
+        ElementId::node(&entity.id),
+    );
 
     // Title
     let title_cy = top + entity.title_height / 2.0;
@@ -140,7 +143,7 @@ const MARKER_SIZE: f64 = 8.0;
 const MARKER_GAP: f64 = 2.0;
 
 fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
-    for edge_layout in &layout.edges {
+    for (idx, edge_layout) in layout.edges.iter().enumerate() {
         let edge = &edge_layout.edge;
         if edge.points.len() < 2 {
             continue;
@@ -159,11 +162,26 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             style.stroke_dasharray = Some(DOTTED_PATTERN.to_vec());
         }
 
-        scene.push(Primitive::Path {
-            segments,
-            style,
-            marker_start: None,
-            marker_end: None,
+        // The relationship line has no central arrowhead (crow's-foot notation
+        // lives in the separate marker primitives below); the binding upgrades it
+        // to a headless arrow so it stays a live connector on the canvas. The
+        // crow's-foot prongs are static decorations drawn at the layout
+        // endpoints, so they won't re-route if a user later drags an entity —
+        // the connector follows, the cardinality glyphs stay put.
+        let edge_id = ElementId::edge(format!("{}->{}#{}", edge.src, edge.dst, idx));
+        scene.push_identified(
+            Primitive::Path {
+                segments,
+                style,
+                marker_start: None,
+                marker_end: None,
+            },
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: ElementId::node(&edge.src),
+            dst: ElementId::node(&edge.dst),
         });
 
         // Edge label

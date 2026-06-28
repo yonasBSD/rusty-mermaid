@@ -248,6 +248,21 @@ mod tests {
     }
 
     #[test]
+    fn er_relationships_bind_to_their_entities() {
+        assert_has_a_symmetric_bound_arrow("erDiagram\n    CUSTOMER ||--o{ ORDER : places");
+    }
+
+    #[test]
+    fn mindmap_links_bind_parent_to_child() {
+        assert_has_a_symmetric_bound_arrow("mindmap\n    Root\n        Alpha\n        Beta");
+    }
+
+    #[test]
+    fn treeview_links_bind_parent_to_child() {
+        assert_has_a_symmetric_bound_arrow("treeView-beta\n    root\n        a\n        b");
+    }
+
+    #[test]
     fn composite_state_boundary_transitions_bind() {
         // A transition into a composite state must bind to the composite's
         // container (tagged `Compound`) as well as to the leaf transition inside
@@ -261,6 +276,38 @@ mod tests {
             2,
             "the boundary transition and the inner leaf transition both bind"
         );
+    }
+
+    #[test]
+    fn a_markerless_bound_edge_becomes_a_headless_bindable_arrow() {
+        // A plain class association has no arrowhead, so it lowers to a `line`,
+        // which can't carry a binding. A bound edge must be a (headless) arrow —
+        // visually identical to the line, but now bindable and hand-editable.
+        let theme = Theme::light();
+        let scene = rusty_mermaid_diagrams::render_to_scene(
+            "classDiagram\n    class A\n    class B\n    A -- B",
+            &theme,
+        )
+        .unwrap();
+        let elements = render_elements(&scene, &theme);
+        let arrow = elements
+            .iter()
+            .find_map(|e| match &e.kind {
+                ElementKind::Arrow {
+                    start_arrowhead,
+                    end_arrowhead,
+                    start_binding,
+                    end_binding,
+                    ..
+                } => Some((
+                    start_arrowhead.is_none() && end_arrowhead.is_none(),
+                    start_binding.is_some() && end_binding.is_some(),
+                )),
+                _ => None,
+            })
+            .expect("the plain association is a (headless) arrow, not a line");
+        assert!(arrow.0, "a plain association carries no visible arrowhead");
+        assert!(arrow.1, "both ends are bound");
     }
 
     #[test]
