@@ -4,8 +4,8 @@ pub mod parser;
 use std::collections::HashMap;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
-    TextStyle, Theme, intersect_rect,
+    BBox, Color, EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, SimpleTextMeasure,
+    Style, TextAnchor, TextStyle, Theme, intersect_rect,
 };
 
 /// Element position: (x, y, width, height).
@@ -193,7 +193,7 @@ fn render_edges(
 
     let mut edge_labels: Vec<(f64, f64, String)> = Vec::new();
 
-    for rel in &diagram.relationships {
+    for (idx, rel) in diagram.relationships.iter().enumerate() {
         let Some(&(x1, y1, _, h1)) = positions.get(&rel.from) else {
             continue;
         };
@@ -210,15 +210,24 @@ fn render_edges(
         let len = (dx * dx + dy * dy).sqrt().max(1.0);
         let end = Point::new(raw_end.x - 2.0 * dx / len, raw_end.y - 2.0 * dy / len);
 
-        scene.push(Primitive::Path {
-            segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
-            style: Style {
-                stroke: Some(theme.grid_stroke),
-                stroke_width: Some(1.2),
-                ..Default::default()
+        let edge_id = ElementId::edge(format!("{}->{}#{}", rel.from, rel.to, idx));
+        scene.push_identified(
+            Primitive::Path {
+                segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
+                style: Style {
+                    stroke: Some(theme.grid_stroke),
+                    stroke_width: Some(1.2),
+                    ..Default::default()
+                },
+                marker_start: None,
+                marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
             },
-            marker_start: None,
-            marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: ElementId::node(&rel.from),
+            dst: ElementId::node(&rel.to),
         });
 
         let label = if let Some(tech) = &rel.technology {
@@ -243,7 +252,11 @@ fn render_elements(scene: &mut Scene, diagram: &C4Diagram, positions: &PositionM
         let Some(&(cx, cy, ew, _)) = positions.get(&elem.alias) else {
             continue;
         };
+        let first = scene.len();
         render_element(scene, elem, cx, cy, ew, theme);
+        if scene.len() > first {
+            scene.set_id(first, ElementId::node(&elem.alias));
+        }
     }
 }
 

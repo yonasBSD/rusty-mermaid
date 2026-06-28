@@ -4,8 +4,8 @@ pub mod parser;
 use std::collections::HashMap;
 
 use rusty_mermaid_core::{
-    BBox, Color, PathSegment, Point, Primitive, Scene, SimpleTextMeasure, Style, TextAnchor,
-    TextStyle, Theme, intersect_rect,
+    BBox, Color, EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, SimpleTextMeasure,
+    Style, TextAnchor, TextStyle, Theme, intersect_rect,
 };
 
 use crate::common::palette::tint_color;
@@ -50,6 +50,7 @@ pub fn to_scene(diagram: &BlockDiagram, theme: &Theme) -> Scene {
         let Some(&(cx, cy, bw)) = positions.get(&block.id) else {
             continue;
         };
+        let first = scene.len();
         render_block(
             &mut scene,
             block,
@@ -57,6 +58,9 @@ pub fn to_scene(diagram: &BlockDiagram, theme: &Theme) -> Scene {
             COLORS[i % COLORS.len()],
             theme,
         );
+        if scene.len() > first {
+            scene.set_id(first, ElementId::node(&block.id));
+        }
     }
 
     scene
@@ -91,7 +95,7 @@ fn render_block_edges(
     positions: &HashMap<String, (f64, f64, f64)>,
     theme: &Theme,
 ) {
-    for edge in edges {
+    for (idx, edge) in edges.iter().enumerate() {
         let Some(&(x1, y1, w1)) = positions.get(&edge.from) else {
             continue;
         };
@@ -123,11 +127,20 @@ fn render_block_edges(
                 ..Default::default()
             },
         };
-        scene.push(Primitive::Path {
-            segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
-            style,
-            marker_start: None,
-            marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+        let edge_id = ElementId::edge(format!("{}->{}#{}", edge.from, edge.to, idx));
+        scene.push_identified(
+            Primitive::Path {
+                segments: vec![PathSegment::MoveTo(start), PathSegment::LineTo(end)],
+                style,
+                marker_start: None,
+                marker_end: Some(rusty_mermaid_core::MarkerType::ArrowPoint),
+            },
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: ElementId::node(&edge.from),
+            dst: ElementId::node(&edge.to),
         });
         if let Some(label) = &edge.label {
             scene.push(Primitive::Text {

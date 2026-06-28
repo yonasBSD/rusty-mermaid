@@ -153,6 +153,140 @@ mod tests {
         }
     }
 
+    /// Render mermaid, convert, and assert at least one arrow is LIVE-bound on
+    /// both ends — i.e. it survives both backend gates (a marker made it an
+    /// `Arrow`, and both endpoints are bindable shapes) and the binding is
+    /// symmetric (each endpoint shape lists the arrow in `bound_elements`).
+    fn assert_has_a_symmetric_bound_arrow(src: &str) {
+        let theme = Theme::light();
+        let scene = rusty_mermaid_diagrams::render_to_scene(src, &theme).unwrap();
+        let elements = render_elements(&scene, &theme);
+        let bound = elements.iter().find_map(|e| {
+            let ElementKind::Arrow {
+                start_binding: Some(s),
+                end_binding: Some(d),
+                ..
+            } = &e.kind
+            else {
+                return None;
+            };
+            Some((e.id.clone(), s.element_id.clone(), d.element_id.clone()))
+        });
+        let (arrow_id, src_id, dst_id) =
+            bound.unwrap_or_else(|| panic!("no fully-bound arrow in {src:?}"));
+        for shape_id in [&src_id, &dst_id] {
+            let shape = elements
+                .iter()
+                .find(|e| &e.id == shape_id)
+                .unwrap_or_else(|| panic!("bound shape {shape_id} exists for {src:?}"));
+            assert!(
+                shape.bound_elements.iter().any(|be| be.id == arrow_id),
+                "shape {shape_id} back-refs its arrow in {src:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn requirement_edges_bind_to_their_entities() {
+        assert_has_a_symmetric_bound_arrow(
+            "requirementDiagram\n    requirement A {\n        id: A\n    }\n    element B {\n        type: Module\n    }\n    B - satisfies -> A",
+        );
+    }
+
+    #[test]
+    fn c4_relationships_bind_to_their_elements() {
+        assert_has_a_symmetric_bound_arrow(
+            "C4Context\n    Person(admin, \"Admin\")\n    System(crm, \"CRM\")\n    Rel(admin, crm, \"Manages\")",
+        );
+    }
+
+    #[test]
+    fn class_typed_relations_bind_to_their_classes() {
+        assert_has_a_symmetric_bound_arrow(
+            "classDiagram\n    class Animal\n    class Dog\n    Animal <|-- Dog",
+        );
+    }
+
+    #[test]
+    fn block_edges_bind_to_their_blocks() {
+        assert_has_a_symmetric_bound_arrow(
+            "block-beta\n    a[\"Source\"]\n    b[\"Target\"]\n    a --> b",
+        );
+    }
+
+    #[test]
+    fn state_transitions_bind_to_their_states() {
+        assert_has_a_symmetric_bound_arrow(
+            "stateDiagram-v2\n    [*] --> Idle\n    Idle --> Running : go\n    Running --> Idle : stop",
+        );
+    }
+
+    /// Count arrows that are LIVE-bound on both ends with symmetric back-refs.
+    fn count_symmetric_bound_arrows(src: &str) -> usize {
+        let theme = Theme::light();
+        let scene = rusty_mermaid_diagrams::render_to_scene(src, &theme).unwrap();
+        let elements = render_elements(&scene, &theme);
+        elements
+            .iter()
+            .filter(|e| {
+                let ElementKind::Arrow {
+                    start_binding: Some(s),
+                    end_binding: Some(d),
+                    ..
+                } = &e.kind
+                else {
+                    return false;
+                };
+                let backs = |id: &str| {
+                    elements
+                        .iter()
+                        .any(|x| x.id == *id && x.bound_elements.iter().any(|be| be.id == e.id))
+                };
+                backs(&s.element_id) && backs(&d.element_id)
+            })
+            .count()
+    }
+
+    #[test]
+    fn composite_state_boundary_transitions_bind() {
+        // A transition into a composite state must bind to the composite's
+        // container (tagged `Compound`) as well as to the leaf transition inside
+        // it. The edge must reference the composite by its Compound id, not Node,
+        // or apply_bindings can't resolve the endpoint and drops the WHOLE
+        // binding — both the boundary arrow and the inner leaf arrow should bind.
+        assert_eq!(
+            count_symmetric_bound_arrows(
+                "stateDiagram-v2\n    Outside --> Inner\n    state Inner {\n        A --> B\n    }"
+            ),
+            2,
+            "the boundary transition and the inner leaf transition both bind"
+        );
+    }
+
+    #[test]
+    fn self_loop_lists_its_arrow_once() {
+        // A self-edge binds the same node on both ends; the node must list the
+        // arrow exactly once (the di != si dedup in apply_bindings), not twice.
+        let theme = Theme::light();
+        let scene =
+            rusty_mermaid_diagrams::render_to_scene("graph TD\n    A --> A", &theme).unwrap();
+        let elements = render_elements(&scene, &theme);
+        let arrow = elements
+            .iter()
+            .find(|e| matches!(e.kind, ElementKind::Arrow { .. }))
+            .expect("a self-loop arrow");
+        let node = elements
+            .iter()
+            .find(|e| matches!(e.kind, ElementKind::Rectangle) && !e.bound_elements.is_empty())
+            .expect("the node the self-loop binds");
+        let refs = node
+            .bound_elements
+            .iter()
+            .filter(|be| be.id == arrow.id)
+            .count();
+        assert_eq!(refs, 1, "self-loop arrow listed once, not duplicated");
+    }
+
     #[test]
     fn node_shapes_map_to_excalidraw_kinds() {
         let theme = Theme::light();

@@ -4,8 +4,8 @@ mod parse_relations;
 pub mod parser;
 
 use rusty_mermaid_core::{
-    BBox, CurveType, MarkerType, PathSegment, Point, Primitive, Scene, Style, TextAnchor,
-    TextStyle, Theme, interpolate,
+    BBox, CurveType, EdgeBinding, ElementId, MarkerType, PathSegment, Point, Primitive, Scene,
+    Style, TextAnchor, TextStyle, Theme, interpolate,
 };
 
 use crate::common::palette::DOTTED_PATTERN;
@@ -64,7 +64,7 @@ fn render_namespaces(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
 // ── Edge rendering ──
 
 fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
-    for edge_layout in &layout.edges {
+    for (idx, edge_layout) in layout.edges.iter().enumerate() {
         let edge = &edge_layout.edge;
         if edge.points.len() < 2 {
             continue;
@@ -87,11 +87,23 @@ fn render_edges(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
             style.stroke_dasharray = Some(DOTTED_PATTERN.to_vec());
         }
 
-        scene.push(Primitive::Path {
-            segments,
-            style,
-            marker_start,
-            marker_end,
+        // A plain association (no marker either end) lowers to a `line`, which
+        // can't host a binding; we still record the edge binding because a typed
+        // relation (which has a marker) becomes an arrow that does bind.
+        let edge_id = ElementId::edge(format!("{}->{}#{}", edge.src, edge.dst, idx));
+        scene.push_identified(
+            Primitive::Path {
+                segments,
+                style,
+                marker_start,
+                marker_end,
+            },
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: ElementId::node(&edge.src),
+            dst: ElementId::node(&edge.dst),
         });
 
         // Edge label
@@ -175,7 +187,11 @@ fn render_cardinality(
 
 fn render_classes(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for class in &layout.classes {
+        let first = scene.len();
         render_class_box(class, scene, theme);
+        if scene.len() > first {
+            scene.set_id(first, ElementId::node(&class.id));
+        }
     }
 }
 

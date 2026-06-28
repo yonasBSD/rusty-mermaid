@@ -6,8 +6,8 @@ pub mod parser;
 mod scope;
 
 use rusty_mermaid_core::{
-    BBox, Color, CurveType, PathSegment, Point, Primitive, Scene, Shape, Style, TextAnchor,
-    TextStyle, Theme, interpolate,
+    BBox, Color, CurveType, EdgeBinding, ElementId, PathSegment, Point, Primitive, Scene, Shape,
+    Style, TextAnchor, TextStyle, Theme, interpolate,
 };
 
 use crate::common::layout::NodeLayout;
@@ -48,6 +48,7 @@ const STATE_END_INNER_INSET: f64 = 4.0;
 
 fn render_compound_nodes(compounds: &[&NodeLayout], scene: &mut Scene, theme: &Theme) {
     for node in compounds {
+        let first = scene.len();
         let bbox = BBox::new(node.x, node.y, node.width, node.height);
         let left = node.x - node.width / 2.0;
         let right = node.x + node.width / 2.0;
@@ -68,6 +69,9 @@ fn render_compound_nodes(compounds: &[&NodeLayout], scene: &mut Scene, theme: &T
             ry: 5.0,
             style: cstyle,
         });
+        // Tag the container box so a transition into/out of the compound state
+        // binds to it (compound is a debug_assert-legal binding endpoint).
+        scene.set_id(first, ElementId::compound(&node.id));
         scene.push(Primitive::Text {
             position: Point::new(node.x, top + COMPOUND_LABEL_OFFSET_Y),
             content: node.label.clone(),
@@ -121,7 +125,17 @@ fn render_edges(
     scene: &mut Scene,
     theme: &Theme,
 ) {
-    for edge in &layout.edges {
+    // A composite (nested) state is rendered as a Compound, not a Node, so a
+    // transition touching it must reference it by its Compound id or
+    // apply_bindings can't resolve the endpoint and drops the whole binding.
+    let endpoint_id = |id: &str| {
+        if compounds.iter().any(|n| n.id == id) {
+            ElementId::compound(id)
+        } else {
+            ElementId::node(id)
+        }
+    };
+    for (idx, edge) in layout.edges.iter().enumerate() {
         if edge.points.len() < 2 {
             continue;
         }
@@ -131,15 +145,24 @@ fn render_edges(
         let marker_end = Some(rusty_mermaid_core::MarkerType::ArrowPoint);
         let sw = theme.default_stroke_width;
         shorten_path_for_markers(&mut segments, None, marker_end, sw);
-        scene.push(Primitive::Path {
-            segments,
-            style: Style {
-                stroke: Some(theme.edge_stroke),
-                stroke_width: Some(sw),
-                ..Default::default()
+        let edge_id = ElementId::edge(format!("{}->{}#{}", edge.src, edge.dst, idx));
+        scene.push_identified(
+            Primitive::Path {
+                segments,
+                style: Style {
+                    stroke: Some(theme.edge_stroke),
+                    stroke_width: Some(sw),
+                    ..Default::default()
+                },
+                marker_start: None,
+                marker_end,
             },
-            marker_start: None,
-            marker_end,
+            edge_id.clone(),
+        );
+        scene.push_edge_binding(EdgeBinding {
+            edge: edge_id,
+            src: endpoint_id(&edge.src),
+            dst: endpoint_id(&edge.dst),
         });
         if let Some(label) = &edge.label {
             let mid = label_pos.unwrap_or(edge.points[edge.points.len() / 2]);
@@ -150,7 +173,11 @@ fn render_edges(
 
 fn render_leaf_nodes(layout: &LayoutResult, scene: &mut Scene, theme: &Theme) {
     for node in layout.nodes.iter().filter(|n| !n.is_compound) {
+        let first = scene.len();
         render_leaf_node(node, scene, theme);
+        if scene.len() > first {
+            scene.set_id(first, ElementId::node(&node.id));
+        }
     }
 }
 
